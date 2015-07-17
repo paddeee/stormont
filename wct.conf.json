@@ -1,0 +1,8 @@
+{
+  "suites": ["app/test"],
+  "plugins": {
+    "local": {
+      "browsers": ["chrome"]
+    }
+  }
+}
