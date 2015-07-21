@@ -15,18 +15,72 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     :host {
       display: block;
     }
+
+    .drop-area {
+      border-style: dashed;
+      color: var(--divider-color);
+      cursor: pointer;
+      height: 150px;
+      font-size: 30px;
+    }
+
+    .files {
+      cursor: pointer;
+      display: block;
+      margin: 0 auto;;
+    }
+
+    .files::-webkit-file-upload-button {
+      visibility: hidden;
+    }
+
+    .files::before {
+      content: 'or click to select files';
+      background: white;
+      padding: 5px;
+      outline: none;
+      white-space: nowrap;
+      -webkit-user-select: none;
+      cursor: pointer;
+      font-size: 16pt;
+      margin: 0 auto;
+    }
+
+    .files:hover::before {
+      border-color: black;
+    }
+
+    .files:active::before {
+      background: -webkit-linear-gradient(top, #e3e3e3, #f9f9f9);
+    }
+
   </style>
   <script src="/scripts/sheet.js"></script>
   <template>
+
     <div id="DropArea"
-         class="drop-area"
+         class="drop-area layout horizontal center center-justified"
+         on-tap="{{handleTap}}"
          on-drop="{{handleFileSelect}}"
-         on-dragover="{{handleDragOver}}"></div>
+         on-dragover="{{handleDragOver}}">
+
+      <div class="vertical layout center center-justified">
+        Drag files to upload
+        <input type="file"
+                  id="files"
+                  class="files"
+                  name="files[]"
+                  on-change="{{handleFilePick}}"
+                  multiple>
+      </div>
+    </div>
+
   </template>
 </dom-module>
 <script>
 (function() {
   Polymer({
+
     is: 'eps-parse-spreadsheet',
 
     properties: {
@@ -42,10 +96,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       //this.$.DropArea.addEventListener('drop', this.handleDrop, false);
     },
 
+    handleTap: function (e) {
+      console.log(e);
+      //this.$.files.click();
+    },
+
     handleFileSelect: function (e) {
       e.stopPropagation();
       e.preventDefault();
       //this.selectFiles(e.dataTransfer.files);
+      console.log(e);
+    },
+
+    handleFilePick: function(e) {
       console.log(e);
     },
 
