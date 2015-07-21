@@ -1,3 +1,4 @@
+<!doctype html>
 <!--
 @license
 Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
@@ -8,8 +9,7 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 
-<!doctype html>
-<html lang="en-gb">
+<html lang="">
 
 <head>
   <meta charset="utf-8">
@@ -62,7 +62,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <template is="dom-bind" id="app">
 
     <paper-drawer-panel id="paperDrawerPanel">
-      <div drawer>
+      <!-- Drawer Scroll Header Panel -->
+      <paper-scroll-header-panel drawer fixed>
 
         <!-- Drawer Toolbar -->
         <paper-toolbar id="drawerToolbar">
@@ -70,27 +71,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </paper-toolbar>
 
         <!-- Drawer Content -->
-          <paper-menu class="list" attr-for-selected="data-route" selected="{{route}}" on-iron-select="onMenuSelect">
-              <a data-route="home" href="/">
-                <iron-icon icon="home"></iron-icon>
-                <span>Home</span>
-              </a>
+        <paper-menu class="list" attr-for-selected="data-route" selected="{{route}}" on-iron-select="onMenuSelect">
+          <a data-route="home" href="/">
+            <iron-icon icon="home"></iron-icon>
+            <span>Home</span>
+          </a>
 
-              <a data-route="users" href="/users">
-                <iron-icon icon="info"></iron-icon>
-                <span>Users</span>
-              </a>
+          <a data-route="users" href="/users">
+            <iron-icon icon="info"></iron-icon>
+            <span>Users</span>
+          </a>
 
-              <a data-route="contact" href="/contact">
-                <iron-icon icon="mail"></iron-icon>
-                <span>Contact</span>
-              </a>
-          </paper-menu>
-      </div>
-      <paper-header-panel main mode="waterfall-tall">
+          <a data-route="contact" href="/contact">
+            <iron-icon icon="mail"></iron-icon>
+            <span>Contact</span>
+          </a>
+        </paper-menu>
+      </paper-scroll-header-panel>
+
+      <!-- Main Area -->
+      <paper-scroll-header-panel main condenses keep-condensed-header>
 
         <!-- Main Toolbar -->
-        <paper-toolbar id="mainToolbar">
+        <paper-toolbar id="mainToolbar" class="tall">
           <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle></paper-icon-button>
           <span class="flex"></span>
 
@@ -99,10 +102,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-icon-button icon="search"></paper-icon-button>
 
           <!-- Application name -->
-          <div class="middle paper-font-display2 app-name">Evidential Presentation System</div>
+          <div class="middle middle-container center horizontal layout">
+            <div class="app-name">Evidential Presentation System</div>
+          </div>
 
           <!-- Application sub title -->
-          <div class="bottom title"></div>
+          <div class="bottom bottom-container center horizontal layout">
+            <div class="bottom-title paper-font-subhead">The future of the web today</div>
+          </div>
 
         </paper-toolbar>
 
@@ -170,9 +177,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           </iron-pages>
         </div>
-      </paper-header-panel>
+      </paper-scroll-header-panel>
     </paper-drawer-panel>
 
+    <!-- Uncomment next block to enable Service Worker support (1/2) -->
+    <!--
     <paper-toast id="caching-complete"
                  duration="6000"
                  text="Caching complete! This app will work offline.">
@@ -186,6 +195,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                          precache-file="precache.json">
       </platinum-sw-cache>
     </platinum-sw-register>
+    -->
 
   </template>
 
