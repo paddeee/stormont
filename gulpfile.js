@@ -13,6 +13,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 var gulp = require('gulp');
 var $ = require('gulp-load-plugins')();
 var del = require('del');
+var browserify = require('browserify');
+var source = require('vinyl-source-stream');
+var streamify = require('gulp-streamify');
 var runSequence = require('run-sequence');
 var browserSync = require('browser-sync');
 var reload = browserSync.reload;
@@ -52,6 +55,19 @@ gulp.task('styles', function () {
 
 gulp.task('elements', function () {
   return styleTask('elements', ['**/*.css']);
+});
+
+// Browserify npm modules
+gulp.task('browserify', function () {
+
+  return browserify('app/node-scripts/third-party.js')
+    .bundle()
+    //Pass desired output filename to vinyl-source-stream
+    .pipe(source('bundle.js'))
+    // Uglify
+    //.pipe(streamify($.uglify()))
+    // Start piping stream to tasks!
+    .pipe(gulp.dest('./app/scripts/'));
 });
 
 // Lint JavaScript
@@ -231,7 +247,7 @@ gulp.task('serve:dist', ['default'], function () {
 // Build Production Files, the Default Task
 gulp.task('default', ['clean'], function (cb) {
   runSequence(
-    ['copy', 'styles'],
+    ['browserify', 'copy', 'styles'],
     'elements',
     ['jshint', 'images', 'fonts', 'html'],
     'vulcanize', 'precache',
