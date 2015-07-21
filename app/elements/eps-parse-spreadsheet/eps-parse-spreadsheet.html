@@ -60,9 +60,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <div id="DropArea"
          class="drop-area layout horizontal center center-justified"
-         on-tap="{{handleTap}}"
-         on-drop="{{handleFileSelect}}"
-         on-dragover="{{handleDragOver}}">
+         on-tap="handleTap"
+         on-drop="handleDrop"
+         on-dragover="handleDragOver">
 
       <div class="vertical layout center center-justified">
         Drag files to upload
@@ -70,7 +70,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   id="files"
                   class="files"
                   name="files[]"
-                  on-change="{{handleFilePick}}"
+                  on-change="handleFilePick"
                   multiple>
       </div>
     </div>
@@ -92,37 +92,43 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
-    ready: function() {
-      //this.$.DropArea.addEventListener('drop', this.handleDrop, false);
+    // When Drop area is tapped click the file input element to display Files
+    handleTap: function (event) {
+      this.$.files.click();
     },
 
-    handleTap: function (e) {
-      console.log(e);
-      //this.$.files.click();
-    },
-
-    handleFileSelect: function (e) {
-      e.stopPropagation();
-      e.preventDefault();
-      //this.selectFiles(e.dataTransfer.files);
-      console.log(e);
-    },
-
-    handleFilePick: function(e) {
-      console.log(e);
-    },
-
-    handleDragOver: function (e) {
-      e.stopPropagation();
-      e.preventDefault();
-      //e.dataTransfer.dropEffect = 'copy';
-    },
-
-    handleDrop: function(event) {
+    // When file input value is changed, parse the sheet
+    handleFilePick: function(event) {
       event.stopPropagation();
       event.preventDefault();
-      var files = event.dataTransfer.files;
+      this.parseSheet(event, 'file-input');
+    },
+
+    // When a file is dragged, prevent the default behaviour
+    handleDragOver: function (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    },
+
+    // When a file is dropped, parse the sheet
+    handleDrop: function (event) {
+      event.stopPropagation();
+      event.preventDefault();
+      this.parseSheet(event, 'drop');
+    },
+
+    // Loop through files and convert from binary to a JavaScript object
+    parseSheet: function(event, inputMethod) {
+
+      var files;
       var i, f;
+
+      if (inputMethod === 'file-input') {
+        files = event.target.files;
+      } else if (inputMethod === 'drop') {
+        files = event.dataTransfer.files;
+      }
+
       for (i = 0, f = files[i]; i != files.length; ++i) {
         var reader = new FileReader();
         var name = f.name;
@@ -131,6 +137,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           /* if binary string, read with type 'binary' */
           var workbook = XLSX.read(data, {type: 'binary'});
+
+          console.log(workbook);
 
           /* DO SOMETHING WITH workbook HERE */
         };
