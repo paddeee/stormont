@@ -118,11 +118,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <section data-route="home">
 
               <paper-material elevation="1">
-                <eps-parse-spreadsheet actions="[[actions]]"></eps-parse-spreadsheet>
+                <eps-parse-spreadsheet import-actions="[[importActions]]"></eps-parse-spreadsheet>
               </paper-material>
 
               <paper-material elevation="1">
-                <my-greeting store="[[store]]"></my-greeting>
+                <my-greeting import-store="[[importStore]]"></my-greeting>
 
                 <p class="paper-font-subhead">You now have:</p>
                 <my-list></my-list>

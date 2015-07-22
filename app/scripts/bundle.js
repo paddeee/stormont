@@ -19,10 +19,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 var moment = require('moment');
 var reflux = require('reflux');
-var actions = require('./actions.js'); // All available Reflux actions
-var store = require('./store.js'); // All available Reflux stores
+var importActions = require('./actions/import.js'); // All available Reflux actions
+var importStore = require('./stores/import.js'); // All available Reflux stores
 
-(function(document, reflux, moment, actions, store) {
+(function(document, reflux, moment, importActions, importStore) {
   'use strict';
 
   // Grab a reference to our auto-binding template
@@ -33,9 +33,8 @@ var store = require('./store.js'); // All available Reflux stores
   // Set globals as attributes on app
   app.reflux = reflux;
   app.moment = moment;
-  app.actions = actions;
-  app.store = store;
-  console.log(app.store);
+  app.importActions = importActions;
+  app.importStore = importStore;
 
   app.displayInstalledToast = function() {
     document.querySelector('#caching-complete').show();
@@ -85,29 +84,29 @@ var store = require('./store.js'); // All available Reflux stores
     }
   };
 
-})(document, reflux, moment, actions, store);
+})(document, reflux, moment, importActions, importStore);
 
-},{"./actions.js":1,"./store.js":3,"moment":4,"reflux":5}],3:[function(require,module,exports){
+},{"./actions/import.js":1,"./stores/import.js":3,"moment":4,"reflux":5}],3:[function(require,module,exports){
 'use strict';
 
 var Reflux = require('reflux');
-var TodoActions = require('./actions.js');
+var ImportActions = require('../actions/import.js');
 
 module.exports = Reflux.createStore({
 
   // this will set up listeners to all publishers in TodoActions, using onKeyname (or keyname) as callbacks
-  listenables: [TodoActions],
+  listenables: [ImportActions],
 
   onFileImported: function(flag) {
 
-    var status = flag ? 'ONLINE' : 'OFFLINE';
+    var status = flag ? 'Imported!' : 'Not imported';
 
     // Pass on to listeners
     this.trigger(status);
   }
 });
 
-},{"./actions.js":1,"reflux":5}],4:[function(require,module,exports){
+},{"../actions/import.js":1,"reflux":5}],4:[function(require,module,exports){
 //! moment.js
 //! version : 2.10.3
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors

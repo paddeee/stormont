@@ -100,7 +100,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         notify: true
       },
 
-      actions: {
+      importActions: {
         type: Array,
         notify: true
       }
@@ -155,7 +155,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           var workbook = XLSX.read(data, {type: 'binary'});
 
           console.log(workbook);
-          this.actions.fileImported(0);
+          this.importActions.fileImported(1);
 
           /* DO SOMETHING WITH workbook HERE */
         }.bind(this);
