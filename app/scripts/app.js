@@ -7,13 +7,25 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 */
 
-(function(document) {
+var moment = require('moment');
+var reflux = require('reflux');
+var actions = require('./actions.js'); // All available Reflux actions
+var store = require('./store.js'); // All available Reflux stores
+
+(function(document, reflux, moment, actions, store) {
   'use strict';
 
   // Grab a reference to our auto-binding template
   // and give it some initial binding values
   // Learn more about auto-binding templates at http://goo.gl/Dx1u2g
   var app = document.querySelector('#app');
+
+  // Set globals as attributes on app
+  app.reflux = reflux;
+  app.moment = moment;
+  app.actions = actions;
+  app.store = store;
+  console.log(app.store);
 
   app.displayInstalledToast = function() {
     document.querySelector('#caching-complete').show();
@@ -63,4 +75,4 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
   };
 
-})(document);
+})(document, reflux, moment, actions, store);

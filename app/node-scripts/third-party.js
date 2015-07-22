@@ -1,2 +1,0 @@
-global.moment = require('moment');
-

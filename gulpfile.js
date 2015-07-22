@@ -61,7 +61,7 @@ gulp.task('elements', function () {
 // Browserify npm modules
 gulp.task('browserify', function () {
 
-  return browserify('app/node-scripts/third-party.js')
+  return browserify('app/scripts/app.js')
     .bundle()
     //Pass desired output filename to vinyl-source-stream
     .pipe(source('bundle.js'))

@@ -21,13 +21,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       color: var(--divider-color);
       cursor: pointer;
       height: 150px;
-      font-size: 30px;
+      font-size: 3.5vw;
     }
 
     .files {
       cursor: pointer;
       display: block;
-      margin: 0 auto;;
+      margin: 0 auto;
+      outline: none;
     }
 
     .files::-webkit-file-upload-button {
@@ -37,7 +38,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .files::before {
       content: 'or click to select files';
       background: white;
-      padding: 5px;
+      padding: 15px;
       outline: none;
       white-space: nowrap;
       -webkit-user-select: none;
@@ -54,6 +55,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       background: -webkit-linear-gradient(top, #e3e3e3, #f9f9f9);
     }
 
+    /* Small */
+    @media (max-width: 600px) {
+
+      .drop-area {
+        font-size: 8vw;
+      }
+    }
+
   </style>
   <script src="/scripts/sheet.js"></script>
   <template>
@@ -67,11 +76,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <div class="vertical layout center center-justified">
         Drag files to upload
         <input type="file"
-                  id="files"
-                  class="files"
-                  name="files[]"
-                  on-change="handleFilePick"
-                  multiple>
+               id="files"
+               class="files"
+               name="files[]"
+               on-change="handleFilePick"
+               multiple>
       </div>
     </div>
 
@@ -89,11 +98,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         type: String,
         value: 'bar',
         notify: true
+      },
+
+      actions: {
+        type: Array,
+        notify: true
       }
     },
 
     // When Drop area is tapped click the file input element to display Files
     handleTap: function (event) {
+      event.stopPropagation();
+      event.preventDefault();
       this.$.files.click();
     },
 
@@ -139,9 +155,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           var workbook = XLSX.read(data, {type: 'binary'});
 
           console.log(workbook);
+          this.actions.fileImported(0);
 
           /* DO SOMETHING WITH workbook HERE */
-        };
+        }.bind(this);
         reader.readAsBinaryString(f);
       }
     }

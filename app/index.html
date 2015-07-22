@@ -50,8 +50,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
   <!-- endbuild -->
 
-  <script src="scripts/bundle.js"></script>
-
   <!-- will be replaced with elements/elements.vulcanized.html -->
   <link rel="import" href="elements/elements.html">
   <!-- endreplace-->
@@ -120,11 +118,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <section data-route="home">
 
               <paper-material elevation="1">
-                <eps-parse-spreadsheet></eps-parse-spreadsheet>
+                <eps-parse-spreadsheet actions="[[actions]]"></eps-parse-spreadsheet>
               </paper-material>
 
               <paper-material elevation="1">
-                <my-greeting></my-greeting>
+                <my-greeting store="[[store]]"></my-greeting>
 
                 <p class="paper-font-subhead">You now have:</p>
                 <my-list></my-list>
@@ -201,8 +199,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   </template>
 
-  <!-- build:js scripts/app.js -->
-  <script src="scripts/app.js"></script>
+  <!-- build:js scripts/bundle.js -->
+  <script src="scripts/bundle.js"></script>
   <!-- endbuild-->
 </body>
 
