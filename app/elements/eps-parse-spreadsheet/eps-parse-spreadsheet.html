@@ -16,12 +16,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       display: block;
     }
 
+    /*  Paper spinner default height and width is 28px
+        so position at 50% minus half that */
+    paper-spinner {
+      left: calc(50% - 14px);
+      position: absolute;
+      top: calc(50% - 14px);
+    }
+
     .drop-area {
       border-style: dashed;
       color: var(--divider-color);
       cursor: pointer;
       height: 150px;
       font-size: 3.5vw;
+    }
+
+    .drop-area__text[invisible] {
+      visibility: hidden;
     }
 
     .files {
@@ -73,7 +85,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
          on-drop="handleDrop"
          on-dragover="handleDragOver">
 
-      <div class="vertical layout center center-justified">
+      <div class="drop-area__text  vertical layout center center-justified"
+           invisible$="{{importing}}">
         Drag files to upload
         <input type="file"
                id="files"
@@ -82,6 +95,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                on-change="handleFilePick"
                multiple>
       </div>
+
+      <paper-spinner alt="Loading contacts list" active$="[[importing]]"></paper-spinner>
+
     </div>
 
   </template>
@@ -103,7 +119,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       importActions: {
         type: Array,
         notify: true
-      }
+      },
+
+      importing: {
+        type: Boolean,
+        value: false
+      },
     },
 
     // When Drop area is tapped click the file input element to display Files
@@ -113,23 +134,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.$.files.click();
     },
 
-    // When file input value is changed, parse the sheet
-    handleFilePick: function(event) {
-      event.stopPropagation();
-      event.preventDefault();
-      this.parseSheet(event, 'file-input');
-    },
-
     // When a file is dragged, prevent the default behaviour
     handleDragOver: function (event) {
       event.stopPropagation();
       event.preventDefault();
     },
 
+    // When file input value is changed, parse the sheet
+    handleFilePick: function(event) {
+      event.stopPropagation();
+      event.preventDefault();
+
+      this.importing = true;
+
+      this.parseSheet(event, 'file-input');
+    },
+
     // When a file is dropped, parse the sheet
     handleDrop: function (event) {
       event.stopPropagation();
       event.preventDefault();
+
+      this.importing = true;
+
       this.parseSheet(event, 'drop');
     },
 
@@ -154,10 +181,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           /* if binary string, read with type 'binary' */
           var workbook = XLSX.read(data, {type: 'binary'});
 
-          console.log(workbook);
-          this.importActions.fileImported(1);
+          // Call fileImported action
+          this.importActions.fileImported(workbook);
 
-          /* DO SOMETHING WITH workbook HERE */
+          // Avoid flash of spinner if import is very quick, by delaying a minimum of 1 second
+          this.async(function() {
+            this.importing = false;
+          }, 1000)
+
         }.bind(this);
         reader.readAsBinaryString(f);
       }

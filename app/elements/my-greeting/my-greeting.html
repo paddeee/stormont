@@ -22,7 +22,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
     <h1 class="paper-font-display1"><span>{{greeting}}</span></h1>
-    <span class="paper-font-body2">Status: <span>{{status}}</span>.</span>
+    <span class="paper-font-body2">Database Length: <span>{{docCount}}</span>.</span>
     <!-- Listens for "input" event and sets greeting to <input>.value -->
     <input class="paper-font-body2" value="{{greeting::input}}">
   </template>
@@ -40,9 +40,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             notify: true
           },
 
-          status: {
+          docCount: {
             type: String,
-            value: 'Not imported',
+            value: 'No Database',
             notify: true
           },
 
@@ -54,8 +54,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         ready: function() {
 
-          this.importStore.listen(function(status) {
-            this.status = status;
+          this.importStore.listen(function(info) {
+
+            // Delay by a second as the spinner hiding is delayed by a second
+            this.async(function() {
+              this.docCount = info.doc_count;
+            }, 1000);
+
           }.bind(this));
         }
       });
