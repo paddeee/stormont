@@ -15,7 +15,6 @@ var $ = require('gulp-load-plugins')();
 var del = require('del');
 var browserify = require('browserify');
 var source = require('vinyl-source-stream');
-var streamify = require('gulp-streamify');
 var runSequence = require('run-sequence');
 var browserSync = require('browser-sync');
 var reload = browserSync.reload;

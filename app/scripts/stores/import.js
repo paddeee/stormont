@@ -47,9 +47,9 @@ module.exports = Reflux.createStore({
       console.log('updated document');
 
       // Pass on to listeners
-      //this.trigger(doc);
+      this.trigger(doc);
 
-    }).bind(this)).catch((function (doc) {
+    }).bind(this)).catch((function () {
 
       this.createDocumentWithImport(workbook, db);
 

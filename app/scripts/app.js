@@ -33,7 +33,7 @@ var importStore = require('./stores/import.js'); // All available Reflux stores
   // Listen for template bound event to know when bindings
   // have resolved and content has been stamped to the page
   app.addEventListener('dom-change', function() {
-    console.log('Our app is ready to rock!');
+    console.log('Op Farrell is ready to rock!');
   });
 
   // See https://github.com/Polymer/polymer/issues/1381

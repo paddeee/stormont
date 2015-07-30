@@ -4,7 +4,7 @@
 var Reflux = require('reflux');
 
 module.exports = Reflux.createActions([
-  "fileImported"     // called by successful spreadsheet import
+  'fileImported'     // called by successful spreadsheet import
 ]);
 
 },{"reflux":94}],2:[function(require,module,exports){
@@ -43,7 +43,7 @@ var importStore = require('./stores/import.js'); // All available Reflux stores
   // Listen for template bound event to know when bindings
   // have resolved and content has been stamped to the page
   app.addEventListener('dom-change', function() {
-    console.log('Our app is ready to rock!');
+    console.log('Op Farrell is ready to rock!');
   });
 
   // See https://github.com/Polymer/polymer/issues/1381
@@ -136,9 +136,9 @@ module.exports = Reflux.createStore({
       console.log('updated document');
 
       // Pass on to listeners
-      //this.trigger(doc);
+      this.trigger(doc);
 
-    }).bind(this)).catch((function (doc) {
+    }).bind(this)).catch((function () {
 
       this.createDocumentWithImport(workbook, db);
 
