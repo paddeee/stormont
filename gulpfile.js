@@ -250,7 +250,8 @@ gulp.task('serve:dist', ['default'], function () {
 // Build Production Files, the Default Task
 gulp.task('default', ['clean'], function (cb) {
   runSequence(
-    ['browserify', 'copy', 'styles'],
+    'browserify',
+    ['copy', 'styles'],
     'elements',
     ['jshint', 'images', 'fonts', 'html'],
     'vulcanize',
