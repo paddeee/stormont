@@ -9,6 +9,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 var moment = require('moment');
 var reflux = require('reflux');
+var CSV = require('harb');
 var importActions = require('./actions/import.js'); // All available Reflux actions
 var importStore = require('./stores/import.js'); // All available Reflux stores
 
@@ -22,6 +23,7 @@ var importStore = require('./stores/import.js'); // All available Reflux stores
 
   // Set globals as attributes on app
   app.reflux = reflux;
+  app.CSV = CSV;
   app.moment = moment;
   app.importActions = importActions;
   app.importStore = importStore;

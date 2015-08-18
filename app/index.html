@@ -119,7 +119,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <section data-route="home">
 
               <paper-material elevation="1">
-                <eps-parse-spreadsheet import-actions="[[importActions]]"></eps-parse-spreadsheet>
+                <eps-parse-spreadsheet import-actions="[[importActions]]"
+                                       csv-type="Places"
+                                       csv="[[CSV]]">
+                </eps-parse-spreadsheet>
               </paper-material>
 
               <paper-material elevation="1">
@@ -199,10 +202,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     -->
 
   </template>
-
-  <!-- build:js scripts/sheet.js -->
-  <script src="scripts/sheet.js"></script>
-  <!-- endbuild-->
 
   <!-- build:js scripts/bundle.js -->
   <script src="scripts/bundle.js"></script>

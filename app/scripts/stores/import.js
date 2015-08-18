@@ -1,71 +1,150 @@
 'use strict';
 
 var Reflux = require('reflux');
-var PouchDB = require('pouchdb');
+var loki = require('lokijs');
+var unique = require('lodash/array/uniq');
 var ImportActions = require('../actions/import.js');
 
 module.exports = Reflux.createStore({
 
-  // this will set up listeners to all publishers in TodoActions, using onKeyname (or keyname) as callbacks
+  // this will set up listeners to all publishers in ImportActions, using onKeyname (or keyname) as callbacks
   listenables: [ImportActions],
 
-  // Import the workbook data into the database
-  onFileImported: function(workbook) {
-    this.updateDatabaseWithImport(workbook);
+  // When a CSV file has been selected by an Administrator
+  onFileImported: function (action) {
+
+    var collectionArray;
+    var db;
+    var dataCollection;
+
+    // Parse the CSV into an array
+    collectionArray = this.parseCSV(action.CSV);
+
+    // Create In-Memory database
+    db = new loki('Farrell');
+
+    // Create a collection in the database
+    dataCollection = this.addDBCollection(db, action);
+
+    // Insert the array into the database collection
+    this.populateCollection(collectionArray, dataCollection, action);
   },
 
-  updateDatabaseWithImport: function(workbook) {
+  // Create an array of cellObjects which can be iterated through to return a dataCollection
+  parseCSV: function (CSV) {
 
-    console.log(workbook);
+    var headingRow = 1;
+    var cellArray;
+    var dataCollection = [];
+    var cellRow;
+    var headingsHash = {};
+    var sheet = CSV.Sheets[CSV.SheetNames[0]];
 
-    var db = new PouchDB('farrell');
+    // Create an array of cellObjects
+    cellArray = this.createCellArray(sheet);
 
-    this.updateDocumentWithImport(workbook, db);
+    // Iterate through each cell in cellArray
+    cellArray.forEach(function (cellObject) {
+
+      var cellIdentifier = Object.keys(cellObject)[0];
+      var lettersPattern = /(\D+)/g;
+      var cellLetterIdentifier;
+      var dataRecord = {};
+
+      // Letter part of the cellIdentifier, e.g A, B, AA
+      cellLetterIdentifier = lettersPattern.exec(cellIdentifier)[0];
+
+      // If the cell belongs to a new row, add the cellObject to the array
+      if (cellRow != cellIdentifier.replace(/\D+/g, "")) {
+
+        if (cellRow) {
+          dataCollection.push(dataRecord);
+        }
+        cellRow = parseInt(cellIdentifier.replace(/\D+/g, ""), 10);
+      }
+
+      // If the cell comes from the row of headings, keep a record in the temporary headingsHash
+      if (cellRow === headingRow) {
+
+        headingsHash[cellLetterIdentifier] = cellObject[cellIdentifier].v;
+
+      } else {
+
+        // Using cellRow - 2 below because the index starts at 0 and we won't have pushed an object in the array for
+        // headings
+        dataRecord = dataCollection[cellRow - 2];
+        dataRecord[headingsHash[cellLetterIdentifier]] = cellObject[cellIdentifier].v;
+      }
+
+    }, this);
+
+    return dataCollection;
   },
 
-  updateDocumentWithImport: function(workbook, db) {
+  // Create an array of cellObjects which can be iterated through to generate our dataCollection
+  createCellArray: function (sheet) {
 
-    db.get('sheets').then(function (doc) {
+    var cellArray = [];
 
-      console.log('got sheets');
+    // For each cellName in a sheet, pass the letters of the cell name into the array
+    for (var cellName in sheet) {
+      cellArray = this.addCellToArray(sheet, cellName, cellArray);
+    }
 
-      // Update Sheets part of database
-      doc.sheets = workbook.Sheets;
-
-      // put him back
-      return db.put(doc);
-
-    }).then(function () {
-
-      // fetch farrell again
-      return db.get('sheets');
-
-    }).then((function (doc) {
-
-      console.log(doc);
-
-      console.log('updated document');
-
-      // Pass on to listeners
-      this.trigger(doc);
-
-    }).bind(this)).catch((function () {
-
-      this.createDocumentWithImport(workbook, db);
-
-    }).bind(this));
+    return cellArray;
   },
 
-  createDocumentWithImport: function(workbook, db) {
+  // Create a cellObject and add it to the cellArray if it is a valid data cell
+  addCellToArray: function (sheet, cellName, cellArray) {
 
-    var document = {};
+    var cellObject = {};
 
-    document._id = 'sheets';
-    document.sheets = workbook.Sheets;
+    if (cellName !== '!ref') {
+      cellObject[cellName] = sheet[cellName];
+      cellArray.push(cellObject);
+    }
 
-    db.put(document);
+    return cellArray;
+  },
 
-    console.log('created document');
+  addDBCollection: function (db, action) {
 
+    return db.addCollection(action.collectionName, {
+      indices: this.getIndices(action.collectionName)
+    });
+  },
+
+  getIndices: function (collectionName) {
+
+    var indices = [];
+
+    switch (collectionName) {
+      case 'Places':
+        indices.push('name');
+        break;
+      case 'People':
+        indices.push('name');
+        break;
+      case 'Events':
+        indices.push('name');
+        break;
+      default:
+        break;
+    }
+
+    return indices;
+  },
+
+  populateCollection: function (collectionArray, dataCollection, action) {
+
+    var peopleCollection = dataCollection.insert(collectionArray);
+
+    console.log(dataCollection
+      .chain()
+      .find({'time-start':{'$gt': 959558399}})
+      .data());
+
+    // Pass on to listeners
+    // this.trigger(doc);
   }
 });

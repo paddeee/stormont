@@ -116,14 +116,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       importActions: {
-        type: Array,
-        notify: true
+        type: Array
       },
 
       importing: {
         type: Boolean,
         value: false
       },
+
+      csvType: {
+        type: String,
+        value: ''
+      },
+
+      csv: {
+        type: Object,
+        value: null
+      }
     },
 
     // When Drop area is tapped click the file input element to display Files
@@ -186,10 +195,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var data = event.target.result;
 
       /* if binary string, read with type 'binary' */
-      var workbook = XLSX.read(data, {type: 'binary'});
+      var CSV = this.csv.read(data, {type: 'binary'});
+
+      var action = {
+        collectionName: this.csvType,
+        CSV: CSV
+      };
 
       // Call fileImported action
-      this.importActions.fileImported(workbook);
+      this.importActions.fileImported(action);
 
       // Avoid flash of spinner if import is very quick, by delaying a minimum of 1 second
       this.async(function () {
