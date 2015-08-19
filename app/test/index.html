@@ -9,15 +9,11 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 
-<<<<<<< HEAD
-<!doctype html>
-=======
->>>>>>> upstream/master
 <html>
 
   <head>
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-    <title>Elements Test Runner</title>
+    <title>Test Runner</title>
     <meta charset="UTF-8">
 
     <script src="../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
@@ -27,7 +23,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <body>
 
     <script>
-      WCT.loadSuites(['my-greeting-basic.html', 'my-list-basic.html']);
+      WCT.loadSuites([
+        'elements/my-list-basic.html'
+      ]);
     </script>
 
 

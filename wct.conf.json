@@ -1,5 +1,6 @@
 {
   "suites": ["app/test"],
+  "expanded": true,
   "plugins": {
     "local": {
       "browsers": ["chrome"]
