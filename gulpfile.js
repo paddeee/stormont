@@ -247,6 +247,11 @@ gulp.task('serve:dist', ['default'], function () {
   });
 });
 
+// Test Browserified files
+gulp.task('browserify-test', function() {
+
+});
+
 // Build Production Files, the Default Task
 gulp.task('default', ['clean'], function (cb) {
   runSequence(
