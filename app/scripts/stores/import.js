@@ -2,7 +2,6 @@
 
 var Reflux = require('reflux');
 var loki = require('lokijs');
-var unique = require('lodash/array/uniq');
 var ImportActions = require('../actions/import.js');
 
 module.exports = Reflux.createStore({
@@ -55,12 +54,12 @@ module.exports = Reflux.createStore({
       cellLetterIdentifier = lettersPattern.exec(cellIdentifier)[0];
 
       // If the cell belongs to a new row, add the cellObject to the array
-      if (cellRow != cellIdentifier.replace(/\D+/g, "")) {
+      if (cellRow !== cellIdentifier.replace(/\D+/g, '')) {
 
         if (cellRow) {
           dataCollection.push(dataRecord);
         }
-        cellRow = parseInt(cellIdentifier.replace(/\D+/g, ""), 10);
+        cellRow = parseInt(cellIdentifier.replace(/\D+/g, ''), 10);
       }
 
       // If the cell comes from the row of headings, keep a record in the temporary headingsHash
@@ -137,7 +136,9 @@ module.exports = Reflux.createStore({
 
   populateCollection: function (collectionArray, dataCollection, action) {
 
-    var peopleCollection = dataCollection.insert(collectionArray);
+    //var peopleCollection = dataCollection.insert(collectionArray);
+
+    console.log(action);
 
     console.log(dataCollection
       .chain()

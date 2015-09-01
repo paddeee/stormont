@@ -17,11 +17,16 @@ var browserify = require('browserify');
 var source = require('vinyl-source-stream');
 var runSequence = require('run-sequence');
 var browserSync = require('browser-sync');
+var buffer = require('vinyl-buffer');
 var reload = browserSync.reload;
 var merge = require('merge-stream');
 var path = require('path');
 var fs = require('fs');
 var glob = require('glob');
+var globby = require('globby');
+var mocha = require('gulp-mocha');
+var through = require('through2');
+var rename = require('gulp-rename');
 var historyApiFallback = require('connect-history-api-fallback');
 
 var AUTOPREFIXER_BROWSERS = [
@@ -207,7 +212,7 @@ gulp.task('serve', ['styles', 'elements', 'images'], function () {
     },
     // Run as an https by uncommenting 'https: true'
     // Note: this uses an unsigned certificate which on first access
-    //       will present a certificate warning in the browser.
+    // will present a certificate warning in the browser.
     // https: true,
     server: {
       baseDir: ['.tmp', 'app'],
@@ -221,7 +226,8 @@ gulp.task('serve', ['styles', 'elements', 'images'], function () {
   gulp.watch(['app/**/*.html'], reload);
   gulp.watch(['app/styles/**/*.css'], ['styles', reload]);
   gulp.watch(['app/elements/**/*.css'], ['elements', reload]);
-  gulp.watch(['app/{scripts,elements}/**/*.js'], ['jshint']);
+  gulp.watch(['app/{scripts,elements}/**/*.js', '!app/scripts/bundle.js'], ['browserify']);
+  gulp.watch(['app/scripts/bundle.js'], ['jshint', reload]);
   gulp.watch(['app/images/**/*'], reload);
 });
 
@@ -240,16 +246,49 @@ gulp.task('serve:dist', ['default'], function () {
     },
     // Run as an https by uncommenting 'https: true'
     // Note: this uses an unsigned certificate which on first access
-    //       will present a certificate warning in the browser.
+    // will present a certificate warning in the browser.
     // https: true,
     server: 'dist',
     middleware: [ historyApiFallback() ]
   });
 });
 
-// Test Browserified files
-gulp.task('browserify-test', function() {
+gulp.task('unit-tests', function () {
 
+  // gulp expects tasks to return a stream, so we create one here.
+  var bundledStream = through();
+
+  bundledStream
+    // turns the output bundle stream into a stream containing
+    // the normal attributes gulp plugins expect.
+    .pipe(source('stores-test.js'))
+    // the rest of the gulp task, as you would normally write it.
+    .pipe(buffer())
+    .pipe(gulp.dest('./app/test/scripts/build/'))
+    .pipe(mocha({reporter: 'list'}));
+
+  // "globby" replaces the normal "gulp.src" as Browserify
+  // creates it's own readable stream.
+  globby(['./app/test/scripts/specs/*.js'], function(err, entries) {
+    // ensure any errors from globby are handled
+    if (err) {
+      bundledStream.emit('error', err);
+      return;
+    }
+
+    // create the Browserify instance.
+    var b = browserify({
+      entries: entries
+    });
+
+    // pipe the Browserify stream into the stream we created earlier
+    // this starts our gulp pipeline.
+    b.bundle()
+      .pipe(bundledStream);
+  });
+
+  // finally, we return the stream, so gulp knows when this task is done.
+  return bundledStream;
 });
 
 // Build Production Files, the Default Task
@@ -258,7 +297,7 @@ gulp.task('default', ['clean'], function (cb) {
     'browserify',
     ['copy', 'styles'],
     'elements',
-    ['jshint', 'images', 'fonts', 'html'],
+    ['jshint', 'images', 'fonts', 'html', 'unit-tests'],
     'vulcanize',
     cb);
     // Note: add , 'precache' , after 'vulcanize', if your are going to use Service Worker
