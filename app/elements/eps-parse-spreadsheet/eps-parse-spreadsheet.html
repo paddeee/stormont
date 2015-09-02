@@ -24,6 +24,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       top: calc(50% - 14px);
     }
 
+    paper-toast {
+      z-index: 1;
+    }
+
     .drop-area {
       border-style: dashed;
       color: var(--divider-color);
@@ -96,8 +100,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
 
       <paper-spinner alt="Loading contacts list" active$="[[importing]]"></paper-spinner>
-
     </div>
+
+    <paper-toast id="ImportToast" duration="3000">
+      <h2><span>[[importFinished.title]]</span></h2>
+      <div>
+        <span>[[importFinished.message]]</span>
+      </div>
+    </paper-toast>
 
   </template>
 </dom-module>
@@ -119,6 +129,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         type: Array
       },
 
+      importStore: {
+        type: Object,
+        value: {}
+      },
+
       importing: {
         type: Boolean,
         value: false
@@ -129,10 +144,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         value: ''
       },
 
-      csv: {
+      csvParser: {
+        type: Object,
+        value: null
+      },
+
+      importFinished: {
         type: Object,
         value: null
       }
+    },
+
+    ready: function() {
+
+      this.importStore.listen(function(importFinished) {
+
+        this.importFinished = importFinished;
+
+        // Reset input file type
+        this.$.files.value = '';
+
+        // Delay by a second as the spinner hiding is delayed by a second
+        this.async(function() {
+
+          // Show dialog message
+          this.$.ImportToast.show();
+        }, 1000);
+
+      }.bind(this));
     },
 
     // When Drop area is tapped click the file input element to display Files
@@ -195,7 +234,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var data = event.target.result;
 
       /* if binary string, read with type 'binary' */
-      var CSV = this.csv.read(data, {type: 'binary'});
+      var CSV = this.csvParser.read(data, {type: 'binary'});
 
       var action = {
         collectionName: this.csvType,

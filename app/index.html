@@ -119,14 +119,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <section data-route="home">
 
               <paper-material elevation="1">
-                <eps-parse-spreadsheet import-actions="[[importActions]]"
-                                       csv-type="Places"
-                                       csv="[[CSV]]">
+                <eps-parse-spreadsheet
+                  import-actions="[[importActions]]"
+                  import-store="[[importStore]]"
+                  csv-type="Places"
+                  csv-parser="[[CSVParser]]">
                 </eps-parse-spreadsheet>
               </paper-material>
 
               <paper-material elevation="1">
-                <my-greeting import-store="[[importStore]]"></my-greeting>
+                <my-greeting></my-greeting>
 
                 <p class="paper-font-subhead">You now have:</p>
                 <my-list></my-list>

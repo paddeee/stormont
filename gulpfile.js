@@ -79,6 +79,7 @@ gulp.task('browserify', function () {
 gulp.task('jshint', function () {
   return gulp.src([
       'app/scripts/**/*.js',
+      '!app/scripts/adapters/**/*.js',
       'app/elements/**/*.js',
       'app/elements/**/*.html'
     ])
@@ -265,7 +266,10 @@ gulp.task('unit-tests', function () {
     // the rest of the gulp task, as you would normally write it.
     .pipe(buffer())
     .pipe(gulp.dest('./app/test/scripts/build/'))
-    .pipe(mocha({reporter: 'list'}));
+    .pipe(mocha({
+      bail: false,
+      reporter: 'list'
+    }));
 
   // "globby" replaces the normal "gulp.src" as Browserify
   // creates it's own readable stream.
@@ -297,7 +301,7 @@ gulp.task('default', ['clean'], function (cb) {
     'browserify',
     ['copy', 'styles'],
     'elements',
-    ['jshint', 'images', 'fonts', 'html', 'unit-tests'],
+    ['jshint', 'images', 'fonts', 'html'],
     'vulcanize',
     cb);
     // Note: add , 'precache' , after 'vulcanize', if your are going to use Service Worker

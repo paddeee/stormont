@@ -36,33 +36,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           greeting: {
             type: String,
-            value: 'Welcome!',
-            notify: true
+            value: 'Welcome!'
           },
 
           docCount: {
             type: String,
-            value: 'No Database',
-            notify: true
-          },
-
-          importStore: {
-            type: Object,
-            value: {},
-            notify: true
+            value: 'No Database'
           }
-        },
-
-        ready: function() {
-
-          this.importStore.listen(function(info) {
-
-            // Delay by a second as the spinner hiding is delayed by a second
-            this.async(function() {
-              this.docCount = info.doc_count;
-            }, 1000);
-
-          }.bind(this));
         }
       });
     })();

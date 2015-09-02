@@ -2,6 +2,7 @@
 
 var Reflux = require('reflux');
 var loki = require('lokijs');
+var fileAdapter = require('../adapters/loki-file-adapter.js');
 var ImportActions = require('../actions/import.js');
 
 module.exports = Reflux.createStore({
@@ -10,23 +11,27 @@ module.exports = Reflux.createStore({
   listenables: [ImportActions],
 
   // When a CSV file has been selected by an Administrator
-  onFileImported: function (action) {
+  onFileImported: function (fileObject) {
 
     var collectionArray;
-    var db;
     var dataCollection;
+    var db;
 
     // Parse the CSV into an array
-    collectionArray = this.parseCSV(action.CSV);
+    collectionArray = this.parseCSV(fileObject.CSV);
 
     // Create In-Memory database
-    db = new loki('Farrell');
+    //db = new loki('farrell.json');
+    db = new loki('farrell.json', { adapter: fileAdapter });
 
     // Create a collection in the database
-    dataCollection = this.addDBCollection(db, action);
+    dataCollection = this.addDBCollection(db, fileObject);
 
     // Insert the array into the database collection
-    this.populateCollection(collectionArray, dataCollection, action);
+    this.populateCollection(collectionArray, dataCollection);
+
+    // Save database
+    db.saveDatabase();
   },
 
   // Create an array of cellObjects which can be iterated through to return a dataCollection
@@ -54,7 +59,7 @@ module.exports = Reflux.createStore({
       cellLetterIdentifier = lettersPattern.exec(cellIdentifier)[0];
 
       // If the cell belongs to a new row, add the cellObject to the array
-      if (cellRow !== cellIdentifier.replace(/\D+/g, '')) {
+      if (cellRow !== parseInt(cellIdentifier.replace(/\D+/g, ''), 10)) {
 
         if (cellRow) {
           dataCollection.push(dataRecord);
@@ -106,13 +111,15 @@ module.exports = Reflux.createStore({
     return cellArray;
   },
 
-  addDBCollection: function (db, action) {
+  // Add a collection to a Loki database
+  addDBCollection: function (db, fileObject) {
 
-    return db.addCollection(action.collectionName, {
-      indices: this.getIndices(action.collectionName)
+    return db.addCollection(fileObject.collectionName, {
+      indices: this.getIndices(fileObject.collectionName)
     });
   },
 
+  // Based on which collection has been imported, return an array of indices
   getIndices: function (collectionName) {
 
     var indices = [];
@@ -134,11 +141,10 @@ module.exports = Reflux.createStore({
     return indices;
   },
 
-  populateCollection: function (collectionArray, dataCollection, action) {
+  // Populate the Loki collection with our array of data
+  populateCollection: function (collectionArray, dataCollection) {
 
-    //var peopleCollection = dataCollection.insert(collectionArray);
-
-    console.log(action);
+    dataCollection.insert(collectionArray);
 
     console.log(dataCollection
       .chain()
@@ -146,6 +152,10 @@ module.exports = Reflux.createStore({
       .data());
 
     // Pass on to listeners
-    // this.trigger(doc);
+    this.trigger({
+      type: 'success',
+      title: 'Import Successful',
+      message: 'Places CSV has been successfully imported'
+    });
   }
 });

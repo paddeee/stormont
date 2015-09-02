@@ -9,7 +9,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 var moment = require('moment');
 var reflux = require('reflux');
-var CSV = require('harb');
+var CSVParser = require('harb');
 var importActions = require('./actions/import.js'); // All available Reflux actions
 var importStore = require('./stores/import.js'); // All available Reflux stores
 
@@ -23,7 +23,7 @@ var importStore = require('./stores/import.js'); // All available Reflux stores
 
   // Set globals as attributes on app
   app.reflux = reflux;
-  app.CSV = CSV;
+  app.CSVParser = CSVParser;
   app.moment = moment;
   app.importActions = importActions;
   app.importStore = importStore;
@@ -35,6 +35,7 @@ var importStore = require('./stores/import.js'); // All available Reflux stores
   // Listen for template bound event to know when bindings
   // have resolved and content has been stamped to the page
   app.addEventListener('dom-change', function() {
+    console.log(typeof window);
     console.log('Operation Farrell content all added to page!');
   });
 
