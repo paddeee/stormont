@@ -11,7 +11,7 @@
  * require libs
  * @ignore
  */
-var fs = require('browserify-fs');
+var fs = global.packagedApp ? global.fs : require('browserify-fs');
 
 /**
  * The constructor is automatically called on `require` , see examples below
@@ -60,12 +60,17 @@ lokiFileAdapter.prototype.loadDatabase = function loadDatabase(dbname, callback)
  * @param {function} callback - (Optional) callback passed obj.success with true or false
  */
 lokiFileAdapter.prototype.saveDatabase = function saveDatabase(dbname, dbstring, callback) {
+
+  // This can be set from nw.js input file directory picker value
+  var path = global.packagedApp ? '/Users/ODonnell/Documents' : '';
+
+
   //var callbackFunction = callback || function (){};
   //fs.writeFile(dbname, dbstring, 'utf8',callbackFunction);
 
-  fs.mkdir('/home', function() {
-    fs.writeFile('./home/' + dbname, dbstring, function() {
-      fs.readFile('/home/' + dbname, 'utf-8', function(err, data) {
+  fs.mkdir(path + '/FarrellLoki/', function() {
+    fs.writeFile(path + '/FarrellLoki/' + dbname, dbstring, function() {
+      fs.readFile(path + '/FarrellLoki/' + dbname, 'utf-8', function(err, data) {
         console.log(err);
         console.log(data);
       });

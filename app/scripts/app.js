@@ -27,6 +27,7 @@ var importStore = require('./stores/import.js'); // All available Reflux stores
   app.moment = moment;
   app.importActions = importActions;
   app.importStore = importStore;
+  app.packagedApp = global.packagedApp ? true : false;
 
   app.displayInstalledToast = function() {
     document.querySelector('#caching-complete').show();

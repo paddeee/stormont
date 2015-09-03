@@ -60,6 +60,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Test and set property if inside packaged app
     if (typeof global === 'object') {
       global.packagedApp = true;
+      global.fs = require('fs');
     }
   </script>
 
@@ -131,6 +132,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <eps-parse-spreadsheet
                   import-actions="[[importActions]]"
                   import-store="[[importStore]]"
+                  packaged-app="[[packagedApp]]"
                   csv-type="Places"
                   csv-parser="[[CSVParser]]">
                 </eps-parse-spreadsheet>

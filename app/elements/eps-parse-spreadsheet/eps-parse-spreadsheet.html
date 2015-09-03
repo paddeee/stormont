@@ -82,6 +82,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
 
+    <div class="import-location" hidden="{{!packagedApp}}">
+      <input id="importLocation" type="file" nwdirectory/>
+    </div>
+
     <div id="DropArea"
          class="drop-area layout horizontal center center-justified"
          on-tap="handleTap"
@@ -135,6 +139,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       importing: {
+        type: Boolean,
+        value: false
+      },
+
+      packagedApp: {
         type: Boolean,
         value: false
       },

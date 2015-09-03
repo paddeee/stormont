@@ -22,7 +22,7 @@ module.exports = Reflux.createActions([
  * require libs
  * @ignore
  */
-var fs = global.packagedApp ? require('fs') : require('browserify-fs');
+var fs = global.packagedApp ? global.fs : require('browserify-fs');
 
 /**
  * The constructor is automatically called on `require` , see examples below
@@ -71,13 +71,17 @@ lokiFileAdapter.prototype.loadDatabase = function loadDatabase(dbname, callback)
  * @param {function} callback - (Optional) callback passed obj.success with true or false
  */
 lokiFileAdapter.prototype.saveDatabase = function saveDatabase(dbname, dbstring, callback) {
-  //var callbackFunction = callback || function (){};
 
+  // This can be set from nw.js input file directory picker value
+  var path = global.packagedApp ? '/Users/ODonnell/Documents' : '';
+
+
+  //var callbackFunction = callback || function (){};
   //fs.writeFile(dbname, dbstring, 'utf8',callbackFunction);
-console.log(fs);
-  fs.mkdir('/home', function() {
-    fs.writeFile('./home/' + dbname, dbstring, function() {
-      fs.readFile('/home/' + dbname, 'utf-8', function(err, data) {
+
+  fs.mkdir(path + '/FarrellLoki/', function() {
+    fs.writeFile(path + '/FarrellLoki/' + dbname, dbstring, function() {
+      fs.readFile(path + '/FarrellLoki/' + dbname, 'utf-8', function(err, data) {
         console.log(err);
         console.log(data);
       });
@@ -89,7 +93,8 @@ module.exports = new lokiFileAdapter();
 exports.lokiFileAdapter = lokiFileAdapter;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"browserify-fs":5,"fs":114}],3:[function(require,module,exports){
+},{"browserify-fs":5}],3:[function(require,module,exports){
+(function (global){
 /*
 Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
 This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
@@ -119,6 +124,7 @@ var importStore = require('./stores/import.js'); // All available Reflux stores
   app.moment = moment;
   app.importActions = importActions;
   app.importStore = importStore;
+  app.packagedApp = global.packagedApp ? true : false;
 
   app.displayInstalledToast = function() {
     document.querySelector('#caching-complete').show();
@@ -170,6 +176,7 @@ var importStore = require('./stores/import.js'); // All available Reflux stores
 
 })(document, reflux, moment, importActions, importStore);
 
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./actions/import.js":1,"./stores/import.js":4,"harb":143,"moment":147,"reflux":148}],4:[function(require,module,exports){
 'use strict';
 

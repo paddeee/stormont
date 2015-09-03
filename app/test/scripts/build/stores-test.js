@@ -8,6 +8,7 @@ module.exports = Reflux.createActions([
 ]);
 
 },{"reflux":178}],2:[function(require,module,exports){
+(function (global){
 /**
  * @file lokiFileAdapter.js
  */
@@ -21,7 +22,7 @@ module.exports = Reflux.createActions([
  * require libs
  * @ignore
  */
-var fs = require('browserify-fs');
+var fs = global.packagedApp ? global.fs : require('browserify-fs');
 
 /**
  * The constructor is automatically called on `require` , see examples below
@@ -70,11 +71,13 @@ lokiFileAdapter.prototype.loadDatabase = function loadDatabase(dbname, callback)
  * @param {function} callback - (Optional) callback passed obj.success with true or false
  */
 lokiFileAdapter.prototype.saveDatabase = function saveDatabase(dbname, dbstring, callback) {
-  var callbackFunction = callback || function (){};
+  //var callbackFunction = callback || function (){};
   //fs.writeFile(dbname, dbstring, 'utf8',callbackFunction);
 
+  console.log(global);
+
   fs.mkdir('/home', function() {
-    fs.writeFile('./home/' + dbname, dbstring, function() {
+    fs.writeFile('/home/' + dbname, dbstring, function() {
       fs.readFile('/home/' + dbname, 'utf-8', function(err, data) {
         console.log(err);
         console.log(data);
@@ -86,6 +89,7 @@ lokiFileAdapter.prototype.saveDatabase = function saveDatabase(dbname, dbstring,
 module.exports = new lokiFileAdapter();
 exports.lokiFileAdapter = lokiFileAdapter;
 
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"browserify-fs":5}],3:[function(require,module,exports){
 'use strict';
 
@@ -110,8 +114,8 @@ module.exports = Reflux.createStore({
     collectionArray = this.parseCSV(fileObject.CSV);
 
     // Create In-Memory database
-    //db = new loki('farrell.json', { adapter: fileAdapter });
-    db = new loki('farrell.json');
+    //db = new loki('farrell.json');
+    db = new loki('farrell.json', { adapter: fileAdapter });
 
     // Create a collection in the database
     dataCollection = this.addDBCollection(db, fileObject);
