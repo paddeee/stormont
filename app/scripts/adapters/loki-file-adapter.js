@@ -64,7 +64,6 @@ lokiFileAdapter.prototype.saveDatabase = function saveDatabase(dbname, dbstring,
   // This can be set from nw.js input file directory picker value
   var path = global.packagedApp ? '/Users/ODonnell/Documents' : '';
 
-
   //var callbackFunction = callback || function (){};
   //fs.writeFile(dbname, dbstring, 'utf8',callbackFunction);
 

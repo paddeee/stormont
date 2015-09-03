@@ -75,7 +75,6 @@ lokiFileAdapter.prototype.saveDatabase = function saveDatabase(dbname, dbstring,
   // This can be set from nw.js input file directory picker value
   var path = global.packagedApp ? '/Users/ODonnell/Documents' : '';
 
-
   //var callbackFunction = callback || function (){};
   //fs.writeFile(dbname, dbstring, 'utf8',callbackFunction);
 
@@ -134,6 +133,7 @@ var importStore = require('./stores/import.js'); // All available Reflux stores
   // have resolved and content has been stamped to the page
   app.addEventListener('dom-change', function() {
     console.log('Operation Farrell content all added to page!');
+    app.route = 'home';
   });
 
   // See https://github.com/Polymer/polymer/issues/1381
