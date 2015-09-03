@@ -8,6 +8,7 @@ module.exports = Reflux.createActions([
 ]);
 
 },{"reflux":148}],2:[function(require,module,exports){
+(function (global){
 /**
  * @file lokiFileAdapter.js
  */
@@ -21,7 +22,7 @@ module.exports = Reflux.createActions([
  * require libs
  * @ignore
  */
-var fs = require('browserify-fs');
+var fs = global.packagedApp ? require('fs') : require('browserify-fs');
 
 /**
  * The constructor is automatically called on `require` , see examples below
@@ -70,9 +71,10 @@ lokiFileAdapter.prototype.loadDatabase = function loadDatabase(dbname, callback)
  * @param {function} callback - (Optional) callback passed obj.success with true or false
  */
 lokiFileAdapter.prototype.saveDatabase = function saveDatabase(dbname, dbstring, callback) {
-  var callbackFunction = callback || function (){};
-  //fs.writeFile(dbname, dbstring, 'utf8',callbackFunction);
+  //var callbackFunction = callback || function (){};
 
+  //fs.writeFile(dbname, dbstring, 'utf8',callbackFunction);
+console.log(fs);
   fs.mkdir('/home', function() {
     fs.writeFile('./home/' + dbname, dbstring, function() {
       fs.readFile('/home/' + dbname, 'utf-8', function(err, data) {
@@ -86,7 +88,8 @@ lokiFileAdapter.prototype.saveDatabase = function saveDatabase(dbname, dbstring,
 module.exports = new lokiFileAdapter();
 exports.lokiFileAdapter = lokiFileAdapter;
 
-},{"browserify-fs":5}],3:[function(require,module,exports){
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"browserify-fs":5,"fs":114}],3:[function(require,module,exports){
 /*
 Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
 This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
@@ -124,7 +127,6 @@ var importStore = require('./stores/import.js'); // All available Reflux stores
   // Listen for template bound event to know when bindings
   // have resolved and content has been stamped to the page
   app.addEventListener('dom-change', function() {
-    console.log(typeof window);
     console.log('Operation Farrell content all added to page!');
   });
 

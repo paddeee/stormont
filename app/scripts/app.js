@@ -35,7 +35,6 @@ var importStore = require('./stores/import.js'); // All available Reflux stores
   // Listen for template bound event to know when bindings
   // have resolved and content has been stamped to the page
   app.addEventListener('dom-change', function() {
-    console.log(typeof window);
     console.log('Operation Farrell content all added to page!');
   });
 

@@ -60,7 +60,7 @@ lokiFileAdapter.prototype.loadDatabase = function loadDatabase(dbname, callback)
  * @param {function} callback - (Optional) callback passed obj.success with true or false
  */
 lokiFileAdapter.prototype.saveDatabase = function saveDatabase(dbname, dbstring, callback) {
-  var callbackFunction = callback || function (){};
+  //var callbackFunction = callback || function (){};
   //fs.writeFile(dbname, dbstring, 'utf8',callbackFunction);
 
   fs.mkdir('/home', function() {
