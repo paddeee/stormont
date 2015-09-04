@@ -280,15 +280,14 @@ gulp.task('unit-tests', function () {
       return;
     }
 
-    // create the Browserify instance.
-    var b = browserify({
-      entries: entries
-    });
-
-    // pipe the Browserify stream into the stream we created earlier
+    // create the Browserify instance and pipe the Browserify stream into the stream we created earlier
     // this starts our gulp pipeline.
-    b.bundle()
-      .pipe(bundledStream);
+    browserify({
+      entries: entries
+    })
+    .ignore('browserify-fs')
+    .bundle()
+    .pipe(bundledStream);
   });
 
   // finally, we return the stream, so gulp knows when this task is done.
@@ -301,7 +300,7 @@ gulp.task('default', ['clean'], function (cb) {
     'browserify',
     ['copy', 'styles'],
     'elements',
-    ['jshint', 'images', 'fonts', 'html'],
+    ['jshint', 'images', 'fonts', 'html', 'unit-tests'],
     'vulcanize',
     cb);
     // Note: add , 'precache' , after 'vulcanize', if your are going to use Service Worker

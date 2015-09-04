@@ -10,7 +10,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
-<dom-module id="eps-parse-spreadsheet">
+<dom-module id="epe-parse-spreadsheet">
   <style>
     :host {
       display: block;
@@ -19,9 +19,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     /*  Paper spinner default height and width is 28px
         so position at 50% minus half that */
     paper-spinner {
-      left: calc(50% - 14px);
+      left: calc(50% - 20px);
+      height: 40px;
       position: absolute;
-      top: calc(50% - 14px);
+      top: calc(50% - 20px);
+      width: 40px;
     }
 
     paper-toast {
@@ -32,7 +34,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       border-style: dashed;
       color: var(--divider-color);
       cursor: pointer;
-      height: 150px;
+      height: 50vh;
       font-size: 3.5vw;
     }
 
@@ -52,7 +54,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .files::before {
-      content: 'or click to select files';
+      content: 'or click to select a file';
       background: white;
       padding: 15px;
       outline: none;
@@ -75,7 +77,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     @media (max-width: 600px) {
 
       .drop-area {
-        font-size: 8vw;
+        font-size: 7vw;
       }
     }
 
@@ -94,7 +96,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <div class="drop-area__text  vertical layout center center-justified"
            invisible$="{{importing}}">
-        Drag files to upload
+        Drag a CaseMap file here
         <input type="file"
                id="files"
                class="files"
@@ -119,7 +121,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 (function() {
   Polymer({
 
-    is: 'eps-parse-spreadsheet',
+    is: 'epe-parse-spreadsheet',
 
     properties: {
 
