@@ -117,7 +117,7 @@ var importStore = require('./stores/import.js'); // All available Reflux stores
   // Learn more about auto-binding templates at http://goo.gl/Dx1u2g
   var app = document.querySelector('#app');
 
-  // Set globals as attributes on app
+  // Set required modules as attributes on app
   app.reflux = reflux;
   app.CSVParser = CSVParser;
   app.moment = moment;

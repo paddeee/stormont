@@ -254,6 +254,19 @@ gulp.task('serve:dist', ['default'], function () {
   });
 });
 
+gulp.task("browser-unit-tests", function () {
+
+  "use strict";
+
+  browserSync({
+    server: {
+      //serve tests and the root as base dirs
+      baseDir: ["./app/test/", "./"],
+      index: "testrunner.html"
+    }
+  });
+});
+
 gulp.task('unit-tests', function () {
 
   // gulp expects tasks to return a stream, so we create one here.
@@ -268,7 +281,7 @@ gulp.task('unit-tests', function () {
     .pipe(gulp.dest('./app/test/scripts/build/'))
     .pipe(mocha({
       bail: false,
-      reporter: 'list'
+      reporter: 'doc'
     }));
 
   // "globby" replaces the normal "gulp.src" as Browserify
