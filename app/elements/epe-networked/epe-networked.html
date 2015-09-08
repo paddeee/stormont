@@ -21,11 +21,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <iron-pages attr-for-selected="data-route" selected="{{route}}">
 
       <section data-route="login">
-
         <epe-login
           user-actions="[[userActions]]"
           user-store="[[userStore]]"></epe-login>
+      </section>
 
+      <section data-route="choose-option">
+        <epe-choose-option></epe-choose-option>
       </section>
 
       <section data-route="import">
@@ -173,7 +175,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         if (user.status === 'loggedin') {
           this.user = user;
-          this.navigateToImportParse();
+          this.navigateToChooseOption();
         }
 
         this.displayUserMessage(user);
@@ -187,11 +189,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.$.UserToast.show();
     },
 
-    // Navigate to the ImportParseRoute
-    navigateToImportParse: function() {
-
-      this.route = 'import';
-      this.importRoute = 'import-parse';
+    // Navigate to the Choose Option
+    navigateToChooseOption: function() {
+      this.route = 'choose-option';
     }
   });
 })();
