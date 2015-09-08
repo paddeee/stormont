@@ -1,0 +1,127 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="epe-login">
+  <style>
+
+    :host {
+      display: block;
+    }
+
+    paper-material.card--login {
+      background-color: var(--dark-primary-color);
+      color: var(--text-primary-color);
+      margin-top: 64px;
+      max-height: 580px;
+      max-width: 512px;
+      width: 512px;
+      box-shadow: 0 2px 5px 0 rgba(0,0,0,.26);
+      border-radius: 2px;
+      overflow-y: auto;
+    }
+
+    .submit-button-holder {
+      padding: 16px 0;
+    }
+
+    paper-fab {
+      color: var(--primary-text-color);
+    }
+
+  </style>
+
+  <template>
+    <div class="main flex layout vertical">
+      <paper-material elevation="1" class="card card--login flex fit layout vertical">
+        <h1>SITF Login</h1>
+        <paper-input
+          id="UserName"
+          label="Username"
+          autofocus
+          autovalidate
+          required
+          error-message="Please enter your User Name"
+          on-blur="validateForm"></paper-input>
+        <paper-input
+          id="Password"
+          label="Password"
+          required
+          autovalidate
+          error-message="Please enter your Password"
+          on-blur="validateForm"></paper-input>
+        <div class="submit-button-holder layout horizontal end-justified">
+          <paper-fab
+            icon="check"
+            on-tap="submitTapped"></paper-fab>
+        </div>
+
+      </paper-material>
+    </div>
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+    is: 'epe-login',
+
+    properties: {
+
+      userActions: {
+        type: Array
+      },
+
+      userStore: {
+        type: Object,
+        value: {}
+      },
+
+      userLogin: {
+        type: Object,
+        value: null
+      }
+    },
+
+    // Validate form
+    validateForm: function() {
+
+      this.$.UserName.validate();
+      this.$.Password.validate();
+
+      // If input fields are both valid, return true
+      if (this.$.UserName.invalid || this.$.Password.invalid) {
+        return false;
+      } else {
+        return true;
+      }
+    },
+
+    // Create userLogin object
+    createUserLogin: function() {
+
+      this.userLogin = {};
+      this.userLogin.username = this.$.UserName.value;
+      this.userLogin.password = this.$.Password.value;
+
+      // Call loginAttempted action
+      this.userActions.loginAttempted(this.userLogin);
+    },
+
+    // Validate form and create userLogin object
+    submitTapped: function() {
+
+      if (this.validateForm()) {
+        this.createUserLogin();
+      }
+    }
+  });
+})();
+</script>

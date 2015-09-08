@@ -10,6 +10,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 var moment = require('moment');
 var reflux = require('reflux');
 var CSVParser = require('harb');
+var userActions = require('./actions/users.js'); // All available Reflux actions
+var userStore = require('./stores/users.js'); // All available Reflux stores
 var importActions = require('./actions/import.js'); // All available Reflux actions
 var importStore = require('./stores/import.js'); // All available Reflux stores
 
@@ -25,6 +27,8 @@ var importStore = require('./stores/import.js'); // All available Reflux stores
   app.reflux = reflux;
   app.CSVParser = CSVParser;
   app.moment = moment;
+  app.userActions = userActions;
+  app.userStore = userStore;
   app.importActions = importActions;
   app.importStore = importStore;
   app.packagedApp = global.packagedApp ? true : false;
@@ -37,7 +41,7 @@ var importStore = require('./stores/import.js'); // All available Reflux stores
   // have resolved and content has been stamped to the page
   app.addEventListener('dom-change', function() {
     console.log('Operation Farrell content all added to page!');
-    app.route = 'home';
+    app.route = 'login';
   });
 
   // See https://github.com/Polymer/polymer/issues/1381

@@ -17,103 +17,125 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
   </style>
   <template>
-    <paper-drawer-panel id="paperDrawerPanel">
-      <!-- Drawer Scroll Header Panel -->
-      <paper-scroll-header-panel drawer fixed>
 
-        <!-- Drawer Toolbar -->
-        <paper-toolbar id="drawerToolbar">
-          <span class="paper-font-title">Menu</span>
-        </paper-toolbar>
+    <iron-pages attr-for-selected="data-route" selected="{{route}}">
 
-        <!-- Drawer Content -->
-        <paper-menu class="list" attr-for-selected="data-route" selected="{{route}}" on-iron-select="onMenuSelect">
-          <a data-route="home" href="/">
-            <iron-icon icon="home"></iron-icon>
-            <span>Home</span>
-          </a>
+      <section data-route="login">
 
-          <a data-route="users" href="/users">
-            <iron-icon icon="info"></iron-icon>
-            <span>Users</span>
-          </a>
+        <epe-login
+          user-actions="[[userActions]]"
+          user-store="[[userStore]]"></epe-login>
 
-          <a data-route="contact" href="/contact">
-            <iron-icon icon="mail"></iron-icon>
-            <span>Contact</span>
-          </a>
-        </paper-menu>
-      </paper-scroll-header-panel>
+      </section>
 
-      <!-- Main Area -->
-      <paper-scroll-header-panel main condenses keep-condensed-header>
+      <section data-route="import">
 
-        <!-- Main Toolbar -->
-        <paper-toolbar id="mainToolbar" class="tall">
-          <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle></paper-icon-button>
-          <span class="flex"></span>
+        <paper-drawer-panel id="paperDrawerPanel">
+          <!-- Drawer Scroll Header Panel -->
+          <paper-scroll-header-panel drawer fixed>
 
-          <!-- Toolbar icons -->
-          <paper-icon-button icon="refresh"></paper-icon-button>
-          <paper-icon-button icon="search"></paper-icon-button>
+            <!-- Drawer Toolbar -->
+            <paper-toolbar id="drawerToolbar">
+              <span class="paper-font-title">Menu</span>
+            </paper-toolbar>
 
-          <!-- Application name -->
-          <div class="middle middle-container center horizontal layout">
-            <div class="app-name">Operation Farrell</div>
-          </div>
+            <!-- Drawer Content -->
+            <paper-menu class="list" attr-for-selected="data-route" selected="{{importRoute}}" on-iron-select="onMenuSelect">
+              <a data-route="import-parse" href="/import-parse">
+                <iron-icon icon="home"></iron-icon>
+                <span>Home</span>
+              </a>
 
-          <!-- Application sub title -->
-          <div class="bottom bottom-container center horizontal layout">
-            <div class="bottom-title paper-font-subhead">Electronic Presentation of Evidence</div>
-          </div>
+              <a data-route="import-users" href="/import-users">
+                <iron-icon icon="info"></iron-icon>
+                <span>Users</span>
+              </a>
 
-        </paper-toolbar>
+              <a data-route="import-contact" href="/import-contact">
+                <iron-icon icon="mail"></iron-icon>
+                <span>Contact</span>
+              </a>
+            </paper-menu>
+          </paper-scroll-header-panel>
 
-        <!-- Main Content -->
-        <div class="content">
-          <iron-pages attr-for-selected="data-route" selected="{{route}}">
+          <!-- Main Area -->
+          <paper-scroll-header-panel main condenses keep-condensed-header>
 
-            <section data-route="home">
+            <!-- Main Toolbar -->
+            <paper-toolbar id="mainToolbar" class="tall">
+              <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle></paper-icon-button>
+              <span class="flex"></span>
 
-              <paper-material elevation="1">
-                <epe-parse-spreadsheet
-                  import-actions="[[importActions]]"
-                  import-store="[[importStore]]"
-                  packaged-app="[[packagedApp]]"
-                  csv-type="Places"
-                  csv-parser="[[csvParser]]">
-                </epe-parse-spreadsheet>
-              </paper-material>
-            </section>
+              <!-- Toolbar icons -->
+              <paper-icon-button icon="refresh"></paper-icon-button>
+              <paper-icon-button icon="search"></paper-icon-button>
 
-            <section data-route="users">
-              <paper-material elevation="1">
-                <h2 class="paper-font-display2">Users</h2>
-                <p>This is the users section</p>
-                <a href="/users/Paddy">Paddy</a>
-              </paper-material>
-            </section>
+              <!-- Application name -->
+              <div class="middle middle-container center horizontal layout">
+                <div class="app-name">Operation Farrell</div>
+              </div>
 
-            <section data-route="user-info">
-              <paper-material elevation="1">
-                <h2 class="paper-font-display2">
-                  User:<span>{{params.name}}</span>
-                </h2>
-                <div>This is <span>{{params.name}}</span>'s section</div>
-              </paper-material>
-            </section>
+              <!-- Application sub title -->
+              <div class="bottom bottom-container center horizontal layout">
+                <div class="bottom-title paper-font-subhead">Electronic Presentation of Evidence</div>
+              </div>
 
-            <section data-route="contact">
-              <paper-material elevation="1">
-                <h2 class="paper-font-display2">Contact</h2>
-                <p>This is the contact section</p>
-              </paper-material>
-            </section>
+            </paper-toolbar>
 
-          </iron-pages>
-        </div>
-      </paper-scroll-header-panel>
-    </paper-drawer-panel>
+            <!-- Main Content -->
+            <div class="content">
+              <iron-pages attr-for-selected="data-route" selected="{{importRoute}}">
+
+                <section data-route="import-parse">
+
+                  <paper-material class="card" elevation="1">
+                    <epe-parse-spreadsheet
+                      import-actions="[[importActions]]"
+                      import-store="[[importStore]]"
+                      packaged-app="[[packagedApp]]"
+                      csv-type="Places"
+                      csv-parser="[[csvParser]]">
+                    </epe-parse-spreadsheet>
+                  </paper-material>
+                </section>
+
+                <section data-route="import-users">
+                  <paper-material class="card" elevation="1">
+                    <h2 class="paper-font-display2">Users</h2>
+                    <p>This is the users section</p>
+                    <a href="/import-users/Paddy">Paddy</a>
+                  </paper-material>
+                </section>
+
+                <section data-route="user-info">
+                  <paper-material class="card" elevation="1">
+                    <h2 class="paper-font-display2">
+                      User:<span>{{params.name}}</span>
+                    </h2>
+                    <div>This is <span>{{params.name}}</span>'s section</div>
+                  </paper-material>
+                </section>
+
+                <section data-route="import-contact">
+                  <paper-material class="card" elevation="1">
+                    <h2 class="paper-font-display2">Contact</h2>
+                    <p>This is the contact section</p>
+                  </paper-material>
+                </section>
+
+              </iron-pages>
+            </div>
+          </paper-scroll-header-panel>
+        </paper-drawer-panel>
+      </section>
+    </iron-pages>
+
+    <paper-toast id="UserToast" duration="3000">
+      <h2><span>User Login:</span></h2>
+      <div>
+        <span>[[user.message]]</span>
+      </div>
+    </paper-toast>
   </template>
 </dom-module>
 <script>
@@ -126,15 +148,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       user: {
         type: Object,
         value: null
-      },
-
-      importActions: {
-        type: Array
-      },
-
-      importStore: {
-        type: Object,
-        value: {}
       },
 
       packagedApp: {
@@ -151,6 +164,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         type: Object,
         value: null
       }
+    },
+
+    // Set up listeners when element is ready
+    ready: function() {
+
+      this.userStore.listen(function(user) {
+
+        if (user.status === 'loggedin') {
+          this.user = user;
+          this.navigateToImportParse();
+        }
+
+        this.displayUserMessage(user);
+
+      }.bind(this));
+    },
+
+    // Display relevant message to user
+    displayUserMessage: function(user) {
+
+      this.$.UserToast.show();
+    },
+
+    // Navigate to the ImportParseRoute
+    navigateToImportParse: function() {
+
+      this.route = 'import';
+      this.importRoute = 'import-parse';
     }
   });
 })();
