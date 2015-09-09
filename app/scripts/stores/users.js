@@ -38,7 +38,7 @@ module.exports = Reflux.createStore({
       return userObject;
 
     } else {
-      console.log('Log: Login Fail')
+      console.log('Log: Login Fail');
     }
   }
 });

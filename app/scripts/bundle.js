@@ -159,7 +159,7 @@ var importStore = require('./stores/import.js'); // All available Reflux stores
   // The appName is moved to top and shrunk on condensing. The bottom sub title
   // is shrunk to nothing on condensing.
   addEventListener('paper-header-transform', function(e) {
-    var appName = document.querySelector('.app-name');
+    var sectionName = document.querySelector('.section-name');
     var middleContainer = document.querySelector('.middle-container');
     var bottomContainer = document.querySelector('.bottom-container');
     var detail = e.detail;
@@ -176,7 +176,7 @@ var importStore = require('./stores/import.js'); // All available Reflux stores
     Polymer.Base.transform('scale(' + scaleBottom + ') translateZ(0)', bottomContainer);
 
     // Scale middleContainer appName
-    Polymer.Base.transform('scale(' + scaleMiddle + ') translateZ(0)', appName);
+    Polymer.Base.transform('scale(' + scaleMiddle + ') translateZ(0)', sectionName);
   });
 
   // Close drawer after menu item is selected if drawerPanel is narrow
@@ -394,7 +394,7 @@ module.exports = Reflux.createStore({
       return userObject;
 
     } else {
-      console.log('Log: Login Fail')
+      console.log('Log: Login Fail');
     }
   }
 });

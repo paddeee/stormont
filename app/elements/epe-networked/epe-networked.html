@@ -31,7 +31,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </section>
 
       <section data-route="import">
-
         <epe-import
           import-actions="[[importActions]]"
           import-store="[[importStore]]"
@@ -39,6 +38,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           csv-type="Places"
           csv-parser="[[csvParser]]"></epe-import>
       </section>
+
     </iron-pages>
 
     <paper-toast id="UserToast" duration="3000">
@@ -47,6 +47,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <span>[[user.message]]</span>
       </div>
     </paper-toast>
+
   </template>
 </dom-module>
 <script>
@@ -87,13 +88,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.navigateToChooseOption();
         }
 
-        this.displayUserMessage(user);
+        this.displayUserMessage();
 
       }.bind(this));
     },
 
     // Display relevant message to user
-    displayUserMessage: function(user) {
+    displayUserMessage: function() {
 
       this.$.UserToast.show();
     },
