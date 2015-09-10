@@ -21,6 +21,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     paper-spinner {
       left: calc(50% - 20px);
       height: 40px;
+      pointer-events: none;
       position: absolute;
       top: calc(50% - 20px);
       width: 40px;
@@ -47,7 +48,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       display: block;
       margin: 16px auto;
       outline: none;
-      height: 2vh;
       padding: 2vh 0 3vh;
       color: #fff;
     }
@@ -58,15 +58,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .files::before {
       content: 'or click to select a file';
-      background: var(--divider-color);
-      padding: 2vh 3vh;
+      background: var(--paper-blue-500);
+      border-radius: 5px;
+      padding: 2vh;
       outline: none;
       white-space: nowrap;
       -webkit-user-select: none;
       cursor: pointer;
       font-size: 14pt;
       margin: 0 auto;
-
     }
 
     .files:hover::before {
@@ -99,7 +99,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <div class="drop-area__text  vertical layout center center-justified"
            invisible$="{{importing}}">
-        Drag a CaseMap file here
+        <p>Drag <span>[[csvType]]</span> CaseMap file here</p>
         <input type="file"
                id="files"
                class="files"

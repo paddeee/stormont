@@ -40,9 +40,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       EpeImport.importRoute = 'import-users';
     });
 
-    page('/user-info/:name', function (data) {
+    page('/import-parse/:name', function (data) {
       app.route = 'import';
-      EpeImport.importRoute = 'user-info';
+      EpeImport.importRoute = 'import-parse';
       EpeImport.params = data.params;
     });
 

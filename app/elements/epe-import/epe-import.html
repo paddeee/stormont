@@ -78,7 +78,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <!-- Application name -->
         <div class="middle middle-container center horizontal layout">
-          <div class="section-name">Import CaseMap File</div>
+          <div class="section-name">Import <span>[[params.name]]</span> CaseMap File</div>
         </div>
 
         <!-- Application sub title -->
@@ -88,15 +88,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </paper-toolbar>
 
       <!-- Navigation Tabs -->
-      <paper-tabs selected="0">
-        <paper-tab link>
-          <a href="#link1" class="horizontal center-center layout">EVENTS</a>
+      <paper-tabs attr-for-selected="name" selected="{{params.name}}">
+        <paper-tab name="Events" link>
+          <a href="/import-parse/Events" class="horizontal center-center layout">EVENTS</a>
         </paper-tab>
-        <paper-tab link>
-          <a href="#link2" class="horizontal center-center layout">PEOPLE</a>
+        <paper-tab name="People" link>
+          <a href="/import-parse/People" class="horizontal center-center layout">PEOPLE</a>
         </paper-tab>
-        <paper-tab link>
-          <a href="#link3" class="horizontal center-center layout">PLACES</a>
+        <paper-tab name="Places" link>
+          <a href="/import-parse/Places" class="horizontal center-center layout">PLACES</a>
         </paper-tab>
         <paper-tab link>
         <a href="#link4" class="horizontal center-center layout">TAB FOUR</a>
@@ -120,7 +120,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 import-actions="[[importActions]]"
                 import-store="[[importStore]]"
                 packaged-app="[[packagedApp]]"
-                csv-type="Places"
+                csv-type="[[params.name]]"
                 csv-parser="[[csvParser]]">
               </epe-parse-spreadsheet>
             </paper-material>
@@ -162,9 +162,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     properties: {
       foo: {
-        type: String,
-        value: 'bar',
-        notify: true
+        type: 'Object'
       }
     },
 
