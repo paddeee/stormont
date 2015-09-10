@@ -10,7 +10,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <script src="../../bower_components/page/page.js"></script>
 <script>
+
   window.addEventListener('WebComponentsReady', function() {
+
+    var EpeImport = document.getElementById('EpeImport');
 
     // We use Page.js for routing. This is a Micro
     // client-side router inspired by the Express router
@@ -29,23 +32,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     page('/import-parse', function () {
       app.route = 'import';
-      app.importRoute = 'import-parse';
+      EpeImport.importRoute = 'import-parse';
     });
 
     page('/import-users', function () {
       app.route = 'import';
-      app.importRoute = 'import-users';
+      EpeImport.importRoute = 'import-users';
     });
 
-    page('/import-users/:name', function (data) {
+    page('/user-info/:name', function (data) {
       app.route = 'import';
-      app.importRoute = 'user-info';
-      app.params = data.params;
+      EpeImport.importRoute = 'user-info';
+      EpeImport.params = data.params;
     });
 
     page('/import-contact', function () {
       app.route = 'import';
-      app.importRoute = 'import-contact';
+      EpeImport.importRoute = 'import-contact';
     });
 
     // add #! before urls

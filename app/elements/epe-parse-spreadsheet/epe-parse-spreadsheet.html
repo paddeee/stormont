@@ -34,7 +34,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       border-style: dashed;
       color: var(--divider-color);
       cursor: pointer;
-      height: 50vh;
+      height: 40vh;
       font-size: 3.5vw;
     }
 
@@ -45,8 +45,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .files {
       cursor: pointer;
       display: block;
-      margin: 0 auto;
+      margin: 16px auto;
       outline: none;
+      height: 2vh;
+      padding: 2vh 0 3vh;
+      color: #fff;
     }
 
     .files::-webkit-file-upload-button {
@@ -55,14 +58,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .files::before {
       content: 'or click to select a file';
-      background: white;
-      padding: 15px;
+      background: var(--divider-color);
+      padding: 2vh 3vh;
       outline: none;
       white-space: nowrap;
       -webkit-user-select: none;
       cursor: pointer;
-      font-size: 16pt;
+      font-size: 14pt;
       margin: 0 auto;
+
     }
 
     .files:hover::before {
@@ -90,7 +94,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <div id="DropArea"
          class="drop-area layout horizontal center center-justified"
-         on-tap="handleTap"
          on-drop="handleDrop"
          on-dragover="handleDragOver">
 

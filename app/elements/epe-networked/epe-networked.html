@@ -32,6 +32,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <section data-route="import">
         <epe-import
+          id="EpeImport"
           import-actions="[[importActions]]"
           import-store="[[importStore]]"
           packaged-app="[[packagedApp]]"
@@ -40,6 +41,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </section>
 
     </iron-pages>
+
+    <a id="EnterApp" data-route="choose-option" href="/choose-option"></a>
 
     <paper-toast id="UserToast" duration="3000">
       <h2><span>User Login:</span></h2>
@@ -101,7 +104,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Navigate to the Choose Option
     navigateToChooseOption: function() {
-      this.route = 'choose-option';
+      //this.route = 'choose-option';
+      this.$.EnterApp.click();
     }
   });
 })();
