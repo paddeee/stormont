@@ -46,9 +46,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       EpeImport.params = data.params;
     });
 
-    page('/import-contact', function () {
+    page('/import-check/:name', function (data) {
       app.route = 'import';
-      EpeImport.importRoute = 'import-contact';
+      EpeImport.importRoute = 'import-check';
+      EpeImport.params = data.params;
     });
 
     // add #! before urls

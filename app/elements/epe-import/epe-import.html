@@ -87,71 +87,83 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
       </paper-toolbar>
 
-      <!-- Navigation Tabs -->
-      <paper-tabs attr-for-selected="name" selected="{{params.name}}">
-        <paper-tab name="Events" link>
-          <a href="/import-parse/Events" class="horizontal center-center layout">EVENTS</a>
-        </paper-tab>
-        <paper-tab name="People" link>
-          <a href="/import-parse/People" class="horizontal center-center layout">PEOPLE</a>
-        </paper-tab>
-        <paper-tab name="Places" link>
-          <a href="/import-parse/Places" class="horizontal center-center layout">PLACES</a>
-        </paper-tab>
-        <paper-tab link>
-        <a href="#link4" class="horizontal center-center layout">TAB FOUR</a>
-        </paper-tab>
-        <paper-tab link>
-          <a href="#link5" class="horizontal center-center layout">TAB FIVE</a>
-        </paper-tab>
-        <paper-tab link>
-          <a href="#link6" class="horizontal center-center layout">TAB SIX</a>
-        </paper-tab>
-      </paper-tabs>
+      <iron-pages attr-for-selected="data-route" selected="{{importRoute}}">
 
-      <!-- Main Content -->
-      <div class="content">
-        <iron-pages attr-for-selected="data-route" selected="{{importRoute}}">
+        <!-- Import Parse -->
+        <section data-route="import-parse">
+          <div class="content layout horizontal">
 
-          <section data-route="import-parse">
+            <!-- File Import Selector -->
+            <div class="flex-1 relative">
+              <paper-material class="card fit layout vertical">
+                <paper-radio-group selected="small">
+                  <paper-radio-button name="Events">Events</paper-radio-button>
+                  <paper-radio-button name="People">People</paper-radio-button>
+                  <paper-radio-button name="Places">Places</paper-radio-button>
+                  <paper-radio-button name="Radio1">Radio1</paper-radio-button>
+                  <paper-radio-button name="Radio2">Radio2</paper-radio-button>
+                  <paper-radio-button name="Radio3">Radio3</paper-radio-button>
+                </paper-radio-group>
+              </paper-material>
+            </div>
 
+            <!-- Drag & Drop CSV Import -->
+            <div class="flex-3">
+              <paper-material class="card" elevation="1">
+                <epe-parse-spreadsheet
+                  import-actions="[[importActions]]"
+                  import-store="[[importStore]]"
+                  packaged-app="[[packagedApp]]"
+                  csv-type="[[params.name]]"
+                  csv-parser="[[csvParser]]">
+                </epe-parse-spreadsheet>
+              </paper-material>
+            </div>
+          </div>
+        </section>
+
+        <!-- Import Check -->
+        <section data-route="import-check">
+
+          <!-- Navigation Tabs -->
+          <paper-tabs attr-for-selected="name" selected="{{params.name}}">
+            <paper-tab name="Events" link>
+              <a href="/import-check/Events" class="horizontal center-center layout">EVENTS</a>
+            </paper-tab>
+            <paper-tab name="People" link>
+              <a href="/import-check/People" class="horizontal center-center layout">PEOPLE</a>
+            </paper-tab>
+            <paper-tab name="Places" link>
+              <a href="/import-check/Places" class="horizontal center-center layout">PLACES</a>
+            </paper-tab>
+          </paper-tabs>
+
+          <!-- Main Content -->
+          <div class="content">
             <paper-material class="card" elevation="1">
-              <epe-parse-spreadsheet
-                import-actions="[[importActions]]"
-                import-store="[[importStore]]"
-                packaged-app="[[packagedApp]]"
-                csv-type="[[params.name]]"
-                csv-parser="[[csvParser]]">
-              </epe-parse-spreadsheet>
+              <epe-import-check
+                imported-file-type="[[params.name]]"></epe-import-check>
             </paper-material>
-          </section>
+          </div>
+        </section>
 
-          <section data-route="import-users">
-            <paper-material class="card" elevation="1">
-              <h2 class="paper-font-display2">Users</h2>
-              <p>This is the users section</p>
-              <a href="/user-info/Paddy">Paddy</a>
-            </paper-material>
-          </section>
+        <section data-route="import-users">
+          <paper-material class="card" elevation="1">
+            <h2 class="paper-font-display2">Users</h2>
+            <p>This is the users section</p>
+            <a href="/user-info/Paddy">Paddy</a>
+          </paper-material>
+        </section>
 
-          <section data-route="user-info">
-            <paper-material class="card" elevation="1">
-              <h2 class="paper-font-display2">
-                User:<span>{{params.name}}</span>
-              </h2>
-              <div>This is <span>{{params.name}}</span>'s section</div>
-            </paper-material>
-          </section>
-
-          <section data-route="import-contact">
-            <paper-material class="card" elevation="1">
-              <h2 class="paper-font-display2">Contact</h2>
-              <p>This is the contact section</p>
-            </paper-material>
-          </section>
-
-        </iron-pages>
-      </div>
+        <section data-route="user-info">
+          <paper-material class="card" elevation="1">
+            <h2 class="paper-font-display2">
+              User:<span>{{params.name}}</span>
+            </h2>
+            <div>This is <span>{{params.name}}</span>'s section</div>
+          </paper-material>
+        </section>
+      </iron-pages>
     </paper-scroll-header-panel>
   </template>
 </dom-module>
