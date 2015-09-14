@@ -132,7 +132,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <!-- File Import Selector -->
             <div class="flex-1 relative">
               <paper-material class="card fit layout vertical">
-                <paper-radio-group selected="{{params.name}}">
+                <paper-radio-group selected="{{importedFileType}}">
                   <paper-radio-button name="Events">Events</paper-radio-button>
                   <paper-radio-button name="People">People</paper-radio-button>
                   <paper-radio-button name="Places">Places</paper-radio-button>
@@ -145,16 +145,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             <!-- Drag & Drop CSV Import -->
             <div class="flex-3  parse-import-holder">
-              <div class="no-import-selected horizontal layout center" showing>
+              <div class="no-import-selected horizontal layout center"
+                   showing$="[[!isFileTypeSelected]]">
                 <p>Please choose a type of CaseMap File to Import.</p>
               </div>
 
-              <paper-material class="card parse-import" elevation="1" showing$="[[showParseImport]]">
+              <paper-material
+                class="card parse-import"
+                elevation="1"
+                showing$="[[isFileTypeSelected]]">
+
                 <epe-parse-spreadsheet
                   import-actions="[[importActions]]"
                   import-store="[[importStore]]"
                   packaged-app="[[packagedApp]]"
-                  csv-type="[[params.name]]"
+                  csv-type="[[importedFileType]]"
                   csv-parser="[[csvParser]]">
                 </epe-parse-spreadsheet>
               </paper-material>
@@ -186,23 +191,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </paper-material>
           </div>
         </section>
-
-        <section data-route="import-users">
-          <paper-material class="card" elevation="1">
-            <h2 class="paper-font-display2">Users</h2>
-            <p>This is the users section</p>
-            <a href="/user-info/Paddy">Paddy</a>
-          </paper-material>
-        </section>
-
-        <section data-route="user-info">
-          <paper-material class="card" elevation="1">
-            <h2 class="paper-font-display2">
-              User:<span>{{params.name}}</span>
-            </h2>
-            <div>This is <span>{{params.name}}</span>'s section</div>
-          </paper-material>
-        </section>
       </iron-pages>
     </paper-scroll-header-panel>
   </template>
@@ -214,6 +202,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     properties: {
 
+      importedFileType: {
+        type: String,
+        observer: 'fileTypeChanged'
+      },
+
+      isFileTypeSelected: {
+        type: 'Boolean',
+        value: false
+      }
+    },
+
+    // Called from the observer on the importedFileType which will change when radio buttons are selected
+    fileTypeChanged: function() {
+      this.isFileTypeSelected = true;
     },
 
     // Navigate back
