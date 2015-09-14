@@ -27,10 +27,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       width: 40px;
     }
 
-    paper-toast {
-      z-index: 1;
-    }
-
     .drop-area {
       border-style: dashed;
       color: var(--divider-color);
@@ -109,13 +105,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <paper-spinner alt="Loading contacts list" active$="[[importing]]"></paper-spinner>
     </div>
-
-    <paper-toast id="ImportToast" duration="3000">
-      <h2><span>[[importFinished.title]]</span></h2>
-      <div>
-        <span>[[importFinished.message]]</span>
-      </div>
-    </paper-toast>
+    </div>
 
   </template>
 </dom-module>
@@ -154,11 +144,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       csvParser: {
         type: Object,
         value: null
-      },
-
-      importFinished: {
-        type: Object,
-        value: null
       }
     },
 
@@ -166,17 +151,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       this.importStore.listen(function(importFinished) {
 
-        this.importFinished = importFinished;
+        this.fire('import-finished', importFinished);
 
         // Reset input file type
         this.$.files.value = '';
-
-        // Delay by a second as the spinner hiding is delayed by a second
-        this.async(function() {
-
-          // Show dialog message
-          this.$.ImportToast.show();
-        }, 1000);
 
       }.bind(this));
     },

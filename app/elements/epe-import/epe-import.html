@@ -52,6 +52,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       padding: 8px;
     }
 
+    .radio-container {
+      min-width: 230px;
+    }
+
     .parse-import-holder {
       position: relative;
     }
@@ -88,6 +92,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       text-align: center;
     }
 
+    .toast-button-container {
+      margin: 16px 0;
+    }
+
+    paper-button {
+      color: var(--text-primary-color);
+    }
+
+    paper-button.affirmitive {
+      color: var(--accent-color);
+    }
+
   </style>
   <template>
 
@@ -114,12 +130,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-tooltip for="ViewButton" offset="0">View Packages</paper-tooltip>
 
         <!-- Application name -->
-        <div class="middle middle-container center horizontal layout">
-          <div class="section-name">Import <span>[[params.name]]</span> CaseMap File</div>
+        <div id="MiddleContainer" class="middle middle-container center horizontal layout">
+          <div id="SectionName" class="section-name">Import <span>[[params.name]]</span> CaseMap File</div>
         </div>
 
         <!-- Application sub title -->
-        <div class="bottom bottom-container center horizontal layout">
+        <div id="BottomContainer" class="bottom bottom-container center horizontal layout">
           <div class="bottom-title paper-font-subhead">Special Investigation Task Force</div>
         </div>
       </paper-toolbar>
@@ -131,7 +147,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <div class="content layout horizontal">
 
             <!-- File Import Selector -->
-            <div class="flex-1 relative">
+            <div class="flex-1 relative radio-container">
               <paper-material class="card fit layout vertical">
                 <paper-radio-group selected="{{importedFileType}}">
                   <paper-radio-button name="Events">Events</paper-radio-button>
@@ -161,7 +177,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   import-store="[[importStore]]"
                   packaged-app="[[packagedApp]]"
                   csv-type="[[importedFileType]]"
-                  csv-parser="[[csvParser]]">
+                  csv-parser="[[csvParser]]"
+                  on-import-finished="importFinishedHandler">
                 </epe-parse-spreadsheet>
               </paper-material>
             </div>
@@ -182,6 +199,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <paper-tab name="Places" link>
               <a href="/import-check/Places" class="horizontal center-center layout">PLACES</a>
             </paper-tab>
+            <paper-tab name="Radio1" link>
+              <a href="/import-check/Radio1" class="horizontal center-center layout">RADIO 1</a>
+            </paper-tab>
+            <paper-tab name="Radio2" link>
+              <a href="/import-check/Radio2" class="horizontal center-center layout">RADIO 2</a>
+            </paper-tab>
+            <paper-tab name="Radio3" link>
+              <a href="/import-check/Radio3" class="horizontal center-center layout">RADIO 3</a>
+            </paper-tab>
           </paper-tabs>
 
           <!-- Main Content -->
@@ -194,9 +220,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </section>
       </iron-pages>
     </paper-scroll-header-panel>
+
+    <!-- Import Notifications -->
+    <paper-toast id="ImportToast" duration="10000">
+      <h2><span>[[importFinished.title]]</span></h2>
+      <div>
+        <div>[[importFinished.message]]</div>
+        <div>View Imported CaseMap File?</div>
+        <div class="toast-button-container layout horizontal">
+          <paper-button tabindex="0" class="flex custom" on-tap="closeToast">
+            <iron-icon icon="clear"></iron-icon>NO
+          </paper-button>
+          <paper-button tabindex="0" class="affirmitive flex custom" on-tap="navigateToImportCheck">
+            <iron-icon icon="check"></iron-icon>YES
+          </paper-button>
+        </div>
+      </div>
+    </paper-toast>
+
   </template>
 </dom-module>
 <script>
+
 (function() {
   Polymer({
     is: 'epe-import',
@@ -211,12 +256,72 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       isFileTypeSelected: {
         type: 'Boolean',
         value: false
+      },
+
+      importFinished: {
+        type: Object,
+        value: null
       }
+    },
+
+    ready: function() {
+
+      addEventListener('paper-header-transform', function(e) {
+        var sectionName = this.$.SectionName;
+        var middleContainer = this.$.MiddleContainer;
+        var bottomContainer = this.$.BottomContainer;
+        var detail = e.detail;
+        var heightDiff = detail.height - detail.condensedHeight;
+        var yRatio = Math.min(1, detail.y / heightDiff);
+        var maxMiddleScale = 0.50;  // appName max size when condensed. The smaller the number the smaller the condensed size.
+        var scaleMiddle = Math.max(maxMiddleScale, (heightDiff - detail.y) / (heightDiff / (1-maxMiddleScale))  + maxMiddleScale);
+        var scaleBottom = 1 - yRatio;
+
+        // Move/translate middleContainer
+        Polymer.Base.transform('translate3d(0,' + yRatio * 100 + '%,0)', middleContainer);
+
+        // Scale bottomContainer and bottom sub title to nothing and back
+        Polymer.Base.transform('scale(' + scaleBottom + ') translateZ(0)', bottomContainer);
+
+        // Scale middleContainer appName
+        Polymer.Base.transform('scale(' + scaleMiddle + ') translateZ(0)', sectionName);
+      }.bind(this));
     },
 
     // Called from the observer on the importedFileType which will change when radio buttons are selected
     fileTypeChanged: function() {
       this.isFileTypeSelected = true;
+    },
+
+    // TRIGGERED BY EVENT FIRED ON CHILD ELEMENT: Import completed
+    importFinishedHandler: function(importData) {
+
+      this.importFinished = importData.detail;
+
+      // Delay by a second as the spinner hiding is delayed by a second
+      this.async(function() {
+
+        // Reset Page
+        this.isFileTypeSelected = false;
+
+        // Show dialog message
+        this.$.ImportToast.show();
+      }, 1000);
+    },
+
+    // Close the Toast
+    closeToast: function() {
+
+      // Reset Imported File Type
+      this.importedFileType = '';
+
+      this.$.ImportToast.hide();
+    },
+
+    // Navigate to the import check view
+    navigateToImportCheck: function() {
+      page('/import-check/' + this.importedFileType);
+      this.closeToast();
     },
 
     // Navigate back

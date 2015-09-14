@@ -107,12 +107,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-tooltip for="ViewButton" offset="0">View Packages</paper-tooltip>
 
         <!-- Application name -->
-        <div class="middle middle-container center horizontal layout">
-          <div class="section-name">What would you like to do?</div>
+        <div id="MiddleContainer" class="middle middle-container center horizontal layout">
+          <div id="SectionName" class="section-name">What would you like to do?</div>
         </div>
 
         <!-- Application sub title -->
-        <div class="bottom bottom-container center horizontal layout">
+        <div id="BottomContainer" class="bottom bottom-container center horizontal layout">
           <div class="bottom-title paper-font-subhead">Special Investigation Task Force</div>
         </div>
       </paper-toolbar>
@@ -189,6 +189,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         value: 'bar',
         notify: true
       }
+    },
+
+    ready: function() {
+
+      addEventListener('paper-header-transform', function(e) {
+        var sectionName = this.$.SectionName;
+        var middleContainer = this.$.MiddleContainer;
+        var bottomContainer = this.$.BottomContainer;
+        var detail = e.detail;
+        var heightDiff = detail.height - detail.condensedHeight;
+        var yRatio = Math.min(1, detail.y / heightDiff);
+        var maxMiddleScale = 0.50;  // appName max size when condensed. The smaller the number the smaller the condensed size.
+        var scaleMiddle = Math.max(maxMiddleScale, (heightDiff - detail.y) / (heightDiff / (1-maxMiddleScale))  + maxMiddleScale);
+        var scaleBottom = 1 - yRatio;
+
+        // Move/translate middleContainer
+        Polymer.Base.transform('translate3d(0,' + yRatio * 100 + '%,0)', middleContainer);
+
+        // Scale bottomContainer and bottom sub title to nothing and back
+        Polymer.Base.transform('scale(' + scaleBottom + ') translateZ(0)', bottomContainer);
+
+        // Scale middleContainer appName
+        Polymer.Base.transform('scale(' + scaleMiddle + ') translateZ(0)', sectionName);
+      }.bind(this));
     }
   });
 })();
