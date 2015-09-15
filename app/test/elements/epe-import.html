@@ -53,7 +53,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       context('Filetype Selected', function() {
 
-        it('should show the Choose File message by default', function (done) {
+        it('should show the Choose File message by default and have default values', function (done) {
 
           var $messageEl = epeImport.querySelector('.no-import-selected');
           var $dragDropEl = epeImport.querySelector('.parse-import');
@@ -118,6 +118,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           setTimeout(function () {
             $importToast.visible.should.be.true;
+            done();
+          }, 1100);
+        });
+
+        it('should show the Choose File message after Import', function (done) {
+
+          var $messageEl = epeImport.querySelector('.no-import-selected');
+          var $dragDropEl = epeImport.querySelector('.parse-import');
+
+          setTimeout(function () {
+            $messageEl.hasAttribute('showing').should.be.true;
+            $dragDropEl.hasAttribute('showing').should.be.false;
             done();
           }, 1100);
         });
