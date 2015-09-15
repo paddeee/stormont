@@ -1,0 +1,129 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>my-greeting-basic</title>
+
+  <script src="../../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
+  <link rel="import" href="../../../bower_components/polymer/polymer.html">
+  <script src="../../../bower_components/web-component-tester/browser.js"></script>
+  <script src="../../../bower_components/test-fixture/test-fixture-mocha.js"></script>
+  <script src="../../../bower_components/iron-test-helpers/mock-interactions.js"></script>
+  <link rel="import" href="../../../bower_components/test-fixture/test-fixture.html">
+
+  <!-- Import the dependencies -->
+  <link rel="import" href="../../../bower_components/paper-radio-group/paper-radio-group.html">
+  <link rel="import" href="../../../bower_components/paper-toast/paper-toast.html">
+
+  <!-- Import the element to test -->
+  <link rel="import" href="../../elements/epe-import/epe-import.html">
+
+</head>
+<body>
+
+  <test-fixture id="basic">
+    <template>
+      <epe-import></epe-import>
+    </template>
+  </test-fixture>
+
+  <script>
+
+    window.chai.should();
+
+    describe('epe-import', function() {
+
+      var epeImport;
+      var $importToast;
+      var spoofEventObject;
+
+      beforeEach(function() {
+        epeImport = fixture('basic');
+      });
+
+      context('Filetype Selected', function() {
+
+        it('should show the Choose File message by default', function (done) {
+
+          var $messageEl = epeImport.querySelector('.no-import-selected');
+          var $dragDropEl = epeImport.querySelector('.parse-import');
+
+          $messageEl.hasAttribute('showing').should.be.true;
+          $dragDropEl.hasAttribute('showing').should.be.false;
+          epeImport.importedFileType.should.be.a('string').with.length(0);
+          epeImport.isFileTypeSelected.should.be.false;
+          done();
+        });
+
+        it('should show the Drag Drop and update relevant text when a radio button is selected', function (done) {
+
+          var $messageEl = epeImport.querySelector('.no-import-selected');
+          var $dragDropEl = epeImport.querySelector('.parse-import');
+          var $radioPlaces = epeImport.querySelector('paper-radio-button[name=Places]');
+
+          // Select Places Radio button
+          MockInteractions.tap($radioPlaces);
+
+          $messageEl.hasAttribute('showing').should.be.false;
+          $dragDropEl.hasAttribute('showing').should.be.true;
+          epeImport.importedFileType.should.be.a('string').with.length.above(0);
+          epeImport.isFileTypeSelected.should.be.true;
+          done();
+        });
+      });
+
+      context('Import Successful', function() {
+
+        beforeEach(function() {
+
+          $importToast = epeImport.querySelector('#ImportToast');
+          spoofEventObject = {
+            detail: {
+              type: 'success',
+              title: 'Import Successful',
+              message: 'Places CSV has been successfully imported'
+            }
+          };
+
+          epeImport.importedFileType = 'Places';
+
+          epeImport.importFinishedHandler(spoofEventObject);
+        });
+
+        it('reset the element\'s properties', function (done) {
+
+          epeImport.importFinished.should.be.deep.equal(spoofEventObject.detail);
+
+          setTimeout(function () {
+            epeImport.importedFileType.should.be.a('string').with.length(0);
+            epeImport.isFileTypeSelected.should.be.false;
+            epeImport.lastFileTypeImported.should.be.a('string').with.length.above(0);
+            done();
+          }, 1100);
+        });
+
+        it('should show a toast notification on Import', function (done) {
+
+          $importToast.visible.should.be.false;
+
+          setTimeout(function () {
+            $importToast.visible.should.be.true;
+            done();
+          }, 1100);
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>

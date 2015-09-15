@@ -222,7 +222,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </paper-scroll-header-panel>
 
     <!-- Import Notifications -->
-    <paper-toast id="ImportToast" duration="10000">
+    <paper-toast id="ImportToast" duration="100000">
       <h2><span>[[importFinished.title]]</span></h2>
       <div>
         <div>[[importFinished.message]]</div>
@@ -250,12 +250,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       importedFileType: {
         type: String,
-        observer: 'fileTypeChanged'
+        observer: 'fileTypeChanged',
+        value: ''
       },
 
       isFileTypeSelected: {
         type: 'Boolean',
         value: false
+      },
+
+      lastFileTypeImported: {
+        type: String
       },
 
       importFinished: {
@@ -290,7 +295,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Called from the observer on the importedFileType which will change when radio buttons are selected
     fileTypeChanged: function() {
-      this.isFileTypeSelected = true;
+      if (this.importedFileType) {
+        this.isFileTypeSelected = true;
+      }
+
+      return false;
     },
 
     // TRIGGERED BY EVENT FIRED ON CHILD ELEMENT: Import completed
@@ -303,24 +312,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Reset Page
         this.isFileTypeSelected = false;
+        this.lastFileTypeImported = this.importedFileType;
+        this.importedFileType = '';
 
         // Show dialog message
-        this.$.ImportToast.show();
+        this.openToast();
       }, 1000);
+    },
+
+    // Open the Toast
+    openToast: function() {
+      this.$.ImportToast.show();
     },
 
     // Close the Toast
     closeToast: function() {
-
-      // Reset Imported File Type
-      this.importedFileType = '';
-
       this.$.ImportToast.hide();
     },
 
     // Navigate to the import check view
     navigateToImportCheck: function() {
-      page('/import-check/' + this.importedFileType);
+      page('/import-check/' + this.lastFileTypeImported);
       this.closeToast();
     },
 

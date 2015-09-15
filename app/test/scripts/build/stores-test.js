@@ -123,7 +123,7 @@ module.exports = Reflux.createStore({
     dataCollection = this.addDBCollection(db, fileObject);
 
     // Insert the array into the database collection
-    this.populateCollection(collectionArray, dataCollection);
+    this.populateCollection(collectionArray, dataCollection, fileObject.collectionName);
 
     // Save database
     db.saveDatabase();
@@ -237,7 +237,7 @@ module.exports = Reflux.createStore({
   },
 
   // Populate the Loki collection with our array of data
-  populateCollection: function (collectionArray, dataCollection) {
+  populateCollection: function (collectionArray, dataCollection, collectionName) {
 
     dataCollection.insert(collectionArray);
 
@@ -250,7 +250,7 @@ module.exports = Reflux.createStore({
     this.trigger({
       type: 'success',
       title: 'Import Successful',
-      message: 'Places CSV has been successfully imported'
+      message: collectionName + ' CSV has been successfully imported'
     });
   }
 });
