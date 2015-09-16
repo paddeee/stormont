@@ -22,6 +22,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="../../../bower_components/test-fixture/test-fixture.html">
 
   <!-- Import the dependencies -->
+  <link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
 
   <!-- Import the element to test -->
   <link rel="import" href="../../elements/epe-import-check/epe-import-check.html">
@@ -43,6 +44,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     var epeImportCheck;
     var $importedFileType;
+    var $tabs;
+    var $eventsTab;
 
     beforeEach(function() {
       epeImportCheck = fixture('basic');
@@ -52,19 +55,47 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       beforeEach(function() {
         $importedFileType = epeImportCheck.querySelector('.imported-file-type');
+        $tabs = epeImportCheck.querySelector('paper-tabs');
+        $eventsTab = epeImportCheck.querySelector('paper-tab[name=Events]');
       });
 
-      it('should display which file type is currently being viewed', function (done) {
-
-        // No value passed in
-        $importedFileType.textContent.trim().should.be.empty;
+      it('should default to the Places tab', function (done) {
 
         // Places passed in via params
         epeImportCheck.params = {
           name: 'Places'
         };
 
-        $importedFileType.textContent.trim().should.equal('Places');
+        $tabs.selected.should.equal('Places');
+
+        done();
+      });
+
+      it('should default to the Events tab', function (done) {
+
+        // Places passed in via params
+        epeImportCheck.params = {
+          name: 'Events'
+        };
+
+        $tabs.selected.should.equal('Events');
+
+        done();
+      });
+
+      it('should display which file type is currently being viewed', function (done) {
+
+        // Places passed in via params
+        epeImportCheck.params = {
+          name: 'Places'
+        };
+
+        $importedFileType.textContent.should.equal('Places');
+
+        // Select Events Tab
+        MockInteractions.tap($eventsTab);
+
+        $importedFileType.textContent.should.equal('Events');
 
         done();
       });
