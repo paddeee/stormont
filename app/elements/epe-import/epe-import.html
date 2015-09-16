@@ -48,7 +48,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       transform-origin: left center;
     }
 
-    .content {
+    .import-area {
       padding: 8px;
     }
 
@@ -131,7 +131,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <!-- Application name -->
         <div id="MiddleContainer" class="middle middle-container center horizontal layout">
-          <div id="SectionName" class="section-name">Import <span>[[params.name]]</span> CaseMap File</div>
+          <div id="SectionName" class="section-name"><span>[[sectionTitle]]</span></div>
         </div>
 
         <!-- Application sub title -->
@@ -140,83 +140,53 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
       </paper-toolbar>
 
-      <iron-pages attr-for-selected="data-route" selected="{{importRoute}}">
+      <!-- Main Content -->
+      <iron-pages attr-for-selected="data-route" selected="{{importRoute}}" on-iron-select="setSectionTitle">
 
         <!-- Import Parse -->
-        <section data-route="import-parse">
-          <div class="content layout horizontal">
+        <section data-route="import-parse" class="import-area layout horizontal">
 
-            <!-- File Import Selector -->
-            <div class="flex-1 relative radio-container">
-              <paper-material class="card fit layout vertical">
-                <paper-radio-group selected="{{importedFileType}}">
-                  <paper-radio-button name="Events">Events</paper-radio-button>
-                  <paper-radio-button name="People">People</paper-radio-button>
-                  <paper-radio-button name="Places">Places</paper-radio-button>
-                  <paper-radio-button name="Radio1">Radio1</paper-radio-button>
-                  <paper-radio-button name="Radio2">Radio2</paper-radio-button>
-                  <paper-radio-button name="Radio3">Radio3</paper-radio-button>
-                </paper-radio-group>
-              </paper-material>
+          <!-- File Import Selector -->
+          <div class="flex-1 relative radio-container">
+            <paper-material class="card fit layout vertical">
+              <paper-radio-group selected="{{importedFileType}}">
+                <paper-radio-button name="Events">Events</paper-radio-button>
+                <paper-radio-button name="People">People</paper-radio-button>
+                <paper-radio-button name="Places">Places</paper-radio-button>
+                <paper-radio-button name="Radio1">Radio1</paper-radio-button>
+                <paper-radio-button name="Radio2">Radio2</paper-radio-button>
+                <paper-radio-button name="Radio3">Radio3</paper-radio-button>
+              </paper-radio-group>
+            </paper-material>
+          </div>
+
+          <!-- Drag & Drop CSV Import -->
+          <div class="flex-3  parse-import-holder">
+            <div class="no-import-selected horizontal layout center"
+                 showing$="[[!isFileTypeSelected]]">
+              <p>Please choose a type of CaseMap File to Import.</p>
             </div>
 
-            <!-- Drag & Drop CSV Import -->
-            <div class="flex-3  parse-import-holder">
-              <div class="no-import-selected horizontal layout center"
-                   showing$="[[!isFileTypeSelected]]">
-                <p>Please choose a type of CaseMap File to Import.</p>
-              </div>
+            <paper-material
+              class="card parse-import"
+              elevation="1"
+              showing$="[[isFileTypeSelected]]">
 
-              <paper-material
-                class="card parse-import"
-                elevation="1"
-                showing$="[[isFileTypeSelected]]">
-
-                <epe-parse-spreadsheet
-                  import-actions="[[importActions]]"
-                  import-store="[[importStore]]"
-                  packaged-app="[[packagedApp]]"
-                  csv-type="[[importedFileType]]"
-                  csv-parser="[[csvParser]]"
-                  on-import-finished="importFinishedHandler">
-                </epe-parse-spreadsheet>
-              </paper-material>
-            </div>
+              <epe-parse-spreadsheet
+                import-actions="[[importActions]]"
+                import-store="[[importStore]]"
+                packaged-app="[[packagedApp]]"
+                csv-type="[[importedFileType]]"
+                csv-parser="[[csvParser]]"
+                on-import-finished="importFinishedHandler">
+              </epe-parse-spreadsheet>
+            </paper-material>
           </div>
         </section>
 
         <!-- Import Check -->
         <section data-route="import-check">
-
-          <!-- Navigation Tabs -->
-          <paper-tabs attr-for-selected="name" selected="{{params.name}}">
-            <paper-tab name="Events" link>
-              <a href="/import-check/Events" class="horizontal center-center layout">EVENTS</a>
-            </paper-tab>
-            <paper-tab name="People" link>
-              <a href="/import-check/People" class="horizontal center-center layout">PEOPLE</a>
-            </paper-tab>
-            <paper-tab name="Places" link>
-              <a href="/import-check/Places" class="horizontal center-center layout">PLACES</a>
-            </paper-tab>
-            <paper-tab name="Radio1" link>
-              <a href="/import-check/Radio1" class="horizontal center-center layout">RADIO 1</a>
-            </paper-tab>
-            <paper-tab name="Radio2" link>
-              <a href="/import-check/Radio2" class="horizontal center-center layout">RADIO 2</a>
-            </paper-tab>
-            <paper-tab name="Radio3" link>
-              <a href="/import-check/Radio3" class="horizontal center-center layout">RADIO 3</a>
-            </paper-tab>
-          </paper-tabs>
-
-          <!-- Main Content -->
-          <div class="content">
-            <paper-material class="card" elevation="1">
-              <epe-import-check
-                imported-file-type="[[params.name]]"></epe-import-check>
-            </paper-material>
-          </div>
+          <epe-import-check id="EpeImportCheck"></epe-import-check>
         </section>
       </iron-pages>
     </paper-scroll-header-panel>
@@ -266,6 +236,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       importFinished: {
         type: Object,
         value: null
+      },
+
+      sectionTitle: {
+        type: String,
+        value: 'Import CaseMap File'
       }
     },
 
@@ -293,10 +268,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }.bind(this));
     },
 
+    // Update header section title based on where we are
+    setSectionTitle: function() {
+      if (this.importRoute === 'import-parse') {
+        this.sectionTitle = 'Import ' + this.importedFileType + ' CaseMap File';
+      } else if (this.importRoute === 'import-check')  {
+        if (this.$.EpeImportCheck.params) {
+          this.sectionTitle = 'Check ' + this.$.EpeImportCheck.params.name + ' CaseMap File';
+        }
+      }
+    },
+
     // Called from the observer on the importedFileType which will change when radio buttons are selected
     fileTypeChanged: function() {
+
       if (this.importedFileType) {
         this.isFileTypeSelected = true;
+        this.setSectionTitle();
       }
 
       return false;

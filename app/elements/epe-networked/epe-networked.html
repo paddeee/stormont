@@ -42,8 +42,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     </iron-pages>
 
-    <a id="EnterApp" data-route="choose-option" href="/choose-option"></a>
-
     <paper-toast id="UserToast" duration="3000">
       <h2><span>User Login:</span></h2>
       <div>
@@ -98,14 +96,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Display relevant message to user
     displayUserMessage: function() {
-
       this.$.UserToast.show();
     },
 
     // Navigate to the Choose Option
     navigateToChooseOption: function() {
-      //this.route = 'choose-option';
-      this.$.EnterApp.click();
+      page('/choose-option');
     }
   });
 })();

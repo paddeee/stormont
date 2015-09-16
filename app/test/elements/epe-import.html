@@ -41,11 +41,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     window.chai.should();
 
-    describe('epe-import', function() {
+    describe('Import Component', function() {
 
       var epeImport;
+      var $radioPlaces;
+      var $dragDropEl;
+      var $messageEl;
       var $importToast;
+      var $sectionName;
       var spoofEventObject;
+      var $importCheck;
 
       beforeEach(function() {
         epeImport = fixture('basic');
@@ -53,30 +58,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       context('Filetype Selected', function() {
 
-        it('should show the Choose File message by default and have default values', function (done) {
+        beforeEach(function() {
+          $messageEl = epeImport.querySelector('.no-import-selected');
+          $dragDropEl = epeImport.querySelector('.parse-import');
+          $radioPlaces = epeImport.querySelector('paper-radio-button[name=Places]');
+        });
 
-          var $messageEl = epeImport.querySelector('.no-import-selected');
-          var $dragDropEl = epeImport.querySelector('.parse-import');
+        it('should show the Choose File message by default and have default values', function (done) {
 
           $messageEl.hasAttribute('showing').should.be.true;
           $dragDropEl.hasAttribute('showing').should.be.false;
-          epeImport.importedFileType.should.be.a('string').with.length(0);
+          epeImport.importedFileType.should.be.empty;
           epeImport.isFileTypeSelected.should.be.false;
           done();
         });
 
         it('should show the Drag Drop and update relevant text when a radio button is selected', function (done) {
 
-          var $messageEl = epeImport.querySelector('.no-import-selected');
-          var $dragDropEl = epeImport.querySelector('.parse-import');
-          var $radioPlaces = epeImport.querySelector('paper-radio-button[name=Places]');
-
           // Select Places Radio button
           MockInteractions.tap($radioPlaces);
 
           $messageEl.hasAttribute('showing').should.be.false;
           $dragDropEl.hasAttribute('showing').should.be.true;
-          epeImport.importedFileType.should.be.a('string').with.length.above(0);
+          epeImport.importedFileType.should.equal('Places');
           epeImport.isFileTypeSelected.should.be.true;
           done();
         });
@@ -132,6 +136,49 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             $dragDropEl.hasAttribute('showing').should.be.false;
             done();
           }, 1100);
+        });
+      });
+
+      context('Correct Title Displayed', function() {
+
+        beforeEach(function() {
+          $sectionName = epeImport.querySelector('#SectionName');
+          $radioPlaces = epeImport.querySelector('paper-radio-button[name=Places]');
+        });
+
+        it('should show the correct title when landing on import-parse', function (done) {
+
+          epeImport.importRoute = 'import-parse';
+
+          $sectionName.textContent.should.equal('Import CaseMap File');
+          done();
+        });
+
+        it('should show the correct title when selecting a file type on import-parse', function (done) {
+
+          epeImport.importRoute = 'import-parse';
+
+          // Select Places Radio button
+          MockInteractions.tap($radioPlaces);
+
+          $sectionName.textContent.should.equal('Import Places CaseMap File');
+          done();
+        });
+
+        it('should show the correct title when on import-check', function (done) {
+
+          $importCheck = epeImport.querySelector('#EpeImportCheck');
+
+          epeImport.importRoute = 'import-check';
+          $importCheck.params = {
+            name: 'Events'
+          };
+
+          // Select Places Radio button
+          MockInteractions.tap($radioPlaces);
+
+          $sectionName.textContent.should.equal('Check Events CaseMap File');
+          done();
         });
       });
     });

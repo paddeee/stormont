@@ -17,8 +17,39 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
   </style>
   <template>
-    <h2 class="paper-font-display2"><span>[[importedFileType]]</span></h2>
-    <p>This is the import sanity check section</p>
+
+    <!-- Navigation Tabs -->
+    <paper-tabs attr-for-selected="name" selected="{{params.name}}">
+      <paper-tab name="Events" link>
+        <a href="/import-check/Events" class="horizontal center-center layout">EVENTS</a>
+      </paper-tab>
+      <paper-tab name="People" link>
+        <a href="/import-check/People" class="horizontal center-center layout">PEOPLE</a>
+      </paper-tab>
+      <paper-tab name="Places" link>
+        <a href="/import-check/Places" class="horizontal center-center layout">PLACES</a>
+      </paper-tab>
+      <paper-tab name="Tab1" link>
+        <a href="/import-check/Tab1" class="horizontal center-center layout">TAB 1</a>
+      </paper-tab>
+      <paper-tab name="Tab2" link>
+        <a href="/import-check/Tab2" class="horizontal center-center layout">TAB 2</a>
+      </paper-tab>
+      <paper-tab name="Tab3" link>
+        <a href="/import-check/Tab3" class="horizontal center-center layout">TAB 3</a>
+      </paper-tab>
+    </paper-tabs>
+
+    <iron-pages attr-for-selected="data-route" selected="{{importCheckRoute}}">
+
+      <section data-route="import-check" class="import-area layout horizontal">
+        <paper-material class="card" elevation="1">
+          <h2 class="imported-file-type paper-font-display2"><span>[[params.name]]</span></h2>
+          <p>This is the import sanity check section</p>
+        </paper-material>
+      </section>
+    </iron-pages>
+
   </template>
 </dom-module>
 <script>
@@ -27,11 +58,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     is: 'epe-import-check',
 
     properties: {
-
-      importedFileType: {
-        type: String,
-        value: ''
-      }
     }
   });
 })();

@@ -14,6 +14,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   window.addEventListener('WebComponentsReady', function() {
 
     var EpeImport = document.getElementById('EpeImport');
+    var EpeImportCheck = document.getElementById('EpeImportCheck');
 
     // We use Page.js for routing. This is a Micro
     // client-side router inspired by the Express router
@@ -26,30 +27,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       app.route = 'choose-option';
     });
 
-    page('/import', function () {
-      app.route = 'import';
-    });
-
     page('/import-parse', function () {
       app.route = 'import';
       EpeImport.importRoute = 'import-parse';
     });
 
-    page('/import-users', function () {
-      app.route = 'import';
-      EpeImport.importRoute = 'import-users';
-    });
-
-    page('/import-parse/:name', function (data) {
-      app.route = 'import';
-      EpeImport.importRoute = 'import-parse';
-      EpeImport.params = data.params;
-    });
-
     page('/import-check/:name', function (data) {
       app.route = 'import';
       EpeImport.importRoute = 'import-check';
-      EpeImport.params = data.params;
+      EpeImportCheck.importCheckRoute = 'import-check';
+      EpeImportCheck.params = data.params;
     });
 
     // add #! before urls

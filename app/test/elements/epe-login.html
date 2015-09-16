@@ -22,10 +22,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="../../../bower_components/test-fixture/test-fixture.html">
 
   <!-- Import the dependencies -->
+  <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
   <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 
   <!-- Import the element to test -->
-  <link rel="import" href="../../elements/epe-import/epe-login.html">
+  <link rel="import" href="../../elements/epe-login/epe-login.html">
 
 </head>
 <body>
@@ -38,23 +39,79 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <script>
 
-  window.chai.should();
+  var should = window.chai.should();
 
-  describe('epe-login', function() {
+  describe('Login Component', function() {
 
     var epeLogin;
+    var $userName;
+    var $password;
+    var $submitButton;
 
     beforeEach(function() {
       epeLogin = fixture('basic');
+      epeLogin.userActions = {
+        "loginAttempted": function() {
+          return;
+        }
+      }
     });
 
     context('Login Attempted', function() {
 
+      beforeEach(function() {
+        $userName = epeLogin.querySelector('#UserName');
+        $password = epeLogin.querySelector('#Password');
+        $submitButton = epeLogin.querySelector('#SubmitButton');
+      });
+
       it('should show validation if nothing entered in Username field', function (done) {
+
+        $userName.invalid.should.be.false;
+
+        // Tap Submit Button
+        MockInteractions.tap($submitButton);
+
+        $userName.invalid.should.be.true;
         done();
       });
 
       it('should show validation if nothing entered in Password field', function (done) {
+
+        $password.invalid.should.be.false;
+
+        // Tap Submit Button
+        MockInteractions.tap($submitButton);
+
+        $password.invalid.should.be.true;
+        done();
+      });
+
+      it('should create a valid object when all fields are filled in and Login is attempted and call the action method', function (done) {
+
+        var userLoginObject = {
+          username: 'paddy75',
+          password: 'qwerty123'
+        };
+
+        var spyLoginAttempted = sinon.stub(epeLogin.userActions, "loginAttempted", function() {
+          return;
+        });
+
+        $userName.value = 'paddy75';
+        $password.value = 'qwerty123';
+
+        // Before Submit
+        should.not.exist(epeLogin.userLogin);
+        spyLoginAttempted.called.should.be.false;
+
+        // Tap Submit Button
+        MockInteractions.tap($submitButton);
+
+        // After Submit
+        epeLogin.userLogin.should.deep.equal(userLoginObject);
+        spyLoginAttempted.called.should.be.true;
+
         done();
       });
     });

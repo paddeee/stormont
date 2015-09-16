@@ -33,6 +33,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       padding: 16px 0;
     }
 
+    .submit-button {
+      background-color: var(--text-primary-color);
+      color: var(--primary-text-color);
+    }
+
     paper-fab {
       color: var(--primary-text-color);
     }
@@ -49,19 +54,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           autofocus
           autovalidate
           required
-          error-message="Please enter your User Name"
-          on-blur="validateForm"></paper-input>
+          error-message="Please enter your User Name"></paper-input>
         <paper-input
           id="Password"
           label="Password"
           required
           autovalidate
-          error-message="Please enter your Password"
-          on-blur="validateForm"></paper-input>
+          error-message="Please enter your Password"></paper-input>
         <div class="submit-button-holder layout horizontal end-justified">
-          <paper-fab
+          <paper-button
+            raised
+            id="SubmitButton"
+            class="submit-button"
             icon="check"
-            on-tap="submitTapped"></paper-fab>
+            on-tap="submitTapped">Log In</paper-button>
         </div>
 
       </paper-material>
