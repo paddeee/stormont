@@ -34,11 +34,18 @@ function lokiFileAdapter() {}
  * @param {function} callback - callback should accept string param containing serialized db string.
  */
 lokiFileAdapter.prototype.loadDatabase = function loadDatabase(dbname, callback) {
-  var callbackFunction = callback || console.log;
 
-  fs.readFile(dbname,'utf8', function(err, data) {
+  // This can be set from nw.js input file directory picker value
+  var path = global.packagedApp ? '/Users/ODonnell/Documents' : '';
+
+  //var callbackFunction = callback || console.log;
+
+  fs.readFile(path + '/FarrellLoki/' + dbname, 'utf-8', function(err, data) {
+
     var db = err || data;
-    callbackFunction(db);
+    console.log(err);
+    console.log(data);
+    //callbackFunction(db);
   });
 };
 

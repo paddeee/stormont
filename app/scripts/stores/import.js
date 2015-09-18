@@ -1,9 +1,8 @@
 'use strict';
 
 var Reflux = require('reflux');
-var loki = require('lokijs');
-var fileAdapter = require('../adapters/loki-file-adapter.js');
 var ImportActions = require('../actions/import.js');
+var dataSourceStore = require('../stores/dataSource.js');
 
 module.exports = Reflux.createStore({
 
@@ -15,23 +14,19 @@ module.exports = Reflux.createStore({
 
     var collectionArray;
     var dataCollection;
-    var db;
+    var dataSource = dataSourceStore.dataSource;
 
     // Parse the CSV into an array
     collectionArray = this.parseCSV(fileObject.CSV);
 
-    // Create In-Memory database
-    //db = new loki('farrell.json');
-    db = new loki('farrell.json', { adapter: fileAdapter });
-
     // Create a collection in the database
-    dataCollection = this.addDBCollection(db, fileObject);
+    dataCollection = this.addDBCollection(dataSource, fileObject);
 
     // Insert the array into the database collection
     this.populateCollection(collectionArray, dataCollection, fileObject.collectionName);
 
     // Save database
-    db.saveDatabase();
+    dataSource.saveDatabase();
   },
 
   // Create an array of cellObjects which can be iterated through to return a dataCollection
@@ -146,10 +141,17 @@ module.exports = Reflux.createStore({
 
     dataCollection.insert(collectionArray);
 
-    console.log(dataCollection
-      .chain()
-      .find({'time-start':{'$gt': 959558399}})
-      .data());
+    /* Example Usage
+
+    dataCollection
+     .chain()
+     .find({'age':{'$gt': 25}})
+     .where(function(obj){ return obj.name.indexOf("in") != -1 })
+     .simplesort("age")
+     .offset(50)
+     .limit(10)
+     .data();
+     */
 
     // Pass on to listeners
     this.trigger({

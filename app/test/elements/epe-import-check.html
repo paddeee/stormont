@@ -82,23 +82,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         done();
       });
-
-      it('should display which file type is currently being viewed', function (done) {
-
-        // Places passed in via params
-        epeImportCheck.params = {
-          name: 'Places'
-        };
-
-        $importedFileType.textContent.should.equal('Places');
-
-        // Select Events Tab
-        MockInteractions.tap($eventsTab);
-
-        $importedFileType.textContent.should.equal('Events');
-
-        done();
-      });
     });
   });
 </script>

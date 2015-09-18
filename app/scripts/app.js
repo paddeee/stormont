@@ -10,13 +10,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 var moment = require('moment');
 var reflux = require('reflux');
 var CSVParser = require('harb');
-var userActions = require('./actions/users.js'); // All available Reflux actions
-var userStore = require('./stores/users.js'); // All available Reflux stores
-var importActions = require('./actions/import.js'); // All available Reflux actions
-var importStore = require('./stores/import.js'); // All available Reflux stores
+var dataSourceActions = require('./actions/dataSource.js');
+var dataSourceStore = require('./stores/dataSource.js');
+var userActions = require('./actions/users.js');
+var userStore = require('./stores/users.js');
+var importActions = require('./actions/import.js');
+var importStore = require('./stores/import.js');
 
-(function(document, reflux, moment, importActions, importStore) {
+(function(document, reflux, moment, dataSourceActions, dataSourceStore, importActions, importStore) {
   'use strict';
+
+  // Call checkForLDAP action
+  dataSourceActions.checkForLDAP();
 
   // Grab a reference to our auto-binding template
   // and give it some initial binding values
@@ -32,6 +37,13 @@ var importStore = require('./stores/import.js'); // All available Reflux stores
   app.importActions = importActions;
   app.importStore = importStore;
   app.packagedApp = global.packagedApp ? true : false;
+
+  // Listen for events triggered from dataSourceStore and update the app's dataSource
+  dataSourceStore.listen(function(dataSource) {
+
+    app.dataSource = dataSource;
+    console.log(app.dataSource);
+  });
 
   app.displayInstalledToast = function() {
     document.querySelector('#caching-complete').show();
@@ -57,4 +69,4 @@ var importStore = require('./stores/import.js'); // All available Reflux stores
     }
   };
 
-})(document, reflux, moment, importActions, importStore);
+})(document, reflux, moment, dataSourceActions, dataSourceStore, importActions, importStore);

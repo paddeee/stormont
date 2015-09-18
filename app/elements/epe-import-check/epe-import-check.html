@@ -43,10 +43,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <iron-pages attr-for-selected="data-route" selected="{{importCheckRoute}}">
 
       <section data-route="import-check" class="import-area layout horizontal">
-        <paper-material class="card" elevation="1">
-          <h2 class="imported-file-type paper-font-display2"><span>[[params.name]]</span></h2>
-          <p>This is the import sanity check section</p>
-        </paper-material>
+        <epe-data-grid></epe-data-grid>
       </section>
     </iron-pages>
 
