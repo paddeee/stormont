@@ -18,7 +18,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .list-item {
       background-color: var(--text-primary-color);
+      border-bottom: 1px var(--divider-color) solid;
       padding: 16px;
+    }
+
+    .list-item .field {
+      display: none;
+    }
+
+    .list-item .field[showing] {
+      display: block;
     }
   </style>
   <template>
@@ -26,10 +35,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     </div>
     <div class="records">
-      <iron-list items="{{gridData}}" as="item">
+      <iron-list items="[[gridData]]" as="item">
         <template>
-          <div class="list-item">
-            Name: <span>[[item.name]]</span>
+          <div class="list-item layout horizontal">
+            <template is="dom-repeat" items="[[toArray(item)]]">
+              <div class="field flex" showing$="[[showField(item.name)]]">
+                <div><span>{{item.value}}</span></div>
+              </div>
+            </template>
           </div>
         </template>
       </iron-list>
@@ -45,6 +58,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       gridData: {
         type: Array
       }
+    },
+
+    // Iterate through keys of an object and return key/value pair
+    toArray: function(obj) {
+      return Object.keys(obj).map(function(key) {
+        return {name: key, value: obj[key]};
+      });
+    },
+
+    // Return false if item is a loki property
+    showField: function(keyName) {
+
+      if (keyName === 'meta' || keyName === '$loki') {
+        return false;
+      }
+
+      return true;
     }
   });
 })();
