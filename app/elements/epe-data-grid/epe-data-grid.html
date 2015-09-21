@@ -15,6 +15,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     :host {
       display: block;
     }
+
+    .list-item {
+      background-color: var(--text-primary-color);
+      padding: 16px;
+    }
   </style>
   <template>
     <div class="headings">
@@ -23,7 +28,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <div class="records">
       <iron-list items="{{gridData}}" as="item">
         <template>
-          <div>
+          <div class="list-item">
             Name: <span>[[item.name]]</span>
           </div>
         </template>

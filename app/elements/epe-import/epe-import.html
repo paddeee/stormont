@@ -36,6 +36,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
      };
     }
 
+    paper-scroll-header-panel #mainContainer {
+      @apply(--layout-flex);
+      @apply(--layout-vertical);
+    }
+
     paper-toolbar.tall {
       background-color: transparent;
     }
@@ -48,8 +53,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       transform-origin: left center;
     }
 
+    .main-content {
+      height: 100%;
+    }
+
     .import-area {
       padding: 8px;
+    }
+
+    .import-check {
+      background-color: var(--text-primary-color);
+      height: 100%;
     }
 
     .radio-container {
@@ -141,7 +155,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </paper-toolbar>
 
       <!-- Main Content -->
-      <iron-pages attr-for-selected="data-route" selected="{{importRoute}}" on-iron-select="setSectionTitle">
+      <iron-pages
+        class="main-content"
+        attr-for-selected="data-route"
+        selected="{{importRoute}}"
+        on-iron-select="setSectionTitle">
 
         <!-- Import Parse -->
         <section data-route="import-parse" class="import-area layout horizontal">
@@ -185,7 +203,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </section>
 
         <!-- Import Check -->
-        <section data-route="import-check">
+        <section data-route="import-check" class="import-check">
           <epe-import-check
             id="EpeImportCheck"
             data-source-actions="[[dataSourceActions]]"
