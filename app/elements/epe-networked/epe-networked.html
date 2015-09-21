@@ -35,6 +35,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           id="EpeImport"
           import-actions="[[importActions]]"
           import-store="[[importStore]]"
+          data-source-actions="[[dataSourceActions]]"
+          data-source-store="[[dataSourceStore]]"
           packaged-app="[[packagedApp]]"
           csv-type="Places"
           csv-parser="[[csvParser]]"></epe-import>
@@ -59,21 +61,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     properties: {
 
       user: {
-        type: Object,
-        value: null
-      },
-
-      packagedApp: {
-        type: Boolean,
-        value: false
-      },
-
-      csvType: {
-        type: String,
-        value: ''
-      },
-
-      csvParser: {
         type: Object,
         value: null
       }

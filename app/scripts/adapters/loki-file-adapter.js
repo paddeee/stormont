@@ -73,8 +73,8 @@ lokiFileAdapter.prototype.saveDatabase = function saveDatabase(dbname, dbstring,
   fs.mkdir(path + '/FarrellLoki/', function() {
     fs.writeFile(path + '/FarrellLoki/' + dbname, dbstring, function() {
       fs.readFile(path + '/FarrellLoki/' + dbname, 'utf-8', function(err, data) {
-        console.log(err);
-        console.log(data);
+        //console.log(err);
+        //console.log(data);
       });
     });
   });

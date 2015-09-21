@@ -19,7 +19,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <template>
 
     <!-- Navigation Tabs -->
-    <paper-tabs attr-for-selected="name" selected="{{params.name}}">
+    <paper-tabs attr-for-selected="name" selected="{{params.name}}" on-iron-select="tabSelected">
       <paper-tab name="Events" link>
         <a href="/import-check/Events" class="horizontal center-center layout">EVENTS</a>
       </paper-tab>
@@ -42,8 +42,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <iron-pages attr-for-selected="data-route" selected="{{importCheckRoute}}">
 
-      <section data-route="import-check" class="import-area layout horizontal">
-        <epe-data-grid></epe-data-grid>
+      <section data-route="import-check" class="import-check-area relative layout horizontal">
+        <epe-data-grid
+          class="fit"
+          grid-data="[[gridData]]"></epe-data-grid>
       </section>
     </iron-pages>
 
@@ -55,6 +57,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     is: 'epe-import-check',
 
     properties: {
+
+      gridData: {
+        type: Array
+      }
+    },
+
+    ready: function() {
+
+      // When the dataSource is changed, update our grid data
+      this.dataSourceStore.listen(function(dataSource) {
+
+        this.setGridData(this.params.name);
+
+      }.bind(this));
+    },
+
+    // When a tab is selected set the collectionData if available
+    tabSelected: function(event) {
+
+      var tabChosen = event.detail.item.getAttribute('name');
+
+      this.setGridData(tabChosen);
+    },
+
+    // Set the gridData that is to be passed into a data-grid element
+    setGridData: function(collectionName) {
+
+      if (this.dataSourceStore.dataSource.collections.length) {
+        this.gridData = this.dataSourceStore.dataSource.getCollection(collectionName).data;
+      }
     }
   });
 })();

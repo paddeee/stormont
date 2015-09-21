@@ -21,7 +21,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     </div>
     <div class="records">
-      <iron-list items="[[data]]" as="item" class="fit">
+      <iron-list items="{{gridData}}" as="item">
         <template>
           <div>
             Name: <span>[[item.name]]</span>
@@ -37,10 +37,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     is: 'epe-data-grid',
 
     properties: {
-      foo: {
-        type: String,
-        value: 'bar',
-        notify: true
+      gridData: {
+        type: Array
       }
     }
   });

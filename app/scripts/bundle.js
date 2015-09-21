@@ -102,8 +102,8 @@ lokiFileAdapter.prototype.saveDatabase = function saveDatabase(dbname, dbstring,
   fs.mkdir(path + '/FarrellLoki/', function() {
     fs.writeFile(path + '/FarrellLoki/' + dbname, dbstring, function() {
       fs.readFile(path + '/FarrellLoki/' + dbname, 'utf-8', function(err, data) {
-        console.log(err);
-        console.log(data);
+        //console.log(err);
+        //console.log(data);
       });
     });
   });
@@ -153,12 +153,9 @@ var importStore = require('./stores/import.js');
   app.userStore = userStore;
   app.importActions = importActions;
   app.importStore = importStore;
+  app.dataSourceActions = dataSourceActions;
+  app.dataSourceStore = dataSourceStore;
   app.packagedApp = global.packagedApp ? true : false;
-
-  // Listen for events triggered from dataSourceStore and update the app's dataSource
-  dataSourceStore.listen(function(dataSource) {
-    app.dataSource = dataSource;
-  });
 
   app.displayInstalledToast = function() {
     document.querySelector('#caching-complete').show();
@@ -203,7 +200,7 @@ module.exports = Reflux.createStore({
   // The Loki db object
   dataSource: null,
 
-  // When a user has attempted login
+  // Set the dataSource Object based on the availability of LDAP
   checkForLDAP: function () {
 
     if (this.LDAPExists()) {
@@ -218,7 +215,6 @@ module.exports = Reflux.createStore({
         this.trigger(this.dataSource);
 
       }.bind(this));
-
     }
   },
 

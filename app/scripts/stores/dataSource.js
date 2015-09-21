@@ -13,7 +13,7 @@ module.exports = Reflux.createStore({
   // The Loki db object
   dataSource: null,
 
-  // When a user has attempted login
+  // Set the dataSource Object based on the availability of LDAP
   checkForLDAP: function () {
 
     if (this.LDAPExists()) {
@@ -28,7 +28,6 @@ module.exports = Reflux.createStore({
         this.trigger(this.dataSource);
 
       }.bind(this));
-
     }
   },
 

@@ -4,10 +4,19 @@
 var Reflux = require('reflux');
 
 module.exports = Reflux.createActions([
+  'checkForLDAP'
+]);
+
+},{"reflux":48}],2:[function(require,module,exports){
+'use strict';
+
+var Reflux = require('reflux');
+
+module.exports = Reflux.createActions([
   'fileImported'     // called by successful spreadsheet import
 ]);
 
-},{"reflux":46}],2:[function(require,module,exports){
+},{"reflux":48}],3:[function(require,module,exports){
 (function (global){
 /**
  * @file lokiFileAdapter.js
@@ -45,11 +54,14 @@ function lokiFileAdapter() {}
  * @param {function} callback - callback should accept string param containing serialized db string.
  */
 lokiFileAdapter.prototype.loadDatabase = function loadDatabase(dbname, callback) {
-  var callbackFunction = callback || console.log;
 
-  fs.readFile(dbname,'utf8', function(err, data) {
-    var db = err || data;
-    callbackFunction(db);
+  // This can be set from nw.js input file directory picker value
+  var path = global.packagedApp ? '/Users/ODonnell/Documents' : '';
+
+  fs.readFile(path + '/FarrellLoki/' + dbname, 'utf-8', function(err, data) {
+
+    var dataStore = err || data;
+    callback(dataStore);
   });
 };
 
@@ -92,13 +104,54 @@ module.exports = new lokiFileAdapter();
 exports.lokiFileAdapter = lokiFileAdapter;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"browserify-fs":5}],3:[function(require,module,exports){
+},{"browserify-fs":7}],4:[function(require,module,exports){
 'use strict';
 
 var Reflux = require('reflux');
 var loki = require('lokijs');
 var fileAdapter = require('../adapters/loki-file-adapter.js');
+var DataSourceActions = require('../actions/dataSource.js');
+
+module.exports = Reflux.createStore({
+
+  // this will set up listeners to all publishers in DataSourceActions, using onKeyname (or keyname) as callbacks
+  listenables: [DataSourceActions],
+
+  // The Loki db object
+  dataSource: null,
+
+  // When a user has attempted login
+  checkForLDAP: function () {
+
+    if (this.LDAPExists()) {
+
+      this.dataSource = new loki('farrell.json', {
+        adapter: fileAdapter
+      });
+
+      this.dataSource.loadDatabase({}, function() {
+
+        // Send object out to all listeners when database loaded
+        this.trigger(this.dataSource);
+
+      }.bind(this));
+
+    }
+  },
+
+  // Can we establish an LDAP connection
+  // ToDo: Need to manage LDAP connectivity checks from here. For now, just return true
+  LDAPExists: function() {
+    return true;
+  }
+});
+
+},{"../actions/dataSource.js":1,"../adapters/loki-file-adapter.js":3,"lokijs":47,"reflux":48}],5:[function(require,module,exports){
+'use strict';
+
+var Reflux = require('reflux');
 var ImportActions = require('../actions/import.js');
+var dataSourceStore = require('../stores/dataSource.js');
 
 module.exports = Reflux.createStore({
 
@@ -109,24 +162,25 @@ module.exports = Reflux.createStore({
   onFileImported: function (fileObject) {
 
     var collectionArray;
-    var dataCollection;
-    var db;
+    var dataSource = dataSourceStore.dataSource;
+    var dataCollection = dataSource.getCollection(fileObject.collectionName);
 
     // Parse the CSV into an array
     collectionArray = this.parseCSV(fileObject.CSV);
 
-    // Create In-Memory database
-    //db = new loki('farrell.json');
-    db = new loki('farrell.json', { adapter: fileAdapter });
-
-    // Create a collection in the database
-    dataCollection = this.addDBCollection(db, fileObject);
+    // Create/Update a collection in the database
+    //if (this.collectionExists(dataSource, fileObject.collectionName)) {
+    if (dataCollection) {
+      dataCollection.clear();
+    } else {
+      dataCollection = this.addDBCollection(dataSource, fileObject);
+    }
 
     // Insert the array into the database collection
     this.populateCollection(collectionArray, dataCollection, fileObject.collectionName);
 
     // Save database
-    db.saveDatabase();
+    dataSource.saveDatabase();
   },
 
   // Create an array of cellObjects which can be iterated through to return a dataCollection
@@ -179,6 +233,21 @@ module.exports = Reflux.createStore({
 
     return dataCollection;
   },
+
+  // Return true if a collection of this name already exists in the dataSource
+  /*collectionExists: function (dataSource, collectionName) {
+
+    var collections = dataSource.listCollections();
+    var collectionExists = false;
+
+    collections.forEach(function(collection) {
+      if (collection.name === collectionName) {
+        collectionExists = true;
+      }
+    });
+
+    return collectionExists;
+  },*/
 
   // Create an array of cellObjects which can be iterated through to generate our dataCollection
   createCellArray: function (sheet) {
@@ -241,10 +310,17 @@ module.exports = Reflux.createStore({
 
     dataCollection.insert(collectionArray);
 
-    console.log(dataCollection
-      .chain()
-      .find({'time-start':{'$gt': 959558399}})
-      .data());
+    /* Example Usage
+
+    dataCollection
+     .chain()
+     .find({'age':{'$gt': 25}})
+     .where(function(obj){ return obj.name.indexOf("in") != -1 })
+     .simplesort("age")
+     .offset(50)
+     .limit(10)
+     .data();
+     */
 
     // Pass on to listeners
     this.trigger({
@@ -255,7 +331,7 @@ module.exports = Reflux.createStore({
   }
 });
 
-},{"../actions/import.js":1,"../adapters/loki-file-adapter.js":2,"lokijs":45,"reflux":46}],4:[function(require,module,exports){
+},{"../actions/import.js":2,"../stores/dataSource.js":4,"reflux":48}],6:[function(require,module,exports){
 var should = require('chai').should();
 var ImportActions = require('../../../scripts/stores/import.js');
 
@@ -416,9 +492,9 @@ describe('Import', function() {
   });
 });
 
-},{"../../../scripts/stores/import.js":3,"chai":10}],5:[function(require,module,exports){
+},{"../../../scripts/stores/import.js":5,"chai":12}],7:[function(require,module,exports){
 
-},{}],6:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 /*!
  * The buffer module from node.js, for the browser.
  *
@@ -1857,7 +1933,7 @@ function decodeUtf8Char (str) {
   }
 }
 
-},{"base64-js":7,"ieee754":8,"is-array":9}],7:[function(require,module,exports){
+},{"base64-js":9,"ieee754":10,"is-array":11}],9:[function(require,module,exports){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 ;(function (exports) {
@@ -1983,7 +2059,7 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 	exports.fromByteArray = uint8ToBase64
 }(typeof exports === 'undefined' ? (this.base64js = {}) : exports))
 
-},{}],8:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
   var eLen = nBytes * 8 - mLen - 1
@@ -2069,7 +2145,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],9:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 
 /**
  * isArray
@@ -2104,10 +2180,10 @@ module.exports = isArray || function (val) {
   return !! val && '[object Array]' == str.call(val);
 };
 
-},{}],10:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 module.exports = require('./lib/chai');
 
-},{"./lib/chai":11}],11:[function(require,module,exports){
+},{"./lib/chai":13}],13:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011-2014 Jake Luer <jake@alogicalparadox.com>
@@ -2202,7 +2278,7 @@ exports.use(should);
 var assert = require('./chai/interface/assert');
 exports.use(assert);
 
-},{"./chai/assertion":12,"./chai/config":13,"./chai/core/assertions":14,"./chai/interface/assert":15,"./chai/interface/expect":16,"./chai/interface/should":17,"./chai/utils":30,"assertion-error":38}],12:[function(require,module,exports){
+},{"./chai/assertion":14,"./chai/config":15,"./chai/core/assertions":16,"./chai/interface/assert":17,"./chai/interface/expect":18,"./chai/interface/should":19,"./chai/utils":32,"assertion-error":40}],14:[function(require,module,exports){
 /*!
  * chai
  * http://chaijs.com
@@ -2335,7 +2411,7 @@ module.exports = function (_chai, util) {
   });
 };
 
-},{"./config":13}],13:[function(require,module,exports){
+},{"./config":15}],15:[function(require,module,exports){
 module.exports = {
 
   /**
@@ -2392,7 +2468,7 @@ module.exports = {
 
 };
 
-},{}],14:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 /*!
  * chai
  * http://chaijs.com
@@ -4123,7 +4199,7 @@ module.exports = function (chai, _) {
 
 };
 
-},{}],15:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011-2014 Jake Luer <jake@alogicalparadox.com>
@@ -5563,7 +5639,7 @@ module.exports = function (chai, util) {
   ('isNotFrozen', 'notFrozen');
 };
 
-},{}],16:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011-2014 Jake Luer <jake@alogicalparadox.com>
@@ -5598,7 +5674,7 @@ module.exports = function (chai, util) {
   };
 };
 
-},{}],17:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011-2014 Jake Luer <jake@alogicalparadox.com>
@@ -5698,7 +5774,7 @@ module.exports = function (chai, util) {
   chai.Should = loadShould;
 };
 
-},{}],18:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 /*!
  * Chai - addChainingMethod utility
  * Copyright(c) 2012-2014 Jake Luer <jake@alogicalparadox.com>
@@ -5811,7 +5887,7 @@ module.exports = function (ctx, name, method, chainingBehavior) {
   });
 };
 
-},{"../config":13,"./flag":21,"./transferFlags":37}],19:[function(require,module,exports){
+},{"../config":15,"./flag":23,"./transferFlags":39}],21:[function(require,module,exports){
 /*!
  * Chai - addMethod utility
  * Copyright(c) 2012-2014 Jake Luer <jake@alogicalparadox.com>
@@ -5856,7 +5932,7 @@ module.exports = function (ctx, name, method) {
   };
 };
 
-},{"../config":13,"./flag":21}],20:[function(require,module,exports){
+},{"../config":15,"./flag":23}],22:[function(require,module,exports){
 /*!
  * Chai - addProperty utility
  * Copyright(c) 2012-2014 Jake Luer <jake@alogicalparadox.com>
@@ -5898,7 +5974,7 @@ module.exports = function (ctx, name, getter) {
   });
 };
 
-},{}],21:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 /*!
  * Chai - flag utility
  * Copyright(c) 2012-2014 Jake Luer <jake@alogicalparadox.com>
@@ -5932,7 +6008,7 @@ module.exports = function (obj, key, value) {
   }
 };
 
-},{}],22:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 /*!
  * Chai - getActual utility
  * Copyright(c) 2012-2014 Jake Luer <jake@alogicalparadox.com>
@@ -5952,7 +6028,7 @@ module.exports = function (obj, args) {
   return args.length > 4 ? args[4] : obj._obj;
 };
 
-},{}],23:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 /*!
  * Chai - getEnumerableProperties utility
  * Copyright(c) 2012-2014 Jake Luer <jake@alogicalparadox.com>
@@ -5979,7 +6055,7 @@ module.exports = function getEnumerableProperties(object) {
   return result;
 };
 
-},{}],24:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 /*!
  * Chai - message composition utility
  * Copyright(c) 2012-2014 Jake Luer <jake@alogicalparadox.com>
@@ -6031,7 +6107,7 @@ module.exports = function (obj, args) {
   return flagMsg ? flagMsg + ': ' + msg : msg;
 };
 
-},{"./flag":21,"./getActual":22,"./inspect":31,"./objDisplay":32}],25:[function(require,module,exports){
+},{"./flag":23,"./getActual":24,"./inspect":33,"./objDisplay":34}],27:[function(require,module,exports){
 /*!
  * Chai - getName utility
  * Copyright(c) 2012-2014 Jake Luer <jake@alogicalparadox.com>
@@ -6053,7 +6129,7 @@ module.exports = function (func) {
   return match && match[1] ? match[1] : "";
 };
 
-},{}],26:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 /*!
  * Chai - getPathInfo utility
  * Copyright(c) 2012-2014 Jake Luer <jake@alogicalparadox.com>
@@ -6165,7 +6241,7 @@ function _getPathValue (parsed, obj, index) {
   return res;
 }
 
-},{"./hasProperty":29}],27:[function(require,module,exports){
+},{"./hasProperty":31}],29:[function(require,module,exports){
 /*!
  * Chai - getPathValue utility
  * Copyright(c) 2012-2014 Jake Luer <jake@alogicalparadox.com>
@@ -6209,7 +6285,7 @@ module.exports = function(path, obj) {
   return info.value;
 }; 
 
-},{"./getPathInfo":26}],28:[function(require,module,exports){
+},{"./getPathInfo":28}],30:[function(require,module,exports){
 /*!
  * Chai - getProperties utility
  * Copyright(c) 2012-2014 Jake Luer <jake@alogicalparadox.com>
@@ -6246,7 +6322,7 @@ module.exports = function getProperties(object) {
   return result;
 };
 
-},{}],29:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 /*!
  * Chai - hasProperty utility
  * Copyright(c) 2012-2014 Jake Luer <jake@alogicalparadox.com>
@@ -6311,7 +6387,7 @@ module.exports = function hasProperty(name, obj) {
   return name in obj;
 };
 
-},{"type-detect":43}],30:[function(require,module,exports){
+},{"type-detect":45}],32:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011 Jake Luer <jake@alogicalparadox.com>
@@ -6439,7 +6515,7 @@ exports.addChainableMethod = require('./addChainableMethod');
 exports.overwriteChainableMethod = require('./overwriteChainableMethod');
 
 
-},{"./addChainableMethod":18,"./addMethod":19,"./addProperty":20,"./flag":21,"./getActual":22,"./getMessage":24,"./getName":25,"./getPathInfo":26,"./getPathValue":27,"./hasProperty":29,"./inspect":31,"./objDisplay":32,"./overwriteChainableMethod":33,"./overwriteMethod":34,"./overwriteProperty":35,"./test":36,"./transferFlags":37,"deep-eql":39,"type-detect":43}],31:[function(require,module,exports){
+},{"./addChainableMethod":20,"./addMethod":21,"./addProperty":22,"./flag":23,"./getActual":24,"./getMessage":26,"./getName":27,"./getPathInfo":28,"./getPathValue":29,"./hasProperty":31,"./inspect":33,"./objDisplay":34,"./overwriteChainableMethod":35,"./overwriteMethod":36,"./overwriteProperty":37,"./test":38,"./transferFlags":39,"deep-eql":41,"type-detect":45}],33:[function(require,module,exports){
 // This is (almost) directly from Node.js utils
 // https://github.com/joyent/node/blob/f8c335d0caf47f16d31413f89aa28eda3878e3aa/lib/util.js
 
@@ -6774,7 +6850,7 @@ function objectToString(o) {
   return Object.prototype.toString.call(o);
 }
 
-},{"./getEnumerableProperties":23,"./getName":25,"./getProperties":28}],32:[function(require,module,exports){
+},{"./getEnumerableProperties":25,"./getName":27,"./getProperties":30}],34:[function(require,module,exports){
 /*!
  * Chai - flag utility
  * Copyright(c) 2012-2014 Jake Luer <jake@alogicalparadox.com>
@@ -6825,7 +6901,7 @@ module.exports = function (obj) {
   }
 };
 
-},{"../config":13,"./inspect":31}],33:[function(require,module,exports){
+},{"../config":15,"./inspect":33}],35:[function(require,module,exports){
 /*!
  * Chai - overwriteChainableMethod utility
  * Copyright(c) 2012-2014 Jake Luer <jake@alogicalparadox.com>
@@ -6880,7 +6956,7 @@ module.exports = function (ctx, name, method, chainingBehavior) {
   };
 };
 
-},{}],34:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 /*!
  * Chai - overwriteMethod utility
  * Copyright(c) 2012-2014 Jake Luer <jake@alogicalparadox.com>
@@ -6933,7 +7009,7 @@ module.exports = function (ctx, name, method) {
   }
 };
 
-},{}],35:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 /*!
  * Chai - overwriteProperty utility
  * Copyright(c) 2012-2014 Jake Luer <jake@alogicalparadox.com>
@@ -6989,7 +7065,7 @@ module.exports = function (ctx, name, getter) {
   });
 };
 
-},{}],36:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 /*!
  * Chai - test utility
  * Copyright(c) 2012-2014 Jake Luer <jake@alogicalparadox.com>
@@ -7017,7 +7093,7 @@ module.exports = function (obj, args) {
   return negate ? !expr : expr;
 };
 
-},{"./flag":21}],37:[function(require,module,exports){
+},{"./flag":23}],39:[function(require,module,exports){
 /*!
  * Chai - transferFlags utility
  * Copyright(c) 2012-2014 Jake Luer <jake@alogicalparadox.com>
@@ -7063,7 +7139,7 @@ module.exports = function (assertion, object, includeAll) {
   }
 };
 
-},{}],38:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 /*!
  * assertion-error
  * Copyright(c) 2013 Jake Luer <jake@qualiancy.com>
@@ -7177,10 +7253,10 @@ AssertionError.prototype.toJSON = function (stack) {
   return props;
 };
 
-},{}],39:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 module.exports = require('./lib/eql');
 
-},{"./lib/eql":40}],40:[function(require,module,exports){
+},{"./lib/eql":42}],42:[function(require,module,exports){
 /*!
  * deep-eql
  * Copyright(c) 2013 Jake Luer <jake@alogicalparadox.com>
@@ -7439,10 +7515,10 @@ function objectEqual(a, b, m) {
   return true;
 }
 
-},{"buffer":6,"type-detect":41}],41:[function(require,module,exports){
+},{"buffer":8,"type-detect":43}],43:[function(require,module,exports){
 module.exports = require('./lib/type');
 
-},{"./lib/type":42}],42:[function(require,module,exports){
+},{"./lib/type":44}],44:[function(require,module,exports){
 /*!
  * type-detect
  * Copyright(c) 2013 jake luer <jake@alogicalparadox.com>
@@ -7586,9 +7662,9 @@ Library.prototype.test = function (obj, type) {
   }
 };
 
-},{}],43:[function(require,module,exports){
-arguments[4][41][0].apply(exports,arguments)
-},{"./lib/type":44,"dup":41}],44:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
+arguments[4][43][0].apply(exports,arguments)
+},{"./lib/type":46,"dup":43}],46:[function(require,module,exports){
 /*!
  * type-detect
  * Copyright(c) 2013 jake luer <jake@alogicalparadox.com>
@@ -7724,7 +7800,7 @@ Library.prototype.test = function(obj, type) {
   }
 };
 
-},{}],45:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 (function (global){
 /**
  * LokiJS
@@ -11592,10 +11668,10 @@ Library.prototype.test = function(obj, type) {
 }));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"fs":5}],46:[function(require,module,exports){
+},{"fs":7}],48:[function(require,module,exports){
 module.exports = require('./src');
 
-},{"./src":59}],47:[function(require,module,exports){
+},{"./src":61}],49:[function(require,module,exports){
 'use strict';
 
 //
@@ -11859,7 +11935,7 @@ if ('undefined' !== typeof module) {
   module.exports = EventEmitter;
 }
 
-},{}],48:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 /**
  * A module of methods that you want to include in all actions.
  * This module is consumed by `createAction`.
@@ -11867,7 +11943,7 @@ if ('undefined' !== typeof module) {
 module.exports = {
 };
 
-},{}],49:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 exports.createdStores = [];
 
 exports.createdActions = [];
@@ -11881,7 +11957,7 @@ exports.reset = function() {
     }
 };
 
-},{}],50:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 var _ = require('./utils'),
     maker = require('./joins').instanceJoinCreator;
 
@@ -12103,7 +12179,7 @@ module.exports = {
     joinStrict: maker("strict")
 };
 
-},{"./joins":60,"./utils":64}],51:[function(require,module,exports){
+},{"./joins":62,"./utils":66}],53:[function(require,module,exports){
 var _ = require('./utils'),
     ListenerMethods = require('./ListenerMethods');
 
@@ -12122,7 +12198,7 @@ module.exports = _.extend({
 
 }, ListenerMethods);
 
-},{"./ListenerMethods":50,"./utils":64}],52:[function(require,module,exports){
+},{"./ListenerMethods":52,"./utils":66}],54:[function(require,module,exports){
 var _ = require('./utils');
 
 /**
@@ -12305,7 +12381,7 @@ module.exports = {
     }
 };
 
-},{"./utils":64}],53:[function(require,module,exports){
+},{"./utils":66}],55:[function(require,module,exports){
 /**
  * A module of methods that you want to include in all stores.
  * This module is consumed by `createStore`.
@@ -12313,7 +12389,7 @@ module.exports = {
 module.exports = {
 };
 
-},{}],54:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 module.exports = function(store, definition) {
   for (var name in definition) {
     if (Object.getOwnPropertyDescriptor && Object.defineProperty) {
@@ -12338,7 +12414,7 @@ module.exports = function(store, definition) {
   return store;
 };
 
-},{}],55:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 var ListenerMethods = require('./ListenerMethods'),
     ListenerMixin = require('./ListenerMixin'),
     _ = require('./utils');
@@ -12367,7 +12443,7 @@ module.exports = function(listenable,key){
     };
 };
 
-},{"./ListenerMethods":50,"./ListenerMixin":51,"./utils":64}],56:[function(require,module,exports){
+},{"./ListenerMethods":52,"./ListenerMixin":53,"./utils":66}],58:[function(require,module,exports){
 var ListenerMethods = require('./ListenerMethods'),
     ListenerMixin = require('./ListenerMixin'),
     _ = require('./utils');
@@ -12409,7 +12485,7 @@ module.exports = function(listenable, key, filterFunc) {
 };
 
 
-},{"./ListenerMethods":50,"./ListenerMixin":51,"./utils":64}],57:[function(require,module,exports){
+},{"./ListenerMethods":52,"./ListenerMixin":53,"./utils":66}],59:[function(require,module,exports){
 var _ = require('./utils'),
     ActionMethods = require('./ActionMethods'),
     PublisherMethods = require('./PublisherMethods'),
@@ -12479,7 +12555,7 @@ var createAction = function(definition) {
 
 module.exports = createAction;
 
-},{"./ActionMethods":48,"./Keep":49,"./PublisherMethods":52,"./utils":64}],58:[function(require,module,exports){
+},{"./ActionMethods":50,"./Keep":51,"./PublisherMethods":54,"./utils":66}],60:[function(require,module,exports){
 var _ = require('./utils'),
     Keep = require('./Keep'),
     mixer = require('./mixer'),
@@ -12545,7 +12621,7 @@ module.exports = function(definition) {
     return store;
 };
 
-},{"./Keep":49,"./ListenerMethods":50,"./PublisherMethods":52,"./StoreMethods":53,"./bindMethods":54,"./mixer":63,"./utils":64}],59:[function(require,module,exports){
+},{"./Keep":51,"./ListenerMethods":52,"./PublisherMethods":54,"./StoreMethods":55,"./bindMethods":56,"./mixer":65,"./utils":66}],61:[function(require,module,exports){
 exports.ActionMethods = require('./ActionMethods');
 
 exports.ListenerMethods = require('./ListenerMethods');
@@ -12652,7 +12728,7 @@ if (!Function.prototype.bind) {
   );
 }
 
-},{"./ActionMethods":48,"./Keep":49,"./ListenerMethods":50,"./ListenerMixin":51,"./PublisherMethods":52,"./StoreMethods":53,"./connect":55,"./connectFilter":56,"./createAction":57,"./createStore":58,"./joins":60,"./listenTo":61,"./listenToMany":62,"./utils":64}],60:[function(require,module,exports){
+},{"./ActionMethods":50,"./Keep":51,"./ListenerMethods":52,"./ListenerMixin":53,"./PublisherMethods":54,"./StoreMethods":55,"./connect":57,"./connectFilter":58,"./createAction":59,"./createStore":60,"./joins":62,"./listenTo":63,"./listenToMany":64,"./utils":66}],62:[function(require,module,exports){
 /**
  * Internal module used to create static and instance join methods
  */
@@ -12760,7 +12836,7 @@ function emitIfAllListenablesEmitted(join) {
     reset(join);
 }
 
-},{"./createStore":58,"./utils":64}],61:[function(require,module,exports){
+},{"./createStore":60,"./utils":66}],63:[function(require,module,exports){
 var ListenerMethods = require('./ListenerMethods');
 
 /**
@@ -12797,7 +12873,7 @@ module.exports = function(listenable,callback,initial){
     };
 };
 
-},{"./ListenerMethods":50}],62:[function(require,module,exports){
+},{"./ListenerMethods":52}],64:[function(require,module,exports){
 var ListenerMethods = require('./ListenerMethods');
 
 /**
@@ -12832,7 +12908,7 @@ module.exports = function(listenables){
     };
 };
 
-},{"./ListenerMethods":50}],63:[function(require,module,exports){
+},{"./ListenerMethods":52}],65:[function(require,module,exports){
 var _ = require('./utils');
 
 module.exports = function mix(def) {
@@ -12891,7 +12967,7 @@ module.exports = function mix(def) {
     return updated;
 };
 
-},{"./utils":64}],64:[function(require,module,exports){
+},{"./utils":66}],66:[function(require,module,exports){
 exports.environment = {};
 
 /*
@@ -12970,4 +13046,4 @@ exports.throwIf = function(val,msg){
     }
 };
 
-},{"eventemitter3":47}]},{},[4]);
+},{"eventemitter3":49}]},{},[6]);

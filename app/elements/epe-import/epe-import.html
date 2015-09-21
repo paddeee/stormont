@@ -186,7 +186,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <!-- Import Check -->
         <section data-route="import-check">
-          <epe-import-check id="EpeImportCheck"></epe-import-check>
+          <epe-import-check
+            id="EpeImportCheck"
+            data-source-actions="[[dataSourceActions]]"
+            data-source-store="[[dataSourceStore]]"></epe-import-check>
         </section>
       </iron-pages>
     </paper-scroll-header-panel>

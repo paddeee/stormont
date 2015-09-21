@@ -36,12 +36,9 @@ var importStore = require('./stores/import.js');
   app.userStore = userStore;
   app.importActions = importActions;
   app.importStore = importStore;
+  app.dataSourceActions = dataSourceActions;
+  app.dataSourceStore = dataSourceStore;
   app.packagedApp = global.packagedApp ? true : false;
-
-  // Listen for events triggered from dataSourceStore and update the app's dataSource
-  dataSourceStore.listen(function(dataSource) {
-    app.dataSource = dataSource;
-  });
 
   app.displayInstalledToast = function() {
     document.querySelector('#caching-complete').show();
