@@ -22,8 +22,13 @@ module.exports = Reflux.createStore({
         adapter: fileAdapter
       });
 
-      // Send object out to all listeners
-      this.trigger(this.dataSource);
+      this.dataSource.loadDatabase({}, function() {
+
+        // Send object out to all listeners when database loaded
+        this.trigger(this.dataSource);
+
+      }.bind(this));
+
     }
   },
 

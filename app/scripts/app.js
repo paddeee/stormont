@@ -40,9 +40,7 @@ var importStore = require('./stores/import.js');
 
   // Listen for events triggered from dataSourceStore and update the app's dataSource
   dataSourceStore.listen(function(dataSource) {
-
     app.dataSource = dataSource;
-    console.log(app.dataSource);
   });
 
   app.displayInstalledToast = function() {

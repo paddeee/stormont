@@ -38,14 +38,10 @@ lokiFileAdapter.prototype.loadDatabase = function loadDatabase(dbname, callback)
   // This can be set from nw.js input file directory picker value
   var path = global.packagedApp ? '/Users/ODonnell/Documents' : '';
 
-  //var callbackFunction = callback || console.log;
-
   fs.readFile(path + '/FarrellLoki/' + dbname, 'utf-8', function(err, data) {
 
-    var db = err || data;
-    console.log(err);
-    console.log(data);
-    //callbackFunction(db);
+    var dataStore = err || data;
+    callback(dataStore);
   });
 };
 

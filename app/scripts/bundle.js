@@ -67,14 +67,10 @@ lokiFileAdapter.prototype.loadDatabase = function loadDatabase(dbname, callback)
   // This can be set from nw.js input file directory picker value
   var path = global.packagedApp ? '/Users/ODonnell/Documents' : '';
 
-  //var callbackFunction = callback || console.log;
-
   fs.readFile(path + '/FarrellLoki/' + dbname, 'utf-8', function(err, data) {
 
-    var db = err || data;
-    console.log(err);
-    console.log(data);
-    //callbackFunction(db);
+    var dataStore = err || data;
+    callback(dataStore);
   });
 };
 
@@ -161,9 +157,7 @@ var importStore = require('./stores/import.js');
 
   // Listen for events triggered from dataSourceStore and update the app's dataSource
   dataSourceStore.listen(function(dataSource) {
-
     app.dataSource = dataSource;
-    console.log(app.dataSource);
   });
 
   app.displayInstalledToast = function() {
@@ -218,8 +212,13 @@ module.exports = Reflux.createStore({
         adapter: fileAdapter
       });
 
-      // Send object out to all listeners
-      this.trigger(this.dataSource);
+      this.dataSource.loadDatabase({}, function() {
+
+        // Send object out to all listeners when database loaded
+        this.trigger(this.dataSource);
+
+      }.bind(this));
+
     }
   },
 
@@ -246,14 +245,19 @@ module.exports = Reflux.createStore({
   onFileImported: function (fileObject) {
 
     var collectionArray;
-    var dataCollection;
     var dataSource = dataSourceStore.dataSource;
+    var dataCollection = dataSource.getCollection(fileObject.collectionName);
 
     // Parse the CSV into an array
     collectionArray = this.parseCSV(fileObject.CSV);
 
-    // Create a collection in the database
-    dataCollection = this.addDBCollection(dataSource, fileObject);
+    // Create/Update a collection in the database
+    //if (this.collectionExists(dataSource, fileObject.collectionName)) {
+    if (dataCollection) {
+      dataCollection.clear();
+    } else {
+      dataCollection = this.addDBCollection(dataSource, fileObject);
+    }
 
     // Insert the array into the database collection
     this.populateCollection(collectionArray, dataCollection, fileObject.collectionName);
@@ -312,6 +316,21 @@ module.exports = Reflux.createStore({
 
     return dataCollection;
   },
+
+  // Return true if a collection of this name already exists in the dataSource
+  /*collectionExists: function (dataSource, collectionName) {
+
+    var collections = dataSource.listCollections();
+    var collectionExists = false;
+
+    collections.forEach(function(collection) {
+      if (collection.name === collectionName) {
+        collectionExists = true;
+      }
+    });
+
+    return collectionExists;
+  },*/
 
   // Create an array of cellObjects which can be iterated through to generate our dataCollection
   createCellArray: function (sheet) {
