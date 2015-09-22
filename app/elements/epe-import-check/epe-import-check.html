@@ -65,10 +65,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     ready: function() {
 
-      // When the dataSource is changed, update our grid data
-      this.dataSourceStore.listen(function(dataSource) {
+      // When the filteredData is changed, update our grid data
+      this.filteredDataStore.listen(function(dataSource) {
 
-        this.setGridData(this.params.name);
+        if (this.params) {
+          this.setGridData(this.params.name);
+        }
 
       }.bind(this));
     },
@@ -84,8 +86,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Set the gridData that is to be passed into a data-grid element
     setGridData: function(collectionName) {
 
-      if (this.dataSourceStore.dataSource.collections.length) {
-        this.gridData = this.dataSourceStore.dataSource.getCollection(collectionName).data;
+      if (this.filteredDataStore.filteredData.collections.length) {
+        this.gridData = this.filteredDataStore.filteredData.getCollection(collectionName).data;
       }
     }
   });

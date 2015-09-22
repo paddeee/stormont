@@ -11,13 +11,14 @@ var moment = require('moment');
 var reflux = require('reflux');
 var CSVParser = require('harb');
 var dataSourceActions = require('./actions/dataSource.js');
-var dataSourceStore = require('./stores/dataSource.js');
+var filteredDataActions = require('./actions/filteredData.js');
+var filteredDataStore = require('./stores/filteredData.js');
 var userActions = require('./actions/users.js');
 var userStore = require('./stores/users.js');
 var importActions = require('./actions/import.js');
 var importStore = require('./stores/import.js');
 
-(function(document, reflux, moment, dataSourceActions, dataSourceStore, importActions, importStore) {
+(function(document, reflux, moment, filteredDataActions, filteredDataStore, dataSourceActions, importActions, importStore) {
   'use strict';
 
   // Call checkForLDAP action
@@ -36,8 +37,8 @@ var importStore = require('./stores/import.js');
   app.userStore = userStore;
   app.importActions = importActions;
   app.importStore = importStore;
-  app.dataSourceActions = dataSourceActions;
-  app.dataSourceStore = dataSourceStore;
+  app.filteredDataActions = filteredDataActions;
+  app.filteredDataStore = filteredDataStore;
   app.packagedApp = global.packagedApp ? true : false;
 
   app.displayInstalledToast = function() {
@@ -64,4 +65,4 @@ var importStore = require('./stores/import.js');
     }
   };
 
-})(document, reflux, moment, dataSourceActions, dataSourceStore, importActions, importStore);
+})(document, reflux, moment, filteredDataActions, filteredDataStore, dataSourceActions, importActions, importStore);
