@@ -206,8 +206,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <section data-route="import-check" class="import-check">
           <epe-import-check
             id="EpeImportCheck"
-            filtered-data-actions="[[filteredDataActions]]"
-            filtered-data-store="[[filteredDataStore]]"></epe-import-check>
+            filter-state-actions="[[filterStateActions]]"
+            events-store="[[eventsStore]]"
+            places-store="[[placesStore]]"
+            people-store="[[peopleStore]]"
+            source-store="[[sourceStore]]"></epe-import-check>
         </section>
       </iron-pages>
     </paper-scroll-header-panel>

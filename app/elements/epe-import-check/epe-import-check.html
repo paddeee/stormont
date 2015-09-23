@@ -40,8 +40,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </paper-tab>
     </paper-tabs>
 
-    <iron-pages attr-for-selected="data-route" selected="{{importCheckRoute}}">
+    <!-- Filters -->
+    <div class="filter-container">
+      <epe-filter-search on-search-attempted="searchAttempted"></epe-filter-search>
+    </div>
 
+    <!-- Check data -->
+    <iron-pages attr-for-selected="data-route" selected="{{importCheckRoute}}">
       <section data-route="import-check" class="import-check-area relative layout horizontal">
         <epe-data-grid
           class="fit"
@@ -60,18 +65,82 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       gridData: {
         type: Array
+      },
+
+      collectionName: {
+        type: String
+      },
+
+      eventsData: {
+        type: Object
+      },
+
+      placesData: {
+        type: Object
+      },
+
+      peopleData: {
+        type: Object
+      },
+
+      sourceData: {
+        type: Object
       }
     },
 
+    // ToDo: Must be a cleaner way of doing this
     ready: function() {
 
-      // When the filteredData is changed, update our grid data
-      this.filteredDataStore.listen(function(dataSource) {
+      // When the events data is updated, update our grid data
+      this.eventsStore.listen(function(eventsData) {
+
+        this.eventsData = eventsData;
 
         if (this.params) {
-          this.setGridData(this.params.name);
-        }
 
+          this.collectionName = this.params.name;
+
+          this.setGridData(this.collectionName);
+        }
+      }.bind(this));
+
+      // When the places data is updated, update our grid data
+      this.placesStore.listen(function(placesData) {
+
+        this.placesData = placesData;
+
+        if (this.params) {
+
+          this.collectionName = this.params.name;
+
+          this.setGridData(this.collectionName);
+        }
+      }.bind(this));
+
+      // When the people data is updated, update our grid data
+      this.peopleStore.listen(function(peopleData) {
+
+        this.peopleData = peopleData;
+
+        if (this.params) {
+
+          this.collectionName = this.params.name;
+
+          this.setGridData(this.collectionName);
+        }
+      }.bind(this));
+
+      // When the source data is updated, update our grid data
+      this.sourceStore.listen(function(sourceData) {
+
+        this.sourceData = sourceData;
+
+        if (this.params) {
+
+          this.collectionName = this.params.name;
+
+          this.setGridData(this.collectionName);
+        }
       }.bind(this));
     },
 
@@ -80,15 +149,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var tabChosen = event.detail.item.getAttribute('name');
 
+      this.collectionName = tabChosen;
+
       this.setGridData(tabChosen);
     },
 
     // Set the gridData that is to be passed into a data-grid element
     setGridData: function(collectionName) {
 
-      if (this.filteredDataStore.filteredData.collections.length) {
-        this.gridData = this.filteredDataStore.filteredData.getCollection(collectionName).data;
+      switch (collectionName) {
+        case 'Events':
+          this.gridData = this.eventsData;
+          break;
+        case 'Places':
+          this.gridData = this.placesData;
+          break;
+        case 'People':
+          this.gridData = this.peopleData;
+          break;
+        case 'Source':
+          this.gridData = this.sourceData;
+          break;
+        default:
+          console.log('Sorry, no collectionName set for grid data');
       }
+    },
+
+    // EPE-SEARCH-FILTER LISTENER
+    searchAttempted: function (event) {
+
+      var searchFilterObject = {
+        collectionName: this.collectionName,
+        field: {
+          name: 'name',
+          value: ''
+        }
+      };
+
+      // Call fileImported action
+      this.filterStateActions.searchFilterChanged(searchFilterObject);
     }
   });
 })();

@@ -7,16 +7,16 @@ module.exports = Reflux.createActions([
   'checkForLDAP'
 ]);
 
-},{"reflux":154}],2:[function(require,module,exports){
+},{"reflux":159}],2:[function(require,module,exports){
 'use strict';
 
 var Reflux = require('reflux');
 
 module.exports = Reflux.createActions([
-  'search'
+  'searchFilterChanged'
 ]);
 
-},{"reflux":154}],3:[function(require,module,exports){
+},{"reflux":159}],3:[function(require,module,exports){
 'use strict';
 
 var Reflux = require('reflux');
@@ -25,7 +25,7 @@ module.exports = Reflux.createActions([
   'fileImported'     // called by successful spreadsheet import
 ]);
 
-},{"reflux":154}],4:[function(require,module,exports){
+},{"reflux":159}],4:[function(require,module,exports){
 'use strict';
 
 var Reflux = require('reflux');
@@ -34,7 +34,7 @@ module.exports = Reflux.createActions([
   'loginAttempted'     // called by user attempting login
 ]);
 
-},{"reflux":154}],5:[function(require,module,exports){
+},{"reflux":159}],5:[function(require,module,exports){
 (function (global){
 /**
  * @file lokiFileAdapter.js
@@ -122,7 +122,7 @@ module.exports = new lokiFileAdapter();
 exports.lokiFileAdapter = lokiFileAdapter;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"browserify-fs":11}],6:[function(require,module,exports){
+},{"browserify-fs":15}],6:[function(require,module,exports){
 (function (global){
 /*
 Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
@@ -137,14 +137,17 @@ var moment = require('moment');
 var reflux = require('reflux');
 var CSVParser = require('harb');
 var dataSourceActions = require('./actions/dataSource.js');
-var filteredDataActions = require('./actions/filteredData.js');
-var filteredDataStore = require('./stores/filteredData.js');
+var filterStateActions = require('./actions/filterState.js');
+var eventsStore = require('./stores/events.js');
+var placesStore = require('./stores/places.js');
+var peopleStore = require('./stores/people.js');
+var sourceStore = require('./stores/source.js');
 var userActions = require('./actions/users.js');
 var userStore = require('./stores/users.js');
 var importActions = require('./actions/import.js');
 var importStore = require('./stores/import.js');
 
-(function(document, reflux, moment, filteredDataActions, filteredDataStore, dataSourceActions, importActions, importStore) {
+(function(document, reflux, moment, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore) {
   'use strict';
 
   // Call checkForLDAP action
@@ -163,8 +166,11 @@ var importStore = require('./stores/import.js');
   app.userStore = userStore;
   app.importActions = importActions;
   app.importStore = importStore;
-  app.filteredDataActions = filteredDataActions;
-  app.filteredDataStore = filteredDataStore;
+  app.filterStateActions = filterStateActions;
+  app.eventsStore = eventsStore;
+  app.placesStore = placesStore;
+  app.peopleStore = peopleStore;
+  app.sourceStore = sourceStore;
   app.packagedApp = global.packagedApp ? true : false;
 
   app.displayInstalledToast = function() {
@@ -191,10 +197,10 @@ var importStore = require('./stores/import.js');
     }
   };
 
-})(document, reflux, moment, filteredDataActions, filteredDataStore, dataSourceActions, importActions, importStore);
+})(document, reflux, moment, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./actions/dataSource.js":1,"./actions/filteredData.js":2,"./actions/import.js":3,"./actions/users.js":4,"./stores/filteredData.js":8,"./stores/import.js":9,"./stores/users.js":10,"harb":149,"moment":153,"reflux":154}],7:[function(require,module,exports){
+},{"./actions/dataSource.js":1,"./actions/filterState.js":2,"./actions/import.js":3,"./actions/users.js":4,"./stores/events.js":8,"./stores/import.js":10,"./stores/people.js":11,"./stores/places.js":12,"./stores/source.js":13,"./stores/users.js":14,"harb":153,"moment":158,"reflux":159}],7:[function(require,module,exports){
 'use strict';
 
 var Reflux = require('reflux');
@@ -235,21 +241,116 @@ module.exports = Reflux.createStore({
   }
 });
 
-},{"../actions/dataSource.js":1,"../adapters/loki-file-adapter.js":5,"lokijs":152,"reflux":154}],8:[function(require,module,exports){
+},{"../actions/dataSource.js":1,"../adapters/loki-file-adapter.js":5,"lokijs":157,"reflux":159}],8:[function(require,module,exports){
 'use strict';
 
 var Reflux = require('reflux');
-var loki = require('lokijs');
 var dataSourceStore = require('../stores/dataSource.js');
-var FilteredDataActions = require('../actions/filteredData.js');
+var filterStateStore = require('../stores/filterState.js');
 
 module.exports = Reflux.createStore({
 
   // this will set up listeners to all publishers in DataSourceActions, using onKeyname (or keyname) as callbacks
-  listenables: [FilteredDataActions],
+  //listenables: [FilterStateActions],
+
+  // Name to use for this collection
+  collectionName: 'Events',
+
+  // The filtered events object
+  filteredEvents: null,
+
+  // The Loki events transform array
+  eventsTransform: [],
+
+  // Called on Store initialistion
+  init: function() {
+
+    // Register filterStateStore's changes
+    this.listenTo(filterStateStore, this.filterStateChanged);
+  },
+
+  // Set the filteredData Object
+  dataSourceChanged: function () {
+
+    // Send object out to all listeners when database loaded
+    this.trigger(this.filteredEvents);
+  },
+
+  // Set search filter on our collectionTransform
+  filterStateChanged: function(filterStateObject) {
+
+    var collectionToAddTransformTo = dataSourceStore.dataSource.getCollection(this.collectionName);
+    var filterTransformObject = this.createTransformObject(filterStateObject.Events);
+
+    if (!collectionToAddTransformTo) {
+      return;
+    }
+
+    // Add filter to the transform
+    this.eventsTransform.push(filterTransformObject);
+
+    // Save the transform to the collection
+    if (collectionToAddTransformTo.chain('PaddyFilter')) {
+      collectionToAddTransformTo.setTransform('PaddyFilter', this.eventsTransform);
+    } else {
+      collectionToAddTransformTo.addTransform('PaddyFilter', this.eventsTransform);
+    }
+
+    this.filteredEvents = collectionToAddTransformTo.chain('PaddyFilter').data();
+
+    // Send object out to all listeners
+    this.trigger(this.filteredEvents);
+  },
+
+  // Create a filter transform object from a filter Object
+  createTransformObject: function(filterTransformObject) {
+
+    return {
+      type: 'find',
+      value: {
+        'name': {
+          '$contains' : filterTransformObject.name
+        },
+        'type': {
+          '$contains' : filterTransformObject.type
+        }
+      }
+    };
+  }
+});
+
+},{"../stores/dataSource.js":7,"../stores/filterState.js":9,"reflux":159}],9:[function(require,module,exports){
+'use strict';
+
+var Reflux = require('reflux');
+var dataSourceStore = require('../stores/dataSource.js');
+var FilterStateActions = require('../actions/filterState.js');
+
+module.exports = Reflux.createStore({
+
+  // this will set up listeners to all publishers in DataSourceActions, using onKeyname (or keyname) as callbacks
+  listenables: [FilterStateActions],
 
   // The Loki db object
-  filteredData: null,
+  // ToDO: Abstract out to config file
+  filterState: {
+    Events: {
+      name: '',
+      type: ''
+    },
+    Places: {
+      name: ''
+    },
+    People: {
+      name: ''
+    },
+    Source: {
+      name: ''
+    }
+  },
+
+  // The Loki db object
+  collectionTransform: [],
 
   // Called on Store initialistion
   init: function() {
@@ -259,16 +360,25 @@ module.exports = Reflux.createStore({
   },
 
   // Set the filteredData Object
-  dataSourceChanged: function (dataSource) {
-
-    this.filteredData = dataSource;
+  dataSourceChanged: function () {
 
     // Send object out to all listeners when database loaded
-    this.trigger(this.filteredData);
+    this.trigger(this.filterState);
+  },
+
+  // Set search filter on our collectionTransform
+  searchFilterChanged: function(searchFilterObject) {
+
+
+
+    console.log(searchFilterObject);
+
+    // Send object out to all listeners when database loaded
+    //this.trigger(this.filteredData);
   }
 });
 
-},{"../actions/filteredData.js":2,"../stores/dataSource.js":7,"lokijs":152,"reflux":154}],9:[function(require,module,exports){
+},{"../actions/filterState.js":2,"../stores/dataSource.js":7,"reflux":159}],10:[function(require,module,exports){
 'use strict';
 
 var Reflux = require('reflux');
@@ -432,18 +542,6 @@ module.exports = Reflux.createStore({
 
     dataCollection.insert(collectionArray);
 
-    /* Example Usage
-
-    dataCollection
-     .chain()
-     .find({'age':{'$gt': 25}})
-     .where(function(obj){ return obj.name.indexOf("in") != -1 })
-     .simplesort("age")
-     .offset(50)
-     .limit(10)
-     .data();
-     */
-
     // Pass on to listeners
     this.trigger({
       type: 'success',
@@ -453,7 +551,241 @@ module.exports = Reflux.createStore({
   }
 });
 
-},{"../actions/import.js":3,"../stores/dataSource.js":7,"reflux":154}],10:[function(require,module,exports){
+},{"../actions/import.js":3,"../stores/dataSource.js":7,"reflux":159}],11:[function(require,module,exports){
+'use strict';
+
+var Reflux = require('reflux');
+var dataSourceStore = require('../stores/dataSource.js');
+var filterStateStore = require('../stores/filterState.js');
+
+module.exports = Reflux.createStore({
+
+  // this will set up listeners to all publishers in DataSourceActions, using onKeyname (or keyname) as callbacks
+  //listenables: [FilterStateActions],
+
+  // Name to use for this collection
+  collectionName: 'People',
+
+  // The filtered people object
+  filteredEvents: null,
+
+  // The Loki people transform array
+  peopleTransform: [],
+
+  // Called on Store initialistion
+  init: function() {
+
+    // Register filterStateStore's changes
+    this.listenTo(filterStateStore, this.filterStateChanged);
+  },
+
+  // Set the filteredData Object
+  dataSourceChanged: function () {
+
+    // Send object out to all listeners when database loaded
+    this.trigger(this.filteredEvents);
+  },
+
+  // Set search filter on our collectionTransform
+  filterStateChanged: function(filterStateObject) {
+
+    var collectionToAddTransformTo = dataSourceStore.dataSource.getCollection(this.collectionName);
+    var filterTransformObject = this.createTransformObject(filterStateObject.People);
+
+    if (!collectionToAddTransformTo) {
+      return;
+    }
+
+    // Add filter to the transform
+    this.peopleTransform.push(filterTransformObject);
+
+    // Save the transform to the collection
+    if (collectionToAddTransformTo.chain('PaddyFilter')) {
+      collectionToAddTransformTo.setTransform('PaddyFilter', this.peopleTransform);
+    } else {
+      collectionToAddTransformTo.addTransform('PaddyFilter', this.peopleTransform);
+    }
+
+    this.filteredEvents = collectionToAddTransformTo.chain('PaddyFilter').data();
+
+    // Send object out to all listeners
+    this.trigger(this.filteredEvents);
+  },
+
+  // Create a filter transform object from a filter Object
+  createTransformObject: function(filterTransformObject) {
+
+    return {
+      type: 'find',
+      value: {
+        'name': {
+          '$contains' : filterTransformObject.name
+        },
+        'type': {
+          '$contains' : filterTransformObject.type
+        }
+      }
+    };
+  }
+});
+
+},{"../stores/dataSource.js":7,"../stores/filterState.js":9,"reflux":159}],12:[function(require,module,exports){
+'use strict';
+
+var Reflux = require('reflux');
+var dataSourceStore = require('../stores/dataSource.js');
+var filterStateStore = require('../stores/filterState.js');
+
+module.exports = Reflux.createStore({
+
+  // this will set up listeners to all publishers in DataSourceActions, using onKeyname (or keyname) as callbacks
+  //listenables: [FilterStateActions],
+
+  // Name to use for this collection
+  collectionName: 'Places',
+
+  // The filtered places object
+  filteredEvents: null,
+
+  // The Loki places transform array
+  placesTransform: [],
+
+  // Called on Store initialistion
+  init: function() {
+
+    // Register filterStateStore's changes
+    this.listenTo(filterStateStore, this.filterStateChanged);
+  },
+
+  // Set the filteredData Object
+  dataSourceChanged: function () {
+
+    // Send object out to all listeners when database loaded
+    this.trigger(this.filteredEvents);
+  },
+
+  // Set search filter on our collectionTransform
+  filterStateChanged: function(filterStateObject) {
+
+    var collectionToAddTransformTo = dataSourceStore.dataSource.getCollection(this.collectionName);
+    var filterTransformObject = this.createTransformObject(filterStateObject.Places);
+
+    if (!collectionToAddTransformTo) {
+      return;
+    }
+
+    // Add filter to the transform
+    this.placesTransform.push(filterTransformObject);
+
+    // Save the transform to the collection
+    if (collectionToAddTransformTo.chain('PaddyFilter')) {
+      collectionToAddTransformTo.setTransform('PaddyFilter', this.placesTransform);
+    } else {
+      collectionToAddTransformTo.addTransform('PaddyFilter', this.placesTransform);
+    }
+
+    this.filteredEvents = collectionToAddTransformTo.chain('PaddyFilter').data();
+
+    // Send object out to all listeners
+    this.trigger(this.filteredEvents);
+  },
+
+  // Create a filter transform object from a filter Object
+  createTransformObject: function(filterTransformObject) {
+
+    return {
+      type: 'find',
+      value: {
+        'name': {
+          '$contains' : filterTransformObject.name
+        },
+        'type': {
+          '$contains' : filterTransformObject.type
+        }
+      }
+    };
+  }
+});
+
+},{"../stores/dataSource.js":7,"../stores/filterState.js":9,"reflux":159}],13:[function(require,module,exports){
+'use strict';
+
+var Reflux = require('reflux');
+var dataSourceStore = require('../stores/dataSource.js');
+var filterStateStore = require('../stores/filterState.js');
+
+module.exports = Reflux.createStore({
+
+  // this will set up listeners to all publishers in DataSourceActions, using onKeyname (or keyname) as callbacks
+  //listenables: [FilterStateActions],
+
+  // Name to use for this collection
+  collectionName: 'Source',
+
+  // The filtered source object
+  filteredEvents: null,
+
+  // The Loki source transform array
+  sourceTransform: [],
+
+  // Called on Store initialistion
+  init: function() {
+
+    // Register filterStateStore's changes
+    this.listenTo(filterStateStore, this.filterStateChanged);
+  },
+
+  // Set the filteredData Object
+  dataSourceChanged: function () {
+
+    // Send object out to all listeners when database loaded
+    this.trigger(this.filteredEvents);
+  },
+
+  // Set search filter on our collectionTransform
+  filterStateChanged: function(filterStateObject) {
+
+    var collectionToAddTransformTo = dataSourceStore.dataSource.getCollection(this.collectionName);
+    var filterTransformObject = this.createTransformObject(filterStateObject.Source);
+
+    if (!collectionToAddTransformTo) {
+      return;
+    }
+
+    // Add filter to the transform
+    this.sourceTransform.push(filterTransformObject);
+
+    // Save the transform to the collection
+    if (collectionToAddTransformTo.chain('PaddyFilter')) {
+      collectionToAddTransformTo.setTransform('PaddyFilter', this.sourceTransform);
+    } else {
+      collectionToAddTransformTo.addTransform('PaddyFilter', this.sourceTransform);
+    }
+
+    this.filteredEvents = collectionToAddTransformTo.chain('PaddyFilter').data();
+
+    // Send object out to all listeners
+    this.trigger(this.filteredEvents);
+  },
+
+  // Create a filter transform object from a filter Object
+  createTransformObject: function(filterTransformObject) {
+
+    return {
+      type: 'find',
+      value: {
+        'name': {
+          '$contains' : filterTransformObject.name
+        },
+        'type': {
+          '$contains' : filterTransformObject.type
+        }
+      }
+    };
+  }
+});
+
+},{"../stores/dataSource.js":7,"../stores/filterState.js":9,"reflux":159}],14:[function(require,module,exports){
 'use strict';
 
 var Reflux = require('reflux');
@@ -499,14 +831,14 @@ module.exports = Reflux.createStore({
   }
 });
 
-},{"../actions/users.js":4,"reflux":154}],11:[function(require,module,exports){
+},{"../actions/users.js":4,"reflux":159}],15:[function(require,module,exports){
 var leveljs = require('level-js');
 var levelup = require('levelup');
 var fs = require('level-filesystem');
 
 var db = levelup('level-filesystem', {db:leveljs});
 module.exports = fs(db);
-},{"level-filesystem":13,"level-js":78,"levelup":96}],12:[function(require,module,exports){
+},{"level-filesystem":17,"level-js":82,"levelup":100}],16:[function(require,module,exports){
 var errno = require('errno');
 
 Object.keys(errno.code).forEach(function(code) {
@@ -520,7 +852,7 @@ Object.keys(errno.code).forEach(function(code) {
 		return err;
 	};
 });
-},{"errno":29}],13:[function(require,module,exports){
+},{"errno":33}],17:[function(require,module,exports){
 (function (process,Buffer){
 var fwd = require('fwd-stream');
 var sublevel = require('level-sublevel');
@@ -1119,7 +1451,7 @@ module.exports = function(db, opts) {
 	return fs;
 };
 }).call(this,require('_process'),require("buffer").Buffer)
-},{"./errno":12,"./paths":75,"./watchers":77,"_process":130,"buffer":122,"fwd-stream":31,"level-blobs":44,"level-peek":56,"level-sublevel":59,"once":72}],14:[function(require,module,exports){
+},{"./errno":16,"./paths":79,"./watchers":81,"_process":134,"buffer":126,"fwd-stream":35,"level-blobs":48,"level-peek":60,"level-sublevel":63,"once":76}],18:[function(require,module,exports){
 (function (Buffer){
 var Writable = require('readable-stream').Writable
 var inherits = require('inherits')
@@ -1259,7 +1591,7 @@ function u8Concat (parts) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":122,"inherits":15,"readable-stream":26,"typedarray":27}],15:[function(require,module,exports){
+},{"buffer":126,"inherits":19,"readable-stream":30,"typedarray":31}],19:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -1284,7 +1616,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],16:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 // a duplex stream is just a stream that is both readable and writable.
 // Since JS doesn't have multiple prototypal inheritance, this class
 // prototypally inherits from Readable, and then parasitically from
@@ -1368,7 +1700,7 @@ function forEach (xs, f) {
   }
 }
 
-},{"./_stream_readable":18,"./_stream_writable":20,"core-util-is":21,"inherits":15,"process-nextick-args":23}],17:[function(require,module,exports){
+},{"./_stream_readable":22,"./_stream_writable":24,"core-util-is":25,"inherits":19,"process-nextick-args":27}],21:[function(require,module,exports){
 // a passthrough stream.
 // basically just the most minimal sort of Transform stream.
 // Every written chunk gets output as-is.
@@ -1397,7 +1729,7 @@ PassThrough.prototype._transform = function(chunk, encoding, cb) {
   cb(null, chunk);
 };
 
-},{"./_stream_transform":19,"core-util-is":21,"inherits":15}],18:[function(require,module,exports){
+},{"./_stream_transform":23,"core-util-is":25,"inherits":19}],22:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -2360,7 +2692,7 @@ function indexOf (xs, x) {
 }
 
 }).call(this,require('_process'))
-},{"./_stream_duplex":16,"_process":130,"buffer":122,"core-util-is":21,"events":126,"inherits":15,"isarray":22,"process-nextick-args":23,"string_decoder/":24,"util":121}],19:[function(require,module,exports){
+},{"./_stream_duplex":20,"_process":134,"buffer":126,"core-util-is":25,"events":130,"inherits":19,"isarray":26,"process-nextick-args":27,"string_decoder/":28,"util":125}],23:[function(require,module,exports){
 // a transform stream is a readable/writable stream where you do
 // something with the data.  Sometimes it's called a "filter",
 // but that's not a great name for it, since that implies a thing where
@@ -2559,7 +2891,7 @@ function done(stream, er) {
   return stream.push(null);
 }
 
-},{"./_stream_duplex":16,"core-util-is":21,"inherits":15}],20:[function(require,module,exports){
+},{"./_stream_duplex":20,"core-util-is":25,"inherits":19}],24:[function(require,module,exports){
 // A bit simpler than readable streams.
 // Implement an async ._write(chunk, cb), and it'll handle all
 // the drain event emission and buffering.
@@ -3081,7 +3413,7 @@ function endWritable(stream, state, cb) {
   state.ended = true;
 }
 
-},{"./_stream_duplex":16,"buffer":122,"core-util-is":21,"events":126,"inherits":15,"process-nextick-args":23,"util-deprecate":25}],21:[function(require,module,exports){
+},{"./_stream_duplex":20,"buffer":126,"core-util-is":25,"events":130,"inherits":19,"process-nextick-args":27,"util-deprecate":29}],25:[function(require,module,exports){
 (function (Buffer){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -3191,12 +3523,12 @@ function objectToString(o) {
   return Object.prototype.toString.call(o);
 }
 }).call(this,require("buffer").Buffer)
-},{"buffer":122}],22:[function(require,module,exports){
+},{"buffer":126}],26:[function(require,module,exports){
 module.exports = Array.isArray || function (arr) {
   return Object.prototype.toString.call(arr) == '[object Array]';
 };
 
-},{}],23:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 (function (process){
 'use strict';
 module.exports = nextTick;
@@ -3213,7 +3545,7 @@ function nextTick(fn) {
 }
 
 }).call(this,require('_process'))
-},{"_process":130}],24:[function(require,module,exports){
+},{"_process":134}],28:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -3436,7 +3768,7 @@ function base64DetectIncompleteChar(buffer) {
   this.charLength = this.charReceived ? 3 : 0;
 }
 
-},{"buffer":122}],25:[function(require,module,exports){
+},{"buffer":126}],29:[function(require,module,exports){
 (function (global){
 
 /**
@@ -3502,7 +3834,7 @@ function config (name) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],26:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 var Stream = (function (){
   try {
     return require('st' + 'ream'); // hack to fix a circular dependency issue when used with browserify
@@ -3516,7 +3848,7 @@ exports.Duplex = require('./lib/_stream_duplex.js');
 exports.Transform = require('./lib/_stream_transform.js');
 exports.PassThrough = require('./lib/_stream_passthrough.js');
 
-},{"./lib/_stream_duplex.js":16,"./lib/_stream_passthrough.js":17,"./lib/_stream_readable.js":18,"./lib/_stream_transform.js":19,"./lib/_stream_writable.js":20}],27:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":20,"./lib/_stream_passthrough.js":21,"./lib/_stream_readable.js":22,"./lib/_stream_transform.js":23,"./lib/_stream_writable.js":24}],31:[function(require,module,exports){
 var undefined = (void 0); // Paranoia
 
 // Beyond this value, index getters/setters (i.e. array[0], array[1]) are so slow to
@@ -4148,7 +4480,7 @@ function packF32(v) { return packIEEE754(v, 8, 23); }
 
 }());
 
-},{}],28:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 var prr = require('prr')
 
 function init (type, message, cause) {
@@ -4205,7 +4537,7 @@ module.exports = function (errno) {
   }
 }
 
-},{"prr":30}],29:[function(require,module,exports){
+},{"prr":34}],33:[function(require,module,exports){
 var all = module.exports.all = [
   {
     errno: -2,
@@ -4520,7 +4852,7 @@ all.forEach(function (error) {
 module.exports.custom = require('./custom')(module.exports)
 module.exports.create = module.exports.custom.createError
 
-},{"./custom":28}],30:[function(require,module,exports){
+},{"./custom":32}],34:[function(require,module,exports){
 /*!
   * prr
   * (c) 2013 Rod Vagg <rod@vagg.org>
@@ -4584,7 +4916,7 @@ module.exports.create = module.exports.custom.createError
 
   return prr
 })
-},{}],31:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 (function (process,Buffer){
 var Writable = require('readable-stream/writable');
 var Readable = require('readable-stream/readable');
@@ -4746,10 +5078,10 @@ exports.duplex = function(opts, initWritable, initReadable) {
 	return dupl;
 };
 }).call(this,require('_process'),require("buffer").Buffer)
-},{"_process":130,"buffer":122,"readable-stream/duplex":32,"readable-stream/readable":42,"readable-stream/writable":43}],32:[function(require,module,exports){
+},{"_process":134,"buffer":126,"readable-stream/duplex":36,"readable-stream/readable":46,"readable-stream/writable":47}],36:[function(require,module,exports){
 module.exports = require("./lib/_stream_duplex.js")
 
-},{"./lib/_stream_duplex.js":33}],33:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":37}],37:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -4842,7 +5174,7 @@ function forEach (xs, f) {
 }
 
 }).call(this,require('_process'))
-},{"./_stream_readable":35,"./_stream_writable":37,"_process":130,"core-util-is":38,"inherits":39}],34:[function(require,module,exports){
+},{"./_stream_readable":39,"./_stream_writable":41,"_process":134,"core-util-is":42,"inherits":43}],38:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -4890,7 +5222,7 @@ PassThrough.prototype._transform = function(chunk, encoding, cb) {
   cb(null, chunk);
 };
 
-},{"./_stream_transform":36,"core-util-is":38,"inherits":39}],35:[function(require,module,exports){
+},{"./_stream_transform":40,"core-util-is":42,"inherits":43}],39:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -5876,7 +6208,7 @@ function indexOf (xs, x) {
 }
 
 }).call(this,require('_process'))
-},{"_process":130,"buffer":122,"core-util-is":38,"events":126,"inherits":39,"isarray":40,"stream":144,"string_decoder/":41}],36:[function(require,module,exports){
+},{"_process":134,"buffer":126,"core-util-is":42,"events":130,"inherits":43,"isarray":44,"stream":148,"string_decoder/":45}],40:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -6088,7 +6420,7 @@ function done(stream, er) {
   return stream.push(null);
 }
 
-},{"./_stream_duplex":33,"core-util-is":38,"inherits":39}],37:[function(require,module,exports){
+},{"./_stream_duplex":37,"core-util-is":42,"inherits":43}],41:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -6478,15 +6810,15 @@ function endWritable(stream, state, cb) {
 }
 
 }).call(this,require('_process'))
-},{"./_stream_duplex":33,"_process":130,"buffer":122,"core-util-is":38,"inherits":39,"stream":144}],38:[function(require,module,exports){
-arguments[4][21][0].apply(exports,arguments)
-},{"buffer":122,"dup":21}],39:[function(require,module,exports){
-arguments[4][15][0].apply(exports,arguments)
-},{"dup":15}],40:[function(require,module,exports){
-arguments[4][22][0].apply(exports,arguments)
-},{"dup":22}],41:[function(require,module,exports){
-arguments[4][24][0].apply(exports,arguments)
-},{"buffer":122,"dup":24}],42:[function(require,module,exports){
+},{"./_stream_duplex":37,"_process":134,"buffer":126,"core-util-is":42,"inherits":43,"stream":148}],42:[function(require,module,exports){
+arguments[4][25][0].apply(exports,arguments)
+},{"buffer":126,"dup":25}],43:[function(require,module,exports){
+arguments[4][19][0].apply(exports,arguments)
+},{"dup":19}],44:[function(require,module,exports){
+arguments[4][26][0].apply(exports,arguments)
+},{"dup":26}],45:[function(require,module,exports){
+arguments[4][28][0].apply(exports,arguments)
+},{"buffer":126,"dup":28}],46:[function(require,module,exports){
 var Stream = require('stream'); // hack to fix a circular dependency issue when used with browserify
 exports = module.exports = require('./lib/_stream_readable.js');
 exports.Stream = Stream;
@@ -6496,10 +6828,10 @@ exports.Duplex = require('./lib/_stream_duplex.js');
 exports.Transform = require('./lib/_stream_transform.js');
 exports.PassThrough = require('./lib/_stream_passthrough.js');
 
-},{"./lib/_stream_duplex.js":33,"./lib/_stream_passthrough.js":34,"./lib/_stream_readable.js":35,"./lib/_stream_transform.js":36,"./lib/_stream_writable.js":37,"stream":144}],43:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":37,"./lib/_stream_passthrough.js":38,"./lib/_stream_readable.js":39,"./lib/_stream_transform.js":40,"./lib/_stream_writable.js":41,"stream":148}],47:[function(require,module,exports){
 module.exports = require("./lib/_stream_writable.js")
 
-},{"./lib/_stream_writable.js":37}],44:[function(require,module,exports){
+},{"./lib/_stream_writable.js":41}],48:[function(require,module,exports){
 (function (process,Buffer){
 var Writable = require('readable-stream/writable');
 var Readable = require('readable-stream/readable');
@@ -6894,11 +7226,11 @@ module.exports = function(db, opts) {
 	return blobs;
 };
 }).call(this,require('_process'),require("buffer").Buffer)
-},{"_process":130,"buffer":122,"level-peek":56,"once":72,"readable-stream/readable":54,"readable-stream/writable":55,"util":147}],45:[function(require,module,exports){
-arguments[4][33][0].apply(exports,arguments)
-},{"./_stream_readable":47,"./_stream_writable":49,"_process":130,"core-util-is":50,"dup":33,"inherits":51}],46:[function(require,module,exports){
-arguments[4][34][0].apply(exports,arguments)
-},{"./_stream_transform":48,"core-util-is":50,"dup":34,"inherits":51}],47:[function(require,module,exports){
+},{"_process":134,"buffer":126,"level-peek":60,"once":76,"readable-stream/readable":58,"readable-stream/writable":59,"util":151}],49:[function(require,module,exports){
+arguments[4][37][0].apply(exports,arguments)
+},{"./_stream_readable":51,"./_stream_writable":53,"_process":134,"core-util-is":54,"dup":37,"inherits":55}],50:[function(require,module,exports){
+arguments[4][38][0].apply(exports,arguments)
+},{"./_stream_transform":52,"core-util-is":54,"dup":38,"inherits":55}],51:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -7853,7 +8185,7 @@ function indexOf (xs, x) {
 }
 
 }).call(this,require('_process'))
-},{"./_stream_duplex":45,"_process":130,"buffer":122,"core-util-is":50,"events":126,"inherits":51,"isarray":52,"stream":144,"string_decoder/":53,"util":121}],48:[function(require,module,exports){
+},{"./_stream_duplex":49,"_process":134,"buffer":126,"core-util-is":54,"events":130,"inherits":55,"isarray":56,"stream":148,"string_decoder/":57,"util":125}],52:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -8064,7 +8396,7 @@ function done(stream, er) {
   return stream.push(null);
 }
 
-},{"./_stream_duplex":45,"core-util-is":50,"inherits":51}],49:[function(require,module,exports){
+},{"./_stream_duplex":49,"core-util-is":54,"inherits":55}],53:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -8545,15 +8877,15 @@ function endWritable(stream, state, cb) {
 }
 
 }).call(this,require('_process'))
-},{"./_stream_duplex":45,"_process":130,"buffer":122,"core-util-is":50,"inherits":51,"stream":144}],50:[function(require,module,exports){
-arguments[4][21][0].apply(exports,arguments)
-},{"buffer":122,"dup":21}],51:[function(require,module,exports){
-arguments[4][15][0].apply(exports,arguments)
-},{"dup":15}],52:[function(require,module,exports){
-arguments[4][22][0].apply(exports,arguments)
-},{"dup":22}],53:[function(require,module,exports){
-arguments[4][24][0].apply(exports,arguments)
-},{"buffer":122,"dup":24}],54:[function(require,module,exports){
+},{"./_stream_duplex":49,"_process":134,"buffer":126,"core-util-is":54,"inherits":55,"stream":148}],54:[function(require,module,exports){
+arguments[4][25][0].apply(exports,arguments)
+},{"buffer":126,"dup":25}],55:[function(require,module,exports){
+arguments[4][19][0].apply(exports,arguments)
+},{"dup":19}],56:[function(require,module,exports){
+arguments[4][26][0].apply(exports,arguments)
+},{"dup":26}],57:[function(require,module,exports){
+arguments[4][28][0].apply(exports,arguments)
+},{"buffer":126,"dup":28}],58:[function(require,module,exports){
 exports = module.exports = require('./lib/_stream_readable.js');
 exports.Stream = require('stream');
 exports.Readable = exports;
@@ -8562,9 +8894,9 @@ exports.Duplex = require('./lib/_stream_duplex.js');
 exports.Transform = require('./lib/_stream_transform.js');
 exports.PassThrough = require('./lib/_stream_passthrough.js');
 
-},{"./lib/_stream_duplex.js":45,"./lib/_stream_passthrough.js":46,"./lib/_stream_readable.js":47,"./lib/_stream_transform.js":48,"./lib/_stream_writable.js":49,"stream":144}],55:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"./lib/_stream_writable.js":49,"dup":43}],56:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":49,"./lib/_stream_passthrough.js":50,"./lib/_stream_readable.js":51,"./lib/_stream_transform.js":52,"./lib/_stream_writable.js":53,"stream":148}],59:[function(require,module,exports){
+arguments[4][47][0].apply(exports,arguments)
+},{"./lib/_stream_writable.js":53,"dup":47}],60:[function(require,module,exports){
 var fixRange = require('level-fix-range')
 //get the first/last record in a range
 
@@ -8641,7 +8973,7 @@ function last (db, opts, cb) {
 }
 
 
-},{"level-fix-range":57}],57:[function(require,module,exports){
+},{"level-fix-range":61}],61:[function(require,module,exports){
 
 module.exports = 
 function fixRange(opts) {
@@ -8661,7 +8993,7 @@ function fixRange(opts) {
 }
 
 
-},{}],58:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 function addOperation (type, key, value, options) {
   var operation = {
     type: type,
@@ -8701,7 +9033,7 @@ B.write = function (cb) {
 
 module.exports = Batch
 
-},{}],59:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 (function (process){
 var EventEmitter = require('events').EventEmitter
 var next         = process.nextTick
@@ -8795,7 +9127,7 @@ module.exports   = function (_db, options) {
 
 
 }).call(this,require('_process'))
-},{"./batch":58,"./sub":70,"_process":130,"events":126,"level-fix-range":60,"level-hooks":62}],60:[function(require,module,exports){
+},{"./batch":62,"./sub":74,"_process":134,"events":130,"level-fix-range":64,"level-hooks":66}],64:[function(require,module,exports){
 var clone = require('clone')
 
 module.exports = 
@@ -8821,7 +9153,7 @@ function fixRange(opts) {
   return opts
 }
 
-},{"clone":61}],61:[function(require,module,exports){
+},{"clone":65}],65:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -8969,7 +9301,7 @@ clone.clonePrototype = function(parent) {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":122}],62:[function(require,module,exports){
+},{"buffer":126}],66:[function(require,module,exports){
 var ranges = require('string-range')
 
 module.exports = function (db) {
@@ -9139,7 +9471,7 @@ module.exports = function (db) {
   }
 }
 
-},{"string-range":63}],63:[function(require,module,exports){
+},{"string-range":67}],67:[function(require,module,exports){
 
 //force to a valid range
 var range = exports.range = function (obj) {
@@ -9213,7 +9545,7 @@ var satifies = exports.satisfies = function (key, range) {
 
 
 
-},{}],64:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 module.exports = hasKeys
 
 function hasKeys(source) {
@@ -9222,7 +9554,7 @@ function hasKeys(source) {
         typeof source === "function")
 }
 
-},{}],65:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 var Keys = require("object-keys")
 var hasKeys = require("./has-keys")
 
@@ -9249,11 +9581,11 @@ function extend() {
     return target
 }
 
-},{"./has-keys":64,"object-keys":66}],66:[function(require,module,exports){
+},{"./has-keys":68,"object-keys":70}],70:[function(require,module,exports){
 module.exports = Object.keys || require('./shim');
 
 
-},{"./shim":69}],67:[function(require,module,exports){
+},{"./shim":73}],71:[function(require,module,exports){
 
 var hasOwn = Object.prototype.hasOwnProperty;
 var toString = Object.prototype.toString;
@@ -9277,7 +9609,7 @@ module.exports = function forEach (obj, fn, ctx) {
 };
 
 
-},{}],68:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 
 /**!
  * is
@@ -9981,7 +10313,7 @@ is.string = function (value) {
 };
 
 
-},{}],69:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
 (function () {
 	"use strict";
 
@@ -10027,7 +10359,7 @@ is.string = function (value) {
 }());
 
 
-},{"foreach":67,"is":68}],70:[function(require,module,exports){
+},{"foreach":71,"is":72}],74:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter
 var inherits     = require('util').inherits
 var ranges       = require('string-range')
@@ -10306,7 +10638,7 @@ SDB.post = function (range, hook) {
 var exports = module.exports = SubDB
 
 
-},{"./batch":58,"events":126,"level-fix-range":60,"string-range":63,"util":147,"xtend":65}],71:[function(require,module,exports){
+},{"./batch":62,"events":130,"level-fix-range":64,"string-range":67,"util":151,"xtend":69}],75:[function(require,module,exports){
 // Returns a wrapper function that returns a wrapped callback
 // The wrapper function should do some stuff, and return a
 // presumably different callback function.
@@ -10341,7 +10673,7 @@ function wrappy (fn, cb) {
   }
 }
 
-},{}],72:[function(require,module,exports){
+},{}],76:[function(require,module,exports){
 var wrappy = require('wrappy')
 module.exports = wrappy(once)
 
@@ -10364,9 +10696,9 @@ function once (fn) {
   return f
 }
 
-},{"wrappy":71}],73:[function(require,module,exports){
-arguments[4][64][0].apply(exports,arguments)
-},{"dup":64}],74:[function(require,module,exports){
+},{"wrappy":75}],77:[function(require,module,exports){
+arguments[4][68][0].apply(exports,arguments)
+},{"dup":68}],78:[function(require,module,exports){
 var hasKeys = require("./has-keys")
 
 module.exports = extend
@@ -10391,7 +10723,7 @@ function extend() {
     return target
 }
 
-},{"./has-keys":73}],75:[function(require,module,exports){
+},{"./has-keys":77}],79:[function(require,module,exports){
 (function (process){
 var path = require('path');
 var once = require('once');
@@ -10509,7 +10841,7 @@ module.exports = function(db) {
 	return that;
 };
 }).call(this,require('_process'))
-},{"./errno":12,"./stat":76,"_process":130,"concat-stream":14,"once":72,"path":129,"xtend":74}],76:[function(require,module,exports){
+},{"./errno":16,"./stat":80,"_process":134,"concat-stream":18,"once":76,"path":133,"xtend":78}],80:[function(require,module,exports){
 var toDate = function(date) {
 	if (!date) return new Date();
 	if (typeof date === 'string') return new Date(date);
@@ -10561,7 +10893,7 @@ Stat.prototype.isSocket = function() {
 module.exports = function(opts) {
 	return new Stat(opts);
 };
-},{}],77:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 var events = require('events');
 
 module.exports = function() {
@@ -10614,7 +10946,7 @@ module.exports = function() {
 
 	return that;
 };
-},{"events":126}],78:[function(require,module,exports){
+},{"events":130}],82:[function(require,module,exports){
 (function (Buffer){
 module.exports = Level
 
@@ -10788,7 +11120,7 @@ var checkKeyValue = Level.prototype._checkKeyValue = function (obj, type) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./iterator":79,"abstract-leveldown":82,"buffer":122,"idb-wrapper":84,"isbuffer":85,"typedarray-to-buffer":87,"util":147,"xtend":89}],79:[function(require,module,exports){
+},{"./iterator":83,"abstract-leveldown":86,"buffer":126,"idb-wrapper":88,"isbuffer":89,"typedarray-to-buffer":91,"util":151,"xtend":93}],83:[function(require,module,exports){
 var util = require('util')
 var AbstractIterator  = require('abstract-leveldown').AbstractIterator
 var ltgt = require('ltgt')
@@ -10855,7 +11187,7 @@ Iterator.prototype._next = function (callback) {
   this.callback = callback
 }
 
-},{"abstract-leveldown":82,"ltgt":86,"util":147}],80:[function(require,module,exports){
+},{"abstract-leveldown":86,"ltgt":90,"util":151}],84:[function(require,module,exports){
 (function (process){
 /* Copyright (c) 2013 Rod Vagg, MIT License */
 
@@ -10939,7 +11271,7 @@ AbstractChainedBatch.prototype.write = function (options, callback) {
 
 module.exports = AbstractChainedBatch
 }).call(this,require('_process'))
-},{"_process":130}],81:[function(require,module,exports){
+},{"_process":134}],85:[function(require,module,exports){
 (function (process){
 /* Copyright (c) 2013 Rod Vagg, MIT License */
 
@@ -10992,7 +11324,7 @@ AbstractIterator.prototype.end = function (callback) {
 module.exports = AbstractIterator
 
 }).call(this,require('_process'))
-},{"_process":130}],82:[function(require,module,exports){
+},{"_process":134}],86:[function(require,module,exports){
 (function (process,Buffer){
 /* Copyright (c) 2013 Rod Vagg, MIT License */
 
@@ -11252,7 +11584,7 @@ module.exports.AbstractIterator     = AbstractIterator
 module.exports.AbstractChainedBatch = AbstractChainedBatch
 
 }).call(this,require('_process'),require("buffer").Buffer)
-},{"./abstract-chained-batch":80,"./abstract-iterator":81,"_process":130,"buffer":122,"xtend":83}],83:[function(require,module,exports){
+},{"./abstract-chained-batch":84,"./abstract-iterator":85,"_process":134,"buffer":126,"xtend":87}],87:[function(require,module,exports){
 module.exports = extend
 
 function extend() {
@@ -11271,7 +11603,7 @@ function extend() {
     return target
 }
 
-},{}],84:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 /*global window:false, self:false, define:false, module:false */
 
 /**
@@ -12618,7 +12950,7 @@ function extend() {
 
 }, this);
 
-},{}],85:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 var Buffer = require('buffer').Buffer;
 
 module.exports = isBuffer;
@@ -12628,7 +12960,7 @@ function isBuffer (o) {
     || /\[object (.+Array|Array.+)\]/.test(Object.prototype.toString.call(o));
 }
 
-},{"buffer":122}],86:[function(require,module,exports){
+},{"buffer":126}],90:[function(require,module,exports){
 (function (Buffer){
 
 exports.compare = function (a, b) {
@@ -12777,7 +13109,7 @@ exports.filter = function (range, compare) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":122}],87:[function(require,module,exports){
+},{"buffer":126}],91:[function(require,module,exports){
 (function (Buffer){
 /**
  * Convert a typed array to a Buffer without a copy
@@ -12800,11 +13132,11 @@ module.exports = function (arr) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":122}],88:[function(require,module,exports){
-arguments[4][64][0].apply(exports,arguments)
-},{"dup":64}],89:[function(require,module,exports){
-arguments[4][65][0].apply(exports,arguments)
-},{"./has-keys":88,"dup":65,"object-keys":91}],90:[function(require,module,exports){
+},{"buffer":126}],92:[function(require,module,exports){
+arguments[4][68][0].apply(exports,arguments)
+},{"dup":68}],93:[function(require,module,exports){
+arguments[4][69][0].apply(exports,arguments)
+},{"./has-keys":92,"dup":69,"object-keys":95}],94:[function(require,module,exports){
 var hasOwn = Object.prototype.hasOwnProperty;
 var toString = Object.prototype.toString;
 
@@ -12846,9 +13178,9 @@ module.exports = function forEach(obj, fn) {
 };
 
 
-},{}],91:[function(require,module,exports){
-arguments[4][66][0].apply(exports,arguments)
-},{"./shim":93,"dup":66}],92:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
+arguments[4][70][0].apply(exports,arguments)
+},{"./shim":97,"dup":70}],96:[function(require,module,exports){
 var toString = Object.prototype.toString;
 
 module.exports = function isArguments(value) {
@@ -12866,7 +13198,7 @@ module.exports = function isArguments(value) {
 };
 
 
-},{}],93:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
 (function () {
 	"use strict";
 
@@ -12930,7 +13262,7 @@ module.exports = function isArguments(value) {
 }());
 
 
-},{"./foreach":90,"./isArguments":92}],94:[function(require,module,exports){
+},{"./foreach":94,"./isArguments":96}],98:[function(require,module,exports){
 /* Copyright (c) 2012-2014 LevelUP contributors
  * See list at <https://github.com/rvagg/node-levelup#contributing>
  * MIT License
@@ -13010,7 +13342,7 @@ Batch.prototype.write = function (callback) {
 
 module.exports = Batch
 
-},{"./errors":95,"./util":98}],95:[function(require,module,exports){
+},{"./errors":99,"./util":102}],99:[function(require,module,exports){
 /* Copyright (c) 2012-2014 LevelUP contributors
  * See list at <https://github.com/rvagg/node-levelup#contributing>
  * MIT License
@@ -13034,7 +13366,7 @@ module.exports = {
   , EncodingError       : createError('EncodingError', LevelUPError)
 }
 
-},{"errno":106}],96:[function(require,module,exports){
+},{"errno":110}],100:[function(require,module,exports){
 (function (process){
 /* Copyright (c) 2012-2014 LevelUP contributors
  * See list at <https://github.com/rvagg/node-levelup#contributing>
@@ -13473,7 +13805,7 @@ module.exports.destroy = utilStatic('destroy')
 module.exports.repair  = utilStatic('repair')
 
 }).call(this,require('_process'))
-},{"./batch":94,"./errors":95,"./read-stream":97,"./util":98,"./write-stream":99,"_process":130,"deferred-leveldown":101,"events":126,"prr":107,"util":147,"xtend":118}],97:[function(require,module,exports){
+},{"./batch":98,"./errors":99,"./read-stream":101,"./util":102,"./write-stream":103,"_process":134,"deferred-leveldown":105,"events":130,"prr":111,"util":151,"xtend":122}],101:[function(require,module,exports){
 /* Copyright (c) 2012-2014 LevelUP contributors
  * See list at <https://github.com/rvagg/node-levelup#contributing>
  * MIT License <https://github.com/rvagg/node-levelup/blob/master/LICENSE.md>
@@ -13601,7 +13933,7 @@ ReadStream.prototype.toString = function () {
 
 module.exports = ReadStream
 
-},{"./errors":95,"./util":98,"readable-stream":117,"util":147,"xtend":118}],98:[function(require,module,exports){
+},{"./errors":99,"./util":102,"readable-stream":121,"util":151,"xtend":122}],102:[function(require,module,exports){
 (function (process,Buffer){
 /* Copyright (c) 2012-2014 LevelUP contributors
  * See list at <https://github.com/rvagg/node-levelup#contributing>
@@ -13787,7 +14119,7 @@ module.exports = {
 }
 
 }).call(this,require('_process'),require("buffer").Buffer)
-},{"../package.json":119,"./errors":95,"_process":130,"buffer":122,"leveldown":121,"leveldown/package":121,"semver":121,"xtend":118}],99:[function(require,module,exports){
+},{"../package.json":123,"./errors":99,"_process":134,"buffer":126,"leveldown":125,"leveldown/package":125,"semver":125,"xtend":122}],103:[function(require,module,exports){
 (function (process,global){
 /* Copyright (c) 2012-2014 LevelUP contributors
  * See list at <https://github.com/rvagg/node-levelup#contributing>
@@ -13969,7 +14301,7 @@ WriteStream.prototype.toString = function () {
 module.exports = WriteStream
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./util":98,"_process":130,"bl":100,"stream":144,"util":147,"xtend":118}],100:[function(require,module,exports){
+},{"./util":102,"_process":134,"bl":104,"stream":148,"util":151,"xtend":122}],104:[function(require,module,exports){
 (function (Buffer){
 var DuplexStream = require('readable-stream').Duplex
   , util         = require('util')
@@ -14186,7 +14518,7 @@ BufferList.prototype.destroy = function () {
 module.exports = BufferList
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":122,"readable-stream":117,"util":147}],101:[function(require,module,exports){
+},{"buffer":126,"readable-stream":121,"util":151}],105:[function(require,module,exports){
 (function (process,Buffer){
 var util              = require('util')
   , AbstractLevelDOWN = require('abstract-leveldown').AbstractLevelDOWN
@@ -14237,41 +14569,41 @@ DeferredLevelDOWN.prototype._iterator = function () {
 module.exports = DeferredLevelDOWN
 
 }).call(this,require('_process'),require("buffer").Buffer)
-},{"_process":130,"abstract-leveldown":104,"buffer":122,"util":147}],102:[function(require,module,exports){
-arguments[4][80][0].apply(exports,arguments)
-},{"_process":130,"dup":80}],103:[function(require,module,exports){
-arguments[4][81][0].apply(exports,arguments)
-},{"_process":130,"dup":81}],104:[function(require,module,exports){
-arguments[4][82][0].apply(exports,arguments)
-},{"./abstract-chained-batch":102,"./abstract-iterator":103,"_process":130,"buffer":122,"dup":82,"xtend":118}],105:[function(require,module,exports){
-arguments[4][28][0].apply(exports,arguments)
-},{"dup":28,"prr":107}],106:[function(require,module,exports){
-arguments[4][29][0].apply(exports,arguments)
-},{"./custom":105,"dup":29}],107:[function(require,module,exports){
-arguments[4][30][0].apply(exports,arguments)
-},{"dup":30}],108:[function(require,module,exports){
+},{"_process":134,"abstract-leveldown":108,"buffer":126,"util":151}],106:[function(require,module,exports){
+arguments[4][84][0].apply(exports,arguments)
+},{"_process":134,"dup":84}],107:[function(require,module,exports){
+arguments[4][85][0].apply(exports,arguments)
+},{"_process":134,"dup":85}],108:[function(require,module,exports){
+arguments[4][86][0].apply(exports,arguments)
+},{"./abstract-chained-batch":106,"./abstract-iterator":107,"_process":134,"buffer":126,"dup":86,"xtend":122}],109:[function(require,module,exports){
+arguments[4][32][0].apply(exports,arguments)
+},{"dup":32,"prr":111}],110:[function(require,module,exports){
 arguments[4][33][0].apply(exports,arguments)
-},{"./_stream_readable":110,"./_stream_writable":112,"_process":130,"core-util-is":113,"dup":33,"inherits":114}],109:[function(require,module,exports){
+},{"./custom":109,"dup":33}],111:[function(require,module,exports){
 arguments[4][34][0].apply(exports,arguments)
-},{"./_stream_transform":111,"core-util-is":113,"dup":34,"inherits":114}],110:[function(require,module,exports){
-arguments[4][35][0].apply(exports,arguments)
-},{"_process":130,"buffer":122,"core-util-is":113,"dup":35,"events":126,"inherits":114,"isarray":115,"stream":144,"string_decoder/":116}],111:[function(require,module,exports){
-arguments[4][36][0].apply(exports,arguments)
-},{"./_stream_duplex":108,"core-util-is":113,"dup":36,"inherits":114}],112:[function(require,module,exports){
+},{"dup":34}],112:[function(require,module,exports){
 arguments[4][37][0].apply(exports,arguments)
-},{"./_stream_duplex":108,"_process":130,"buffer":122,"core-util-is":113,"dup":37,"inherits":114,"stream":144}],113:[function(require,module,exports){
-arguments[4][21][0].apply(exports,arguments)
-},{"buffer":122,"dup":21}],114:[function(require,module,exports){
-arguments[4][15][0].apply(exports,arguments)
-},{"dup":15}],115:[function(require,module,exports){
-arguments[4][22][0].apply(exports,arguments)
-},{"dup":22}],116:[function(require,module,exports){
-arguments[4][24][0].apply(exports,arguments)
-},{"buffer":122,"dup":24}],117:[function(require,module,exports){
-arguments[4][42][0].apply(exports,arguments)
-},{"./lib/_stream_duplex.js":108,"./lib/_stream_passthrough.js":109,"./lib/_stream_readable.js":110,"./lib/_stream_transform.js":111,"./lib/_stream_writable.js":112,"dup":42,"stream":144}],118:[function(require,module,exports){
-arguments[4][83][0].apply(exports,arguments)
-},{"dup":83}],119:[function(require,module,exports){
+},{"./_stream_readable":114,"./_stream_writable":116,"_process":134,"core-util-is":117,"dup":37,"inherits":118}],113:[function(require,module,exports){
+arguments[4][38][0].apply(exports,arguments)
+},{"./_stream_transform":115,"core-util-is":117,"dup":38,"inherits":118}],114:[function(require,module,exports){
+arguments[4][39][0].apply(exports,arguments)
+},{"_process":134,"buffer":126,"core-util-is":117,"dup":39,"events":130,"inherits":118,"isarray":119,"stream":148,"string_decoder/":120}],115:[function(require,module,exports){
+arguments[4][40][0].apply(exports,arguments)
+},{"./_stream_duplex":112,"core-util-is":117,"dup":40,"inherits":118}],116:[function(require,module,exports){
+arguments[4][41][0].apply(exports,arguments)
+},{"./_stream_duplex":112,"_process":134,"buffer":126,"core-util-is":117,"dup":41,"inherits":118,"stream":148}],117:[function(require,module,exports){
+arguments[4][25][0].apply(exports,arguments)
+},{"buffer":126,"dup":25}],118:[function(require,module,exports){
+arguments[4][19][0].apply(exports,arguments)
+},{"dup":19}],119:[function(require,module,exports){
+arguments[4][26][0].apply(exports,arguments)
+},{"dup":26}],120:[function(require,module,exports){
+arguments[4][28][0].apply(exports,arguments)
+},{"buffer":126,"dup":28}],121:[function(require,module,exports){
+arguments[4][46][0].apply(exports,arguments)
+},{"./lib/_stream_duplex.js":112,"./lib/_stream_passthrough.js":113,"./lib/_stream_readable.js":114,"./lib/_stream_transform.js":115,"./lib/_stream_writable.js":116,"dup":46,"stream":148}],122:[function(require,module,exports){
+arguments[4][87][0].apply(exports,arguments)
+},{"dup":87}],123:[function(require,module,exports){
 module.exports={
   "name": "levelup",
   "description": "Fast & simple storage - a Node.js-style LevelDB wrapper",
@@ -14423,11 +14755,11 @@ module.exports={
   "readme": "ERROR: No README data found!"
 }
 
-},{}],120:[function(require,module,exports){
+},{}],124:[function(require,module,exports){
 
-},{}],121:[function(require,module,exports){
-arguments[4][120][0].apply(exports,arguments)
-},{"dup":120}],122:[function(require,module,exports){
+},{}],125:[function(require,module,exports){
+arguments[4][124][0].apply(exports,arguments)
+},{"dup":124}],126:[function(require,module,exports){
 /*!
  * The buffer module from node.js, for the browser.
  *
@@ -15866,7 +16198,7 @@ function decodeUtf8Char (str) {
   }
 }
 
-},{"base64-js":123,"ieee754":124,"is-array":125}],123:[function(require,module,exports){
+},{"base64-js":127,"ieee754":128,"is-array":129}],127:[function(require,module,exports){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 ;(function (exports) {
@@ -15992,7 +16324,7 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 	exports.fromByteArray = uint8ToBase64
 }(typeof exports === 'undefined' ? (this.base64js = {}) : exports))
 
-},{}],124:[function(require,module,exports){
+},{}],128:[function(require,module,exports){
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
   var eLen = nBytes * 8 - mLen - 1
@@ -16078,7 +16410,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],125:[function(require,module,exports){
+},{}],129:[function(require,module,exports){
 
 /**
  * isArray
@@ -16113,7 +16445,7 @@ module.exports = isArray || function (val) {
   return !! val && '[object Array]' == str.call(val);
 };
 
-},{}],126:[function(require,module,exports){
+},{}],130:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -16416,11 +16748,11 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],127:[function(require,module,exports){
-arguments[4][15][0].apply(exports,arguments)
-},{"dup":15}],128:[function(require,module,exports){
-arguments[4][22][0].apply(exports,arguments)
-},{"dup":22}],129:[function(require,module,exports){
+},{}],131:[function(require,module,exports){
+arguments[4][19][0].apply(exports,arguments)
+},{"dup":19}],132:[function(require,module,exports){
+arguments[4][26][0].apply(exports,arguments)
+},{"dup":26}],133:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -16648,7 +16980,7 @@ var substr = 'ab'.substr(-1) === 'b'
 ;
 
 }).call(this,require('_process'))
-},{"_process":130}],130:[function(require,module,exports){
+},{"_process":134}],134:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -16740,35 +17072,35 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],131:[function(require,module,exports){
-arguments[4][32][0].apply(exports,arguments)
-},{"./lib/_stream_duplex.js":132,"dup":32}],132:[function(require,module,exports){
-arguments[4][16][0].apply(exports,arguments)
-},{"./_stream_readable":134,"./_stream_writable":136,"core-util-is":137,"dup":16,"inherits":127,"process-nextick-args":138}],133:[function(require,module,exports){
-arguments[4][17][0].apply(exports,arguments)
-},{"./_stream_transform":135,"core-util-is":137,"dup":17,"inherits":127}],134:[function(require,module,exports){
-arguments[4][18][0].apply(exports,arguments)
-},{"./_stream_duplex":132,"_process":130,"buffer":122,"core-util-is":137,"dup":18,"events":126,"inherits":127,"isarray":128,"process-nextick-args":138,"string_decoder/":145,"util":121}],135:[function(require,module,exports){
-arguments[4][19][0].apply(exports,arguments)
-},{"./_stream_duplex":132,"core-util-is":137,"dup":19,"inherits":127}],136:[function(require,module,exports){
+},{}],135:[function(require,module,exports){
+arguments[4][36][0].apply(exports,arguments)
+},{"./lib/_stream_duplex.js":136,"dup":36}],136:[function(require,module,exports){
 arguments[4][20][0].apply(exports,arguments)
-},{"./_stream_duplex":132,"buffer":122,"core-util-is":137,"dup":20,"events":126,"inherits":127,"process-nextick-args":138,"util-deprecate":139}],137:[function(require,module,exports){
+},{"./_stream_readable":138,"./_stream_writable":140,"core-util-is":141,"dup":20,"inherits":131,"process-nextick-args":142}],137:[function(require,module,exports){
 arguments[4][21][0].apply(exports,arguments)
-},{"buffer":122,"dup":21}],138:[function(require,module,exports){
+},{"./_stream_transform":139,"core-util-is":141,"dup":21,"inherits":131}],138:[function(require,module,exports){
+arguments[4][22][0].apply(exports,arguments)
+},{"./_stream_duplex":136,"_process":134,"buffer":126,"core-util-is":141,"dup":22,"events":130,"inherits":131,"isarray":132,"process-nextick-args":142,"string_decoder/":149,"util":125}],139:[function(require,module,exports){
 arguments[4][23][0].apply(exports,arguments)
-},{"_process":130,"dup":23}],139:[function(require,module,exports){
+},{"./_stream_duplex":136,"core-util-is":141,"dup":23,"inherits":131}],140:[function(require,module,exports){
+arguments[4][24][0].apply(exports,arguments)
+},{"./_stream_duplex":136,"buffer":126,"core-util-is":141,"dup":24,"events":130,"inherits":131,"process-nextick-args":142,"util-deprecate":143}],141:[function(require,module,exports){
 arguments[4][25][0].apply(exports,arguments)
-},{"dup":25}],140:[function(require,module,exports){
+},{"buffer":126,"dup":25}],142:[function(require,module,exports){
+arguments[4][27][0].apply(exports,arguments)
+},{"_process":134,"dup":27}],143:[function(require,module,exports){
+arguments[4][29][0].apply(exports,arguments)
+},{"dup":29}],144:[function(require,module,exports){
 module.exports = require("./lib/_stream_passthrough.js")
 
-},{"./lib/_stream_passthrough.js":133}],141:[function(require,module,exports){
-arguments[4][26][0].apply(exports,arguments)
-},{"./lib/_stream_duplex.js":132,"./lib/_stream_passthrough.js":133,"./lib/_stream_readable.js":134,"./lib/_stream_transform.js":135,"./lib/_stream_writable.js":136,"dup":26}],142:[function(require,module,exports){
+},{"./lib/_stream_passthrough.js":137}],145:[function(require,module,exports){
+arguments[4][30][0].apply(exports,arguments)
+},{"./lib/_stream_duplex.js":136,"./lib/_stream_passthrough.js":137,"./lib/_stream_readable.js":138,"./lib/_stream_transform.js":139,"./lib/_stream_writable.js":140,"dup":30}],146:[function(require,module,exports){
 module.exports = require("./lib/_stream_transform.js")
 
-},{"./lib/_stream_transform.js":135}],143:[function(require,module,exports){
-arguments[4][43][0].apply(exports,arguments)
-},{"./lib/_stream_writable.js":136,"dup":43}],144:[function(require,module,exports){
+},{"./lib/_stream_transform.js":139}],147:[function(require,module,exports){
+arguments[4][47][0].apply(exports,arguments)
+},{"./lib/_stream_writable.js":140,"dup":47}],148:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -16897,16 +17229,16 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"events":126,"inherits":127,"readable-stream/duplex.js":131,"readable-stream/passthrough.js":140,"readable-stream/readable.js":141,"readable-stream/transform.js":142,"readable-stream/writable.js":143}],145:[function(require,module,exports){
-arguments[4][24][0].apply(exports,arguments)
-},{"buffer":122,"dup":24}],146:[function(require,module,exports){
+},{"events":130,"inherits":131,"readable-stream/duplex.js":135,"readable-stream/passthrough.js":144,"readable-stream/readable.js":145,"readable-stream/transform.js":146,"readable-stream/writable.js":147}],149:[function(require,module,exports){
+arguments[4][28][0].apply(exports,arguments)
+},{"buffer":126,"dup":28}],150:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],147:[function(require,module,exports){
+},{}],151:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -17496,7 +17828,7 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":146,"_process":130,"inherits":127}],148:[function(require,module,exports){
+},{"./support/isBuffer":150,"_process":134,"inherits":131}],152:[function(require,module,exports){
 (function (Buffer){
 /* cpexcel.js (C) 2013-2014 SheetJS -- http://sheetjs.com */
 /*jshint -W100 */
@@ -18818,7 +19150,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = cptable;
 }));
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":122}],149:[function(require,module,exports){
+},{"buffer":126}],153:[function(require,module,exports){
 /* harb.js (C) 2014 SheetJS -- http://sheetjs.com */
 /* vim: set ts=2: */
 /*jshint eqnull:true, funcscope:true */
@@ -19055,7 +19387,7 @@ HARB.readFile = readFile;
 HARB.utils = utils;
 })(typeof exports !== 'undefined' ? exports : HARB);
 
-},{"./dist/cpexcel":148,"babyparse":150,"fs":120,"ssf":151}],150:[function(require,module,exports){
+},{"./dist/cpexcel":152,"babyparse":154,"fs":124,"ssf":155}],154:[function(require,module,exports){
 /*
 	Baby Parse
 	v0.2.1
@@ -19811,7 +20143,7 @@ HARB.utils = utils;
 
 }( typeof window !== 'undefined' ? window : this ));
 
-},{}],151:[function(require,module,exports){
+},{}],155:[function(require,module,exports){
 /* ssf.js (C) 2013-2014 SheetJS -- http://sheetjs.com */
 /*jshint -W041 */
 var SSF = {};
@@ -20579,7 +20911,584 @@ SSF.load_table = function load_table(tbl) { for(var i=0; i!=0x0188; ++i) if(tbl[
 make_ssf(SSF);
 if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') module.exports = SSF;
 
-},{}],152:[function(require,module,exports){
+},{}],156:[function(require,module,exports){
+/*
+  Loki IndexedDb Adapter (need to include this script to use it)
+  
+  Indexeddb is highly async, but this adapter has been made 'console-friendly' as well.
+  Anywhere a callback is omitted, it should return results (if applicable) to console.
+
+  IndexedDb storage is provided per-domain, so we implement app/key/value database to allow separate contexts
+  for separate apps within a domain.
+  
+  Examples :
+
+  // SAVE : will save App/Key/Val as 'finance'/'test'/{serializedDb}
+  // if appContect ('finance' in this example) is omitted, 'loki' will be used
+  var idbAdapter = new LokiIndexedAdapter('finance');
+  var db = new loki('test', { adapter: idbAdapter });
+  var coll = db.addCollection('testColl');
+  coll.insert({test: 'val'});
+  db.saveDatabase();  // could pass callback if needed for async complete
+
+  // LOAD
+  var db = new loki('test', { adapter: idbAdapter });
+  db.loadDatabase(function(result) {
+    console.log('done');
+  });
+
+  // GET DATABASE LIST
+  idbAdapter.getDatabaseList(function(result) {
+    // result is array of string names for that appcontext ('finance')
+    result.forEach(function(str) {
+      console.log(str);
+    });
+  });
+  
+  // DELETE DATABASE
+  idbAdapter.deleteDatabase('test'); // delete 'finance'/'test' value from catalog
+  
+  // CONSOLE USAGE : if using from console for management/diagnostic, here are a few examples :
+  adapter.getDatabaseList(); // with no callback passed, this method will log results to console
+  adapter.saveDatabase('UserDatabase', JSON.stringify(myDb));
+  adapter.loadDatabase('UserDatabase'); // will log the serialized db to console
+  adapter.deleteDatabase('UserDatabase');
+*/
+
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD
+        define([], factory);
+    } else if (typeof exports === 'object') {
+        // Node, CommonJS-like
+        module.exports = factory();
+    } else {
+        // Browser globals (root is window)
+        root.LokiIndexedAdapter = factory();
+    }
+}(this, function () {
+  return (function() {
+
+    /**
+     * IndexedAdapter - Loki persistence adapter class for indexedDb.
+     *     This class fulfills abstract adapter interface which can be applied to other storage methods
+     *     Utilizes the included LokiCatalog app/key/value database for actual database persistence.
+     *
+     * @param {string} appname - Application name context can be used to distinguish subdomains or just 'loki'
+     */
+    function IndexedAdapter(appname)
+    {
+      this.app = 'loki';
+      
+      if (typeof (appname) !== 'undefined') 
+      {
+        this.app = appname;
+      }
+
+      // keep reference to catalog class for base AKV operations
+      this.catalog = null;
+      
+      if (!this.checkAvailability()) {
+        console.error('indexedDB does not seem to be supported for your environment');
+      }
+    }
+
+    /**
+     * checkAvailability - used to check if adapter is available
+     *
+     * @returns {boolean} true if indexeddb is available, false if not.
+     */
+    IndexedAdapter.prototype.checkAvailability = function()
+    {
+      if (window && window.indexedDB) return true;
+
+      return false;
+    };
+
+    /**
+     * loadDatabase() - Retrieves a serialized db string from the catalog.
+     *
+     * @param {string} dbname - the name of the database to retrieve.
+     * @param {function} callback - callback should accept string param containing serialized db string.
+     */
+    IndexedAdapter.prototype.loadDatabase = function(dbname, callback)
+    {
+      var appName = this.app;
+      var adapter = this;
+      
+      // lazy open/create db reference so dont -need- callback in constructor
+      if (this.catalog === null || this.catalog.db === null) {
+        this.catalog = new LokiCatalog(function(cat) {
+          adapter.catalog = cat;
+        
+          adapter.loadDatabase(dbname, callback);
+        });
+        
+        return;
+      }
+      
+      // lookup up db string in AKV db
+      this.catalog.getAppKey(appName, dbname, function(result) {
+        if (typeof (callback) === 'function') {
+          if (result.id === 0) {
+            console.warn("loki indexeddb adapter could not find database");
+            callback(null);
+            return;
+          }
+          callback(result.val);
+        }
+        else {
+          // support console use of api
+          console.log(result.val);
+        }
+      });
+    };
+
+    // alias
+    IndexedAdapter.prototype.loadKey = IndexedAdapter.prototype.loadDatabase;
+
+    /**
+     * saveDatabase() - Saves a serialized db to the catalog.
+     *
+     * @param {string} dbname - the name to give the serialized database within the catalog.
+     * @param {string} dbstring - the serialized db string to save.
+     * @param {function} callback - (Optional) callback passed obj.success with true or false
+     */
+    IndexedAdapter.prototype.saveDatabase = function(dbname, dbstring, callback)
+    {
+      var appName = this.app;
+      var adapter = this;
+      
+      // lazy open/create db reference so dont -need- callback in constructor
+      if (this.catalog === null || this.catalog.db === null) {
+        this.catalog = new LokiCatalog(function(cat) {
+          adapter.catalog = cat;
+          
+          // now that catalog has been initialized, set (add/update) the AKV entry
+          cat.setAppKey(appName, dbname, dbstring, callback);
+        });
+        
+        return;
+      }
+      
+      // set (add/update) entry to AKV database
+      this.catalog.setAppKey(appName, dbname, dbstring, callback);
+    };
+
+    // alias
+    IndexedAdapter.prototype.saveKey = IndexedAdapter.prototype.saveDatabase;
+
+    /**
+     * deleteDatabase() - Deletes a serialized db from the catalog.
+     *
+     * @param {string} dbname - the name of the database to delete from the catalog.
+     */
+    IndexedAdapter.prototype.deleteDatabase = function(dbname)
+    {
+      var appName = this.app;
+      var adapter = this;
+      
+      // lazy open/create db reference so dont -need- callback in constructor
+      if (this.catalog === null || this.catalog.db === null) {
+        this.catalog = new LokiCatalog(function(cat) {
+          adapter.catalog = cat;
+          
+          adapter.deleteDatabase(dbname);
+        });
+        
+        return;
+      }
+      
+      // catalog was already initialized, so just lookup object and delete by id
+      this.catalog.getAppKey(appName, dbname, function(result) {
+        var id = result.id;
+        
+        if (id !== 0) {
+          adapter.catalog.deleteAppKey(id);
+        }
+      });
+    };
+
+    // alias
+    IndexedAdapter.prototype.deleteKey = IndexedAdapter.prototype.deleteDatabase;
+
+    /**
+     * getDatabaseList() - Retrieves object array of catalog entries for current app.
+     *
+     * @param {function} callback - should accept array of database names in the catalog for current app.
+     */
+    IndexedAdapter.prototype.getDatabaseList = function(callback)
+    {
+      var appName = this.app;
+      var adapter = this;
+      
+      // lazy open/create db reference so dont -need- callback in constructor
+      if (this.catalog === null || this.catalog.db === null) {
+        this.catalog = new LokiCatalog(function(cat) {
+          adapter.catalog = cat;
+          
+          adapter.getDatabaseList(callback);
+        });
+        
+        return;
+      }
+      
+      // catalog already initialized
+      // get all keys for current appName, and transpose results so just string array
+      this.catalog.getAppKeys(appName, function(results) {
+        var names = [];
+        
+        for(var idx = 0; idx < results.length; idx++) {
+          names.push(results[idx].key);
+        }
+        
+        if (typeof (callback) === 'function') {
+          callback(names);
+        }
+        else {
+          names.forEach(function(obj) {
+            console.log(obj);
+          });
+        }
+      });
+    };
+
+    // alias
+    IndexedAdapter.prototype.getKeyList = IndexedAdapter.prototype.getDatabaseList;
+
+    /**
+     * getCatalogSummary - allows retrieval of list of all keys in catalog along with size
+     *
+     * @param {function} callback - (Optional) callback to accept result array.
+     */
+    IndexedAdapter.prototype.getCatalogSummary = function(callback)
+    {
+      var appName = this.app;
+      var adapter = this;
+      
+      // lazy open/create db reference
+      if (this.catalog === null || this.catalog.db === null) {
+        this.catalog = new LokiCatalog(function(cat) {
+          adapter.catalog = cat;
+          
+          adapter.getCatalogSummary(callback);
+        });
+        
+        return;
+      }
+      
+      // catalog already initialized
+      // get all keys for current appName, and transpose results so just string array
+      this.catalog.getAllKeys(function(results) {
+        var entries = [];
+        var obj,
+          size,
+          oapp,
+          okey,
+          oval;
+        
+        for(var idx = 0; idx < results.length; idx++) {
+          obj = results[idx];
+          oapp = obj.app || '';
+          okey = obj.key || '';
+          oval = obj.val || '';
+          
+          // app and key are composited into an appkey column so we will mult by 2
+          size = oapp.length * 2 + okey.length * 2 + oval.length + 1;
+          
+          entries.push({ "app": obj.app, "key": obj.key, "size": size });
+        }
+        
+        if (typeof (callback) === 'function') {
+          callback(entries);
+        }
+        else {
+          entries.forEach(function(obj) {
+            console.log(obj);
+          });
+        }
+      });
+    };
+
+    /**
+     * LokiCatalog - underlying App/Key/Value catalog persistence
+     *    This non-interface class implements the actual persistence.
+     *    Used by the IndexedAdapter class.
+     */
+    function LokiCatalog(callback) 
+    {
+      this.db = null;
+      this.initializeLokiCatalog(callback);
+    }
+
+    LokiCatalog.prototype.initializeLokiCatalog = function(callback) {
+      var openRequest = indexedDB.open('LokiCatalog', 1);
+      var cat = this;
+      
+      // If database doesn't exist yet or its version is lower than our version specified above (2nd param in line above)
+      openRequest.onupgradeneeded = function(e) {
+        var thisDB = e.target.result;
+        if (thisDB.objectStoreNames.contains('LokiAKV')) {
+          thisDB.deleteObjectStore('LokiAKV');
+        }
+
+        if(!thisDB.objectStoreNames.contains('LokiAKV')) {
+          var objectStore = thisDB.createObjectStore('LokiAKV', { keyPath: 'id', autoIncrement:true });
+          objectStore.createIndex('app', 'app', {unique:false});
+          objectStore.createIndex('key', 'key', {unique:false});
+          // hack to simulate composite key since overhead is low (main size should be in val field)
+          // user (me) required to duplicate the app and key into comma delimited appkey field off object
+          // This will allow retrieving single record with that composite key as well as 
+          // still supporting opening cursors on app or key alone
+          objectStore.createIndex('appkey', 'appkey', {unique:true});
+        }
+      };
+
+      openRequest.onsuccess = function(e) {
+        cat.db = e.target.result;
+
+        if (typeof (callback) === 'function') callback(cat);
+      };
+
+      openRequest.onerror = function(e) {
+        throw e;
+      };
+    };
+
+    LokiCatalog.prototype.getAppKey = function(app, key, callback) {
+      var transaction = this.db.transaction(['LokiAKV'], 'readonly');
+      var store = transaction.objectStore('LokiAKV');
+      var index = store.index('appkey');
+      var appkey = app + "," + key;
+      var request = index.get(appkey);
+
+      request.onsuccess = (function(usercallback) {
+        return function(e) {
+          var lres = e.target.result;
+
+          if (lres === null || typeof(lres) === 'undefined') {
+            lres = { 
+              id: 0, 
+              success: false 
+            };
+          }
+
+          if (typeof(usercallback) === 'function') {
+            usercallback(lres);
+          }
+          else {
+            console.log(lres);
+          }
+        };
+      })(callback);
+      
+      request.onerror = (function(usercallback) {
+        return function(e) {
+          if (typeof(usercallback) === 'function') {
+            usercallback({ id: 0, success: false });
+          }
+          else {
+            throw e;
+          }
+        };
+      })(callback);
+    };
+
+    LokiCatalog.prototype.getAppKeyById = function (id, callback, data) {
+      var transaction = this.db.transaction(['LokiAKV'], 'readonly');
+      var store = transaction.objectStore('LokiAKV');
+      var request = store.get(id);
+
+      request.onsuccess = (function(data, usercallback){
+        return function(e) { 
+          if (typeof(usercallback) === 'function') {
+            usercallback(e.target.result, data);
+          }
+          else {
+            console.log(e.target.result);
+          }
+        };
+      })(data, callback);   
+    };
+
+    LokiCatalog.prototype.setAppKey = function (app, key, val, callback) {
+      var transaction = this.db.transaction(['LokiAKV'], 'readwrite');
+      var store = transaction.objectStore('LokiAKV');
+      var index = store.index('appkey');
+      var appkey = app + "," + key;
+      var request = index.get(appkey);
+
+      // first try to retrieve an existing object by that key
+      // need to do this because to update an object you need to have id in object, otherwise it will append id with new autocounter and clash the unique index appkey
+      request.onsuccess = function(e) {
+        var res = e.target.result;
+
+        if (res === null || res === undefined) {
+          res = {
+            app:app,
+            key:key,
+            appkey: app + ',' + key,
+            val:val
+          };
+        }
+        else {
+          res.val = val;
+        }
+        
+        var requestPut = store.put(res);
+
+        requestPut.onerror = (function(usercallback) {
+          return function(e) {
+            if (typeof(usercallback) === 'function') {
+              usercallback({ success: false });
+            }
+            else {
+              console.error('LokiCatalog.setAppKey (set) onerror');
+              console.error(request.error);
+            }
+          };
+
+        })(callback);
+
+        requestPut.onsuccess = (function(usercallback) {
+          return function(e) {
+            if (typeof(usercallback) === 'function') {
+              usercallback({ success: true });
+            }
+          };
+        })(callback);
+      };
+
+      request.onerror = (function(usercallback) {
+        return function(e) {
+          if (typeof(usercallback) === 'function') {
+            usercallback({ success: false });
+          }
+          else {
+            console.error('LokiCatalog.setAppKey (get) onerror');
+            console.error(request.error);
+          }
+        };
+      })(callback);
+    };
+
+    LokiCatalog.prototype.deleteAppKey = function (id, callback) {	
+      var transaction = this.db.transaction(['LokiAKV'], 'readwrite');
+      var store = transaction.objectStore('LokiAKV');
+      var request = store.delete(id);
+
+      request.onsuccess = (function(usercallback) {
+        return function(evt) {
+          if (typeof(usercallback) === 'function') usercallback({ success: true });
+        };
+      })(callback);
+
+      request.onerror = (function(usercallback) {
+        return function(evt) {
+          if (typeof(usercallback) === 'function') {
+            usercallback(false);
+          }
+          else {
+            console.error('LokiCatalog.deleteAppKey raised onerror');
+            console.error(request.error);
+          }
+        };
+      })(callback);
+    };
+
+    LokiCatalog.prototype.getAppKeys = function(app, callback) {
+      var transaction = this.db.transaction(['LokiAKV'], 'readonly');
+      var store = transaction.objectStore('LokiAKV');
+      var index = store.index('app');
+
+      // We want cursor to all values matching our (single) app param
+      var singleKeyRange = IDBKeyRange.only(app);
+
+      // To use one of the key ranges, pass it in as the first argument of openCursor()/openKeyCursor()
+      var cursor = index.openCursor(singleKeyRange);
+
+      // cursor internally, pushing results into this.data[] and return 
+      // this.data[] when done (similar to service)
+      var localdata = [];
+
+      cursor.onsuccess = (function(data, callback) {
+        return function(e) {
+          var cursor = e.target.result;
+          if (cursor) {
+            var currObject = cursor.value;
+
+            data.push(currObject);
+
+            cursor.continue();
+          }
+          else {
+            if (typeof(callback) === 'function') {
+              callback(data);
+            }
+            else {
+              console.log(data);
+            }
+          }
+        };
+      })(localdata, callback);
+
+      cursor.onerror = (function(usercallback) {
+        return function(e) {
+          if (typeof(usercallback) === 'function') {
+            usercallback(null);
+          }
+          else {
+            console.error('LokiCatalog.getAppKeys raised onerror');
+            console.error(e);
+          }
+        };
+      })(callback);
+      
+    };
+
+    // Hide 'cursoring' and return array of { id: id, key: key }
+    LokiCatalog.prototype.getAllKeys = function (callback) {
+      var transaction = this.db.transaction(['LokiAKV'], 'readonly');
+      var store = transaction.objectStore('LokiAKV');
+      var cursor = store.openCursor();
+
+      var localdata = [];
+
+      cursor.onsuccess = (function(data, callback) {
+        return function(e) {
+          var cursor = e.target.result;
+          if (cursor) {
+            var currObject = cursor.value;
+
+            data.push(currObject);
+
+            cursor.continue();
+          }
+          else {
+            if (typeof(callback) === 'function') {
+              callback(data);
+            }
+            else {
+              console.log(data);
+            }
+          }
+        };
+      })(localdata, callback);
+
+      cursor.onerror = (function(usercallback) {
+        return function(e) {
+          if (typeof(usercallback) === 'function') usercallback(null);
+        };
+      })(callback);
+
+    };
+
+    return IndexedAdapter;
+
+  }());
+}));
+
+},{}],157:[function(require,module,exports){
 (function (global){
 /**
  * LokiJS
@@ -20609,6 +21518,48 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
         for (prop in src) {
           dest[prop] = src[prop];
         }
+      },
+      // used to recursively scan hierarchical transform step object for param substitution
+      resolveTransformObject: function (subObj, params, depth) {
+        var prop,
+          pname;
+
+        if (typeof depth !== 'number') {
+          depth = 0;
+        }
+
+        if (++depth >= 10) return subObj;
+
+        for (prop in subObj) {
+          if (typeof subObj[prop] === 'string' && subObj[prop].indexOf("[%lktxp]") === 0) {
+            pname = subObj[prop].substring(8);
+            if (params.hasOwnProperty(pname)) {
+              subObj[prop] = params[pname];
+            }
+          } else if (typeof subObj[prop] === "object") {
+            subObj[prop] = Utils.resolveTransformObject(subObj[prop], params, depth);
+          }
+        }
+
+        return subObj;
+      },
+      // top level utility to resolve an entire (single) transform (array of steps) for parameter substitution
+      resolveTransformParams: function (transform, params) {
+        var idx,
+          prop,
+          clonedStep,
+          resolvedTransform = [];
+
+        if (typeof params === 'undefined') return transform;
+
+        // iterate all steps in the transform array
+        for (idx = 0; idx < transform.length; idx++) {
+          // clone transform so our scan and replace can operate directly on cloned transform
+          clonedStep = JSON.parse(JSON.stringify(transform[idx]));
+          resolvedTransform.push(Utils.resolveTransformObject(clonedStep, params));
+        }
+
+        return resolvedTransform;
       }
     };
 
@@ -20685,7 +21636,7 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
         return function (curr) {
           return a.indexOf(curr) !== -1;
         };
-      } else if (typeof a === 'string') {
+      } else if (a && typeof a === 'string') {
         return function (curr) {
           return a.indexOf(curr) !== -1;
         };
@@ -20698,6 +21649,8 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
 
     var LokiOps = {
       // comparison operators
+      // a is the value in the collection
+      // b is the query value
       $eq: function (a, b) {
         return a === b;
       },
@@ -20757,8 +21710,9 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
           b = [b];
         }
 
+        // return false on check if no check fn is found
         checkFn = containsCheckFn(a, b) || function () {
-          return true;
+          return false;
         };
 
         return b.reduce(function (prev, curr) {
@@ -20783,6 +21737,9 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
       '$contains': LokiOps.$contains,
       '$containsAny': LokiOps.$containsAny
     };
+
+    // making indexing opt-in... our range function knows how to deal with these ops :
+    var indexedOpsList = ['$eq', '$gt', '$gte', '$lt', '$lte'];
 
     function clone(data, method) {
       var cloneMethod = method || 'parse-stringify',
@@ -20910,6 +21867,7 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
 
       this.events = {
         'init': [],
+        'loaded': [],
         'flushChanges': [],
         'close': [],
         'changes': [],
@@ -20959,6 +21917,19 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
 
     // db class is an EventEmitter
     Loki.prototype = new LokiEventEmitter();
+
+    // experimental support for browserify's abstract syntax scan to pick up dependency of indexed adapter.
+    // Hopefully, once this hits npm a browserify require of lokijs should scan the main file and detect this indexed adapter reference.
+    Loki.prototype.getIndexedAdapter = function () {
+      var adapter;
+
+      if (typeof require === 'function') {
+        adapter = require("./loki-indexed-adapter.js");
+      }
+
+      return adapter;
+    };
+
 
     /**
      * configureOptions - allows reconfiguring database options
@@ -21022,7 +21993,12 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
         if (this.options.hasOwnProperty('autosave') && this.options.autosave) {
           this.autosaveDisable();
           this.autosave = true;
-          this.autosaveEnable();
+
+          if (this.options.hasOwnProperty('autosaveCallback')) {
+            this.autosaveEnable(options, options.autosaveCallback);
+          } else {
+            this.autosaveEnable();
+          }
         }
       } // end of options processing
 
@@ -21142,6 +22118,7 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
      */
     Loki.prototype.loadJSON = function (serializedDb, options) {
 
+      if (serializedDb.length === 0) serializedDb = JSON.stringify({});
       var obj = JSON.parse(serializedDb),
         i = 0,
         len = obj.collections ? obj.collections.length : 0,
@@ -21191,16 +22168,23 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
 
         copyColl.maxId = (coll.data.length === 0) ? 0 : coll.maxId;
         copyColl.idIndex = coll.idIndex;
-        // if saved in previous format recover id index out of it
-        if (typeof (coll.indices) !== 'undefined') {
-          copyColl.idIndex = coll.indices.id;
-        }
         if (typeof (coll.binaryIndices) !== 'undefined') {
           copyColl.binaryIndices = coll.binaryIndices;
         }
-
+        if (typeof coll.transforms !== 'undefined') {
+          copyColl.transforms = coll.transforms;
+        }
 
         copyColl.ensureId();
+
+        // regenerate unique indexes
+        copyColl.uniqueNames = [];
+        if (coll.hasOwnProperty("uniqueNames")) {
+          copyColl.uniqueNames = coll.uniqueNames;
+          for (j = 0; j < copyColl.uniqueNames.length; j++) {
+            copyColl.ensureUniqueIndex(copyColl.uniqueNames[j]);
+          }
+        }
 
         // in case they are loading a database created before we added dynamic views, handle undefined
         if (typeof (coll.DynamicViews) === 'undefined') continue;
@@ -21209,7 +22193,7 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
         for (var idx = 0; idx < coll.DynamicViews.length; idx++) {
           var colldv = coll.DynamicViews[idx];
 
-          var dv = copyColl.addDynamicView(colldv.name, colldv.persistent);
+          var dv = copyColl.addDynamicView(colldv.name, colldv.options);
           dv.resultdata = colldv.resultdata;
           dv.resultsdirty = colldv.resultsdirty;
           dv.filterPipeline = colldv.filterPipeline;
@@ -21404,6 +22388,7 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
           if (typeof (dbString) === 'string') {
             self.loadJSON(dbString, options || {});
             cFun(null);
+            self.emit('loaded', 'database ' + self.filename + ' loaded');
           } else {
             console.warn('lokijs loadDatabase : Database not found');
             if (typeof (dbString) === "object") {
@@ -21482,8 +22467,10 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
     /**
      * autosaveEnable - begin a javascript interval to periodically save the database.
      *
+     * @param {object} options - not currently used (remove or allow overrides?)
+     * @param {function} callback - (Optional) user supplied async callback
      */
-    Loki.prototype.autosaveEnable = function () {
+    Loki.prototype.autosaveEnable = function (options, callback) {
       this.autosave = true;
 
       var delay = 5000,
@@ -21499,7 +22486,7 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
         // along with loki level isdirty() function which iterates all collections to see if any are dirty
 
         if (self.autosaveDirty()) {
-          self.saveDatabase();
+          self.saveDatabase(callback);
         }
       }, delay);
     };
@@ -21618,6 +22605,72 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
 
     // add branch() as alias of copy()
     Resultset.prototype.branch = Resultset.prototype.copy;
+
+    /**
+     * transform() - executes a raw array of transform steps against the resultset.
+     *
+     * @param {array} : (Optional) array of transform steps to execute against this resultset.
+     * @param {object} : (Optional) object property hash of parameters, if the transform requires them.
+     * @returns {Resultset} : either (this) resultset or a clone of of this resultset (depending on steps)
+     */
+    Resultset.prototype.transform = function (transform, parameters) {
+      var idx,
+        step,
+        rs = this;
+
+      if (typeof parameters !== 'undefined') {
+        transform = Utils.resolveTransformParams(transform, parameters);
+      }
+
+      for (idx = 0; idx < transform.length; idx++) {
+        step = transform[idx];
+
+        switch (step.type) {
+        case "find":
+          rs.find(step.value);
+          break;
+        case "where":
+          rs.where(step.value);
+          break;
+        case "simplesort":
+          rs.simplesort(step.property, step.desc);
+          break;
+        case "compoundsort":
+          rs.compoundsort(step.value);
+          break;
+        case "sort":
+          rs.sort(step.value);
+          break;
+        case "limit":
+          rs = rs.limit(step.value);
+          break; // limit makes copy so update reference
+        case "offset":
+          rs = rs.offset(step.value);
+          break; // offset makes copy so update reference
+        case "map":
+          rs = rs.map(step.value);
+          break;
+        case "eqJoin":
+          rs = rs.eqJoin(step.joinData, step.leftJoinKey, step.rightJoinKey, step.mapFun);
+          break;
+          // following cases break chain by returning array data so make any of these last in transform steps
+        case "mapReduce":
+          rs = rs.mapReduce(step.mapFunction, step.reduceFunction);
+          break;
+          // following cases update documents in current filtered resultset (use carefully)
+        case "update":
+          rs.update(step.value);
+          break;
+        case "remove":
+          rs.remove();
+          break;
+        default:
+          break;
+        }
+      }
+
+      return rs;
+    };
 
     /**
      * sort() - User supplied compare function is provided two documents to compare. (chainable)
@@ -21800,7 +22853,7 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
           return [0, -1];
         }
         if (ltHelper(maxVal, val)) {
-          return [0, rcd.length-1];
+          return [0, rcd.length - 1];
         }
         break;
       case '$lte':
@@ -21808,7 +22861,7 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
           return [0, -1];
         }
         if (ltHelper(maxVal, val, true)) {
-          return [0, rcd.length-1];
+          return [0, rcd.length - 1];
         }
         break;
       }
@@ -22159,7 +23212,7 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
       // for now only enabling for non-chained query (who's set of docs matches index)
       // or chained queries where it is the first filter applied and prop is indexed
       if ((!this.searchIsChained || (this.searchIsChained && !this.filterInitialized)) &&
-        operator !== '$ne' && operator !== '$regex' && operator !== '$contains' && operator !== '$containsAny' && operator !== '$in' && this.collection.binaryIndices.hasOwnProperty(property)) {
+        indexedOpsList.indexOf(operator) !== -1 && this.collection.binaryIndices.hasOwnProperty(property)) {
         // this is where our lazy index rebuilding will take place
         // basically we will leave all indexes dirty until we need them
         // so here we will rebuild only the index tied to this property
@@ -22187,9 +23240,17 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
           i = t.length;
 
           if (firstOnly) {
-            while (i--) {
-              if (fun(t[i][property], value)) {
-                return (t[i]);
+            if (usingDotNotation) {
+              while (i--) {
+                if (this.dotSubScan(t[i], property, fun, value)) {
+                  return (t[i]);
+                }
+              }
+            } else {
+              while (i--) {
+                if (fun(t[i][property], value)) {
+                  return (t[i]);
+                }
               }
             }
 
@@ -22684,10 +23745,31 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
      *    Unlike this dynamic view, the branched resultset will not be 'live' updated,
      *    so your branched query should be immediately resolved and not held for future evaluation.
      *
+     * @param {string, array} : Optional name of collection transform, or an array of transform steps
+     * @param {object} : optional parameters (if optional transform requires them)
      * @returns {Resultset} A copy of the internal resultset for branched queries.
      */
-    DynamicView.prototype.branchResultset = function () {
-      return this.resultset.copy();
+    DynamicView.prototype.branchResultset = function (transform, parameters) {
+      var rs = this.resultset.copy();
+
+      if (typeof transform === 'undefined') {
+        return rs;
+      }
+
+      // if transform is name, then do lookup first
+      if (typeof transform === 'string') {
+        if (this.collection.transforms.hasOwnProperty(transform)) {
+          transform = this.collection.transforms[transform];
+        }
+      }
+
+      // either they passed in raw transform array or we looked it up, so process
+      if (typeof transform === 'object' && Array.isArray(transform)) {
+        // if parameters were passed, apply them
+        return rs.transform(transform, parameters);
+      }
+
+      return rs;
     };
 
     /**
@@ -22884,7 +23966,7 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
      * queueRebuildEvent() - When the view is not sorted we may still wish to be notified of rebuild events.
      *     This event will throttle and queue a single rebuild event when batches of updates affect the view.
      */
-    DynamicView.prototype.queueRebuildEvent = function() {
+    DynamicView.prototype.queueRebuildEvent = function () {
       var self = this;
 
       if (this.rebuildPending) {
@@ -22893,12 +23975,12 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
 
       this.rebuildPending = true;
 
-      setTimeout(function() {
+      setTimeout(function () {
         self.rebuildPending = false;
         self.emit('rebuild', this);
       }, 1);
     };
-    
+
     /**
      * queueSortPhase : If the view is sorted we will throttle sorting to either :
      *    (1) passive - when the user calls data(), or
@@ -22919,8 +24001,7 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
         setTimeout(function () {
           self.performSortPhase();
         }, 1);
-      }
-      else {
+      } else {
         // must be passive sorting... since not calling performSortPhase (until data call), lets use queueRebuildEvent to 
         // potentially notify user that data has changed.
         this.queueRebuildEvent();
@@ -23002,8 +24083,7 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
         // need to re-sort to sort new document
         if (this.sortFunction || this.sortCriteria) {
           this.queueSortPhase();
-        }
-        else {
+        } else {
           this.queueRebuildEvent();
         }
 
@@ -23032,8 +24112,7 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
         // in case changes to data altered a sort column
         if (this.sortFunction || this.sortCriteria) {
           this.queueSortPhase();
-        }
-        else {
+        } else {
           this.queueRebuildEvent();
         }
 
@@ -23050,8 +24129,7 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
         // in case changes to data altered a sort column
         if (this.sortFunction || this.sortCriteria) {
           this.queueSortPhase();
-        }
-        else {
+        } else {
           this.queueRebuildEvent();
         }
 
@@ -23100,7 +24178,7 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
       oldlen = ofr.length;
       for (idx = 0; idx < oldlen; idx++) {
         if (ofr[idx] > objIndex) {
-          ofr[idx] --;
+          ofr[idx]--;
         }
       }
     };
@@ -23141,6 +24219,14 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
         exact: {}
       };
 
+      // unique contraints contain duplicate object references, so they are not persisted.
+      // we will keep track of properties which have unique contraint applied here, and regenerate on load
+      this.uniqueNames = [];
+
+      // transforms will be used to store frequently used query chains as a series of steps 
+      // which itself can be stored along with the database.
+      this.transforms = {};
+
       // the object type of the collection
       this.objType = name;
 
@@ -23164,6 +24250,7 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
           options.unique = [options.unique];
         }
         options.unique.forEach(function (prop) {
+          self.uniqueNames.push(prop); // used to regenerate on subsequent database loads
           self.constraints.unique[prop] = new UniqueIndex(prop);
         });
       }
@@ -23330,7 +24417,23 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
 
     Collection.prototype = new LokiEventEmitter();
 
-    Collection.prototype.byExample = function(template) {
+    Collection.prototype.addTransform = function (name, transform) {
+      if (this.transforms.hasOwnProperty(name)) {
+        throw new Error("a transform by that name already exists");
+      }
+
+      this.transforms[name] = transform;
+    };
+
+    Collection.prototype.setTransform = function (name, transform) {
+      this.transforms[name] = transform;
+    };
+
+    Collection.prototype.removeTransform = function (name) {
+      delete transforms[name];
+    };
+
+    Collection.prototype.byExample = function (template) {
       var k, obj, query;
       query = [];
       for (k in template) {
@@ -23341,12 +24444,18 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
           obj
         ));
       }
-      return { '$and': query };
+      return {
+        '$and': query
+      };
     };
 
-    Collection.prototype.findObject = function(template) { return this.findOne(this.byExample(template)); };
+    Collection.prototype.findObject = function (template) {
+      return this.findOne(this.byExample(template));
+    };
 
-    Collection.prototype.findObjects = function(template) { return this.find(this.byExample(template)); };
+    Collection.prototype.findObjects = function (template) {
+      return this.find(this.byExample(template));
+    };
 
     /*----------------------------+
     | INDEXING                    |
@@ -23407,6 +24516,10 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
 
       var index = this.constraints.unique[field];
       if (!index) {
+        // keep track of new unique index for regenerate after database (re)load.
+        if (this.uniqueNames.indexOf(field) == -1) {
+          this.uniqueNames.push(field);
+        }
         this.constraints.unique[field] = index = new UniqueIndex(field);
       }
       var self = this;
@@ -23468,8 +24581,8 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
      * Each collection maintains a list of DynamicViews associated with it
      **/
 
-    Collection.prototype.addDynamicView = function (name, persistent) {
-      var dv = new DynamicView(this, name, persistent);
+    Collection.prototype.addDynamicView = function (name, options) {
+      var dv = new DynamicView(this, name, options);
       this.DynamicViews.push(dv);
 
       return dv;
@@ -23621,7 +24734,7 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
         this.commit();
         this.dirty = true; // for autosave scenarios
         this.emit('update', doc);
-
+        return doc;
       } catch (err) {
         this.rollback();
         console.error(err.message);
@@ -23666,13 +24779,14 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
         obj.$loki = this.maxId;
         obj.meta.version = 0;
 
-        // add the object
-        this.data.push(obj);
-
         var self = this;
         Object.keys(this.constraints.unique).forEach(function (key) {
+          // Function set will throw error when unique constraint is not honoured
           self.constraints.unique[key].set(obj);
         });
+
+        // add the object
+        this.data.push(obj);
 
         // now that we can efficiently determine the data[] position of newly added document,
         // submit it for all registered DynamicViews to evaluate for inclusion/exclusion
@@ -23752,7 +24866,7 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
           position = arr[1];
         var self = this;
         Object.keys(this.constraints.unique).forEach(function (key) {
-          if( doc[key] !== null && typeof doc[key] !== 'undefined' ) {
+          if (doc[key] !== null && typeof doc[key] !== 'undefined') {
             self.constraints.unique[key].remove(doc[key]);
           }
         });
@@ -23852,9 +24966,32 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
     /**
      * Chain method, used for beginning a series of chained find() and/or view() operations
      * on a collection.
+     *
+     * @param {array} transform : Ordered array of transform step objects similar to chain
+     * @param {object} parameters: Object containing properties representing parameters to substitute
+     * @returns {Resultset} : (or data array if any map or join functions where called)
      */
-    Collection.prototype.chain = function () {
-      return new Resultset(this, null, null);
+    Collection.prototype.chain = function (transform, parameters) {
+      var rs = new Resultset(this, null, null);
+
+      if (typeof transform === 'undefined') {
+        return rs;
+      }
+
+      // if transform is name, then do lookup first
+      if (typeof transform === 'string') {
+        if (this.transforms.hasOwnProperty(transform)) {
+          transform = this.transforms[transform];
+        }
+      }
+
+      // either they passed in raw transform array or we looked it up, so process
+      if (typeof transform === 'object' && Array.isArray(transform)) {
+        // if parameters were passed, apply them
+        return rs.transform(transform, parameters);
+      }
+
+      return null;
     };
 
     /**
@@ -24276,7 +25413,7 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
     UniqueIndex.prototype.keyMap = {};
     UniqueIndex.prototype.lokiMap = {};
     UniqueIndex.prototype.set = function (obj) {
-      if (obj[this.field] !== null && typeof(obj[this.field]) !== 'undefined') {
+      if (obj[this.field] !== null && typeof (obj[this.field]) !== 'undefined') {
         if (this.keyMap[obj[this.field]]) {
           throw new Error('Duplicate key for property ' + this.field + ': ' + obj[this.field]);
         } else {
@@ -24304,7 +25441,7 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
     };
     UniqueIndex.prototype.remove = function (key) {
       var obj = this.keyMap[key];
-      if( obj !== null && typeof obj !== 'undefined') {
+      if (obj !== null && typeof obj !== 'undefined') {
         this.keyMap[key] = undefined;
         this.lokiMap[obj.$loki] = undefined;
       } else {
@@ -24432,7 +25569,7 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
         }
       },
       // clear will zap the index
-      clear: function (key) {
+      clear: function () {
         this.keys = [];
         this.values = [];
       }
@@ -24447,7 +25584,7 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
 }));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"fs":120}],153:[function(require,module,exports){
+},{"./loki-indexed-adapter.js":156,"fs":124}],158:[function(require,module,exports){
 //! moment.js
 //! version : 2.10.3
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
@@ -27559,10 +28696,10 @@ if(typeof module !== 'undefined' && typeof DO_NOT_EXPORT_SSF === 'undefined') mo
     return _moment;
 
 }));
-},{}],154:[function(require,module,exports){
+},{}],159:[function(require,module,exports){
 module.exports = require('./src');
 
-},{"./src":167}],155:[function(require,module,exports){
+},{"./src":172}],160:[function(require,module,exports){
 'use strict';
 
 //
@@ -27826,7 +28963,7 @@ if ('undefined' !== typeof module) {
   module.exports = EventEmitter;
 }
 
-},{}],156:[function(require,module,exports){
+},{}],161:[function(require,module,exports){
 /**
  * A module of methods that you want to include in all actions.
  * This module is consumed by `createAction`.
@@ -27834,7 +28971,7 @@ if ('undefined' !== typeof module) {
 module.exports = {
 };
 
-},{}],157:[function(require,module,exports){
+},{}],162:[function(require,module,exports){
 exports.createdStores = [];
 
 exports.createdActions = [];
@@ -27848,7 +28985,7 @@ exports.reset = function() {
     }
 };
 
-},{}],158:[function(require,module,exports){
+},{}],163:[function(require,module,exports){
 var _ = require('./utils'),
     maker = require('./joins').instanceJoinCreator;
 
@@ -28070,7 +29207,7 @@ module.exports = {
     joinStrict: maker("strict")
 };
 
-},{"./joins":168,"./utils":172}],159:[function(require,module,exports){
+},{"./joins":173,"./utils":177}],164:[function(require,module,exports){
 var _ = require('./utils'),
     ListenerMethods = require('./ListenerMethods');
 
@@ -28089,7 +29226,7 @@ module.exports = _.extend({
 
 }, ListenerMethods);
 
-},{"./ListenerMethods":158,"./utils":172}],160:[function(require,module,exports){
+},{"./ListenerMethods":163,"./utils":177}],165:[function(require,module,exports){
 var _ = require('./utils');
 
 /**
@@ -28272,7 +29409,7 @@ module.exports = {
     }
 };
 
-},{"./utils":172}],161:[function(require,module,exports){
+},{"./utils":177}],166:[function(require,module,exports){
 /**
  * A module of methods that you want to include in all stores.
  * This module is consumed by `createStore`.
@@ -28280,7 +29417,7 @@ module.exports = {
 module.exports = {
 };
 
-},{}],162:[function(require,module,exports){
+},{}],167:[function(require,module,exports){
 module.exports = function(store, definition) {
   for (var name in definition) {
     if (Object.getOwnPropertyDescriptor && Object.defineProperty) {
@@ -28305,7 +29442,7 @@ module.exports = function(store, definition) {
   return store;
 };
 
-},{}],163:[function(require,module,exports){
+},{}],168:[function(require,module,exports){
 var ListenerMethods = require('./ListenerMethods'),
     ListenerMixin = require('./ListenerMixin'),
     _ = require('./utils');
@@ -28334,7 +29471,7 @@ module.exports = function(listenable,key){
     };
 };
 
-},{"./ListenerMethods":158,"./ListenerMixin":159,"./utils":172}],164:[function(require,module,exports){
+},{"./ListenerMethods":163,"./ListenerMixin":164,"./utils":177}],169:[function(require,module,exports){
 var ListenerMethods = require('./ListenerMethods'),
     ListenerMixin = require('./ListenerMixin'),
     _ = require('./utils');
@@ -28376,7 +29513,7 @@ module.exports = function(listenable, key, filterFunc) {
 };
 
 
-},{"./ListenerMethods":158,"./ListenerMixin":159,"./utils":172}],165:[function(require,module,exports){
+},{"./ListenerMethods":163,"./ListenerMixin":164,"./utils":177}],170:[function(require,module,exports){
 var _ = require('./utils'),
     ActionMethods = require('./ActionMethods'),
     PublisherMethods = require('./PublisherMethods'),
@@ -28446,7 +29583,7 @@ var createAction = function(definition) {
 
 module.exports = createAction;
 
-},{"./ActionMethods":156,"./Keep":157,"./PublisherMethods":160,"./utils":172}],166:[function(require,module,exports){
+},{"./ActionMethods":161,"./Keep":162,"./PublisherMethods":165,"./utils":177}],171:[function(require,module,exports){
 var _ = require('./utils'),
     Keep = require('./Keep'),
     mixer = require('./mixer'),
@@ -28512,7 +29649,7 @@ module.exports = function(definition) {
     return store;
 };
 
-},{"./Keep":157,"./ListenerMethods":158,"./PublisherMethods":160,"./StoreMethods":161,"./bindMethods":162,"./mixer":171,"./utils":172}],167:[function(require,module,exports){
+},{"./Keep":162,"./ListenerMethods":163,"./PublisherMethods":165,"./StoreMethods":166,"./bindMethods":167,"./mixer":176,"./utils":177}],172:[function(require,module,exports){
 exports.ActionMethods = require('./ActionMethods');
 
 exports.ListenerMethods = require('./ListenerMethods');
@@ -28619,7 +29756,7 @@ if (!Function.prototype.bind) {
   );
 }
 
-},{"./ActionMethods":156,"./Keep":157,"./ListenerMethods":158,"./ListenerMixin":159,"./PublisherMethods":160,"./StoreMethods":161,"./connect":163,"./connectFilter":164,"./createAction":165,"./createStore":166,"./joins":168,"./listenTo":169,"./listenToMany":170,"./utils":172}],168:[function(require,module,exports){
+},{"./ActionMethods":161,"./Keep":162,"./ListenerMethods":163,"./ListenerMixin":164,"./PublisherMethods":165,"./StoreMethods":166,"./connect":168,"./connectFilter":169,"./createAction":170,"./createStore":171,"./joins":173,"./listenTo":174,"./listenToMany":175,"./utils":177}],173:[function(require,module,exports){
 /**
  * Internal module used to create static and instance join methods
  */
@@ -28727,7 +29864,7 @@ function emitIfAllListenablesEmitted(join) {
     reset(join);
 }
 
-},{"./createStore":166,"./utils":172}],169:[function(require,module,exports){
+},{"./createStore":171,"./utils":177}],174:[function(require,module,exports){
 var ListenerMethods = require('./ListenerMethods');
 
 /**
@@ -28764,7 +29901,7 @@ module.exports = function(listenable,callback,initial){
     };
 };
 
-},{"./ListenerMethods":158}],170:[function(require,module,exports){
+},{"./ListenerMethods":163}],175:[function(require,module,exports){
 var ListenerMethods = require('./ListenerMethods');
 
 /**
@@ -28799,7 +29936,7 @@ module.exports = function(listenables){
     };
 };
 
-},{"./ListenerMethods":158}],171:[function(require,module,exports){
+},{"./ListenerMethods":163}],176:[function(require,module,exports){
 var _ = require('./utils');
 
 module.exports = function mix(def) {
@@ -28858,7 +29995,7 @@ module.exports = function mix(def) {
     return updated;
 };
 
-},{"./utils":172}],172:[function(require,module,exports){
+},{"./utils":177}],177:[function(require,module,exports){
 exports.environment = {};
 
 /*
@@ -28937,4 +30074,4 @@ exports.throwIf = function(val,msg){
     }
 };
 
-},{"eventemitter3":155}]},{},[6]);
+},{"eventemitter3":160}]},{},[6]);

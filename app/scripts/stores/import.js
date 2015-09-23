@@ -161,18 +161,6 @@ module.exports = Reflux.createStore({
 
     dataCollection.insert(collectionArray);
 
-    /* Example Usage
-
-    dataCollection
-     .chain()
-     .find({'age':{'$gt': 25}})
-     .where(function(obj){ return obj.name.indexOf("in") != -1 })
-     .simplesort("age")
-     .offset(50)
-     .limit(10)
-     .data();
-     */
-
     // Pass on to listeners
     this.trigger({
       type: 'success',

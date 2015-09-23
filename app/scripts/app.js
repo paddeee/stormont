@@ -11,14 +11,17 @@ var moment = require('moment');
 var reflux = require('reflux');
 var CSVParser = require('harb');
 var dataSourceActions = require('./actions/dataSource.js');
-var filteredDataActions = require('./actions/filteredData.js');
-var filteredDataStore = require('./stores/filteredData.js');
+var filterStateActions = require('./actions/filterState.js');
+var eventsStore = require('./stores/events.js');
+var placesStore = require('./stores/places.js');
+var peopleStore = require('./stores/people.js');
+var sourceStore = require('./stores/source.js');
 var userActions = require('./actions/users.js');
 var userStore = require('./stores/users.js');
 var importActions = require('./actions/import.js');
 var importStore = require('./stores/import.js');
 
-(function(document, reflux, moment, filteredDataActions, filteredDataStore, dataSourceActions, importActions, importStore) {
+(function(document, reflux, moment, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore) {
   'use strict';
 
   // Call checkForLDAP action
@@ -37,8 +40,11 @@ var importStore = require('./stores/import.js');
   app.userStore = userStore;
   app.importActions = importActions;
   app.importStore = importStore;
-  app.filteredDataActions = filteredDataActions;
-  app.filteredDataStore = filteredDataStore;
+  app.filterStateActions = filterStateActions;
+  app.eventsStore = eventsStore;
+  app.placesStore = placesStore;
+  app.peopleStore = peopleStore;
+  app.sourceStore = sourceStore;
   app.packagedApp = global.packagedApp ? true : false;
 
   app.displayInstalledToast = function() {
@@ -65,4 +71,4 @@ var importStore = require('./stores/import.js');
     }
   };
 
-})(document, reflux, moment, filteredDataActions, filteredDataStore, dataSourceActions, importActions, importStore);
+})(document, reflux, moment, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore);
