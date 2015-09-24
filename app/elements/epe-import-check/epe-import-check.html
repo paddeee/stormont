@@ -42,7 +42,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <!-- Filters -->
     <div class="filter-container">
-      <epe-filter-search on-search-attempted="searchAttempted"></epe-filter-search>
+      <epe-filter-search id="name" on-search-attempted="searchAttempted"></epe-filter-search>
     </div>
 
     <!-- Check data -->
@@ -179,11 +179,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     searchAttempted: function (event) {
 
       var searchTerm = event.detail;
+      var fieldName = event.target.id;
 
       var searchFilterObject = {
         collectionName: this.collectionName,
         field: {
-          name: 'name',
+          name: fieldName,
           value: searchTerm
         }
       };

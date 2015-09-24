@@ -38,15 +38,16 @@ module.exports = Reflux.createStore({
 
   // Set the filteredData Object
   dataSourceChanged: function (dataSource) {
-    console.log('data source changed');
+
     this.dataSource = dataSource;
 
+    // Call when the source data is updated
     this.filterStateChanged(this.filterState);
   },
 
   // Set search filter on our collectionTransform
   filterStateChanged: function(filterStateObject) {
-    console.log('filter state changed');
+
     this.filterState.Places = filterStateObject.Places;
 
     if (!this.dataSource) {
