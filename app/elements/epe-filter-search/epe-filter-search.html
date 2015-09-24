@@ -19,22 +19,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .search-input {
       line-height: 1.8em;
       font-size: 0.8em;
-      margin: 16px 8px;
+      margin: 16px 0 16px 16px;
       padding: 8px;
+      text-transform: capitalize;
+    }
+
+    .filter-button {
+      background-color: var(--dark-primary-color);
+      color: var(--text-primary-color);
+      margin: 0 16px 0 32px;
     }
   </style>
   <template>
-    <div class="search-container layout horizontal center end-justified">
-      <input is="iron-input"
-        id="SearchInput"
-        class="search-input"
-        placeholder="Search"
-        on-keyup="searchButtonTapped">
-        <paper-icon-button id="SearchButton"
-                           suffix
-                           icon="search"
-                           on-tap="searchButtonTapped"></paper-icon-button>
-      </input>
+    <div class="search-container layout horizontal center">
+      <template is="dom-repeat" items="[[toArray(filterState)]]">
+          <input is="iron-input"
+                 id="[[item.name]]"
+                 class="flex search-input"
+                 placeholder="[[item.name]]"
+                 on-keyup="searchButtonTapped">
+          </input>
+      </template>
+      <paper-button
+        raised
+        suffix
+        id="FilterButton"
+        class="filter-button"
+        icon="search"
+        on-tap="searchButtonTapped">Filter</paper-button>
     </div>
   </template>
 </dom-module>
@@ -44,6 +56,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     is: 'epe-filter-search',
 
     properties: {
+
+      filterState: {
+        type: Object,
+        value: {}
+      }
+    },
+
+    // Iterate through keys of an object and return key/value pair
+    toArray: function(obj) {
+      return Object.keys(obj).map(function(key) {
+        return {name: key, value: obj[key]};
+      });
     },
 
     // When search button is selected
@@ -51,7 +75,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (event.type === 'keyup' && event.keyCode !== 13) {
         return;
       }
-      this.fire('search-attempted', this.$.SearchInput.bindValue);
+
+      this.createFilterObject();
+      //this.fire('search-attempted', this.$.SearchInput.bindValue);
+    },
+
+    // Create an object
+    createFilterObject: function() {
+
+      var filterCollection = Polymer.dom(this.root).querySelectorAll('.search-input');
+
+      filterCollection.forEach(function($filterElement) {
+        console.log($filterElement.bindValue);
+      });
     }
   });
 })();

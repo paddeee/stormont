@@ -15,6 +15,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     :host {
       display: block;
     }
+
+    .data-grid {
+      font-size: 1.3vw;
+    }
+
+    .filters-title {
+      color: var(--secondary-text-color);
+      font-size: 1.5vw;
+      padding: 16px 16px 8px;
+    }
   </style>
   <template>
 
@@ -41,15 +51,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </paper-tabs>
 
     <!-- Filters -->
-    <div class="filter-container">
-      <epe-filter-search id="name" on-search-attempted="searchAttempted"></epe-filter-search>
+    <div class="filter-container layout vertical">
+      <div class="filters-title">Filters</div>
+      <div class="filter-search-container">
+        <epe-filter-search id="[[item.name]]"
+                           filter-state="[[filterState]]"
+                           on-search-attempted="searchAttempted">
+        </epe-filter-search>
+      </div>
     </div>
 
     <!-- Check data -->
     <iron-pages attr-for-selected="data-route" selected="{{importCheckRoute}}">
       <section data-route="import-check" class="import-check-area relative layout horizontal">
         <epe-data-grid
-          class="fit"
+          class="data-grid fit"
           grid-data="[[gridData]]"></epe-data-grid>
       </section>
     </iron-pages>
@@ -69,22 +85,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       collectionName: {
         type: String
-      },
-
-      eventsData: {
-        type: Object
-      },
-
-      placesData: {
-        type: Object
-      },
-
-      peopleData: {
-        type: Object
-      },
-
-      sourceData: {
-        type: Object
       }
     },
 
@@ -100,7 +100,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           this.collectionName = this.params.name;
 
-          this.setGridData(this.collectionName);
+          this.setUpGrid(this.collectionName);
         }
       }.bind(this));
 
@@ -113,7 +113,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           this.collectionName = this.params.name;
 
-          this.setGridData(this.collectionName);
+          this.setUpGrid(this.collectionName);
         }
       }.bind(this));
 
@@ -126,7 +126,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           this.collectionName = this.params.name;
 
-          this.setGridData(this.collectionName);
+          this.setUpGrid(this.collectionName);
         }
       }.bind(this));
 
@@ -139,7 +139,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           this.collectionName = this.params.name;
 
-          this.setGridData(this.collectionName);
+          this.setUpGrid(this.collectionName);
         }
       }.bind(this));
     },
@@ -151,24 +151,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       this.collectionName = tabChosen;
 
-      this.setGridData(tabChosen);
+      this.setUpGrid(tabChosen);
     },
 
-    // Set the gridData that is to be passed into a data-grid element
-    setGridData: function(collectionName) {
+    // Set the gridData and Filter Search boxes
+    setUpGrid: function(collectionName) {
 
       switch (collectionName) {
         case 'Events':
           this.gridData = this.eventsData;
+          this.filterState = this.eventsStore.filterState.Events;
           break;
         case 'Places':
           this.gridData = this.placesData;
+          this.filterState = this.placesStore.filterState.Places;
           break;
         case 'People':
           this.gridData = this.peopleData;
+          this.filterState = this.peopleStore.filterState.People;
           break;
         case 'Source':
           this.gridData = this.sourceData;
+          this.filterState = this.sourceStore.filterState.Source;
           break;
         default:
           console.log('Sorry, no collectionName set for grid data');
