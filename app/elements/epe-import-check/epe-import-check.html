@@ -178,11 +178,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // EPE-SEARCH-FILTER LISTENER
     searchAttempted: function (event) {
 
+      var searchTerm = event.detail;
+
       var searchFilterObject = {
         collectionName: this.collectionName,
         field: {
           name: 'name',
-          value: ''
+          value: searchTerm
         }
       };
 

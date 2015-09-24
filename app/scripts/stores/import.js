@@ -2,12 +2,13 @@
 
 var Reflux = require('reflux');
 var ImportActions = require('../actions/import.js');
+var DataSourceActions = require('../actions/dataSource.js');
 var dataSourceStore = require('../stores/dataSource.js');
 
 module.exports = Reflux.createStore({
 
   // this will set up listeners to all publishers in ImportActions, using onKeyname (or keyname) as callbacks
-  listenables: [ImportActions],
+  listenables: [ImportActions, DataSourceActions],
 
   // When a CSV file has been selected by an Administrator
   onFileImported: function (fileObject) {
@@ -31,7 +32,10 @@ module.exports = Reflux.createStore({
     this.populateCollection(collectionArray, dataCollection, fileObject.collectionName);
 
     // Save database
-    dataSource.saveDatabase();
+    dataSource.saveDatabase(function() {
+      DataSourceActions.collectionImported(dataSource);
+    });
+
   },
 
   // Create an array of cellObjects which can be iterated through to return a dataCollection

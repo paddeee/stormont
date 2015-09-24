@@ -1,7 +1,6 @@
 'use strict';
 
 var Reflux = require('reflux');
-var dataSourceStore = require('../stores/dataSource.js');
 var FilterStateActions = require('../actions/filterState.js');
 
 module.exports = Reflux.createStore({
@@ -27,31 +26,38 @@ module.exports = Reflux.createStore({
     }
   },
 
-  // The Loki db object
-  collectionTransform: [],
+  // Set search filter on our collectionTransform
+  searchFilterChanged: function(searchFilterObject) {
 
-  // Called on Store initialistion
-  init: function() {
-
-    // Register dataSourceStores's changes
-    this.listenTo(dataSourceStore, this.dataSourceChanged);
-  },
-
-  // Set the filteredData Object
-  dataSourceChanged: function () {
+    this.updateFilteredData(searchFilterObject);
 
     // Send object out to all listeners when database loaded
     this.trigger(this.filterState);
   },
 
-  // Set search filter on our collectionTransform
-  searchFilterChanged: function(searchFilterObject) {
+  // Update filtered data based on the collection
+  // ToDo: Need to make this dynamic based on passed in fields
+  updateFilteredData: function(searchFilterObject) {
 
+    var filterCollection;
 
+      switch (searchFilterObject.collectionName) {
+        case 'Events':
+          filterCollection = this.filterState.Events;
+          break;
+        case 'Places':
+          filterCollection = this.filterState.Places;
+          break;
+        case 'People':
+          filterCollection = this.filterState.People;
+          break;
+        case 'Source':
+          filterCollection = this.filterState.Source;
+          break;
+        default:
+          console.log('No collection Name');
+      }
 
-    console.log(searchFilterObject);
-
-    // Send object out to all listeners when database loaded
-    //this.trigger(this.filteredData);
+    filterCollection.name = searchFilterObject.field.value;
   }
 });

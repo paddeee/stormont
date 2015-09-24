@@ -35,5 +35,14 @@ module.exports = Reflux.createStore({
   // ToDo: Need to manage LDAP connectivity checks from here. For now, just return true
   LDAPExists: function() {
     return true;
-  }
+  },
+
+  // Update and broadcast dataSource when a collection is imported
+  collectionImported: function (dataSource) {
+
+    this.dataSource = dataSource;
+
+    // Send object out to all listeners when database loaded
+    this.trigger(this.dataSource);
+  },
 });

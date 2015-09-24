@@ -6,50 +6,65 @@ var filterStateStore = require('../stores/filterState.js');
 
 module.exports = Reflux.createStore({
 
-  // this will set up listeners to all publishers in DataSourceActions, using onKeyname (or keyname) as callbacks
-  //listenables: [FilterStateActions],
-
   // Name to use for this collection
   collectionName: 'Places',
+
+  // Data storage for all collections
+  dataSource: null,
+
+  // Default state object on application load
+  filterState: {
+    Places: {
+      name: '',
+      type: ''
+    }
+  },
 
   // The filtered places object
   filteredEvents: null,
 
-  // The Loki places transform array
-  placesTransform: [],
+  // The Loki collection transform array
+  collectionTransform: [],
 
   // Called on Store initialistion
   init: function() {
+
+    // Register dataSourceStores's changes
+    this.listenTo(dataSourceStore, this.dataSourceChanged);
 
     // Register filterStateStore's changes
     this.listenTo(filterStateStore, this.filterStateChanged);
   },
 
   // Set the filteredData Object
-  dataSourceChanged: function () {
+  dataSourceChanged: function (dataSource) {
+    console.log('data source changed');
+    this.dataSource = dataSource;
 
-    // Send object out to all listeners when database loaded
-    this.trigger(this.filteredEvents);
+    this.filterStateChanged(this.filterState);
   },
 
   // Set search filter on our collectionTransform
   filterStateChanged: function(filterStateObject) {
+    console.log('filter state changed');
+    this.filterState.Places = filterStateObject.Places;
 
-    var collectionToAddTransformTo = dataSourceStore.dataSource.getCollection(this.collectionName);
-    var filterTransformObject = this.createTransformObject(filterStateObject.Places);
-
-    if (!collectionToAddTransformTo) {
+    if (!this.dataSource) {
       return;
     }
 
+    var collectionToAddTransformTo = this.dataSource.getCollection(this.collectionName);
+    var filterTransformObject = this.createTransformObject(this.filterState.Places);
+
     // Add filter to the transform
-    this.placesTransform.push(filterTransformObject);
+    this.collectionTransform = []; // ToDo push transform if new, replace if not
+    this.collectionTransform.push(filterTransformObject);
 
     // Save the transform to the collection
     if (collectionToAddTransformTo.chain('PaddyFilter')) {
-      collectionToAddTransformTo.setTransform('PaddyFilter', this.placesTransform);
+      collectionToAddTransformTo.setTransform('PaddyFilter', this.collectionTransform);
     } else {
-      collectionToAddTransformTo.addTransform('PaddyFilter', this.placesTransform);
+      collectionToAddTransformTo.addTransform('PaddyFilter', this.collectionTransform);
     }
 
     this.filteredEvents = collectionToAddTransformTo.chain('PaddyFilter').data();

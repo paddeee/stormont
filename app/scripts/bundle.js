@@ -4,7 +4,8 @@
 var Reflux = require('reflux');
 
 module.exports = Reflux.createActions([
-  'checkForLDAP'
+  'checkForLDAP',
+  'collectionImported'
 ]);
 
 },{"reflux":159}],2:[function(require,module,exports){
@@ -111,8 +112,8 @@ lokiFileAdapter.prototype.saveDatabase = function saveDatabase(dbname, dbstring,
   fs.mkdir(path + '/FarrellLoki/', function() {
     fs.writeFile(path + '/FarrellLoki/' + dbname, dbstring, function() {
       fs.readFile(path + '/FarrellLoki/' + dbname, 'utf-8', function(err, data) {
-        //console.log(err);
-        //console.log(data);
+        var dataStore = err || data;
+        callback(dataStore);
       });
     });
   });
@@ -238,7 +239,16 @@ module.exports = Reflux.createStore({
   // ToDo: Need to manage LDAP connectivity checks from here. For now, just return true
   LDAPExists: function() {
     return true;
-  }
+  },
+
+  // Update and broadcast dataSource when a collection is imported
+  collectionImported: function (dataSource) {
+
+    this.dataSource = dataSource;
+
+    // Send object out to all listeners when database loaded
+    this.trigger(this.dataSource);
+  },
 });
 
 },{"../actions/dataSource.js":1,"../adapters/loki-file-adapter.js":5,"lokijs":157,"reflux":159}],8:[function(require,module,exports){
@@ -323,7 +333,6 @@ module.exports = Reflux.createStore({
 'use strict';
 
 var Reflux = require('reflux');
-var dataSourceStore = require('../stores/dataSource.js');
 var FilterStateActions = require('../actions/filterState.js');
 
 module.exports = Reflux.createStore({
@@ -349,46 +358,54 @@ module.exports = Reflux.createStore({
     }
   },
 
-  // The Loki db object
-  collectionTransform: [],
+  // Set search filter on our collectionTransform
+  searchFilterChanged: function(searchFilterObject) {
 
-  // Called on Store initialistion
-  init: function() {
-
-    // Register dataSourceStores's changes
-    this.listenTo(dataSourceStore, this.dataSourceChanged);
-  },
-
-  // Set the filteredData Object
-  dataSourceChanged: function () {
+    this.updateFilteredData(searchFilterObject);
 
     // Send object out to all listeners when database loaded
     this.trigger(this.filterState);
   },
 
-  // Set search filter on our collectionTransform
-  searchFilterChanged: function(searchFilterObject) {
+  // Update filtered data based on the collection
+  // ToDo: Need to make this dynamic based on passed in fields
+  updateFilteredData: function(searchFilterObject) {
 
+    var filterCollection;
 
+      switch (searchFilterObject.collectionName) {
+        case 'Events':
+          filterCollection = this.filterState.Events;
+          break;
+        case 'Places':
+          filterCollection = this.filterState.Places;
+          break;
+        case 'People':
+          filterCollection = this.filterState.People;
+          break;
+        case 'Source':
+          filterCollection = this.filterState.Source;
+          break;
+        default:
+          console.log('No collection Name');
+      }
 
-    console.log(searchFilterObject);
-
-    // Send object out to all listeners when database loaded
-    //this.trigger(this.filteredData);
+    filterCollection.name = searchFilterObject.field.value;
   }
 });
 
-},{"../actions/filterState.js":2,"../stores/dataSource.js":7,"reflux":159}],10:[function(require,module,exports){
+},{"../actions/filterState.js":2,"reflux":159}],10:[function(require,module,exports){
 'use strict';
 
 var Reflux = require('reflux');
 var ImportActions = require('../actions/import.js');
+var DataSourceActions = require('../actions/dataSource.js');
 var dataSourceStore = require('../stores/dataSource.js');
 
 module.exports = Reflux.createStore({
 
   // this will set up listeners to all publishers in ImportActions, using onKeyname (or keyname) as callbacks
-  listenables: [ImportActions],
+  listenables: [ImportActions, DataSourceActions],
 
   // When a CSV file has been selected by an Administrator
   onFileImported: function (fileObject) {
@@ -412,7 +429,10 @@ module.exports = Reflux.createStore({
     this.populateCollection(collectionArray, dataCollection, fileObject.collectionName);
 
     // Save database
-    dataSource.saveDatabase();
+    dataSource.saveDatabase(function() {
+      DataSourceActions.collectionImported(dataSource);
+    });
+
   },
 
   // Create an array of cellObjects which can be iterated through to return a dataCollection
@@ -551,7 +571,7 @@ module.exports = Reflux.createStore({
   }
 });
 
-},{"../actions/import.js":3,"../stores/dataSource.js":7,"reflux":159}],11:[function(require,module,exports){
+},{"../actions/dataSource.js":1,"../actions/import.js":3,"../stores/dataSource.js":7,"reflux":159}],11:[function(require,module,exports){
 'use strict';
 
 var Reflux = require('reflux');
@@ -638,50 +658,65 @@ var filterStateStore = require('../stores/filterState.js');
 
 module.exports = Reflux.createStore({
 
-  // this will set up listeners to all publishers in DataSourceActions, using onKeyname (or keyname) as callbacks
-  //listenables: [FilterStateActions],
-
   // Name to use for this collection
   collectionName: 'Places',
+
+  // Data storage for all collections
+  dataSource: null,
+
+  // Default state object on application load
+  filterState: {
+    Places: {
+      name: '',
+      type: ''
+    }
+  },
 
   // The filtered places object
   filteredEvents: null,
 
-  // The Loki places transform array
-  placesTransform: [],
+  // The Loki collection transform array
+  collectionTransform: [],
 
   // Called on Store initialistion
   init: function() {
+
+    // Register dataSourceStores's changes
+    this.listenTo(dataSourceStore, this.dataSourceChanged);
 
     // Register filterStateStore's changes
     this.listenTo(filterStateStore, this.filterStateChanged);
   },
 
   // Set the filteredData Object
-  dataSourceChanged: function () {
+  dataSourceChanged: function (dataSource) {
+    console.log('data source changed');
+    this.dataSource = dataSource;
 
-    // Send object out to all listeners when database loaded
-    this.trigger(this.filteredEvents);
+    this.filterStateChanged(this.filterState);
   },
 
   // Set search filter on our collectionTransform
   filterStateChanged: function(filterStateObject) {
+    console.log('filter state changed');
+    this.filterState.Places = filterStateObject.Places;
 
-    var collectionToAddTransformTo = dataSourceStore.dataSource.getCollection(this.collectionName);
-    var filterTransformObject = this.createTransformObject(filterStateObject.Places);
-
-    if (!collectionToAddTransformTo) {
+    if (!this.dataSource) {
       return;
     }
 
+    var collectionToAddTransformTo = this.dataSource.getCollection(this.collectionName);
+    var filterTransformObject = this.createTransformObject(this.filterState.Places);
+
     // Add filter to the transform
-    this.placesTransform.push(filterTransformObject);
+    this.collectionTransform = []; // ToDo push transform if new, replace if not
+    this.collectionTransform.push(filterTransformObject);
 
     // Save the transform to the collection
     if (collectionToAddTransformTo.chain('PaddyFilter')) {
-      collectionToAddTransformTo.setTransform('PaddyFilter', this.placesTransform);
+      collectionToAddTransformTo.setTransform('PaddyFilter', this.collectionTransform);
     } else {
-      collectionToAddTransformTo.addTransform('PaddyFilter', this.placesTransform);
+      collectionToAddTransformTo.addTransform('PaddyFilter', this.collectionTransform);
     }
 
     this.filteredEvents = collectionToAddTransformTo.chain('PaddyFilter').data();
