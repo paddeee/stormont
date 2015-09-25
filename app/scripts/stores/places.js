@@ -81,10 +81,10 @@ module.exports = Reflux.createStore({
       type: 'find',
       value: {
         'name': {
-          '$contains' : filterTransformObject.name
+          '$regex' : new RegExp(filterTransformObject.name, 'i')
         },
         'type': {
-          '$contains' : filterTransformObject.type
+          '$regex' : new RegExp(filterTransformObject.type, 'i')
         }
       }
     };

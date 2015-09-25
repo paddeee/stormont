@@ -32,7 +32,7 @@ module.exports = Reflux.createStore({
     this.updateFilteredData(searchFilterObject);
 
     // Send object out to all listeners when database loaded
-    this.trigger(this.filterState);
+    //this.trigger(this.filterState);
   },
 
   // Update filtered data based on the collection
@@ -57,7 +57,7 @@ module.exports = Reflux.createStore({
         default:
           console.log('No collection Name');
       }
-
-    filterCollection.name = searchFilterObject.field.value;
+console.log(searchFilterObject);
+    //filterCollection.name = searchFilterObject.field.value;
   }
 });

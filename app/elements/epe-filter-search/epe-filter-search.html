@@ -76,18 +76,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return;
       }
 
-      this.createFilterObject();
-      //this.fire('search-attempted', this.$.SearchInput.bindValue);
+      this.fire('search-attempted', this.createFilterObject());
     },
 
     // Create an object
     createFilterObject: function() {
 
       var filterCollection = Polymer.dom(this.root).querySelectorAll('.search-input');
+      var searchFilterObject = {
+        collectionName: this.collectionName,
+        fields: []
+      };
 
       filterCollection.forEach(function($filterElement) {
-        console.log($filterElement.bindValue);
+
+        var fieldObject = {};
+
+        if ($filterElement.bindValue) {
+
+          fieldObject.name = $filterElement.id;
+          fieldObject.value = $filterElement.bindValue;
+          searchFilterObject.fields.push(fieldObject);
+        }
       });
+
+      return searchFilterObject;
     }
   });
 })();

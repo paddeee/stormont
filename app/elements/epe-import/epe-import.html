@@ -54,6 +54,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       transform-origin: left center;
     }
 
+    .bottom-title {
+      font-size: 2.5vh;
+    }
+
     .main-content {
       height: 100%;
     }
@@ -167,14 +171,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           <!-- File Import Selector -->
           <div class="flex-1 relative radio-container">
-            <paper-material class="card fit layout vertical">
-              <paper-radio-group selected="{{importedFileType}}">
+            <paper-material class="card fit">
+              <paper-radio-group class=" layout vertical" selected="{{importedFileType}}">
                 <paper-radio-button name="Events">Events</paper-radio-button>
                 <paper-radio-button name="People">People</paper-radio-button>
                 <paper-radio-button name="Places">Places</paper-radio-button>
-                <paper-radio-button name="Radio1">Radio1</paper-radio-button>
-                <paper-radio-button name="Radio2">Radio2</paper-radio-button>
-                <paper-radio-button name="Radio3">Radio3</paper-radio-button>
+                <paper-radio-button name="Source">Source</paper-radio-button>
               </paper-radio-group>
             </paper-material>
           </div>

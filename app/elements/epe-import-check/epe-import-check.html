@@ -39,14 +39,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <paper-tab name="Places" link>
         <a href="/import-check/Places" class="horizontal center-center layout">PLACES</a>
       </paper-tab>
-      <paper-tab name="Tab1" link>
-        <a href="/import-check/Tab1" class="horizontal center-center layout">TAB 1</a>
-      </paper-tab>
-      <paper-tab name="Tab2" link>
-        <a href="/import-check/Tab2" class="horizontal center-center layout">TAB 2</a>
-      </paper-tab>
-      <paper-tab name="Tab3" link>
-        <a href="/import-check/Tab3" class="horizontal center-center layout">TAB 3</a>
+      <paper-tab name="Source" link>
+        <a href="/import-check/Source" class="horizontal center-center layout">SOURCE</a>
       </paper-tab>
     </paper-tabs>
 
@@ -55,6 +49,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <div class="filters-title">Filters</div>
       <div class="filter-search-container">
         <epe-filter-search id="[[item.name]]"
+                           collection-name="[[collectionName]]"
                            filter-state="[[filterState]]"
                            on-search-attempted="searchAttempted">
         </epe-filter-search>
@@ -84,7 +79,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       collectionName: {
-        type: String
+        type: String,
+        value: ''
       }
     },
 
@@ -182,16 +178,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // EPE-SEARCH-FILTER LISTENER
     searchAttempted: function (event) {
 
-      var searchTerm = event.detail;
-      var fieldName = event.target.id;
-
-      var searchFilterObject = {
-        collectionName: this.collectionName,
-        field: {
-          name: fieldName,
-          value: searchTerm
-        }
-      };
+      var searchFilterObject = event.detail;
 
       // Call fileImported action
       this.filterStateActions.searchFilterChanged(searchFilterObject);
