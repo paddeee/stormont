@@ -13,10 +13,17 @@ module.exports = Reflux.createStore({
   dataSource: null,
 
   // Default state object on application load
-  filterState: {
+  filterTransform: {
     Places: {
-      name: '',
-      type: ''
+      type: 'find',
+      value: {
+        'name': {
+          '$regex' : new RegExp('', 'i')
+        },
+        'type': {
+          '$regex' : new RegExp('', 'i')
+        }
+      }
     }
   },
 
@@ -42,24 +49,22 @@ module.exports = Reflux.createStore({
     this.dataSource = dataSource;
 
     // Call when the source data is updated
-    this.filterStateChanged(this.filterState);
+    this.filterStateChanged(this.filterTransform);
   },
 
   // Set search filter on our collectionTransform
-  filterStateChanged: function(filterStateObject) {
-
-    this.filterState.Places = filterStateObject.Places;
+  filterStateChanged: function(filterTransformObject) {
 
     if (!this.dataSource) {
       return;
     }
 
+    var placesTransformObject = filterTransformObject.Places;
     var collectionToAddTransformTo = this.dataSource.getCollection(this.collectionName);
-    var filterTransformObject = this.createTransformObject(this.filterState.Places);
 
     // Add filter to the transform
     this.collectionTransform = []; // ToDo push transform if new, replace if not
-    this.collectionTransform.push(filterTransformObject);
+    this.collectionTransform.push(placesTransformObject);
 
     // Save the transform to the collection
     if (collectionToAddTransformTo.chain('PaddyFilter')) {
@@ -72,21 +77,5 @@ module.exports = Reflux.createStore({
 
     // Send object out to all listeners
     this.trigger(this.filteredEvents);
-  },
-
-  // Create a filter transform object from a filter Object
-  createTransformObject: function(filterTransformObject) {
-
-    return {
-      type: 'find',
-      value: {
-        'name': {
-          '$regex' : new RegExp(filterTransformObject.name, 'i')
-        },
-        'type': {
-          '$regex' : new RegExp(filterTransformObject.type, 'i')
-        }
-      }
-    };
   }
 });

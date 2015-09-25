@@ -156,19 +156,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       switch (collectionName) {
         case 'Events':
           this.gridData = this.eventsData;
-          this.filterState = this.eventsStore.filterState.Events;
+          this.filterState = this.eventsStore.filterTransform.Events;
           break;
         case 'Places':
           this.gridData = this.placesData;
-          this.filterState = this.placesStore.filterState.Places;
+          this.filterState = this.placesStore.filterTransform.Places;
           break;
         case 'People':
           this.gridData = this.peopleData;
-          this.filterState = this.peopleStore.filterState.People;
+          this.filterState = this.peopleStore.filterTransform.People;
           break;
         case 'Source':
           this.gridData = this.sourceData;
-          this.filterState = this.sourceStore.filterState.Source;
+          this.filterState = this.sourceStore.filterTransform.Source;
           break;
         default:
           console.log('Sorry, no collectionName set for grid data');

@@ -10,19 +10,50 @@ module.exports = Reflux.createStore({
 
   // The Loki db object
   // ToDO: Abstract out to config file
-  filterState: {
+  filterTransforms: {
     Events: {
-      name: '',
-      type: ''
+      type: 'find',
+      value: {
+        'name': {
+          '$regex' : new RegExp('', 'i')
+        },
+        'type': {
+          '$regex' : new RegExp('', 'i')
+        }
+      }
     },
     Places: {
-      name: ''
+      type: 'find',
+      value: {
+        'name': {
+          '$regex' : new RegExp('', 'i')
+        },
+        'type': {
+          '$regex' : new RegExp('', 'i')
+        }
+      }
     },
     People: {
-      name: ''
+      type: 'find',
+      value: {
+        'name': {
+          '$regex' : new RegExp('', 'i')
+        },
+        'type': {
+          '$regex' : new RegExp('', 'i')
+        }
+      }
     },
     Source: {
-      name: ''
+      type: 'find',
+      value: {
+        'name': {
+          '$regex' : new RegExp('', 'i')
+        },
+        'type': {
+          '$regex' : new RegExp('', 'i')
+        }
+      }
     }
   },
 
@@ -32,32 +63,47 @@ module.exports = Reflux.createStore({
     this.updateFilteredData(searchFilterObject);
 
     // Send object out to all listeners when database loaded
-    //this.trigger(this.filterState);
+    this.trigger(this.filterTransforms);
   },
 
   // Update filtered data based on the collection
   // ToDo: Need to make this dynamic based on passed in fields
   updateFilteredData: function(searchFilterObject) {
 
-    var filterCollection;
-
       switch (searchFilterObject.collectionName) {
         case 'Events':
-          filterCollection = this.filterState.Events;
+          this.filterTransforms.Events = this.createTransformObject(searchFilterObject);
           break;
         case 'Places':
-          filterCollection = this.filterState.Places;
+          this.filterTransforms.Places = this.createTransformObject(searchFilterObject);
           break;
         case 'People':
-          filterCollection = this.filterState.People;
+          this.filterTransforms.People = this.createTransformObject(searchFilterObject);
           break;
         case 'Source':
-          filterCollection = this.filterState.Source;
+          this.filterTransforms.Source = this.createTransformObject(searchFilterObject);
           break;
         default:
           console.log('No collection Name');
       }
-console.log(searchFilterObject);
-    //filterCollection.name = searchFilterObject.field.value;
-  }
+  },
+
+  // Create a filter transform object from a filter Object
+  createTransformObject: function(filterTransformObject) {
+
+    var value = {};
+
+    filterTransformObject.fields.forEach(function(field) {
+      value[field.name] = {
+        '$regex' : new RegExp(field.value, 'i')
+      };
+    });
+
+    return {
+      type: 'find',
+      value: value
+    };
+  },
+
+  //
 });

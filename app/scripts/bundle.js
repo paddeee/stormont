@@ -342,19 +342,50 @@ module.exports = Reflux.createStore({
 
   // The Loki db object
   // ToDO: Abstract out to config file
-  filterState: {
+  filterTransforms: {
     Events: {
-      name: '',
-      type: ''
+      type: 'find',
+      value: {
+        'name': {
+          '$regex' : new RegExp('', 'i')
+        },
+        'type': {
+          '$regex' : new RegExp('', 'i')
+        }
+      }
     },
     Places: {
-      name: ''
+      type: 'find',
+      value: {
+        'name': {
+          '$regex' : new RegExp('', 'i')
+        },
+        'type': {
+          '$regex' : new RegExp('', 'i')
+        }
+      }
     },
     People: {
-      name: ''
+      type: 'find',
+      value: {
+        'name': {
+          '$regex' : new RegExp('', 'i')
+        },
+        'type': {
+          '$regex' : new RegExp('', 'i')
+        }
+      }
     },
     Source: {
-      name: ''
+      type: 'find',
+      value: {
+        'name': {
+          '$regex' : new RegExp('', 'i')
+        },
+        'type': {
+          '$regex' : new RegExp('', 'i')
+        }
+      }
     }
   },
 
@@ -364,34 +395,49 @@ module.exports = Reflux.createStore({
     this.updateFilteredData(searchFilterObject);
 
     // Send object out to all listeners when database loaded
-    //this.trigger(this.filterState);
+    this.trigger(this.filterTransforms);
   },
 
   // Update filtered data based on the collection
   // ToDo: Need to make this dynamic based on passed in fields
   updateFilteredData: function(searchFilterObject) {
 
-    var filterCollection;
-
       switch (searchFilterObject.collectionName) {
         case 'Events':
-          filterCollection = this.filterState.Events;
+          this.filterTransforms.Events = this.createTransformObject(searchFilterObject);
           break;
         case 'Places':
-          filterCollection = this.filterState.Places;
+          this.filterTransforms.Places = this.createTransformObject(searchFilterObject);
           break;
         case 'People':
-          filterCollection = this.filterState.People;
+          this.filterTransforms.People = this.createTransformObject(searchFilterObject);
           break;
         case 'Source':
-          filterCollection = this.filterState.Source;
+          this.filterTransforms.Source = this.createTransformObject(searchFilterObject);
           break;
         default:
           console.log('No collection Name');
       }
-console.log(searchFilterObject);
-    //filterCollection.name = searchFilterObject.field.value;
-  }
+  },
+
+  // Create a filter transform object from a filter Object
+  createTransformObject: function(filterTransformObject) {
+
+    var value = {};
+
+    filterTransformObject.fields.forEach(function(field) {
+      value[field.name] = {
+        '$regex' : new RegExp(field.value, 'i')
+      };
+    });
+
+    return {
+      type: 'find',
+      value: value
+    };
+  },
+
+  //
 });
 
 },{"../actions/filterState.js":2,"reflux":159}],10:[function(require,module,exports){
@@ -665,10 +711,17 @@ module.exports = Reflux.createStore({
   dataSource: null,
 
   // Default state object on application load
-  filterState: {
+  filterTransform: {
     Places: {
-      name: '',
-      type: ''
+      type: 'find',
+      value: {
+        'name': {
+          '$regex' : new RegExp('', 'i')
+        },
+        'type': {
+          '$regex' : new RegExp('', 'i')
+        }
+      }
     }
   },
 
@@ -694,24 +747,22 @@ module.exports = Reflux.createStore({
     this.dataSource = dataSource;
 
     // Call when the source data is updated
-    this.filterStateChanged(this.filterState);
+    this.filterStateChanged(this.filterTransform);
   },
 
   // Set search filter on our collectionTransform
-  filterStateChanged: function(filterStateObject) {
-
-    this.filterState.Places = filterStateObject.Places;
+  filterStateChanged: function(filterTransformObject) {
 
     if (!this.dataSource) {
       return;
     }
 
+    var placesTransformObject = filterTransformObject.Places;
     var collectionToAddTransformTo = this.dataSource.getCollection(this.collectionName);
-    var filterTransformObject = this.createTransformObject(this.filterState.Places);
 
     // Add filter to the transform
     this.collectionTransform = []; // ToDo push transform if new, replace if not
-    this.collectionTransform.push(filterTransformObject);
+    this.collectionTransform.push(placesTransformObject);
 
     // Save the transform to the collection
     if (collectionToAddTransformTo.chain('PaddyFilter')) {
@@ -724,22 +775,6 @@ module.exports = Reflux.createStore({
 
     // Send object out to all listeners
     this.trigger(this.filteredEvents);
-  },
-
-  // Create a filter transform object from a filter Object
-  createTransformObject: function(filterTransformObject) {
-
-    return {
-      type: 'find',
-      value: {
-        'name': {
-          '$regex' : new RegExp(filterTransformObject.name, 'i')
-        },
-        'type': {
-          '$regex' : new RegExp(filterTransformObject.type, 'i')
-        }
-      }
-    };
   }
 });
 
