@@ -32,13 +32,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
     <div class="search-container layout horizontal center">
-      <template is="dom-repeat" items="[[toArray(filterState)]]">
+      <template is="dom-repeat" items="[[filterState]]">
+        <template is="dom-repeat" items="[[toArray(item)]]">
           <input is="iron-input"
                  id="[[item.name]]"
                  class="flex search-input"
                  placeholder="[[item.name]]"
                  on-keyup="searchButtonTapped">
           </input>
+        </template>
       </template>
       <paper-button
         raised
@@ -58,8 +60,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     properties: {
 
       filterState: {
-        type: Object,
-        value: {}
+        type: Array,
+        value: []
       }
     },
 
@@ -72,6 +74,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // When search button is selected
     searchButtonTapped: function(event) {
+
       if (event.type === 'keyup' && event.keyCode !== 13) {
         return;
       }
