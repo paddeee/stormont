@@ -47,7 +47,7 @@ module.exports = Reflux.createStore({
   // Set search filter on our collectionTransform
   filterStateChanged: function(filterTransformObject) {
 
-    var collectionTransformObject = filterTransformObject.Events;
+    var collectionTransformObject = filterTransformObject.Places;
     var collectionToAddTransformTo = this.dataSource.getCollection(this.collectionName);
 
     if (!this.dataSource || !collectionToAddTransformTo) {

@@ -14,6 +14,16 @@ var filterTransforms = {
           'Type': {
             '$regex' : new RegExp('', 'i')
           }
+        },
+        {
+          'Begin Date and Time': {
+            '$gte' : '1900-01-01'
+          }
+        },
+        {
+          'End Date and Time': {
+            '$lte' : '2999-12-31'
+          }
         }]
     }
   },

@@ -218,6 +218,16 @@ var filterTransforms = {
           'Type': {
             '$regex' : new RegExp('', 'i')
           }
+        },
+        {
+          'Begin Date and Time': {
+            '$gte' : '1900-01-01'
+          }
+        },
+        {
+          'End Date and Time': {
+            '$lte' : '2999-12-31'
+          }
         }]
     }
   },
@@ -778,7 +788,7 @@ module.exports = Reflux.createStore({
   // Set search filter on our collectionTransform
   filterStateChanged: function(filterTransformObject) {
 
-    var collectionTransformObject = filterTransformObject.Events;
+    var collectionTransformObject = filterTransformObject.Places;
     var collectionToAddTransformTo = this.dataSource.getCollection(this.collectionName);
 
     if (!this.dataSource || !collectionToAddTransformTo) {

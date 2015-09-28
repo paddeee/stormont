@@ -217,10 +217,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     sheetLoaded: function (event) {
 
       var data = event.target.result;
+      var importData = data.split('[ImportData]')[1].trim();
 
       /* if binary string, read with type 'binary' */
-      var CSV = this.csvParser.read(data, {
-        keepEmptyRows: true,
+      var CSV = this.csvParser.read(importData, {
         type: 'binary'
       });
 
