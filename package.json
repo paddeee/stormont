@@ -1,6 +1,7 @@
 {
   "private": true,
   "devDependencies": {
+    "babyparse": "^0.4.3",
     "browser-sync": "^2.7.7",
     "browserify": "^11.0.0",
     "browserify-fs": "^1.0.0",
@@ -42,6 +43,7 @@
     "require-dir": "^0.3.0",
     "run-sequence": "^1.0.2",
     "should": "^7.0.4",
+    "ssf": "^0.8.2",
     "through2": "^2.0.0",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",

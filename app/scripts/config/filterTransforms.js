@@ -4,12 +4,17 @@ var filterTransforms = {
   Events: {
     type: 'find',
     value: {
-      'name': {
-        '$regex' : new RegExp('', 'i')
-      },
-      'type': {
-        '$regex' : new RegExp('', 'i')
-      }
+      '$and': [
+        {
+          'Full Name': {
+            '$regex' : new RegExp('', 'i')
+          }
+        },
+        {
+          'Type': {
+            '$regex' : new RegExp('', 'i')
+          }
+        }]
     }
   },
   Places: {
@@ -31,23 +36,43 @@ var filterTransforms = {
   People: {
     type: 'find',
     value: {
-      'name': {
-        '$regex' : new RegExp('', 'i')
-      },
-      'type': {
-        '$regex' : new RegExp('', 'i')
-      }
+      '$and': [
+        {
+          'Full Name': {
+            '$regex' : new RegExp('', 'i')
+          }
+        },
+        {
+          'Ethnicity': {
+            '$regex' : new RegExp('', 'i')
+          }
+        },
+        {
+          'Affiliation': {
+            '$regex' : new RegExp('', 'i')
+          }
+        },
+        {
+          'Role In Case': {
+            '$regex' : new RegExp('', 'i')
+          }
+        }]
     }
   },
   Source: {
     type: 'find',
     value: {
-      'name': {
-        '$regex' : new RegExp('', 'i')
-      },
-      'type': {
-        '$regex' : new RegExp('', 'i')
-      }
+      '$and': [
+        {
+          'Full Name': {
+            '$regex' : new RegExp('', 'i')
+          }
+        },
+        {
+          'Type': {
+            '$regex' : new RegExp('', 'i')
+          }
+        }]
     }
   }
 };

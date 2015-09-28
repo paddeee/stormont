@@ -80,6 +80,7 @@ gulp.task('jshint', function () {
   return gulp.src([
       'app/scripts/**/*.js',
       '!app/scripts/adapters/**/*.js',
+      '!app/scripts/vendor/**/*.js',
       'app/elements/**/*.js',
       'app/elements/**/*.html'
     ])

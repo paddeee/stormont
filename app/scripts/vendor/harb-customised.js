@@ -7,7 +7,7 @@ HARB.version = '0.0.7';
 if (typeof exports !== 'undefined') {
 	if (typeof module !== 'undefined' && module.exports) {
 		babyParse = require('babyparse');
-		cptable = require('cpexcel.js');
+		cptable = require('../vendor/cpexcel.js');
 		ssf = require('ssf');
 		fs = require('fs');
 	}

@@ -2,75 +2,72 @@
 
 var Reflux = require('reflux');
 var dataSourceStore = require('../stores/dataSource.js');
+var filterTransform = require('../config/filterTransforms.js');
 var filterStateStore = require('../stores/filterState.js');
 
 module.exports = Reflux.createStore({
 
-  // this will set up listeners to all publishers in DataSourceActions, using onKeyname (or keyname) as callbacks
-  //listenables: [FilterStateActions],
-
   // Name to use for this collection
   collectionName: 'People',
 
-  // The filtered people object
+  // Data storage for all collections
+  dataSource: null,
+
+  // Default state object on application load
+  filterTransform: null,
+
+  // The filtered places object
   filteredEvents: null,
 
-  // The Loki people transform array
-  peopleTransform: [],
+  // The Loki collection transform array
+  collectionTransform: [],
 
   // Called on Store initialistion
   init: function() {
+
+    // Set filterTransform property on the object from the required config data
+    this.filterTransform = filterTransform;
+
+    // Register dataSourceStores's changes
+    this.listenTo(dataSourceStore, this.dataSourceChanged);
 
     // Register filterStateStore's changes
     this.listenTo(filterStateStore, this.filterStateChanged);
   },
 
   // Set the filteredData Object
-  dataSourceChanged: function () {
+  dataSourceChanged: function (dataSource) {
 
-    // Send object out to all listeners when database loaded
-    this.trigger(this.filteredEvents);
+    this.dataSource = dataSource;
+
+    // Call when the source data is updated
+    this.filterStateChanged(this.filterTransform);
   },
 
   // Set search filter on our collectionTransform
-  filterStateChanged: function(filterStateObject) {
+  filterStateChanged: function(filterTransformObject) {
 
-    var collectionToAddTransformTo = dataSourceStore.dataSource.getCollection(this.collectionName);
-    var filterTransformObject = this.createTransformObject(filterStateObject.People);
+    var collectionTransformObject = filterTransformObject.People;
+    var collectionToAddTransformTo = this.dataSource.getCollection(this.collectionName);
 
-    if (!collectionToAddTransformTo) {
+    if (!this.dataSource || !collectionToAddTransformTo) {
       return;
     }
 
     // Add filter to the transform
-    this.peopleTransform.push(filterTransformObject);
+    this.collectionTransform = []; // ToDo push transform if new, replace if not
+    this.collectionTransform.push(collectionTransformObject);
 
     // Save the transform to the collection
     if (collectionToAddTransformTo.chain('PaddyFilter')) {
-      collectionToAddTransformTo.setTransform('PaddyFilter', this.peopleTransform);
+      collectionToAddTransformTo.setTransform('PaddyFilter', this.collectionTransform);
     } else {
-      collectionToAddTransformTo.addTransform('PaddyFilter', this.peopleTransform);
+      collectionToAddTransformTo.addTransform('PaddyFilter', this.collectionTransform);
     }
 
     this.filteredEvents = collectionToAddTransformTo.chain('PaddyFilter').data();
 
     // Send object out to all listeners
     this.trigger(this.filteredEvents);
-  },
-
-  // Create a filter transform object from a filter Object
-  createTransformObject: function(filterTransformObject) {
-
-    return {
-      type: 'find',
-      value: {
-        'name': {
-          '$contains' : filterTransformObject.name
-        },
-        'type': {
-          '$contains' : filterTransformObject.type
-        }
-      }
-    };
   }
 });
