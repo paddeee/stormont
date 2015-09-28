@@ -95,14 +95,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         var fieldObject = {};
 
-        if ($filterElement.bindValue) {
+        fieldObject.name = $filterElement.id;
+        fieldObject.value = $filterElement.bindValue;
 
-          fieldObject.name = $filterElement.id;
+        if ($filterElement.bindValue) {
           fieldObject.value = $filterElement.bindValue;
-          searchFilterObject.fields.push(fieldObject);
+        } else {
+          fieldObject.value = '';
         }
+
+        searchFilterObject.fields.push(fieldObject);
       });
-console.log(searchFilterObject);
+
       return searchFilterObject;
     }
   });

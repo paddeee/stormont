@@ -92,9 +92,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Iterate through keys of an object and return key/value pair
     toArray: function(obj) {
-      return Object.keys(obj).map(function(key) {
-        return {name: key, value: obj[key]};
-      });
+
+      if (obj) {
+        return Object.keys(obj).map(function (key) {
+          return {name: key, value: obj[key]};
+        });
+      } else {
+        return [];
+      }
     },
 
     // Return false if item is a loki property
