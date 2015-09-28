@@ -25,6 +25,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       font-size: 1.5vw;
       padding: 16px 16px 8px;
     }
+
+    .filter-container[hidden],
+    epe-data-grid[hidden] {
+      display: none !important;
+    }
+
+    .no-data[hidden] {
+      display: none !important;
+    }
+
+    .no-data {
+      color: var(--secondary-text-color);
+      font-size: 3vh;
+      height: 30vh;
+    }
+
+    .total-records {
+      font-size: 1.5vh;
+    }
   </style>
   <template>
 
@@ -45,13 +64,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </paper-tabs>
 
     <!-- Filters -->
-    <div class="filter-container layout vertical">
-      <div class="filters-title">Filters</div>
+    <div class="filter-container layout vertical"
+         hidden$="[[hideDataGrid]]">
+      <div class="filters-title horizontal layout">
+        <div class="flex">Filters</div>
+        <div class="total-records">Records: <span>[[totalRecords]]</span></div>
+      </div>
       <div class="filter-search-container">
-        <epe-filter-search id="[[item.name]]"
-                           collection-name="[[collectionName]]"
-                           filter-state="[[filterState]]"
-                           on-search-attempted="searchAttempted">
+        <epe-filter-search
+          collection-name="[[collectionName]]"
+          filter-state="[[filterState]]"
+          on-search-attempted="searchAttempted">
         </epe-filter-search>
       </div>
     </div>
@@ -60,10 +83,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <iron-pages attr-for-selected="data-route" selected="{{importCheckRoute}}">
       <section data-route="import-check" class="import-check-area relative layout horizontal">
         <epe-data-grid
+          hidden$="[[hideDataGrid]]"
           class="data-grid fit"
           grid-data="[[gridData]]"></epe-data-grid>
       </section>
     </iron-pages>
+
+    <!-- No data message -->
+    <div
+      hidden$="[[!hideDataGrid]]"
+      class="no-data horizontal layout center center-justified">
+      <p>There is no data imported for the '<span>[[collectionName]]</span>' file.</p>
+    </div>
 
   </template>
 </dom-module>
@@ -81,6 +112,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       collectionName: {
         type: String,
         value: ''
+      },
+
+      hideDataGrid: {
+        type: Boolean,
+        computed: 'isGridEmpty(gridData)'
+      },
+
+      totalRecords: {
+        type: Number,
+        computed: 'getTotalRecords(gridData)'
       }
     },
 
@@ -148,6 +189,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.collectionName = tabChosen;
 
       this.setUpGrid(tabChosen);
+    },
+
+    // Return total number of records in the gridData
+    getTotalRecords: function(gridData) {
+
+      if (gridData) {
+        return gridData.length - 1;
+      }
+      return 0;
+    },
+
+    // Return Boolean based on gridData
+    isGridEmpty: function(gridData) {
+
+      if (gridData) {
+        return false;
+      }
+      return true;
     },
 
     // Set the gridData and Filter Search boxes
