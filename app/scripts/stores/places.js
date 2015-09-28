@@ -2,6 +2,7 @@
 
 var Reflux = require('reflux');
 var dataSourceStore = require('../stores/dataSource.js');
+var filterTransform = require('../config/filterTransforms.js');
 var filterStateStore = require('../stores/filterState.js');
 
 module.exports = Reflux.createStore({
@@ -13,19 +14,7 @@ module.exports = Reflux.createStore({
   dataSource: null,
 
   // Default state object on application load
-  filterTransform: {
-    Places: {
-      type: 'find',
-      value: {
-        'name': {
-          '$regex' : new RegExp('', 'i')
-        },
-        'type': {
-          '$regex' : new RegExp('', 'i')
-        }
-      }
-    }
-  },
+  filterTransform: null,
 
   // The filtered places object
   filteredEvents: null,
@@ -35,6 +24,9 @@ module.exports = Reflux.createStore({
 
   // Called on Store initialistion
   init: function() {
+
+    // Set filterTransform property on the object from the required config data
+    this.filterTransform = filterTransform;
 
     // Register dataSourceStores's changes
     this.listenTo(dataSourceStore, this.dataSourceChanged);
