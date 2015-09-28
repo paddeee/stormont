@@ -1,6 +1,7 @@
 'use strict';
 
 var Reflux = require('reflux');
+var filterTransforms = require('../config/filterTransforms.js');
 var FilterStateActions = require('../actions/filterState.js');
 
 module.exports = Reflux.createStore({

@@ -17,12 +17,12 @@ var filterTransforms = {
     value: {
       '$and': [
         {
-          'name': {
+          'Full Name': {
             '$regex' : new RegExp('', 'i')
           }
         },
         {
-          'type': {
+          'Type': {
             '$regex' : new RegExp('', 'i')
           }
         }]

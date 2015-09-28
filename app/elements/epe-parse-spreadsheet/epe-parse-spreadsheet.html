@@ -219,7 +219,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var data = event.target.result;
 
       /* if binary string, read with type 'binary' */
-      var CSV = this.csvParser.read(data, {type: 'binary'});
+      var CSV = this.csvParser.read(data, {
+        keepEmptyRows: true,
+        type: 'binary'
+      });
 
       var action = {
         collectionName: this.csvType,

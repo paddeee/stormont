@@ -9,7 +9,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 var moment = require('moment');
 var reflux = require('reflux');
-var CSVParser = require('harb');
+var CSVParser = require('./vendor/harb-customised.js');
 var dataSourceActions = require('./actions/dataSource.js');
 var filterStateActions = require('./actions/filterState.js');
 var eventsStore = require('./stores/events.js');

@@ -95,7 +95,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       if (obj) {
         return Object.keys(obj).map(function (key) {
-          return {name: key, value: obj[key]};
+          return {
+            name: key,
+            value: obj[key]
+          };
         });
       } else {
         return [];

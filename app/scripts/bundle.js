@@ -221,12 +221,12 @@ var filterTransforms = {
     value: {
       '$and': [
         {
-          'name': {
+          'Full Name': {
             '$regex' : new RegExp('', 'i')
           }
         },
         {
-          'type': {
+          'Type': {
             '$regex' : new RegExp('', 'i')
           }
         }]
@@ -19273,7 +19273,7 @@ function aoa_to_sheet(data, opts) {
 			if(range.e.r < R) range.e.r = R;
 			if(range.e.c < C) range.e.c = C;
 			var cell = {v: data[R][C] };
-			if(cell.v == null) continue;
+      // if(cell.v == null) continue; // Commenting out as we want to write empty cells
 			var cell_ref = encode_cell({c:C,r:R});
 			if(typeof cell.v === 'number') cell.t = 'n';
 			else if(typeof cell.v === 'boolean') cell.t = 'b';
