@@ -18,30 +18,61 @@ module.exports = Reflux.createStore({
     this.trigger(filterTransforms);
   },
 
+  // Set simpleSort on our collectionTransform
+  sortingChanged: function(sortingObject) {
+
+    this.updateSortedData(sortingObject);
+
+    // Send object out to all listeners when database loaded
+    this.trigger(filterTransforms);
+  },
+
   // Update filtered data based on the collection
   // ToDo: Need to make this dynamic based on passed in fields
   updateFilteredData: function(searchFilterObject) {
 
       switch (searchFilterObject.collectionName) {
         case 'Events':
-          filterTransforms.Events = this.createTransformObject(searchFilterObject);
+          filterTransforms.Events.filters = this.createFilterObject(searchFilterObject);
           break;
         case 'Places':
-          filterTransforms.Places = this.createTransformObject(searchFilterObject);
+          filterTransforms.Places.filters = this.createFilterObject(searchFilterObject);
           break;
         case 'People':
-          filterTransforms.People = this.createTransformObject(searchFilterObject);
+          filterTransforms.People.filters = this.createFilterObject(searchFilterObject);
           break;
         case 'Source':
-          filterTransforms.Source = this.createTransformObject(searchFilterObject);
+          filterTransforms.Source.filters = this.createFilterObject(searchFilterObject);
           break;
         default:
-          console.log('No collection Name');
+          console.error('No collection Name');
       }
   },
 
+  // Update sorted data based on the collection
+  // ToDo: Need to make this dynamic based on passed in fields
+  updateSortedData: function(sortingObject) {
+
+    switch (sortingObject.collectionName) {
+      case 'Events':
+        filterTransforms.Events.sorting = this.createSortingObject(sortingObject);
+        break;
+      case 'Places':
+        filterTransforms.Places.sorting = this.createSortingObject(sortingObject);
+        break;
+      case 'People':
+        filterTransforms.People.sorting = this.createSortingObject(sortingObject);
+        break;
+      case 'Source':
+        filterTransforms.Source.sorting = this.createSortingObject(sortingObject);
+        break;
+      default:
+        console.error('No collection Name');
+    }
+  },
+
   // Create a filter transform object from a filter Object
-  createTransformObject: function(filterTransformObject) {
+  createFilterObject: function(searchFilterObject) {
 
     var transform = {
       type: 'find',
@@ -50,7 +81,7 @@ module.exports = Reflux.createStore({
       }
     };
 
-    filterTransformObject.fields.forEach(function (field) {
+    searchFilterObject.fields.forEach(function (field) {
 
       var fieldObject = {};
 
@@ -60,6 +91,18 @@ module.exports = Reflux.createStore({
 
       transform.value.$and.push(fieldObject);
     });
+
+    return transform;
+  },
+
+  // Create a sorting transform object from a sorting Object
+  createSortingObject: function(sortingObject) {
+
+    var transform = {
+      type: 'simplesort',
+      property: sortingObject.fieldName,
+      desc: sortingObject.desc
+    };
 
     return transform;
   }

@@ -32,27 +32,59 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       padding: 0 16px;
     }
 
-    .heading .field,
-    .list-item .field {
-      display: none;
+    .field-heading,
+    .field {
+      margin: 0 16px 0 0;
     }
 
-    .heading .field[showing],
-    .list-item .field[showing] {
+    .field-heading__text,
+    .field {
       display: block;
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
-      margin: 0 16px 0 0;
+    }
+
+    .chevron-holder {
+      cursor: pointer;
+    }
+
+    .chevron {
+      transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1) 200ms, background-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+      -webkit-transition: -webkit-transform 200ms cubic-bezier(0.4, 0, 0.2, 1) 200ms, background-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+      -webkit-transform: rotate(0);
+      transform: rotate(0);
+      -webkit-transform-origin: 50% 50%;
+      transform-origin: 50% 50%;
+    }
+
+    .field-heading[sort-status="true"] .chevron {
+      -webkit-transform: rotate(90deg);
+    }
+
+    .field-heading[sort-status="false"] .chevron {
+      -webkit-transform: rotate(-90deg);
     }
   </style>
   <template>
     <div class="headings">
       <div class="heading layout horizontal">
         <template is="dom-repeat" items="[[toArray(gridDataFirstRecord)]]">
-          <div class="field flex" showing$="[[showField(item.name)]]">
-            <div><span>{{item.name}}</span></div>
+
+          <div class="field-heading flex layout horizontal"
+               hidden="[[!showField(item.name)]]"
+               sort-status="neutral"
+               on-tap="sortByColumn">
+            <div class="field-heading__text flex">
+              <span>{{item.name}}</span>
+            </div>
+            <div class="chevron-holder">
+              <iron-icon
+                icon="chevron-right"
+                class="chevron"><iron-icon>
+            </div>
           </div>
+
         </template>
       </div>
     </div>
@@ -61,7 +93,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <template>
           <div class="list-item layout horizontal">
             <template is="dom-repeat" items="[[toArray(item)]]">
-              <div class="field flex" showing$="[[showField(item.name)]]">
+              <div class="field flex" hidden="[[!showField(item.name)]]">
                 <span>{{item.value}}</span>
               </div>
             </template>
@@ -120,6 +152,46 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if(this.gridData) {
         this.gridDataFirstRecord = this.gridData[0];
       }
+    },
+
+    // Reset all heading sort statuses to neutral
+    resetHeadingSortIndicators: function() {
+
+      var $headers = Polymer.dom(this.root).querySelectorAll('.field-heading');
+
+      // Set any current sorts back to neutral
+      $headers.forEach(function($header) {
+        $header.setAttribute("sort-status", 'neutral');
+      });
+    },
+
+    // Sort gridData by column
+    sortByColumn: function(event) {
+
+      var desc;
+      var sortingObject;
+      var $columnHeading = event.currentTarget;
+      var sortStatus = $columnHeading.getAttribute('sort-status');
+
+      this.resetHeadingSortIndicators();
+
+      // Set the desc property to send to the sorting collection transform
+      if (sortStatus === 'neutral' || sortStatus === 'false') {
+        $columnHeading.setAttribute("sort-status", 'true');
+        desc = true;
+      } else if (sortStatus === 'true') {
+        $columnHeading.setAttribute("sort-status", 'false');
+        desc = false;
+      }
+
+      sortingObject = {
+        collectionName: this.collectionName,
+        fieldName: event.model.item.name,
+        desc: desc
+      };
+
+      // Call fileImported action
+      this.filterStateActions.sortingChanged(sortingObject);
     }
   });
 })();

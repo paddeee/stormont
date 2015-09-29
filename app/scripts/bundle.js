@@ -14,7 +14,8 @@ module.exports = Reflux.createActions([
 var Reflux = require('reflux');
 
 module.exports = Reflux.createActions([
-  'searchFilterChanged'
+  'searchFilterChanged',
+  'sortingChanged'
 ]);
 
 },{"reflux":159}],3:[function(require,module,exports){
@@ -206,87 +207,115 @@ var importStore = require('./stores/import.js');
 
 var filterTransforms = {
   Events: {
-    type: 'find',
-    value: {
-      '$and': [
-        {
-          'Full Name': {
-            '$regex' : new RegExp('', 'i')
-          }
-        },
-        {
-          'Type': {
-            '$regex' : new RegExp('', 'i')
-          }
-        },
-        {
-          'Begin Date and Time': {
-            '$gte' : '1900-01-01'
-          }
-        },
-        {
-          'End Date and Time': {
-            '$lte' : '2999-12-31'
-          }
-        }]
+    filters: {
+      type: 'find',
+      value: {
+        '$and': [
+          {
+            'Full Name': {
+              '$regex' : new RegExp('', 'i')
+            }
+          },
+          {
+            'Type': {
+              '$regex' : new RegExp('', 'i')
+            }
+          },
+          {
+            'Begin Date and Time': {
+              '$gte' : '1900-01-01'
+            }
+          },
+          {
+            'End Date and Time': {
+              '$lte' : '2999-12-31'
+            }
+          }]
+      }
+    },
+    sorting: {
+      type: 'simplesort',
+      property: '$loki',
+      desc: true
     }
   },
   Places: {
-    type: 'find',
-    value: {
-      '$and': [
-        {
-          'Full Name': {
-            '$regex' : new RegExp('', 'i')
-          }
-        },
-        {
-          'Type': {
-            '$regex' : new RegExp('', 'i')
-          }
-        }]
+    filters: {
+      type: 'find',
+      value: {
+        '$and': [
+          {
+            'Full Name': {
+              '$regex' : new RegExp('', 'i')
+            }
+          },
+          {
+            'Type': {
+              '$regex' : new RegExp('', 'i')
+            }
+          }]
+      }
+    },
+    sorting: {
+      type: 'simplesort',
+      property: '$loki',
+      desc: true
     }
   },
   People: {
-    type: 'find',
-    value: {
-      '$and': [
-        {
-          'Full Name': {
-            '$regex' : new RegExp('', 'i')
-          }
-        },
-        {
-          'Ethnicity': {
-            '$regex' : new RegExp('', 'i')
-          }
-        },
-        {
-          'Affiliation': {
-            '$regex' : new RegExp('', 'i')
-          }
-        },
-        {
-          'Role In Case': {
-            '$regex' : new RegExp('', 'i')
-          }
-        }]
+    filters: {
+      type: 'find',
+      value: {
+        '$and': [
+          {
+            'Full Name': {
+              '$regex' : new RegExp('', 'i')
+            }
+          },
+          {
+            'Ethnicity': {
+              '$regex' : new RegExp('', 'i')
+            }
+          },
+          {
+            'Affiliation': {
+              '$regex' : new RegExp('', 'i')
+            }
+          },
+          {
+            'Role In Case': {
+              '$regex' : new RegExp('', 'i')
+            }
+          }]
+      }
+    },
+    sorting: {
+      type: 'simplesort',
+      property: '$loki',
+      desc: true
     }
   },
   Source: {
-    type: 'find',
-    value: {
-      '$and': [
-        {
-          'Full Name': {
-            '$regex' : new RegExp('', 'i')
-          }
-        },
-        {
-          'Type': {
-            '$regex' : new RegExp('', 'i')
-          }
-        }]
+    filters: {
+      type: 'find',
+      value: {
+        '$and': [
+          {
+            'Full Name': {
+              '$regex': new RegExp('', 'i')
+            }
+          },
+          {
+            'Type': {
+              '$regex': new RegExp('', 'i')
+            }
+          }]
+      }
+    },
+    sorting: {
+      type: 'simplesort',
+      property: '$loki',
+      desc: true
     }
   }
 };
@@ -402,16 +431,17 @@ module.exports = Reflux.createStore({
 
     // Add filter to the transform
     this.collectionTransform = []; // ToDo push transform if new, replace if not
-    this.collectionTransform.push(collectionTransformObject);
+    this.collectionTransform.push(collectionTransformObject.filters);
+    this.collectionTransform.push(collectionTransformObject.sorting);
 
     // Save the transform to the collection
-    if (collectionToAddTransformTo.chain('PaddyFilter')) {
-      collectionToAddTransformTo.setTransform('PaddyFilter', this.collectionTransform);
+    if (collectionToAddTransformTo.chain('ImportFilter')) {
+      collectionToAddTransformTo.setTransform('ImportFilter', this.collectionTransform);
     } else {
-      collectionToAddTransformTo.addTransform('PaddyFilter', this.collectionTransform);
+      collectionToAddTransformTo.addTransform('ImportFilter', this.collectionTransform);
     }
 
-    this.filteredEvents = collectionToAddTransformTo.chain('PaddyFilter').data();
+    this.filteredEvents = collectionToAddTransformTo.chain('ImportFilter').data();
 
     // Send object out to all listeners
     this.trigger(this.filteredEvents);
@@ -439,30 +469,61 @@ module.exports = Reflux.createStore({
     this.trigger(filterTransforms);
   },
 
+  // Set simpleSort on our collectionTransform
+  sortingChanged: function(sortingObject) {
+
+    this.updateSortedData(sortingObject);
+
+    // Send object out to all listeners when database loaded
+    this.trigger(filterTransforms);
+  },
+
   // Update filtered data based on the collection
   // ToDo: Need to make this dynamic based on passed in fields
   updateFilteredData: function(searchFilterObject) {
 
       switch (searchFilterObject.collectionName) {
         case 'Events':
-          filterTransforms.Events = this.createTransformObject(searchFilterObject);
+          filterTransforms.Events.filters = this.createFilterObject(searchFilterObject);
           break;
         case 'Places':
-          filterTransforms.Places = this.createTransformObject(searchFilterObject);
+          filterTransforms.Places.filters = this.createFilterObject(searchFilterObject);
           break;
         case 'People':
-          filterTransforms.People = this.createTransformObject(searchFilterObject);
+          filterTransforms.People.filters = this.createFilterObject(searchFilterObject);
           break;
         case 'Source':
-          filterTransforms.Source = this.createTransformObject(searchFilterObject);
+          filterTransforms.Source.filters = this.createFilterObject(searchFilterObject);
           break;
         default:
-          console.log('No collection Name');
+          console.error('No collection Name');
       }
   },
 
+  // Update sorted data based on the collection
+  // ToDo: Need to make this dynamic based on passed in fields
+  updateSortedData: function(sortingObject) {
+
+    switch (sortingObject.collectionName) {
+      case 'Events':
+        filterTransforms.Events.sorting = this.createSortingObject(sortingObject);
+        break;
+      case 'Places':
+        filterTransforms.Places.sorting = this.createSortingObject(sortingObject);
+        break;
+      case 'People':
+        filterTransforms.People.sorting = this.createSortingObject(sortingObject);
+        break;
+      case 'Source':
+        filterTransforms.Source.sorting = this.createSortingObject(sortingObject);
+        break;
+      default:
+        console.error('No collection Name');
+    }
+  },
+
   // Create a filter transform object from a filter Object
-  createTransformObject: function(filterTransformObject) {
+  createFilterObject: function(searchFilterObject) {
 
     var transform = {
       type: 'find',
@@ -471,7 +532,7 @@ module.exports = Reflux.createStore({
       }
     };
 
-    filterTransformObject.fields.forEach(function (field) {
+    searchFilterObject.fields.forEach(function (field) {
 
       var fieldObject = {};
 
@@ -481,6 +542,18 @@ module.exports = Reflux.createStore({
 
       transform.value.$and.push(fieldObject);
     });
+
+    return transform;
+  },
+
+  // Create a sorting transform object from a sorting Object
+  createSortingObject: function(sortingObject) {
+
+    var transform = {
+      type: 'simplesort',
+      property: sortingObject.fieldName,
+      desc: sortingObject.desc
+    };
 
     return transform;
   }
@@ -722,16 +795,17 @@ module.exports = Reflux.createStore({
 
     // Add filter to the transform
     this.collectionTransform = []; // ToDo push transform if new, replace if not
-    this.collectionTransform.push(collectionTransformObject);
+    this.collectionTransform.push(collectionTransformObject.filters);
+    this.collectionTransform.push(collectionTransformObject.sorting);
 
     // Save the transform to the collection
-    if (collectionToAddTransformTo.chain('PaddyFilter')) {
-      collectionToAddTransformTo.setTransform('PaddyFilter', this.collectionTransform);
+    if (collectionToAddTransformTo.chain('ImportFilter')) {
+      collectionToAddTransformTo.setTransform('ImportFilter', this.collectionTransform);
     } else {
-      collectionToAddTransformTo.addTransform('PaddyFilter', this.collectionTransform);
+      collectionToAddTransformTo.addTransform('ImportFilter', this.collectionTransform);
     }
 
-    this.filteredEvents = collectionToAddTransformTo.chain('PaddyFilter').data();
+    this.filteredEvents = collectionToAddTransformTo.chain('ImportFilter').data();
 
     // Send object out to all listeners
     this.trigger(this.filteredEvents);
@@ -797,16 +871,17 @@ module.exports = Reflux.createStore({
 
     // Add filter to the transform
     this.collectionTransform = []; // ToDo push transform if new, replace if not
-    this.collectionTransform.push(collectionTransformObject);
+    this.collectionTransform.push(collectionTransformObject.filters);
+    this.collectionTransform.push(collectionTransformObject.sorting);
 
     // Save the transform to the collection
-    if (collectionToAddTransformTo.chain('PaddyFilter')) {
-      collectionToAddTransformTo.setTransform('PaddyFilter', this.collectionTransform);
+    if (collectionToAddTransformTo.chain('ImportFilter')) {
+      collectionToAddTransformTo.setTransform('ImportFilter', this.collectionTransform);
     } else {
-      collectionToAddTransformTo.addTransform('PaddyFilter', this.collectionTransform);
+      collectionToAddTransformTo.addTransform('ImportFilter', this.collectionTransform);
     }
 
-    this.filteredEvents = collectionToAddTransformTo.chain('PaddyFilter').data();
+    this.filteredEvents = collectionToAddTransformTo.chain('ImportFilter').data();
 
     // Send object out to all listeners
     this.trigger(this.filteredEvents);
@@ -863,7 +938,7 @@ module.exports = Reflux.createStore({
   // Set search filter on our collectionTransform
   filterStateChanged: function(filterTransformObject) {
 
-    var collectionTransformObject = filterTransformObject.Events;
+    var collectionTransformObject = filterTransformObject.Source;
     var collectionToAddTransformTo = this.dataSource.getCollection(this.collectionName);
 
     if (!this.dataSource || !collectionToAddTransformTo) {
@@ -872,16 +947,17 @@ module.exports = Reflux.createStore({
 
     // Add filter to the transform
     this.collectionTransform = []; // ToDo push transform if new, replace if not
-    this.collectionTransform.push(collectionTransformObject);
+    this.collectionTransform.push(collectionTransformObject.filters);
+    this.collectionTransform.push(collectionTransformObject.sorting);
 
     // Save the transform to the collection
-    if (collectionToAddTransformTo.chain('PaddyFilter')) {
-      collectionToAddTransformTo.setTransform('PaddyFilter', this.collectionTransform);
+    if (collectionToAddTransformTo.chain('ImportFilter')) {
+      collectionToAddTransformTo.setTransform('ImportFilter', this.collectionTransform);
     } else {
-      collectionToAddTransformTo.addTransform('PaddyFilter', this.collectionTransform);
+      collectionToAddTransformTo.addTransform('ImportFilter', this.collectionTransform);
     }
 
-    this.filteredEvents = collectionToAddTransformTo.chain('PaddyFilter').data();
+    this.filteredEvents = collectionToAddTransformTo.chain('ImportFilter').data();
 
     // Send object out to all listeners
     this.trigger(this.filteredEvents);

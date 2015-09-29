@@ -83,6 +83,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <iron-pages attr-for-selected="data-route" selected="{{importCheckRoute}}">
       <section data-route="import-check" class="import-check-area relative layout horizontal">
         <epe-data-grid
+          filter-state-actions="[[filterStateActions]]"
+          collection-name="[[collectionName]]"
           hidden$="[[hideDataGrid]]"
           class="data-grid fit"
           grid-data="[[gridData]]"></epe-data-grid>
@@ -215,19 +217,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       switch (collectionName) {
         case 'Events':
           this.gridData = this.eventsData;
-          this.filterState = this.eventsStore.filterTransform.Events.value.$and;
+          this.filterState = this.eventsStore.filterTransform.Events.filters.value.$and;
           break;
         case 'Places':
           this.gridData = this.placesData;
-          this.filterState = this.placesStore.filterTransform.Places.value.$and;
+          this.filterState = this.placesStore.filterTransform.Places.filters.value.$and;
           break;
         case 'People':
           this.gridData = this.peopleData;
-          this.filterState = this.peopleStore.filterTransform.People.value.$and;
+          this.filterState = this.peopleStore.filterTransform.People.filters.value.$and;
           break;
         case 'Source':
           this.gridData = this.sourceData;
-          this.filterState = this.sourceStore.filterTransform.Source.value.$and;
+          this.filterState = this.sourceStore.filterTransform.Source.filters.value.$and;
           break;
         default:
           console.log('Sorry, no collectionName set for grid data');

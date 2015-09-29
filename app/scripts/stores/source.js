@@ -47,7 +47,7 @@ module.exports = Reflux.createStore({
   // Set search filter on our collectionTransform
   filterStateChanged: function(filterTransformObject) {
 
-    var collectionTransformObject = filterTransformObject.Events;
+    var collectionTransformObject = filterTransformObject.Source;
     var collectionToAddTransformTo = this.dataSource.getCollection(this.collectionName);
 
     if (!this.dataSource || !collectionToAddTransformTo) {
@@ -56,16 +56,17 @@ module.exports = Reflux.createStore({
 
     // Add filter to the transform
     this.collectionTransform = []; // ToDo push transform if new, replace if not
-    this.collectionTransform.push(collectionTransformObject);
+    this.collectionTransform.push(collectionTransformObject.filters);
+    this.collectionTransform.push(collectionTransformObject.sorting);
 
     // Save the transform to the collection
-    if (collectionToAddTransformTo.chain('PaddyFilter')) {
-      collectionToAddTransformTo.setTransform('PaddyFilter', this.collectionTransform);
+    if (collectionToAddTransformTo.chain('ImportFilter')) {
+      collectionToAddTransformTo.setTransform('ImportFilter', this.collectionTransform);
     } else {
-      collectionToAddTransformTo.addTransform('PaddyFilter', this.collectionTransform);
+      collectionToAddTransformTo.addTransform('ImportFilter', this.collectionTransform);
     }
 
-    this.filteredEvents = collectionToAddTransformTo.chain('PaddyFilter').data();
+    this.filteredEvents = collectionToAddTransformTo.chain('ImportFilter').data();
 
     // Send object out to all listeners
     this.trigger(this.filteredEvents);
