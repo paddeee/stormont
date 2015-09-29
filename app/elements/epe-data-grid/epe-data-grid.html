@@ -47,6 +47,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .chevron-holder {
       cursor: pointer;
+      line-height: 3.87
     }
 
     .chevron {
@@ -74,6 +75,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <div class="field-heading flex layout horizontal"
                hidden="[[!showField(item.name)]]"
                sort-status="neutral"
+               heading-name$="[[item.name]]"
                on-tap="sortByColumn">
             <div class="field-heading__text flex">
               <span>{{item.name}}</span>
@@ -119,6 +121,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       gridDataFirstRecord: {
         type: Object,
         value: {}
+      },
+
+      // Used to retain sort info on column hedaers
+      sortingState: {
+        type: Object,
+        observer: 'sortingStateChanged'
       }
     },
 
@@ -154,15 +162,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
+    // CALLED BY OBSERVABLE ON SORTINGSTATE
+    sortingStateChanged: function() {
+      // Stick in async so the griData headings will have been added to DOM in template
+      this.async(this.resetHeadingSortIndicators);
+    },
+
     // Reset all heading sort statuses to neutral
     resetHeadingSortIndicators: function() {
 
+      var selectorName = '.field-heading[heading-name="' + this.sortingState.property + '"]';
+      var $sortedHeader = Polymer.dom(this.root).querySelector(selectorName);
       var $headers = Polymer.dom(this.root).querySelectorAll('.field-heading');
+
+      if (!$sortedHeader) {
+        return;
+      }
 
       // Set any current sorts back to neutral
       $headers.forEach(function($header) {
         $header.setAttribute("sort-status", 'neutral');
       });
+
+      if (this.sortingState.desc === true) {
+        $sortedHeader.setAttribute("sort-status", 'true');
+      } else if (this.sortingState.desc === false) {
+        $sortedHeader.setAttribute("sort-status", 'false');
+      }
     },
 
     // Sort gridData by column
@@ -170,17 +196,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var desc;
       var sortingObject;
-      var $columnHeading = event.currentTarget;
-      var sortStatus = $columnHeading.getAttribute('sort-status');
-
-      this.resetHeadingSortIndicators();
+      var sortStatus = event.currentTarget.getAttribute('sort-status');
 
       // Set the desc property to send to the sorting collection transform
       if (sortStatus === 'neutral' || sortStatus === 'false') {
-        $columnHeading.setAttribute("sort-status", 'true');
         desc = true;
       } else if (sortStatus === 'true') {
-        $columnHeading.setAttribute("sort-status", 'false');
         desc = false;
       }
 
