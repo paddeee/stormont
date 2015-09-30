@@ -59,24 +59,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .chevron-holder {
       cursor: pointer;
-      line-height: 3.87
+      line-height: 3.87;
     }
 
     .chevron {
+      color: var(--primary-text-color);
       transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1) 200ms, background-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
       -webkit-transition: -webkit-transform 200ms cubic-bezier(0.4, 0, 0.2, 1) 200ms, background-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
-      -webkit-transform: rotate(-90deg);
-      transform: rotate(-90deg);
+      -webkit-transform: rotate(90deg);
+      transform: rotate(90deg);
       -webkit-transform-origin: 50% 50%;
       transform-origin: 50% 50%;
     }
 
     .field-heading[sort-status="true"] .chevron {
-      -webkit-transform: rotate(0);
+      -webkit-transform: rotate(180deg);
     }
 
     .field-heading[sort-status="false"] .chevron {
-      -webkit-transform: rotate(180deg);
+      -webkit-transform: rotate(0);
     }
   </style>
   <template>
@@ -96,7 +97,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </div>
                 <div class="chevron-holder">
                   <iron-icon
-                    icon="arrow-drop-down"
+                    icon="arrow-drop-up"
                     class="chevron"><iron-icon>
                 </div>
               </div>
@@ -105,7 +106,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </div>
         </div>
         <div class="records">
-          <iron-list items="[[paginatedData]]" as="item">
+          <iron-list id="List" items="[[paginatedData]]" as="item">
             <template>
               <div class="list-item layout horizontal">
                 <template is="dom-repeat" items="[[toArray(item)]]">
@@ -124,7 +125,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div>
           <epe-paginator
             id="Paginator"
-            perpage="2"
+            perpage="50"
             items="{{paginatedData}}"
             data="[[gridData]]"
             show-first="true"
@@ -188,6 +189,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       if(this.gridData) {
         this.gridDataFirstRecord = this.gridData[0];
+
+        // Fire this so iron-list can calculate all list item positions correctly
+        this.$.List.fire('resize');
 
         // Reset Pagination to first page on grid data changing
         this.$.Paginator.currentpage = 0;

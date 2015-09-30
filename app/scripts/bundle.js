@@ -207,6 +207,16 @@ var importStore = require('./stores/import.js');
 
 var filterTransforms = {
   Events: {
+    filtersToShow: {
+      textInputFilters: [
+        'Full Name',
+        'Type'
+      ],
+      datePickerFilters: [
+        'Begin Date and Time',
+        'End Date and Time'
+      ]
+    },
     filters: {
       type: 'find',
       value: {
@@ -240,6 +250,13 @@ var filterTransforms = {
     }
   },
   Places: {
+    filtersToShow: {
+      textInputFilters: [
+        'Full Name',
+        'Type'
+      ],
+      datePickerFilters: []
+    },
     filters: {
       type: 'find',
       value: {
@@ -263,8 +280,20 @@ var filterTransforms = {
     }
   },
   People: {
+    filtersToShow: {
+      textInputFilters: [
+        'Full Name',
+        'Type'
+      ],
+      datePickerFilters: []
+    },
     filters: {
       type: 'find',
+      textInputFilters: [
+        'Full Name',
+        'Type'
+      ],
+      datePickerFilters: [],
       value: {
         '$and': [
           {
@@ -296,8 +325,20 @@ var filterTransforms = {
     }
   },
   Source: {
+    filtersToShow: {
+      textInputFilters: [
+        'Full Name',
+        'Type'
+      ],
+      datePickerFilters: []
+    },
     filters: {
       type: 'find',
+      textInputFilters: [
+        'Full Name',
+        'Type'
+      ],
+      datePickerFilters: [],
       value: {
         '$and': [
           {

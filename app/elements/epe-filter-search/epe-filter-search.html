@@ -24,6 +24,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       text-transform: capitalize;
     }
 
+    .date-time-picker {
+      margin: 0 0 16px 16px;
+      text-transform: capitalize;
+    }
+
     .filter-button {
       background-color: var(--dark-primary-color);
       color: var(--text-primary-color);
@@ -32,15 +37,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
     <div class="search-container layout horizontal center">
-      <template is="dom-repeat" items="[[filterState]]">
-        <template is="dom-repeat" items="[[toArray(item)]]">
-          <input is="iron-input"
-                 id="[[item.name]]"
-                 class="flex search-input"
-                 placeholder="[[item.name]]"
-                 on-keyup="searchButtonTapped">
-          </input>
-        </template>
+      <template is="dom-repeat" items="[[filtersToShow.textInputFilters]]">
+        <input is="iron-input"
+               id="[[item]]"
+               class="flex search-input"
+               placeholder="[[item]]"
+               on-keyup="searchButtonTapped">
+        </input>
+      </template>
+      <template is="dom-repeat" items="[[filtersToShow.datePickerFilters]]">
+        <epe-date-time-picker
+          moment="[[moment]]"
+          class="flex self-start date-time-picker"
+          label="[[item]]"></epe-date-time-picker>
       </template>
       <paper-button
         raised
@@ -59,17 +68,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     properties: {
 
-      filterState: {
+      textInputFilters: {
         type: Array,
         value: []
       }
-    },
-
-    // Iterate through keys of an object and return key/value pair
-    toArray: function(obj) {
-      return Object.keys(obj).map(function(key) {
-        return {name: key, value: obj[key]};
-      });
     },
 
     // When search button is selected

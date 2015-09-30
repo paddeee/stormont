@@ -72,8 +72,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
       <div class="filter-search-container">
         <epe-filter-search
+          moment="[[moment]]"
           collection-name="[[collectionName]]"
-          filter-state="[[filterState]]"
+          filters-to-show="[[filtersToShow]]"
           on-search-attempted="searchAttempted">
         </epe-filter-search>
       </div>
@@ -218,22 +219,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       switch (collectionName) {
         case 'Events':
           this.gridData = this.eventsData;
-          this.filterState = this.eventsStore.filterTransform.Events.filters.value.$and;
+          this.filtersToShow = this.eventsStore.filterTransform.Events.filtersToShow;
           this.sortingState = this.eventsStore.filterTransform.Events.sorting;
           break;
         case 'Places':
           this.gridData = this.placesData;
-          this.filterState = this.placesStore.filterTransform.Places.filters.value.$and;
+          this.filtersToShow = this.placesStore.filterTransform.Places.filtersToShow;
           this.sortingState = this.placesStore.filterTransform.Places.sorting;
           break;
         case 'People':
           this.gridData = this.peopleData;
-          this.filterState = this.peopleStore.filterTransform.People.filters.value.$and;
+          this.filtersToShow = this.peopleStore.filterTransform.People.filtersToShow;
           this.sortingState = this.peopleStore.filterTransform.People.sorting;
           break;
         case 'Source':
           this.gridData = this.sourceData;
-          this.filterState = this.sourceStore.filterTransform.Source.filters.value.$and;
+          this.filtersToShow = this.sourceStore.filterTransform.Source.filtersToShow;
           this.sortingState = this.sourceStore.filterTransform.Source.sorting;
           break;
         default:

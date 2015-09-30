@@ -12,7 +12,9 @@
     "platinum-elements": "PolymerElements/platinum-elements#1.0.1"
   },
   "devDependencies": {
-    "web-component-tester": "*",
-    "test-fixture": "PolymerElements/test-fixture#^1.0.0"
+    "paper-date-picker": "polymer-paper-date-picker#~1.0.3",
+    "paper-time-picker": "1.0.1",
+    "test-fixture": "PolymerElements/test-fixture#^1.0.0",
+    "web-component-tester": "*"
   }
 }

@@ -49,7 +49,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       .pagination li.disabled a,
       .pagination li.disabled a:hover {
-        background-color: var(--epe-paginator-item-disabled-bg-color, #F5F5F5);
+        background-color: rgba(0,0,0,0.06);
         color: var(--epe-paginator-item-disabled-bg-color, #CCCCCC);
         cursor: default;
         @apply(--epe-paginator-link-disabled);
@@ -61,7 +61,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         color: var(--dark-primary-color);
         cursor: pointer;
         display: inline-block;
-        font-size: 2.5vh;
+        font-size: 2vh;
         line-height: normal;
         font-weight: var(--epe-paginator-item-font-weight, normal);
         padding: var(--epe-paginator-item-padding, 0.5em 1em);
@@ -242,7 +242,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       showLast: {
-        type:Boolean,
+        type: Boolean,
         value: false
       },
 
