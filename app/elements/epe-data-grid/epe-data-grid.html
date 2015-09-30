@@ -65,18 +65,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .chevron {
       transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1) 200ms, background-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
       -webkit-transition: -webkit-transform 200ms cubic-bezier(0.4, 0, 0.2, 1) 200ms, background-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
-      -webkit-transform: rotate(0);
-      transform: rotate(0);
+      -webkit-transform: rotate(-90deg);
+      transform: rotate(-90deg);
       -webkit-transform-origin: 50% 50%;
       transform-origin: 50% 50%;
     }
 
     .field-heading[sort-status="true"] .chevron {
-      -webkit-transform: rotate(90deg);
+      -webkit-transform: rotate(0);
     }
 
     .field-heading[sort-status="false"] .chevron {
-      -webkit-transform: rotate(-90deg);
+      -webkit-transform: rotate(180deg);
     }
   </style>
   <template>
@@ -96,7 +96,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </div>
                 <div class="chevron-holder">
                   <iron-icon
-                    icon="chevron-right"
+                    icon="arrow-drop-down"
                     class="chevron"><iron-icon>
                 </div>
               </div>
@@ -105,7 +105,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </div>
         </div>
         <div class="records">
-          <iron-list items="[[gridData]]" as="item">
+          <iron-list items="[[paginatedData]]" as="item">
             <template>
               <div class="list-item layout horizontal">
                 <template is="dom-repeat" items="[[toArray(item)]]">
@@ -120,7 +120,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
 
       <!-- Footer Bar -->
-      <div class="data-grid__footer">Footer</div>
+      <div class="data-grid__footer layout horizontal center center-justified">
+        <div>
+          <epe-paginator
+            id="Paginator"
+            perpage="2"
+            items="{{paginatedData}}"
+            data="[[gridData]]"
+            show-first="true"
+            show-last="true"></epe-paginator>
+        </div>
+      </div>
     </div>
   </template>
 </dom-module>
@@ -178,6 +188,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       if(this.gridData) {
         this.gridDataFirstRecord = this.gridData[0];
+
+        // Reset Pagination to first page on grid data changing
+        this.$.Paginator.currentpage = 0;
       }
     },
 
@@ -204,9 +217,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
 
       if (this.sortingState.desc === true) {
-        $sortedHeader.setAttribute("sort-status", 'true');
-      } else if (this.sortingState.desc === false) {
         $sortedHeader.setAttribute("sort-status", 'false');
+      } else if (this.sortingState.desc === false) {
+        $sortedHeader.setAttribute("sort-status", 'true');
       }
     },
 
@@ -219,9 +232,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Set the desc property to send to the sorting collection transform
       if (sortStatus === 'neutral' || sortStatus === 'false') {
-        desc = true;
-      } else if (sortStatus === 'true') {
         desc = false;
+      } else if (sortStatus === 'true') {
+        desc = true;
       }
 
       sortingObject = {
