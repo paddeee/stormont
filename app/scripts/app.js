@@ -7,7 +7,6 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 */
 
-var moment = require('moment');
 var reflux = require('reflux');
 var CSVParser = require('./vendor/harb-customised.js');
 var dataSourceActions = require('./actions/dataSource.js');
@@ -35,7 +34,6 @@ var importStore = require('./stores/import.js');
   // Set required modules as attributes on app
   app.reflux = reflux;
   app.CSVParser = CSVParser;
-  app.moment = moment;
   app.userActions = userActions;
   app.userStore = userStore;
   app.importActions = importActions;

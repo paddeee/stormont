@@ -40,10 +40,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       font-size: 3vh;
       height: 30vh;
     }
-
-    .total-records {
-      font-size: 1.5vh;
-    }
   </style>
   <template>
 
@@ -68,14 +64,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
          hidden$="[[hideDataGrid]]">
       <div class="filters-title horizontal layout">
         <div class="flex">Filters</div>
-        <div class="total-records">Records: <span>[[totalRecords]]</span></div>
       </div>
       <div class="filter-search-container">
         <epe-filter-search
-          moment="[[moment]]"
           collection-name="[[collectionName]]"
           filters-to-show="[[filtersToShow]]"
-          on-search-attempted="searchAttempted">
+          on-filters-changed="filtersChanged">
         </epe-filter-search>
       </div>
     </div>
@@ -121,11 +115,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       hideDataGrid: {
         type: Boolean,
         computed: 'isGridEmpty(gridData)'
-      },
-
-      totalRecords: {
-        type: Number,
-        computed: 'getTotalRecords(gridData)'
       }
     },
 
@@ -195,15 +184,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.setUpGrid(tabChosen);
     },
 
-    // Return total number of records in the gridData
-    getTotalRecords: function(gridData) {
-
-      if (gridData) {
-        return gridData.length;
-      }
-      return 0;
-    },
-
     // Return Boolean based on gridData
     isGridEmpty: function(gridData) {
 
@@ -243,7 +223,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // EPE-SEARCH-FILTER LISTENER
-    searchAttempted: function (event) {
+    filtersChanged: function (event) {
 
       var searchFilterObject = event.detail;
 

@@ -17,10 +17,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       display: block;
     }
 
+    section {
+      margin-right: 16px;
+    }
+
     .label {
+      color: var(--secondary-text-color);
       font-size: 0.8em;
       margin: -16px 0 16px;
       text-align: center;
+    }
+
+    paper-button {
+      line-height: 3vh;
+      font-size: 1.5vh;
+      width: 100%;
+    }
+
+    iron-icon {
+      cursor: pointer;
+    }
+
+    paper-dialog {
+      position: absolute;
     }
   </style>
   <template>
@@ -29,31 +48,66 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <div class="layout horizontal">
 
         <!-- Date Picker -->
-        <section>
+        <section
+          class="flex layout horizontal center"
+          on-tap="showDateDialog">
           <paper-button
             class="btn"
-            on-tap="showDialog"
-            raised>[[date]]</paper-button>
+            raised><span>[[displayDate]]</span>
+          </paper-button>
 
-          <paper-dialog
-            id="Dialog"
-            class="paper-date-picker-dialog"
-            modal
-            on-iron-overlay-closed="dismissDateDialog">
-
-            <paper-date-picker
-              id="DatePicker"
-              responsive-width="655px"></paper-date-picker>
-
-            <div class="buttons">
-              <paper-button dialog-dismiss>Cancel</paper-button>
-              <paper-button dialog-confirm>OK</paper-button>
-            </div>
-          </paper-dialog>
+          <iron-icon
+            icon="today"></iron-icon>
         </section>
+
+        <paper-dialog
+          id="DateDialog"
+          class="paper-date-picker-dialog"
+          modal
+          on-iron-overlay-closed="dismissDateDialog">
+
+          <paper-date-picker
+            id="DatePicker"
+            responsive-width="1023px"></paper-date-picker>
+
+          <div class="buttons">
+            <paper-button dialog-dismiss>Cancel</paper-button>
+            <paper-button dialog-confirm>OK</paper-button>
+          </div>
+        </paper-dialog>
+
+        <!-- Time Picker -->
+        <section
+          class="flex layout horizontal center"
+          on-tap="showTimeDialog">
+          <paper-button
+            class="btn"
+            raised><span>[[displayTime]]</span>
+          </paper-button>
+
+          <iron-icon
+            icon="device:access-time"></iron-icon>
+        </section>
+
+        <paper-dialog
+          id="TimeDialog"
+          class="paper-time-picker-dialog"
+          modal
+          on-iron-overlay-closed="dismissTimeDialog">
+
+          <paper-time-picker
+            id="TimePicker"
+            responsive-width="1023px"></paper-time-picker>
+
+          <div class="buttons">
+            <paper-button dialog-dismiss>Cancel</paper-button>
+            <paper-button dialog-confirm>OK</paper-button>
+          </div>
+        </paper-dialog>
 
       </div>
     </div>
+
   </template>
 </dom-module>
 <script>
@@ -63,20 +117,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     properties: {
 
-      date: {
+      displayDate: {
         type: String,
         value: 'Choose Date'
       },
 
-      time: {
+      displayTime: {
         type: String,
         value: 'Choose Time'
       },
 
+      date: {
+        type: String
+      },
+
+      time: {
+        type: String
+      },
+
       dateTime: {
         type: String,
-        value: '1900-01-01 00:00:00',
-        notify: true
+        computed: 'setDateTime(date, time)',
+        observer: 'dateTimeChanged'
       },
 
       label: {
@@ -85,14 +147,60 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
+    // When a date dialog is dismissed
     dismissDateDialog: function(event) {
+
+      var selectedDate;
+      var $datePicker = this.$.DatePicker;
+
       if (event.detail.confirmed) {
-        this.date = this.moment(this.$.DatePicker.date).format('ll');git
+
+        selectedDate = $datePicker.headingDate;
+
+        // Set the date to show in the filter
+        this.displayDate = $datePicker.dateFormat(selectedDate, 'll');
+
+        // Set the date to be used in the query
+        this.date = $datePicker.dateFormat(selectedDate, 'YYYY-MM-DD');
       }
     },
 
-    showDialog: function() {
-      this.$.Dialog.toggle();
+    // Show date dialog
+    showDateDialog: function() {
+      this.$.DateDialog.toggle();
+    },
+
+    // When a time dialog is dismissed
+    dismissTimeDialog: function(event) {
+
+      var selectedTime;
+      var $timePicker = this.$.TimePicker;
+
+      if (event.detail.confirmed) {
+
+        selectedTime = $timePicker.time;
+
+        // Set the date to show in the filter
+        this.displayTime = selectedTime;
+
+        // Set the time to be used in the query
+        this.time = $timePicker.hour + ':' + $timePicker.minute + ':00';
+      }
+    },
+
+    // Show time dialog
+    showTimeDialog: function() {
+      this.$.TimeDialog.toggle();
+    },
+
+    // Set the date-time string that can be used for a loki query
+    setDateTime: function(date, time) {
+      return date + ' ' + time;
+    },
+
+    // OBSERVER ON DATETIME PROPERTY
+    dateTimeChanged: function() {
+      this.fire('date-time-changed');
     }
   });
 })();

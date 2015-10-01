@@ -84,10 +84,15 @@ module.exports = Reflux.createStore({
     searchFilterObject.fields.forEach(function (field) {
 
       var fieldObject = {};
+      var queryObject = {};
 
-      fieldObject[field.name] = {
-        '$regex': new RegExp(field.value, 'i')
-      };
+      if (field.queryType !== 'regex') {
+        queryObject[field.queryType] = field.value;
+      } else {
+        queryObject['$regex'] = new RegExp(field.value, 'i');
+      }
+
+      fieldObject[field.name] = queryObject;
 
       transform.value.$and.push(fieldObject);
     });

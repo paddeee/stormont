@@ -17,8 +17,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .search-input {
-      line-height: 1.8em;
-      font-size: 0.8em;
+      line-height: 2.3vh;
+      font-size: 1.6vh;
       margin: 16px 0 16px 16px;
       padding: 8px;
       text-transform: capitalize;
@@ -42,22 +42,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                id="[[item]]"
                class="flex search-input"
                placeholder="[[item]]"
-               on-keyup="searchButtonTapped">
+               on-keyup="filtersChanged">
         </input>
       </template>
       <template is="dom-repeat" items="[[filtersToShow.datePickerFilters]]">
         <epe-date-time-picker
-          moment="[[moment]]"
-          class="flex self-start date-time-picker"
-          label="[[item]]"></epe-date-time-picker>
+          class="flex-2 self-start date-time-picker"
+          id="[[item.name]]"
+          label="[[item.name]]"
+          query-type="[[item.queryType]]"
+          date="[[item.defaultDate]]"
+          time="[[item.defaultTime]]"
+          on-date-time-changed="filtersChanged"></epe-date-time-picker>
       </template>
-      <paper-button
-        raised
-        suffix
-        id="FilterButton"
-        class="filter-button"
-        icon="search"
-        on-tap="searchButtonTapped">Filter</paper-button>
     </div>
   </template>
 </dom-module>
@@ -74,31 +71,39 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
-    // When search button is selected
-    searchButtonTapped: function(event) {
-
-      if (event.type === 'keyup' && event.keyCode !== 13) {
-        return;
-      }
-
-      this.fire('search-attempted', this.createFilterObject());
+    // FIRED FROM SEARCH INPUT ELEMENT
+    filtersChanged: function() {
+      this.fire('filters-changed', this.createFilterObject());
     },
 
-    // Create an object
+    // Create an object from the filter values
     createFilterObject: function() {
 
-      var filterCollection = Polymer.dom(this.root).querySelectorAll('.search-input');
+      var filterInputCollection = Polymer.dom(this.root).querySelectorAll('.search-input');
+      var filterDateTimeCollection = Polymer.dom(this.root).querySelectorAll('.date-time-picker');
       var searchFilterObject = {
         collectionName: this.collectionName,
         fields: []
       };
 
-      filterCollection.forEach(function($filterElement) {
+      // Input filters
+      this.createInputFilterObject(filterInputCollection, searchFilterObject);
+
+      // Date-Time filters
+      this.createDateTimeFilterObject(filterDateTimeCollection, searchFilterObject);
+
+      return searchFilterObject;
+    },
+
+    // Push the input filter values onto the searchFilterObject.fields array
+    createInputFilterObject: function(filterInputCollection, searchFilterObject) {
+
+      filterInputCollection.forEach(function($filterElement) {
 
         var fieldObject = {};
 
         fieldObject.name = $filterElement.id;
-        fieldObject.value = $filterElement.bindValue;
+        fieldObject.queryType = 'regex';
 
         if ($filterElement.bindValue) {
           fieldObject.value = $filterElement.bindValue;
@@ -108,8 +113,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         searchFilterObject.fields.push(fieldObject);
       });
+    },
 
-      return searchFilterObject;
+    // Push the date-time filter values onto the searchFilterObject.fields array
+    createDateTimeFilterObject: function(filterDateTimeCollection, searchFilterObject) {
+
+      filterDateTimeCollection.forEach(function($filterElement) {
+
+        var fieldObject = {};
+
+        fieldObject.name = $filterElement.id;
+        fieldObject.queryType = $filterElement.queryType;
+
+        fieldObject.value = $filterElement.dateTime;
+
+        searchFilterObject.fields.push(fieldObject);
+      });
     }
   });
 })();

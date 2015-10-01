@@ -8,8 +8,18 @@ var filterTransforms = {
         'Type'
       ],
       datePickerFilters: [
-        'Begin Date and Time',
-        'End Date and Time'
+        {
+          defaultDate: '1900-01-01',
+          defaultTime: '00:00:00',
+          queryType: '$gte',
+          name: 'Begin Date and Time'
+        },
+        {
+          defaultDate: '2100-12-31',
+          defaultTime: '00:00:00',
+          queryType: '$lte',
+          name: 'End Date and Time'
+        }
       ]
     },
     filters: {
@@ -28,12 +38,12 @@ var filterTransforms = {
           },
           {
             'Begin Date and Time': {
-              '$gte' : '1900-01-01'
+              '$gte' : '1900-01-01 00:00:00'
             }
           },
           {
             'End Date and Time': {
-              '$lte' : '2999-12-31'
+              '$lte' : '2100-12-31 00:00:00'
             }
           }]
       }

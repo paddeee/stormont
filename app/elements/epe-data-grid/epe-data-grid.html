@@ -79,6 +79,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .field-heading[sort-status="false"] .chevron {
       -webkit-transform: rotate(0);
     }
+
+    .total-records {
+      color: var(--secondary-text-color);
+      font-size: 1.5vh;
+      text-align: center;
+    }
   </style>
   <template>
     <div class="data-grid layout vertical">
@@ -122,7 +128,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <!-- Footer Bar -->
       <div class="data-grid__footer layout horizontal center center-justified">
-        <div>
+        <div class="layout vertical">
+          <div class="total-records">
+            <span>[[totalRecords]]</span> Results
+          </div>
           <epe-paginator
             id="Paginator"
             perpage="50"
@@ -153,10 +162,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         value: {}
       },
 
-      // Used to retain sort info on column hedaers
+      // Used to retain sort info on column headers
       sortingState: {
         type: Object,
         observer: 'sortingStateChanged'
+      },
+
+      totalRecords: {
+        type: Number,
+        computed: 'getTotalRecords(gridData)'
       }
     },
 
@@ -182,6 +196,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return false;
       }
       return true;
+    },
+
+    // Return total number of records in the gridData
+    getTotalRecords: function(gridData) {
+
+      if (gridData) {
+        return gridData.length;
+      }
+      return 0;
     },
 
     // CALLED BY OBSERVABLE ON GRIDDATA
