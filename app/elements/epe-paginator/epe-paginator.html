@@ -377,7 +377,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
      * @method getPageCount
      */
     getPageCount: function () {
-      return this.count ? Math.ceil( this.count / this.perpage ) - 1 : Math.ceil( this.data.length / this.perpage ) - 1;
+      if (this.data) {
+        return this.count ? Math.ceil( this.count / this.perpage ) - 1 : Math.ceil( this.data.length / this.perpage ) - 1;
+      }
     },
 
     /**
@@ -437,7 +439,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     filterPage: function () {
-      return this.data.slice(this.currentpage * this.perpage, (this.currentpage * this.perpage) + this.perpage);
+      if (this.data) {
+        return this.data.slice(this.currentpage * this.perpage, (this.currentpage * this.perpage) + this.perpage);
+      }
     },
 
     toogleActive: function(){
