@@ -1045,16 +1045,17 @@ module.exports = Reflux.createStore({
   // this will set up listeners to all publishers in UserActions, using onKeyname (or keyname) as callbacks
   listenables: [UserActions],
 
+  user: null,
+
   // When a user has attempted login
   loginAttempted: function (userLoginObject) {
 
     var status = 'loggedin';
-    var userObject;
 
-    userObject = this.createUserObject(status, userLoginObject);
+    this.user = this.createUserObject(status, userLoginObject);
 
     // ToDo: LDAP - for now just trigger successful login
-    this.trigger(userObject);
+    this.trigger(this.user);
   },
 
   // Return a user object for listeners to consume

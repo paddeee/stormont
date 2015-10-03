@@ -121,57 +121,69 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // ToDo: Must be a cleaner way of doing this
     ready: function() {
 
-      // When the events data is updated, update our grid data
-      this.eventsStore.listen(function(eventsData) {
+      if (this.eventsStore) {
 
-        this.eventsData = eventsData;
+        // When the events data is updated, update our grid data
+        this.eventsStore.listen(function(eventsData) {
 
-        if (this.params) {
+          this.eventsData = eventsData;
 
-          this.collectionName = this.params.name;
+          if (this.params) {
 
-          this.setUpGrid(this.collectionName);
-        }
-      }.bind(this));
+            this.collectionName = this.params.name;
 
-      // When the places data is updated, update our grid data
-      this.placesStore.listen(function(placesData) {
+            this.setUpGrid(this.collectionName);
+          }
+        }.bind(this));
+      }
 
-        this.placesData = placesData;
+      if (this.placesStore) {
 
-        if (this.params) {
+        // When the places data is updated, update our grid data
+        this.placesStore.listen(function (placesData) {
 
-          this.collectionName = this.params.name;
+          this.placesData = placesData;
 
-          this.setUpGrid(this.collectionName);
-        }
-      }.bind(this));
+          if (this.params) {
 
-      // When the people data is updated, update our grid data
-      this.peopleStore.listen(function(peopleData) {
+            this.collectionName = this.params.name;
 
-        this.peopleData = peopleData;
+            this.setUpGrid(this.collectionName);
+          }
+        }.bind(this));
+      }
 
-        if (this.params) {
+      if (this.peopleStore) {
 
-          this.collectionName = this.params.name;
+        // When the people data is updated, update our grid data
+        this.peopleStore.listen(function (peopleData) {
 
-          this.setUpGrid(this.collectionName);
-        }
-      }.bind(this));
+          this.peopleData = peopleData;
 
-      // When the source data is updated, update our grid data
-      this.sourceStore.listen(function(sourceData) {
+          if (this.params) {
 
-        this.sourceData = sourceData;
+            this.collectionName = this.params.name;
 
-        if (this.params) {
+            this.setUpGrid(this.collectionName);
+          }
+        }.bind(this));
+      }
 
-          this.collectionName = this.params.name;
+      if (this.sourceStore) {
 
-          this.setUpGrid(this.collectionName);
-        }
-      }.bind(this));
+        // When the source data is updated, update our grid data
+        this.sourceStore.listen(function (sourceData) {
+
+          this.sourceData = sourceData;
+
+          if (this.params) {
+
+            this.collectionName = this.params.name;
+
+            this.setUpGrid(this.collectionName);
+          }
+        }.bind(this));
+      }
     },
 
     // When a tab is selected set the collectionData if available
@@ -181,7 +193,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       this.collectionName = tabChosen;
 
-      this.setUpGrid(tabChosen);
+      // Add delay due to tabs locking up due to date picker and time pickers
+      // Delay can be masked with transition and spinner/loader
+      this.async(function() {
+        this.setUpGrid(tabChosen);
+      }, 1000);
     },
 
     // Return Boolean based on gridData

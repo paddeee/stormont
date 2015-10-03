@@ -126,7 +126,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <div class="layout vertical">
 
-          <paper-card class="flex">
+          <paper-card class="flex"
+            hidden$="[[hideImport]]">
             <a data-route="import-parse" href="/import-parse" class="card-link fit block"></a>
             <div class="card-content">
               <div class="icon-holder  icon-holder--import">
@@ -189,14 +190,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     is: 'epe-choose-option',
 
     properties: {
-      foo: {
-        type: String,
-        value: 'bar',
-        notify: true
+
+      user: {
+        type: Object,
+        value: null
+      },
+
+      hideImport: {
+        type: Boolean,
+        computed: 'isNotAdmin(user)'
       }
     },
 
     ready: function() {
+
+      // When the user data is updated, update our user
+      this.userStore.listen(function(userData) {
+        this.user = userData;
+      }.bind(this));
 
       addEventListener('paper-header-transform', function(e) {
         var sectionName = this.$.SectionName;
@@ -218,6 +229,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Scale middleContainer appName
         Polymer.Base.transform('scale(' + scaleMiddle + ') translateZ(0)', sectionName);
       }.bind(this));
+    },
+
+    // Hide import based on user role
+    isNotAdmin: function(user) {
+      if (user && user.role === 'admin') {
+        return false;
+      }
+      return true;
     }
   });
 })();

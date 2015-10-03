@@ -49,6 +49,47 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     beforeEach(function() {
       epeImportCheck = fixture('basic');
+
+      epeImportCheck.eventsStore = {
+        filterTransform: {
+          Events: {
+            filtersToShow: {
+              textInputFilters: [
+                'Full Name',
+                'Type'
+              ],
+              datePickerFilters: [
+                {
+                  defaultDate: '1900-01-01',
+                  defaultTime: '00:00:00',
+                  queryType: '$gte',
+                  name: 'Begin Date and Time'
+                },
+                {
+                  defaultDate: '2100-12-31',
+                  defaultTime: '00:00:00',
+                  queryType: '$lte',
+                  name: 'End Date and Time'
+                }
+              ]
+            }
+          }
+        }
+      };
+
+      epeImportCheck.placesStore = {
+        filterTransform: {
+          Places: {
+            filtersToShow: {
+              textInputFilters: [
+                'Full Name',
+                'Type'
+              ],
+              datePickerFilters: []
+            }
+          }
+        }
+      };
     });
 
     context('Checking Imported Check', function() {
