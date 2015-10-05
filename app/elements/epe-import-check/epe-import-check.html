@@ -12,8 +12,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <dom-module id="epe-import-check">
   <style>
+
     :host {
       display: block;
+    }
+
+    .import-container {
+      transition: opacity 0.5s ease-in-out;
+      -webkit-transition: opacity 0.5s ease-in-out;
+      opacity: 1;
+    }
+
+    .import-container.fade-out {
+      opacity: 0;
     }
 
     .data-grid {
@@ -40,6 +51,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       font-size: 3vh;
       height: 30vh;
     }
+
+    .progress-section {
+      height: 4px;
+    }
+
+    paper-progress {
+      --paper-progress-active-color: var(--dark-primary-color);
+      --paper-progress-secondary-color: var(--default-primary-color);
+      --paper-progress-transition-duration: 0.04s;
+      --paper-progress-transition-timing-function: ease;
+      --paper-progress-transition-transition-delay: 0s;
+      width: 100%;
+    }
   </style>
   <template>
 
@@ -59,39 +83,48 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </paper-tab>
     </paper-tabs>
 
-    <!-- Filters -->
-    <div class="filter-container layout vertical"
-         hidden$="[[hideDataGrid]]">
-      <div class="filters-title horizontal layout">
-        <div class="flex">Filters</div>
-      </div>
-      <div class="filter-search-container">
-        <epe-filter-search
-          collection-name="[[collectionName]]"
-          filters-to-show="[[filtersToShow]]"
-          on-filters-changed="filtersChanged">
-        </epe-filter-search>
-      </div>
+    <!-- Progress Bar -->
+    <div class="progress-section">
+      <paper-progress id="ProgressBar" max="60" hidden="true"></paper-progress>
     </div>
 
-    <!-- Check data -->
-    <iron-pages attr-for-selected="data-route" selected="{{importCheckRoute}}">
-      <section data-route="import-check" class="import-check-area relative layout horizontal">
-        <epe-data-grid
-          filter-state-actions="[[filterStateActions]]"
-          collection-name="[[collectionName]]"
-          sorting-state="[[sortingState]]"
-          hidden$="[[hideDataGrid]]"
-          class="data-grid fit"
-          grid-data="[[gridData]]"></epe-data-grid>
-      </section>
-    </iron-pages>
+    <!-- Container Area For DataGrid and Filters -->
+    <div id="ImportContainer" class="import-container">
 
-    <!-- No data message -->
-    <div
-      hidden$="[[!hideDataGrid]]"
-      class="no-data horizontal layout center center-justified">
-      <p>There is no data imported for the '<span>[[collectionName]]</span>' file.</p>
+      <!-- Filters -->
+      <div class="filter-container layout vertical"
+           hidden$="[[hideDataGrid]]">
+        <div class="filters-title horizontal layout">
+          <div class="flex">Filters</div>
+        </div>
+        <div class="filter-search-container">
+          <epe-filter-search
+            collection-name="[[collectionName]]"
+            filters-to-show="[[filtersToShow]]"
+            on-filters-changed="filtersChanged">
+          </epe-filter-search>
+        </div>
+      </div>
+
+      <!-- Check data -->
+      <iron-pages attr-for-selected="data-route" selected="{{importCheckRoute}}">
+        <section data-route="import-check" class="import-check-area relative layout horizontal">
+          <epe-data-grid
+            filter-state-actions="[[filterStateActions]]"
+            collection-name="[[collectionName]]"
+            sorting-state="[[sortingState]]"
+            hidden$="[[hideDataGrid]]"
+            class="data-grid fit"
+            grid-data="[[gridData]]"></epe-data-grid>
+        </section>
+      </iron-pages>
+
+      <!-- No data message -->
+      <div
+        hidden$="[[!hideDataGrid]]"
+        class="no-data horizontal layout center center-justified">
+        <p>There is no data imported for the '<span>[[collectionName]]</span>' file.</p>
+      </div>
     </div>
 
   </template>
@@ -190,13 +223,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     tabSelected: function(event) {
 
       var tabChosen = event.detail.item.getAttribute('name');
+      var $importCheckContainer = this.$.ImportContainer;
 
       this.collectionName = tabChosen;
 
+      // Fade out the current view
+      this.fadeOut($importCheckContainer);
+
+      // Show Progress Bar
+      this.startProgress();
+
       // Add delay due to tabs locking up due to date picker and time pickers
-      // Delay can be masked with transition and spinner/loader
+      // Delay can be masked with transition and progress bar
       this.async(function() {
+
         this.setUpGrid(tabChosen);
+
       }, 1000);
     },
 
@@ -207,6 +249,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return false;
       }
       return true;
+    },
+
+    // Return Boolean based on gridData
+    fadeOut: function($el) {
+      $el.classList.add('fade-out');
+    },
+
+    // Show and start the progress of the progress bar
+    startProgress: function () {
+
+      var $progressBar = this.$.ProgressBar;
+
+      $progressBar.hidden = false;
+
+      if ($progressBar.value < $progressBar.max) {
+        $progressBar.value += $progressBar.step;
+      } else {
+
+        // Show Data Grid
+        this.$.ImportContainer.classList.remove('fade-out');
+
+        $progressBar.hidden = true;
+        $progressBar.value = $progressBar.min;
+        return;
+      }
+
+      requestAnimationFrame(this.startProgress.bind(this));
     },
 
     // Set the gridData and Filter Search boxes
