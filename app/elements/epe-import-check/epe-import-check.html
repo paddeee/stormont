@@ -54,11 +54,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .progress-section {
       height: 4px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1;
     }
 
     paper-progress {
-      --paper-progress-active-color: var(--dark-primary-color);
-      --paper-progress-secondary-color: var(--default-primary-color);
+      --paper-progress-active-color: var(--accent-color);
       --paper-progress-transition-duration: 0.04s;
       --paper-progress-transition-timing-function: ease;
       --paper-progress-transition-transition-delay: 0s;
@@ -66,6 +70,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
   </style>
   <template>
+
+    <!-- Progress Bar -->
+    <div class="progress-section fixed">
+      <paper-progress id="ProgressBar" max="60" hidden="true"></paper-progress>
+    </div>
 
     <!-- Navigation Tabs -->
     <paper-tabs attr-for-selected="name" selected="{{params.name}}" on-iron-select="tabSelected">
@@ -82,11 +91,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <a href="/import-check/Source" class="horizontal center-center layout">SOURCE</a>
       </paper-tab>
     </paper-tabs>
-
-    <!-- Progress Bar -->
-    <div class="progress-section">
-      <paper-progress id="ProgressBar" max="60" hidden="true"></paper-progress>
-    </div>
 
     <!-- Container Area For DataGrid and Filters -->
     <div id="ImportContainer" class="import-container">
