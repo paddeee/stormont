@@ -20,7 +20,7 @@ var userStore = require('./stores/users.js');
 var importActions = require('./actions/import.js');
 var importStore = require('./stores/import.js');
 
-(function(document, reflux, moment, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore) {
+(function(document, reflux, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore) {
   'use strict';
 
   // Call checkForLDAP action
@@ -69,4 +69,4 @@ var importStore = require('./stores/import.js');
     }
   };
 
-})(document, reflux, moment, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore);
+})(document, reflux, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore);

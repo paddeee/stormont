@@ -148,7 +148,7 @@ var userStore = require('./stores/users.js');
 var importActions = require('./actions/import.js');
 var importStore = require('./stores/import.js');
 
-(function(document, reflux, moment, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore) {
+(function(document, reflux, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore) {
   'use strict';
 
   // Call checkForLDAP action
@@ -197,7 +197,7 @@ var importStore = require('./stores/import.js');
     }
   };
 
-})(document, reflux, moment, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore);
+})(document, reflux, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./actions/dataSource.js":1,"./actions/filterState.js":2,"./actions/import.js":3,"./actions/users.js":4,"./stores/events.js":9,"./stores/import.js":11,"./stores/people.js":12,"./stores/places.js":13,"./stores/source.js":14,"./stores/users.js":15,"./vendor/harb-customised.js":17,"reflux":158}],7:[function(require,module,exports){
