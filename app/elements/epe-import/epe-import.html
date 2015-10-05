@@ -17,50 +17,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       display: block;
     }
 
-    paper-scroll-header-panel {
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-
-    /* background for toolbar when it is at its full size */
-    --paper-scroll-header-panel-full-header: {
-       background-color: var(--dark-primary-color);
-       background-image: url(../../images/header-bg.png);
-     };
-
-    /* background for toolbar when it is condensed */
-    --paper-scroll-header-panel-condensed-header: {
-       background-color: var(--default-primary-color);
-     };
-    }
-
-    paper-scroll-header-panel #mainContainer {
-      @apply(--layout-flex);
-      @apply(--layout-vertical);
-    }
-
-    paper-toolbar.tall {
-      background-color: transparent;
-    }
-
-    paper-toolbar.tall .title {
-      font-size: 36px;
-      margin-left: 60px;
-
-      -webkit-transform-origin: left center;
-      transform-origin: left center;
-    }
-
-    paper-toolbar a {
-      color: var(--primary-background-color);
-    }
-
-    .bottom-title {
-      font-size: 2.5vh;
-    }
-
     .main-content {
       height: 100%;
     }
@@ -128,123 +84,64 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   </style>
   <template>
-    <paper-drawer-panel force-narrow id="paperDrawerPanel">
 
-      <!-- Drawer Scroll Header Panel -->
-      <paper-scroll-header-panel drawer fixed>
+    <!-- Main Content -->
+    <iron-pages
+      class="main-content"
+      attr-for-selected="data-route"
+      selected="{{importRoute}}"
+      on-iron-select="setSectionTitle">
 
-        <!-- Drawer Toolbar -->
-        <paper-toolbar id="drawerToolbar">
-          <span class="paper-font-title">Menu</span>
-        </paper-toolbar>
+      <!-- Import Parse -->
+      <section data-route="import-parse" class="import-area layout horizontal">
 
-        <!-- Drawer Content -->
-        <paper-menu class="list" attr-for-selected="data-route" selected="[[route]]">
-          <a data-route="/import-parse" href="/import-parse">
-            <iron-icon icon="file-upload"></iron-icon>
-            <span>Import CaseMap File</span>
-          </a>
-          <a data-route="/create-package/data-grid" href="/create-package/data-grid">
-            <iron-icon icon="create"></iron-icon>
-            <span>Create Package</span>
-          </a>
-          <a data-route="/view-packages" href="/view-packages">
-            <iron-icon icon="view-list"></iron-icon>
-            <span>View Packages</span>
-          </a>
-        </paper-menu>
+        <!-- File Import Selector -->
+        <div class="flex-1 relative radio-container">
+          <paper-material class="card fit">
+            <paper-radio-group class=" layout vertical" selected="{{importedFileType}}">
+              <paper-radio-button name="Events">Events</paper-radio-button>
+              <paper-radio-button name="People">People</paper-radio-button>
+              <paper-radio-button name="Places">Places</paper-radio-button>
+              <paper-radio-button name="Source">Source</paper-radio-button>
+            </paper-radio-group>
+          </paper-material>
+        </div>
 
-      </paper-scroll-header-panel>
-
-      <paper-scroll-header-panel main condenses keep-condensed-header>
-
-        <!-- Main Toolbar -->
-        <paper-toolbar class="tall">
-          <paper-icon-button
-            id="BackArrow"
-            icon="arrow-back"
-            on-tap="navigateBack"></paper-icon-button>
-          <div class="flex"></div>
-
-          <paper-tooltip for="BackArrow" offset="0">Back</paper-tooltip>
-
-          <!-- Toolbar icons -->
-          <paper-icon-button id="MenuButton" icon="menu" on-tap="toggleMenu"></paper-icon-button>
-
-          <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
-          <paper-tooltip for="MenuButton" offset="0">Show Menu</paper-tooltip>
-
-          <!-- Application name -->
-          <div id="MiddleContainer" class="middle middle-container center horizontal layout">
-            <div id="SectionName" class="section-name"><span>[[sectionTitle]]</span></div>
+        <!-- Drag & Drop CSV Import -->
+        <div class="flex-3  parse-import-holder">
+          <div class="no-import-selected horizontal layout center"
+               showing$="[[!isFileTypeSelected]]">
+            <p>Please choose a type of CaseMap File to Import.</p>
           </div>
 
-          <!-- Application sub title -->
-          <div id="BottomContainer" class="bottom bottom-container center horizontal layout">
-            <div class="bottom-title paper-font-subhead">Special Investigation Task Force</div>
-          </div>
-        </paper-toolbar>
+          <paper-material
+            class="card parse-import"
+            elevation="1"
+            showing$="[[isFileTypeSelected]]">
 
+            <epe-parse-spreadsheet
+              import-actions="[[importActions]]"
+              import-store="[[importStore]]"
+              packaged-app="[[packagedApp]]"
+              csv-type="[[importedFileType]]"
+              csv-parser="[[csvParser]]"
+              on-import-finished="importFinishedHandler">
+            </epe-parse-spreadsheet>
+          </paper-material>
+        </div>
+      </section>
 
-        <!-- Main Content -->
-        <iron-pages
-          class="main-content"
-          attr-for-selected="data-route"
-          selected="{{importRoute}}"
-          on-iron-select="setSectionTitle">
-
-          <!-- Import Parse -->
-          <section data-route="import-parse" class="import-area layout horizontal">
-
-            <!-- File Import Selector -->
-            <div class="flex-1 relative radio-container">
-              <paper-material class="card fit">
-                <paper-radio-group class=" layout vertical" selected="{{importedFileType}}">
-                  <paper-radio-button name="Events">Events</paper-radio-button>
-                  <paper-radio-button name="People">People</paper-radio-button>
-                  <paper-radio-button name="Places">Places</paper-radio-button>
-                  <paper-radio-button name="Source">Source</paper-radio-button>
-                </paper-radio-group>
-              </paper-material>
-            </div>
-
-            <!-- Drag & Drop CSV Import -->
-            <div class="flex-3  parse-import-holder">
-              <div class="no-import-selected horizontal layout center"
-                   showing$="[[!isFileTypeSelected]]">
-                <p>Please choose a type of CaseMap File to Import.</p>
-              </div>
-
-              <paper-material
-                class="card parse-import"
-                elevation="1"
-                showing$="[[isFileTypeSelected]]">
-
-                <epe-parse-spreadsheet
-                  import-actions="[[importActions]]"
-                  import-store="[[importStore]]"
-                  packaged-app="[[packagedApp]]"
-                  csv-type="[[importedFileType]]"
-                  csv-parser="[[csvParser]]"
-                  on-import-finished="importFinishedHandler">
-                </epe-parse-spreadsheet>
-              </paper-material>
-            </div>
-          </section>
-
-          <!-- Import Check -->
-          <section data-route="import-check" class="import-check">
-            <epe-import-check
-              id="EpeImportCheck"
-              filter-state-actions="[[filterStateActions]]"
-              events-store="[[eventsStore]]"
-              places-store="[[placesStore]]"
-              people-store="[[peopleStore]]"
-              source-store="[[sourceStore]]"></epe-import-check>
-          </section>
-        </iron-pages>
-      </paper-scroll-header-panel>
-    </paper-drawer-panel>
+      <!-- Import Check -->
+      <section data-route="import-check" class="import-check">
+        <epe-import-check
+          id="EpeImportCheck"
+          filter-state-actions="[[filterStateActions]]"
+          events-store="[[eventsStore]]"
+          places-store="[[placesStore]]"
+          people-store="[[peopleStore]]"
+          source-store="[[sourceStore]]"></epe-import-check>
+      </section>
+    </iron-pages>
 
     <!-- Import Notifications -->
     <paper-toast id="ImportToast" duration="10000">
@@ -295,32 +192,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       sectionTitle: {
         type: String,
-        value: 'Import CaseMap File'
+        value: 'Import CaseMap File',
+        notify: true
       }
-    },
-
-    ready: function() {
-
-      addEventListener('paper-header-transform', function(e) {
-        var sectionName = this.$.SectionName;
-        var middleContainer = this.$.MiddleContainer;
-        var bottomContainer = this.$.BottomContainer;
-        var detail = e.detail;
-        var heightDiff = detail.height - detail.condensedHeight;
-        var yRatio = Math.min(1, detail.y / heightDiff);
-        var maxMiddleScale = 0.50;  // appName max size when condensed. The smaller the number the smaller the condensed size.
-        var scaleMiddle = Math.max(maxMiddleScale, (heightDiff - detail.y) / (heightDiff / (1-maxMiddleScale))  + maxMiddleScale);
-        var scaleBottom = 1 - yRatio;
-
-        // Move/translate middleContainer
-        Polymer.Base.transform('translate3d(0,' + yRatio * 100 + '%,0)', middleContainer);
-
-        // Scale bottomContainer and bottom sub title to nothing and back
-        Polymer.Base.transform('scale(' + scaleBottom + ') translateZ(0)', bottomContainer);
-
-        // Scale middleContainer appName
-        Polymer.Base.transform('scale(' + scaleMiddle + ') translateZ(0)', sectionName);
-      }.bind(this));
     },
 
     // Update header section title based on where we are
@@ -373,20 +247,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.$.ImportToast.hide();
     },
 
-    // Toggle Menu panel
-    toggleMenu: function() {
-      this.$.paperDrawerPanel.togglePanel();
-    },
-
     // Navigate to the import check view
     navigateToImportCheck: function() {
       page('/import-check/' + this.lastFileTypeImported);
       this.closeToast();
-    },
-
-    // Navigate back
-    navigateBack: function() {
-      history.back();
     }
   });
 })();

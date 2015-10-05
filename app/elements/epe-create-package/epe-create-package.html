@@ -67,97 +67,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
 
-    <paper-drawer-panel force-narrow id="paperDrawerPanel">
+    <iron-pages
+      class="main-content"
+      attr-for-selected="data-route"
+      selected="{{packageRoute}}"
+      on-iron-select="setSectionTitle">
 
-      <!-- Drawer Scroll Header Panel -->
-      <paper-scroll-header-panel drawer fixed>
+      <!-- DataGrid View -->
+      <section data-route="data-grid" class="import-area layout horizontal">
+        DataGrid
+      </section>
 
-        <!-- Drawer Toolbar -->
-        <paper-toolbar id="drawerToolbar">
-          <span class="paper-font-title">Menu</span>
-        </paper-toolbar>
-
-        <!-- Drawer Content -->
-        <paper-menu class="list" attr-for-selected="data-route" selected="[[route]]">
-          <a data-route="/import-parse" href="/import-parse">
-            <iron-icon icon="file-upload"></iron-icon>
-            <span>Import CaseMap File</span>
-          </a>
-          <a data-route="/create-package/data-grid" href="/create-package/data-grid">
-            <iron-icon icon="create"></iron-icon>
-            <span>Create Package</span>
-          </a>
-          <a data-route="/view-packages" href="/view-packages">
-            <iron-icon icon="view-list"></iron-icon>
-            <span>View Packages</span>
-          </a>
-        </paper-menu>
-
-      </paper-scroll-header-panel>
-
-      <!-- Main Content -->
-      <paper-scroll-header-panel main condenses keep-condensed-header>
-
-        <!-- Main Toolbar -->
-        <paper-toolbar class="tall">
-          <paper-icon-button
-            id="BackArrow"
-            icon="arrow-back"
-            on-tap="navigateBack"></paper-icon-button>
-          <div class="flex"></div>
-
-          <paper-tooltip for="BackArrow" offset="0">Back</paper-tooltip>
-
-          <!-- Toolbar icons -->
-          <a data-route="/create-package/data-grid" href="/create-package/data-grid">
-            <paper-icon-button id="DataGridButton" icon="file-upload"></paper-icon-button>
-          </a>
-          <a data-route="/create-package/map" href="/create-package/data-grid">
-            <paper-icon-button id="MapButton" icon="file-upload"></paper-icon-button>
-          </a>
-          <a data-route="/create-package/profiles" href="/create-package/data-grid">
-            <paper-icon-button id="ProfilesButton" icon="create"></paper-icon-button>
-          </a>
-          <a data-route="/create-package/source" href="/create-package/data-grid">
-            <paper-icon-button id="SourceButton" icon="create"></paper-icon-button>
-          </a>
-          <paper-icon-button id="MenuButton" icon="menu" on-tap="toggleMenu"></paper-icon-button>
-
-          <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
-          <paper-tooltip for="DataGridButton" offset="0">View Data Grid</paper-tooltip>
-          <paper-tooltip for="MapButton" offset="0">View Map</paper-tooltip>
-          <paper-tooltip for="ProfilesButton" offset="0">View Profiles</paper-tooltip>
-          <paper-tooltip for="SourceButton" offset="0">View Source</paper-tooltip>
-
-          <!-- Application name -->
-          <div id="MiddleContainer" class="middle middle-container center horizontal layout">
-            <div id="SectionName" class="section-name"><span>[[sectionTitle]]</span></div>
-          </div>
-
-          <!-- Application sub title -->
-          <div id="BottomContainer" class="bottom bottom-container center horizontal layout">
-            <div class="bottom-title paper-font-subhead">Special Investigation Task Force</div>
-          </div>
-        </paper-toolbar>
-
-        <iron-pages
-          class="main-content"
-          attr-for-selected="data-route"
-          selected="{{packageRoute}}"
-          on-iron-select="setSectionTitle">
-
-          <!-- DataGrid View -->
-          <section data-route="data-grid" class="import-area layout horizontal">
-            DataGrid
-          </section>
-
-          <!-- Map View -->
-          <section data-route="map" class="import-check">
-            Map
-          </section>
-        </iron-pages>
-      </paper-scroll-header-panel>
-    </paper-drawer-panel>
+      <!-- Map View -->
+      <section data-route="map" class="import-check">
+        Map
+      </section>
+    </iron-pages>
   </template>
 </dom-module>
 <script>
@@ -169,7 +94,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       sectionTitle: {
         type: String,
-        value: 'Create Package'
+        value: 'Create Package',
+        notify: true
       }
     },
 

@@ -12,46 +12,163 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <dom-module id="epe-networked">
   <style>
+
     :host {
       display: block;
+    }
+
+    iron-pages,
+    section,
+    epe-import {
+      height: 100%;
+    }
+
+    paper-scroll-header-panel {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+
+    /* background for toolbar when it is at its full size */
+    --paper-scroll-header-panel-full-header: {
+       background-color: var(--dark-primary-color);
+       background-image: url(../../images/header-bg.png);
+     };
+
+    /* background for toolbar when it is condensed */
+    --paper-scroll-header-panel-condensed-header: {
+       background-color: var(--default-primary-color);
+     };
+    }
+
+    paper-scroll-header-panel #mainContainer {
+    @apply(--layout-flex);
+    @apply(--layout-vertical);
+    }
+
+    paper-scroll-header-panel.hide-header {
+      top: -192px;
+    }
+
+    paper-toolbar.tall {
+      background-color: transparent;
+    }
+
+    paper-toolbar.tall .title {
+      font-size: 36px;
+      margin-left: 60px;
+
+      -webkit-transform-origin: left center;
+      transform-origin: left center;
+    }
+
+    paper-toolbar a {
+      color: var(--primary-background-color);
+    }
+
+    .bottom-title {
+      font-size: 2.5vh;
     }
   </style>
   <template>
 
-    <iron-pages attr-for-selected="data-route" selected="{{route}}">
+    <paper-drawer-panel force-narrow id="paperDrawerPanel">
 
-      <section data-route="login">
-        <epe-login
-          user-actions="[[userActions]]"
-          user-store="[[userStore]]"></epe-login>
-      </section>
+      <!-- Drawer Scroll Header Panel -->
+      <paper-scroll-header-panel drawer fixed>
 
-      <section data-route="choose-option">
-        <epe-choose-option
-          user-store="[[userStore]]"></epe-choose-option>
-      </section>
+        <!-- Drawer Toolbar -->
+        <paper-toolbar id="drawerToolbar">
+          <span class="paper-font-title">Menu</span>
+        </paper-toolbar>
 
-      <section data-route="import">
-        <epe-import
-          id="EpeImport"
-          import-actions="[[importActions]]"
-          import-store="[[importStore]]"
-          filter-state-actions="[[filterStateActions]]"
-          events-store="[[eventsStore]]"
-          places-store="[[placesStore]]"
-          people-store="[[peopleStore]]"
-          source-store="[[sourceStore]]"
-          packaged-app="[[packagedApp]]"
-          csv-type="Places"
-          csv-parser="[[csvParser]]"></epe-import>
-      </section>
+        <!-- Drawer Content -->
+        <paper-menu class="list" attr-for-selected="data-route" selected="[[route]]">
+          <a data-route="/import-parse" href="/import-parse" hidden$="[[hideImport]]">
+            <iron-icon icon="file-upload"></iron-icon>
+            <span>Import CaseMap File</span>
+          </a>
+          <a data-route="/create-package/data-grid" href="/create-package/data-grid">
+            <iron-icon icon="create"></iron-icon>
+            <span>Create Package</span>
+          </a>
+          <a data-route="/view-packages" href="/view-packages">
+            <iron-icon icon="view-list"></iron-icon>
+            <span>View Packages</span>
+          </a>
+        </paper-menu>
 
-      <section data-route="create-package">
-        <epe-create-package
-          id="EpeCreatePackage"></epe-create-package>
-      </section>
+      </paper-scroll-header-panel>
 
-    </iron-pages>
+      <paper-scroll-header-panel id="MainScrollHeader" main condenses keep-condensed-header>
+
+        <!-- Main Toolbar -->
+        <paper-toolbar class="tall">
+          <paper-icon-button
+            id="BackArrow"
+            icon="arrow-back"
+            on-tap="navigateBack"></paper-icon-button>
+          <div class="flex"></div>
+
+          <paper-tooltip for="BackArrow" offset="0">Back</paper-tooltip>
+
+          <!-- Toolbar icons -->
+          <paper-icon-button id="MenuButton" icon="menu" on-tap="toggleMenu"></paper-icon-button>
+
+          <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
+          <paper-tooltip for="MenuButton" offset="0">Show Menu</paper-tooltip>
+
+          <!-- Application name -->
+          <div id="MiddleContainer" class="middle middle-container center horizontal layout">
+            <div id="SectionName" class="section-name"><span>{{sectionTitle}}</span></div>
+          </div>
+
+          <!-- Application sub title -->
+          <div id="BottomContainer" class="bottom bottom-container center horizontal layout">
+            <div class="bottom-title paper-font-subhead">Special Investigation Task Force</div>
+          </div>
+        </paper-toolbar>
+
+        <iron-pages attr-for-selected="data-route"
+                    selected="{{route}}"
+                    on-iron-select="routeChanged">
+
+          <section data-route="login">
+            <epe-login
+              user-actions="[[userActions]]"
+              user-store="[[userStore]]"></epe-login>
+          </section>
+
+          <section data-route="choose-option">
+            <epe-choose-option
+              user-store="[[userStore]]"></epe-choose-option>
+          </section>
+
+          <section data-route="import">
+            <epe-import
+              id="EpeImport"
+              import-actions="[[importActions]]"
+              import-store="[[importStore]]"
+              filter-state-actions="[[filterStateActions]]"
+              events-store="[[eventsStore]]"
+              places-store="[[placesStore]]"
+              people-store="[[peopleStore]]"
+              source-store="[[sourceStore]]"
+              packaged-app="[[packagedApp]]"
+              csv-type="Places"
+              csv-parser="[[csvParser]]"
+              section-title="{{sectionTitle}}"></epe-import>
+          </section>
+
+          <section data-route="create-package">
+            <epe-create-package
+              id="EpeCreatePackage"></epe-create-package>
+          </section>
+        </iron-pages>
+
+      </paper-scroll-header-panel>
+    </paper-drawer-panel>
 
     <paper-toast id="UserToast" duration="3000">
       <h2><span>User Login:</span></h2>
@@ -72,12 +189,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       user: {
         type: Object,
         value: null
+      },
+
+      hideImport: {
+        type: Boolean,
+        computed: 'isNotAdmin(user)'
+      },
+
+      sectionTitle: {
+        type: String,
+        value: 'What would you like to do?'
       }
     },
 
     // Set up listeners when element is ready
     ready: function() {
 
+      addEventListener('paper-header-transform', function(e) {
+        var sectionName = this.$.SectionName;
+        var middleContainer = this.$.MiddleContainer;
+        var bottomContainer = this.$.BottomContainer;
+        var detail = e.detail;
+        var heightDiff = detail.height - detail.condensedHeight;
+        var yRatio = Math.min(1, detail.y / heightDiff);
+        var maxMiddleScale = 0.50;  // appName max size when condensed. The smaller the number the smaller the condensed size.
+        var scaleMiddle = Math.max(maxMiddleScale, (heightDiff - detail.y) / (heightDiff / (1-maxMiddleScale))  + maxMiddleScale);
+        var scaleBottom = 1 - yRatio;
+
+        // Move/translate middleContainer
+        Polymer.Base.transform('translate3d(0,' + yRatio * 100 + '%,0)', middleContainer);
+
+        // Scale bottomContainer and bottom sub title to nothing and back
+        Polymer.Base.transform('scale(' + scaleBottom + ') translateZ(0)', bottomContainer);
+
+        // Scale middleContainer appName
+        Polymer.Base.transform('scale(' + scaleMiddle + ') translateZ(0)', sectionName);
+      }.bind(this));
+
+
+      // Listen to User Store
       this.userStore.listen(function(user) {
 
         if (user.status === 'loggedin') {
@@ -90,6 +240,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }.bind(this));
     },
 
+    // Manage paper-drawer-header on route changes
+    routeChanged: function() {
+      if (this.route === 'login') {
+
+        this.$.MainScrollHeader.classList.add('hide-header');
+        this.$.MainScrollHeader.fixed = true;
+      } else {
+        this.$.MainScrollHeader.classList.remove('hide-header');
+        this.$.MainScrollHeader.fixed = false;
+      }
+    },
+
     // Display relevant message to user
     displayUserMessage: function() {
       this.$.UserToast.show();
@@ -98,6 +260,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Navigate to the Choose Option
     navigateToChooseOption: function() {
       page('/choose-option');
+    },
+
+    // Toggle Menu panel
+    toggleMenu: function() {
+      this.$.paperDrawerPanel.togglePanel();
+    },
+
+    // Update header section title based on where we are
+    setSectionTitle: function() {
+      if (this.importRoute === 'import-parse') {
+        this.sectionTitle = 'Import ' + this.importedFileType + ' CaseMap File';
+      } else if (this.importRoute === 'import-check')  {
+        if (this.$.EpeImportCheck.params) {
+          this.sectionTitle = 'Check ' + this.$.EpeImportCheck.params.name + ' CaseMap File';
+        }
+      }
+    },
+
+    // Navigate back
+    navigateBack: function() {
+      history.back();
+    },
+
+    // Hide import based on user role
+    isNotAdmin: function(user) {
+      if (user && user.role === 'admin') {
+        return false;
+      }
+      return true;
     }
   });
 })();

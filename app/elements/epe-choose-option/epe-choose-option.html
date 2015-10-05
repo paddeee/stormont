@@ -16,42 +16,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       display: block;
     }
 
-    paper-scroll-header-panel {
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      background-color: var(--paper-grey-200);
-
-    /* background for toolbar when it is at its full size */
-    --paper-scroll-header-panel-full-header: {
-       background-color: var(--dark-primary-color);
-       background-image: url(../../images/header-bg.png);
-     };
-
-    /* background for toolbar when it is condensed */
-    --paper-scroll-header-panel-condensed-header: {
-       background-color: var(--default-primary-color);
-     };
-    }
-
-    paper-toolbar.tall {
-      background-color: transparent;
-    }
-
-    paper-toolbar.tall .title {
-      font-size: 36px;
-      margin-left: 60px;
-
-      -webkit-transform-origin: left center;
-      transform-origin: left center;
-    }
-
-    .bottom-title {
-      font-size: 2.5vh;
-    }
-
     .content {
       padding: 8px;
     }
@@ -95,93 +59,62 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
 
-    <paper-scroll-header-panel condenses keep-condensed-header>
+    <div class="content">
 
-      <!-- Main Toolbar -->
-      <paper-toolbar class="tall">
-        <div class="flex"></div>
+      <div class="layout vertical">
 
-        <!-- Toolbar icons -->
-        <paper-icon-button id="ImportButton" icon="file-upload"></paper-icon-button>
-        <paper-icon-button id="CreateButton" icon="create"></paper-icon-button>
-        <paper-icon-button id="ViewButton" icon="view-list"></paper-icon-button>
+        <paper-card class="flex"
+          hidden$="[[hideImport]]">
+          <a data-route="import-parse" href="/import-parse" class="card-link fit block"></a>
+          <div class="card-content">
+            <div class="icon-holder  icon-holder--import">
+              <iron-icon icon="file-upload"></iron-icon>
+            </div>
+            <h1>Import Casemap Data</h1>
+            <p>Description</p>
+          </div>
 
-        <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
-        <paper-tooltip for="ImportButton" offset="0">Import CaseMap File</paper-tooltip>
-        <paper-tooltip for="CreateButton" offset="0">Create Package</paper-tooltip>
-        <paper-tooltip for="ViewButton" offset="0">View Packages</paper-tooltip>
+          <div class="card-actions">
+            <paper-button>Some action</paper-button>
+          </div>
 
-        <!-- Application name -->
-        <div id="MiddleContainer" class="middle middle-container center horizontal layout">
-          <div id="SectionName" class="section-name">What would you like to do?</div>
-        </div>
+        </paper-card>
 
-        <!-- Application sub title -->
-        <div id="BottomContainer" class="bottom bottom-container center horizontal layout">
-          <div class="bottom-title paper-font-subhead">Special Investigation Task Force</div>
-        </div>
-      </paper-toolbar>
+        <paper-card class="flex">
+          <a data-route="create-package" href="/create-package" class="card-link fit block"></a>
+          <div class="card-content">
 
-      <div class="content">
-
-        <div class="layout vertical">
-
-          <paper-card class="flex"
-            hidden$="[[hideImport]]">
-            <a data-route="import-parse" href="/import-parse" class="card-link fit block"></a>
-            <div class="card-content">
-              <div class="icon-holder  icon-holder--import">
-                <iron-icon icon="file-upload"></iron-icon>
-              </div>
-              <h1>Import Casemap Data</h1>
-              <p>Description</p>
+            <div class="icon-holder  icon-holder--create">
+              <iron-icon icon="create"></iron-icon>
             </div>
 
-            <div class="card-actions">
-              <paper-button>Some action</paper-button>
+            <h1>Create a Package</h1>
+            <p>Description</p>
+          </div>
+
+          <div class="card-actions">
+            <paper-button>Some action</paper-button>
+          </div>
+        </paper-card>
+
+        <paper-card class="flex">
+          <a data-route="view-packages" href="/view-packages" class="card-link fit block"></a>
+          <div class="card-content">
+
+            <div class="icon-holder  icon-holder--view">
+              <iron-icon icon="view-list"></iron-icon>
             </div>
 
-          </paper-card>
+            <h1>View Packages</h1>
+            <p>Description</p>
+          </div>
 
-          <paper-card class="flex">
-            <a data-route="create-package" href="/create-package" class="card-link fit block"></a>
-            <div class="card-content">
-
-              <div class="icon-holder  icon-holder--create">
-                <iron-icon icon="create"></iron-icon>
-              </div>
-
-              <h1>Create a Package</h1>
-              <p>Description</p>
-            </div>
-
-            <div class="card-actions">
-              <paper-button>Some action</paper-button>
-            </div>
-          </paper-card>
-
-          <paper-card class="flex">
-            <a data-route="view-packages" href="/view-packages" class="card-link fit block"></a>
-            <div class="card-content">
-
-              <div class="icon-holder  icon-holder--view">
-                <iron-icon icon="view-list"></iron-icon>
-              </div>
-
-              <h1>View Packages</h1>
-              <p>Description</p>
-            </div>
-
-            <div class="card-actions">
-              <paper-button>Some action</paper-button>
-            </div>
-          </paper-card>
-
-        </div>
-
+          <div class="card-actions">
+            <paper-button>Some action</paper-button>
+          </div>
+        </paper-card>
       </div>
-
-    </paper-scroll-header-panel>
+    </div>
   </template>
 </dom-module>
 <script>
@@ -207,27 +140,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // When the user data is updated, update our user
       this.userStore.listen(function(userData) {
         this.user = userData;
-      }.bind(this));
-
-      addEventListener('paper-header-transform', function(e) {
-        var sectionName = this.$.SectionName;
-        var middleContainer = this.$.MiddleContainer;
-        var bottomContainer = this.$.BottomContainer;
-        var detail = e.detail;
-        var heightDiff = detail.height - detail.condensedHeight;
-        var yRatio = Math.min(1, detail.y / heightDiff);
-        var maxMiddleScale = 0.50;  // appName max size when condensed. The smaller the number the smaller the condensed size.
-        var scaleMiddle = Math.max(maxMiddleScale, (heightDiff - detail.y) / (heightDiff / (1-maxMiddleScale))  + maxMiddleScale);
-        var scaleBottom = 1 - yRatio;
-
-        // Move/translate middleContainer
-        Polymer.Base.transform('translate3d(0,' + yRatio * 100 + '%,0)', middleContainer);
-
-        // Scale bottomContainer and bottom sub title to nothing and back
-        Polymer.Base.transform('scale(' + scaleBottom + ') translateZ(0)', bottomContainer);
-
-        // Scale middleContainer appName
-        Polymer.Base.transform('scale(' + scaleMiddle + ') translateZ(0)', sectionName);
       }.bind(this));
     },
 
