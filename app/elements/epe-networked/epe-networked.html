@@ -242,6 +242,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Manage paper-drawer-header on route changes
     routeChanged: function() {
+
+      this.setSectionTitle();
+
       if (this.route === 'login') {
 
         this.$.MainScrollHeader.classList.add('hide-header');
