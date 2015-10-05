@@ -129,10 +129,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   </style>
   <template>
-    <paper-drawer-panel id="paperDrawerPanel">
+    <paper-drawer-panel force-narrow id="paperDrawerPanel">
 
       <!-- Drawer Scroll Header Panel -->
       <paper-scroll-header-panel drawer fixed>
+
+        <!-- Drawer Toolbar -->
+        <paper-toolbar id="drawerToolbar">
+          <span class="paper-font-title">Menu</span>
+        </paper-toolbar>
 
         <!-- Drawer Content -->
         <paper-menu class="list" attr-for-selected="data-route" selected="[[route]]">
@@ -167,20 +172,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-tooltip for="BackArrow" offset="0">Back</paper-tooltip>
 
           <!-- Toolbar icons -->
-          <a data-route="/import-parse" href="/import-parse">
-            <paper-icon-button id="ImportButton" icon="file-upload"></paper-icon-button>
-          </a>
-          <a data-route="/create-package" href="/create-package">
-            <paper-icon-button id="CreateButton" icon="create"></paper-icon-button>
-          </a>
-          <a data-route="/view-package" href="/view-package">
-            <paper-icon-button id="ViewButton" icon="view-list"></paper-icon-button>
-          </a>
+          <paper-icon-button id="MenuButton" icon="menu" on-tap="toggleMenu"></paper-icon-button>
 
           <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
-          <paper-tooltip for="ImportButton" offset="0">Import CaseMap File</paper-tooltip>
-          <paper-tooltip for="CreateButton" offset="0">Create Package</paper-tooltip>
-          <paper-tooltip for="ViewButton" offset="0">View Packages</paper-tooltip>
+          <paper-tooltip for="MenuButton" offset="0">Show Menu</paper-tooltip>
 
           <!-- Application name -->
           <div id="MiddleContainer" class="middle middle-container center horizontal layout">
@@ -377,6 +372,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Close the Toast
     closeToast: function() {
       this.$.ImportToast.hide();
+    },
+
+    // Toggle Menu panel
+    toggleMenu: function() {
+      this.$.paperDrawerPanel.togglePanel();
     },
 
     // Navigate to the import check view
