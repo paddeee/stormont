@@ -70,6 +70,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .bottom-title {
       font-size: 2.5vh;
     }
+
+    .create-package {
+      background-color: var(--primary-background-color);
+    }
   </style>
   <template>
 
@@ -169,7 +173,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               section-title="{{sectionTitle}}"></epe-import>
           </section>
 
-          <section data-route="create-package">
+          <section data-route="create-package" class="create-package">
             <epe-create-package
               id="EpeCreatePackage"
               filter-state-actions="[[filterStateActions]]"
