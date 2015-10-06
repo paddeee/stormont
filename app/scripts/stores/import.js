@@ -82,27 +82,15 @@ module.exports = Reflux.createStore({
         // headings
         dataRecord = dataCollection[cellRow - 2];
         dataRecord[headingsHash[cellLetterIdentifier]] = cellObject[cellIdentifier].v;
+
+        // Set all record's 'showRecord' property to false by default
+        dataRecord.showRecord = false;
       }
 
     }, this);
 
     return dataCollection;
   },
-
-  // Return true if a collection of this name already exists in the dataSource
-  /*collectionExists: function (dataSource, collectionName) {
-
-    var collections = dataSource.listCollections();
-    var collectionExists = false;
-
-    collections.forEach(function(collection) {
-      if (collection.name === collectionName) {
-        collectionExists = true;
-      }
-    });
-
-    return collectionExists;
-  },*/
 
   // Create an array of cellObjects which can be iterated through to generate our dataCollection
   createCellArray: function (sheet) {

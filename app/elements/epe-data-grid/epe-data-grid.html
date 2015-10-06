@@ -91,8 +91,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <div class="data-grid__container flex">
         <div class="headings">
           <div class="heading layout horizontal">
+            <div class="checkbox-holder"
+                 hidden$="[[hideRecordFilters]]">
+              <paper-checkbox on-change="selectAllRecords"></paper-checkbox>
+            </div>
             <template is="dom-repeat" items="[[toArray(gridDataFirstRecord)]]">
-
               <div class="field-heading flex layout horizontal"
                    hidden="[[!showField(item.name)]]"
                    sort-status="neutral"
@@ -115,6 +118,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <iron-list id="List" items="[[paginatedData]]" as="item">
             <template>
               <div class="list-item layout horizontal">
+                <div class="checkbox-holder"
+                     hidden$="[[hideCheckBoxes()]]">
+                  <paper-checkbox on-iron-change="selectRecord"
+                                  checked$="[[item.showRecord]]"></paper-checkbox>
+                </div>
                 <template is="dom-repeat" items="[[toArray(item)]]">
                   <div class="field flex" hidden="[[!showField(item.name)]]">
                     <span>{{item.value}}</span>
@@ -157,6 +165,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         observer: 'gridDataChanged'
       },
 
+      hideRecordFilters: {
+        type: Boolean,
+        value: false
+      },
+
       // Used to get the headings
       gridDataFirstRecord: {
         type: Object,
@@ -193,7 +206,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Return false if item is a loki property
     showField: function(keyName) {
 
-      if (keyName === 'meta' || keyName === '$loki') {
+      if (keyName === 'meta' || keyName === '$loki' || keyName === 'showRecord') {
         return false;
       }
       return true;
@@ -206,6 +219,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return gridData.length;
       }
       return 0;
+    },
+
+    // Don't know why I need this but if I just use the hideRecordFilters property in the iron-list template it won't
+    // show the checkboxes when it should.
+    hideCheckBoxes: function () {
+
+      if (this.hideRecordFilters) {
+        return true;
+      }
+      return false;
     },
 
     // CALLED BY OBSERVABLE ON GRIDDATA
@@ -273,6 +296,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Call fileImported action
       this.filterStateActions.sortingChanged(sortingObject);
+    },
+
+    // Select all checkboxes in list
+    selectAllRecords: function() {
+
     }
   });
 })();
