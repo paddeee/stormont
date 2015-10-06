@@ -85,15 +85,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <!-- Drawer Content -->
         <paper-menu class="list" attr-for-selected="data-route" selected="[[route]]">
-          <a data-route="/import-parse" href="/import-parse" hidden$="[[hideImport]]">
+          <a data-route="/import-parse"
+             href="/import-parse"
+             on-tap="toggleMenu"
+             hidden$="[[hideImport]]">
             <iron-icon icon="file-upload"></iron-icon>
             <span>Import CaseMap File</span>
           </a>
-          <a data-route="/create-package/data-grid" href="/create-package/data-grid">
+          <a data-route="/create-package/data-grid/Events"
+             href="/create-package/data-grid/Events"
+             on-tap="toggleMenu">
             <iron-icon icon="create"></iron-icon>
             <span>Create Package</span>
           </a>
-          <a data-route="/view-packages" href="/view-packages">
+          <a data-route="/view-packages"
+             href="/view-packages"
+             on-tap="toggleMenu">
             <iron-icon icon="view-list"></iron-icon>
             <span>View Packages</span>
           </a>
@@ -142,7 +149,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           <section data-route="choose-option">
             <epe-choose-option
-              user-store="[[userStore]]"></epe-choose-option>
+              user-store="[[userStore]]"
+              section-title="{{sectionTitle}}"></epe-choose-option>
           </section>
 
           <section data-route="import">
@@ -163,7 +171,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           <section data-route="create-package">
             <epe-create-package
-              id="EpeCreatePackage"></epe-create-package>
+              id="EpeCreatePackage"
+              filter-state-actions="[[filterStateActions]]"
+              events-store="[[eventsStore]]"
+              places-store="[[placesStore]]"
+              people-store="[[peopleStore]]"
+              source-store="[[sourceStore]]"
+              section-title="{{sectionTitle}}"></epe-create-package>
           </section>
         </iron-pages>
 
@@ -197,8 +211,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       sectionTitle: {
-        type: String,
-        value: 'What would you like to do?'
+        type: String
       }
     },
 
@@ -241,9 +254,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Manage paper-drawer-header on route changes
-    routeChanged: function() {
+    routeChanged: function(event, detail) {
 
-      this.setSectionTitle();
+      this.setSectionTitle(detail.item.children[0]);
 
       if (this.route === 'login') {
 
@@ -270,14 +283,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.$.paperDrawerPanel.togglePanel();
     },
 
-    // Update header section title based on where we are
-    setSectionTitle: function() {
-      if (this.importRoute === 'import-parse') {
-        this.sectionTitle = 'Import ' + this.importedFileType + ' CaseMap File';
-      } else if (this.importRoute === 'import-check')  {
-        if (this.$.EpeImportCheck.params) {
-          this.sectionTitle = 'Check ' + this.$.EpeImportCheck.params.name + ' CaseMap File';
-        }
+    // Fire setSectionTitle method on selected child of iron-pages
+    setSectionTitle: function($childElement) {
+
+      if (this.route !== 'login' && $childElement.setSectionTitle) {
+        $childElement.setSectionTitle();
       }
     },
 

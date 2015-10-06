@@ -81,7 +81,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </paper-card>
 
         <paper-card class="flex">
-          <a data-route="create-package" href="/create-package" class="card-link fit block"></a>
+          <a data-route="create-package/data-grid/Events" href="/create-package/data-grid/Events" class="card-link fit block"></a>
           <div class="card-content">
 
             <div class="icon-holder  icon-holder--create">
@@ -147,6 +147,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.userStore.listen(function(userData) {
         this.user = userData;
       }.bind(this));
+    },
+
+    // Called by parent element
+    setSectionTitle: function() {
+      this.sectionTitle = 'What would you like to do?';
     },
 
     // Hide import based on user role

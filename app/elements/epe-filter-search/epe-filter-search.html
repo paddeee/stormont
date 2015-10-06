@@ -68,6 +68,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       textInputFilters: {
         type: Array,
         value: []
+      },
+
+      filterType: {
+        type: String,
+        value: 'importCheck'
       }
     },
 
@@ -82,6 +87,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var filterInputCollection = Polymer.dom(this.root).querySelectorAll('.search-input');
       var filterDateTimeCollection = Polymer.dom(this.root).querySelectorAll('.date-time-picker');
       var searchFilterObject = {
+        filterType: this.filterType,
         collectionName: this.collectionName,
         fields: []
       };

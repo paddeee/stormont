@@ -17,48 +17,56 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       display: block;
     }
 
-    paper-scroll-header-panel {
-      position: absolute;
+    .data-grid-container {
+      transition: opacity 0.5s ease-in-out;
+      -webkit-transition: opacity 0.5s ease-in-out;
+      opacity: 1;
+    }
+
+    .data-grid-container.fade-out {
+      opacity: 0;
+    }
+
+    .data-grid {
+      font-size: 1.3vw;
+    }
+
+    .filters-title {
+      color: var(--secondary-text-color);
+      font-size: 1.5vw;
+      padding: 16px 16px 8px;
+    }
+
+    .filter-container[hidden],
+    epe-data-grid[hidden] {
+      display: none !important;
+    }
+
+    .no-data[hidden] {
+      display: none !important;
+    }
+
+    .no-data {
+      color: var(--secondary-text-color);
+      font-size: 3vh;
+      height: 30vh;
+    }
+
+    .progress-section {
+      height: 4px;
+      position: fixed;
       top: 0;
-      right: 0;
-      bottom: 0;
       left: 0;
-
-    /* background for toolbar when it is at its full size */
-    --paper-scroll-header-panel-full-header: {
-       background-color: var(--dark-primary-color);
-       background-image: url(../../images/header-bg.png);
-     };
-
-    /* background for toolbar when it is condensed */
-    --paper-scroll-header-panel-condensed-header: {
-       background-color: var(--default-primary-color);
-     };
+      width: 100%;
+      z-index: 1;
     }
 
-    paper-scroll-header-panel #mainContainer {
-    @apply(--layout-flex);
-    @apply(--layout-vertical);
-    }
-
-    paper-toolbar.tall {
-      background-color: transparent;
-    }
-
-    paper-toolbar.tall .title {
-      font-size: 36px;
-      margin-left: 60px;
-
-      -webkit-transform-origin: left center;
-      transform-origin: left center;
-    }
-
-    paper-toolbar a {
-      color: var(--primary-background-color);
-    }
-
-    .bottom-title {
-      font-size: 2.5vh;
+    paper-progress {
+      --paper-progress-active-color: var(--accent-color);
+      --paper-progress-transition-duration: 0.04s;
+      --paper-progress-transition-timing-function: ease;
+      --paper-progress-transition-transition-delay: 0s;
+      width: 100%;
     }
 
     .main-content {
@@ -70,16 +78,75 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <iron-pages
       class="main-content"
       attr-for-selected="data-route"
-      selected="{{packageRoute}}"
+      selected="{{createPackageRoute}}"
       on-iron-select="setSectionTitle">
 
       <!-- DataGrid View -->
-      <section data-route="data-grid" class="import-area layout horizontal">
-        DataGrid
+      <section data-route="data-grid" class="data-grid">
+        <!-- Progress Bar -->
+        <div class="progress-section fixed">
+          <paper-progress id="ProgressBar" max="60" hidden="true"></paper-progress>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <paper-tabs attr-for-selected="name" selected="{{params.name}}" on-iron-select="tabSelected">
+          <paper-tab name="Events" link>
+            <a href="/create-package/data-grid/Events" class="horizontal center-center layout">EVENTS</a>
+          </paper-tab>
+          <paper-tab name="People" link>
+            <a href="/create-package/data-grid/People" class="horizontal center-center layout">PEOPLE</a>
+          </paper-tab>
+          <paper-tab name="Places" link>
+            <a href="/create-package/data-grid/Places" class="horizontal center-center layout">PLACES</a>
+          </paper-tab>
+          <paper-tab name="Source" link>
+            <a href="/create-package/data-grid/Source" class="horizontal center-center layout">SOURCE</a>
+          </paper-tab>
+        </paper-tabs>
+
+        <!-- Container Area For DataGrid and Filters -->
+        <div id="DataGridContainer" class="data-grid-container">
+
+          <!-- Filters -->
+          <div class="filter-container layout vertical"
+               hidden$="[[hideDataGrid]]">
+            <div class="filters-title horizontal layout">
+              <div class="flex">Filters</div>
+            </div>
+            <div class="filter-search-container">
+              <epe-filter-search
+                filter-type="importCheck"
+                collection-name="[[collectionName]]"
+                filters-to-show="[[filtersToShow]]"
+                on-filters-changed="filtersChanged">
+              </epe-filter-search>
+            </div>
+          </div>
+
+          <!-- Check data -->
+          <iron-pages attr-for-selected="data-route" selected="{{dataGridRoute}}">
+            <section data-route="data-grid" class="data-grid-area relative layout horizontal">
+              <epe-data-grid
+                filter-state-actions="[[filterStateActions]]"
+                collection-name="[[collectionName]]"
+                sorting-state="[[sortingState]]"
+                hidden$="[[hideDataGrid]]"
+                class="data-grid fit"
+                grid-data="[[gridData]]"></epe-data-grid>
+            </section>
+          </iron-pages>
+
+          <!-- No data message -->
+          <div
+            hidden$="[[!hideDataGrid]]"
+            class="no-data horizontal layout center center-justified">
+            <p>There is no data available for '<span>[[collectionName]]</span>'.</p>
+          </div>
+        </div>
       </section>
 
       <!-- Map View -->
-      <section data-route="map" class="import-check">
+      <section data-route="map" class="time-map">
         Map
       </section>
     </iron-pages>
@@ -92,6 +159,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     properties: {
 
+      gridData: {
+        type: Array
+      },
+
+      collectionName: {
+        type: String,
+        value: ''
+      },
+
+      hideDataGrid: {
+        type: Boolean,
+        computed: 'isGridEmpty(gridData)'
+      },
+
       sectionTitle: {
         type: String,
         value: 'Create Package',
@@ -99,17 +180,176 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
-    // Toggle Menu panel
-    toggleMenu: function() {
-      this.$.paperDrawerPanel.togglePanel();
+    // ToDo: Must be a cleaner way of doing this
+    ready: function() {
+
+      if (this.eventsStore) {
+
+        // When the events data is updated, update our grid data
+        this.eventsStore.listen(function(eventsData) {
+
+          this.eventsData = eventsData;
+
+          if (this.params) {
+
+            this.collectionName = this.params.name;
+
+            this.setUpGrid(this.collectionName);
+          }
+        }.bind(this));
+      }
+
+      if (this.placesStore) {
+
+        // When the places data is updated, update our grid data
+        this.placesStore.listen(function (placesData) {
+
+          this.placesData = placesData;
+
+          if (this.params) {
+
+            this.collectionName = this.params.name;
+
+            this.setUpGrid(this.collectionName);
+          }
+        }.bind(this));
+      }
+
+      if (this.peopleStore) {
+
+        // When the people data is updated, update our grid data
+        this.peopleStore.listen(function (peopleData) {
+
+          this.peopleData = peopleData;
+
+          if (this.params) {
+
+            this.collectionName = this.params.name;
+
+            this.setUpGrid(this.collectionName);
+          }
+        }.bind(this));
+      }
+
+      if (this.sourceStore) {
+
+        // When the source data is updated, update our grid data
+        this.sourceStore.listen(function (sourceData) {
+
+          this.sourceData = sourceData;
+
+          if (this.params) {
+
+            this.collectionName = this.params.name;
+
+            this.setUpGrid(this.collectionName);
+          }
+        }.bind(this));
+      }
+    },
+
+    // When a tab is selected set the collectionData if available
+    tabSelected: function(event) {
+
+      var tabChosen = event.detail.item.getAttribute('name');
+      var $dataGridContainer = this.$.DataGridContainer;
+
+      this.collectionName = tabChosen;
+
+      // Fade out the current view
+      this.fadeOut($dataGridContainer);
+
+      // Show Progress Bar
+      this.startProgress();
+
+      // Add delay due to tabs locking up due to date picker and time pickers
+      // Delay can be masked with transition and progress bar
+      this.async(function() {
+
+        this.setUpGrid(tabChosen);
+
+      }, 1000);
+    },
+
+    // Return Boolean based on gridData
+    isGridEmpty: function(gridData) {
+
+      if (gridData) {
+        return false;
+      }
+      return true;
+    },
+
+    // Return Boolean based on gridData
+    fadeOut: function($el) {
+      $el.classList.add('fade-out');
+    },
+
+    // Show and start the progress of the progress bar
+    startProgress: function () {
+
+      var $progressBar = this.$.ProgressBar;
+
+      $progressBar.hidden = false;
+
+      if ($progressBar.value < $progressBar.max) {
+        $progressBar.value += $progressBar.step;
+      } else {
+
+        // Show Data Grid
+        this.$.DataGridContainer.classList.remove('fade-out');
+
+        $progressBar.hidden = true;
+        $progressBar.value = $progressBar.min;
+        return;
+      }
+
+      requestAnimationFrame(this.startProgress.bind(this));
+    },
+
+    // Set the gridData and Filter Search boxes
+    setUpGrid: function(collectionName) {
+
+      switch (collectionName) {
+        case 'Events':
+          this.gridData = this.eventsData;
+          this.filtersToShow = this.eventsStore.filterTransform.Events.filtersToShow;
+          this.sortingState = this.eventsStore.filterTransform.Events.sorting;
+          break;
+        case 'Places':
+          this.gridData = this.placesData;
+          this.filtersToShow = this.placesStore.filterTransform.Places.filtersToShow;
+          this.sortingState = this.placesStore.filterTransform.Places.sorting;
+          break;
+        case 'People':
+          this.gridData = this.peopleData;
+          this.filtersToShow = this.peopleStore.filterTransform.People.filtersToShow;
+          this.sortingState = this.peopleStore.filterTransform.People.sorting;
+          break;
+        case 'Source':
+          this.gridData = this.sourceData;
+          this.filtersToShow = this.sourceStore.filterTransform.Source.filtersToShow;
+          this.sortingState = this.sourceStore.filterTransform.Source.sorting;
+          break;
+        default:
+          console.log('Sorry, no collectionName set for grid data');
+      }
+    },
+
+    // EPE-SEARCH-FILTER LISTENER
+    filtersChanged: function (event) {
+
+      var searchFilterObject = event.detail;
+
+      // Call fileImported action
+      this.filterStateActions.searchFilterChanged(searchFilterObject);
     },
 
     // Update header section title based on where we are
     setSectionTitle: function() {
-      if (this.packageRoute === 'data-grid') {
-        this.sectionTitle = 'Data Grid View';
-      } else if (this.importRoute === 'map')  {
-        this.sectionTitle = 'Map View';
+
+      if (this.params) {
+        this.sectionTitle = 'Create Package - Filter ' + this.params.name;
       }
     },
 
