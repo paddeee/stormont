@@ -14,6 +14,13 @@ module.exports = Reflux.createStore({
 
     this.updateFilteredData(searchFilterObject);
 
+    // If the filter changed when creating or editing a saved package, set the transform name
+    if (searchFilterObject.filterType === 'createPackage') {
+      filterTransforms.creatingPackage = true;
+    } else {
+      filterTransforms.creatingPackage = false;
+    }
+
     // Send object out to all listeners when database loaded
     this.trigger(filterTransforms);
   },
@@ -89,7 +96,7 @@ module.exports = Reflux.createStore({
       if (field.queryType !== 'regex') {
         queryObject[field.queryType] = field.value;
       } else {
-        queryObject['$regex'] = new RegExp(field.value, 'i');
+        queryObject.$regex = new RegExp(field.value, 'i');
       }
 
       fieldObject[field.name] = queryObject;

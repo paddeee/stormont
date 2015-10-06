@@ -85,6 +85,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       font-size: 1.5vh;
       text-align: center;
     }
+
+    .fab-container {
+      position: absolute;
+      top: 5vh;
+      right: 16px;
+    }
+
+    paper-fab {
+      background-color: var(--default-primary-color);
+    }
   </style>
   <template>
     <div class="data-grid layout vertical">
@@ -148,6 +158,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             data="[[gridData]]"
             show-first="true"
             show-last="true"></epe-paginator>
+        </div>
+
+        <div class="fab-container">
+          <paper-fab icon="save" on-tap="savePresentation"></paper-fab>
         </div>
       </div>
     </div>
@@ -247,7 +261,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // CALLED BY OBSERVABLE ON SORTINGSTATE
     sortingStateChanged: function() {
-      // Stick in async so the griData headings will have been added to DOM in template
+      // Stick in async so the gridData headings will have been added to DOM in template
       this.async(this.resetHeadingSortIndicators);
     },
 
@@ -264,13 +278,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Set any current sorts back to neutral
       $headers.forEach(function($header) {
-        $header.setAttribute("sort-status", 'neutral');
+        $header.setAttribute('sort-status', 'neutral');
       });
 
       if (this.sortingState.desc === true) {
-        $sortedHeader.setAttribute("sort-status", 'false');
+        $sortedHeader.setAttribute('sort-status', 'false');
       } else if (this.sortingState.desc === false) {
-        $sortedHeader.setAttribute("sort-status", 'true');
+        $sortedHeader.setAttribute('sort-status', 'true');
       }
     },
 
@@ -294,13 +308,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         desc: desc
       };
 
-      // Call fileImported action
+      // Call sortingChanged action
       this.filterStateActions.sortingChanged(sortingObject);
     },
 
     // Select all checkboxes in list
     selectAllRecords: function() {
 
+    },
+
+    // Call savePresentation action
+    savePresentation: function() {
+      if (this.userStore.user) {
+        this.dataSourceActions.savePresentation(this.userStore.user.userName);
+      } else {
+        console.warn('No user passed in to data grid');
+      }
     }
   });
 })();

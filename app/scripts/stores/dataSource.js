@@ -45,4 +45,33 @@ module.exports = Reflux.createStore({
     // Send object out to all listeners when database loaded
     this.trigger(this.dataSource);
   },
+
+  // Add meta information, transform information and save loki db
+  savePresentation: function (userName) {
+
+    var createdDate = new Date();
+
+    // Create Presentation meta info such as user and date created
+    this.addSavedPresentationMetaData(userName, createdDate);
+    console.log(this.dataSource);
+
+
+    // Save database
+    this.dataSource.saveDatabase(function() {
+      console.log('Database Saved');
+    });
+  },
+
+  // Create a meta object and add to presentations collection of loki db
+  addSavedPresentationMetaData: function (userName, createdDate) {
+
+    var metaInfo = {};
+    var presentations = this.dataSource.addCollection('Presentations');
+
+    metaInfo.userName = userName;
+    metaInfo.createdDate = createdDate;
+
+    presentations.insert(metaInfo);
+  }
+
 });

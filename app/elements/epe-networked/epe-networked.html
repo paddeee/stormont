@@ -74,6 +74,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .create-package {
       background-color: var(--primary-background-color);
     }
+
+    .menu-button {
+      margin: 0 0 0 16px;
+    }
   </style>
   <template>
 
@@ -120,15 +124,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             id="BackArrow"
             icon="arrow-back"
             on-tap="navigateBack"></paper-icon-button>
+          <paper-icon-button
+            id="MenuButton"
+            class="menu-button"
+            icon="menu"
+            on-tap="toggleMenu"></paper-icon-button>
           <div class="flex"></div>
 
-          <paper-tooltip for="BackArrow" offset="0">Back</paper-tooltip>
-
           <!-- Toolbar icons -->
-          <paper-icon-button id="MenuButton" icon="menu" on-tap="toggleMenu"></paper-icon-button>
+          <a data-route="/create-package/data-grid/Events" href="/create-package/data-grid/Events">
+            <paper-icon-button id="DataGridButton" icon="list"></paper-icon-button>
+          </a>
+          <a data-route="/create-package/map" href="/create-package/map">
+            <paper-icon-button id="MapButton" icon="maps:map"></paper-icon-button>
+          </a>
+          <a data-route="/create-package/profiles" href="/create-package/profiles">
+            <paper-icon-button id="ProfilesButton" icon="social:people"></paper-icon-button>
+          </a>
+          <a data-route="/create-package/source" href="/create-package/source">
+            <paper-icon-button id="SourceButton" icon="description"></paper-icon-button>
+          </a>
 
           <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
+          <paper-tooltip for="BackArrow" offset="0">Back</paper-tooltip>
           <paper-tooltip for="MenuButton" offset="0">Show Menu</paper-tooltip>
+          <paper-tooltip for="DataGridButton" offset="0">Data Grid</paper-tooltip>
+          <paper-tooltip for="MapButton" offset="0">Map</paper-tooltip>
+          <paper-tooltip for="ProfilesButton" offset="0">Profiles</paper-tooltip>
+          <paper-tooltip for="SourceButton" offset="0">Source</paper-tooltip>
 
           <!-- Application name -->
           <div id="MiddleContainer" class="middle middle-container center horizontal layout">
@@ -176,6 +199,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <section data-route="create-package" class="create-package">
             <epe-create-package
               id="EpeCreatePackage"
+              user-store="[[userStore]]"
+              data-source-actions="[[dataSourceActions]]"
               filter-state-actions="[[filterStateActions]]"
               events-store="[[eventsStore]]"
               places-store="[[placesStore]]"

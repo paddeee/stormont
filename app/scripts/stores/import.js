@@ -21,7 +21,6 @@ module.exports = Reflux.createStore({
     collectionArray = this.parseCSV(fileObject.CSV);
 
     // Create/Update a collection in the database
-    //if (this.collectionExists(dataSource, fileObject.collectionName)) {
     if (dataCollection) {
       dataCollection.clear();
     } else {

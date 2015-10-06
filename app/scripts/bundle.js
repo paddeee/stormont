@@ -5,7 +5,8 @@ var Reflux = require('reflux');
 
 module.exports = Reflux.createActions([
   'checkForLDAP',
-  'collectionImported'
+  'collectionImported',
+  'savePresentation'
 ]);
 
 },{"reflux":158}],2:[function(require,module,exports){
@@ -162,6 +163,7 @@ var importStore = require('./stores/import.js');
   // Set required modules as attributes on app
   app.reflux = reflux;
   app.CSVParser = CSVParser;
+  app.dataSourceActions = dataSourceActions;
   app.userActions = userActions;
   app.userStore = userStore;
   app.importActions = importActions;
@@ -204,6 +206,7 @@ var importStore = require('./stores/import.js');
 'use strict';
 
 var filterTransforms = {
+  creatingPackage: false,
   Events: {
     filtersToShow: {
       textInputFilters: [
@@ -419,6 +422,35 @@ module.exports = Reflux.createStore({
     // Send object out to all listeners when database loaded
     this.trigger(this.dataSource);
   },
+
+  // Add meta information, transform information and save loki db
+  savePresentation: function (userName) {
+
+    var createdDate = new Date();
+
+    // Create Presentation meta info such as user and date created
+    this.addSavedPresentationMetaData(userName, createdDate);
+    console.log(this.dataSource);
+
+
+    // Save database
+    this.dataSource.saveDatabase(function() {
+      console.log('Database Saved');
+    });
+  },
+
+  // Create a meta object and add to presentations collection of loki db
+  addSavedPresentationMetaData: function (userName, createdDate) {
+
+    var metaInfo = {};
+    var presentations = this.dataSource.addCollection('Presentations');
+
+    metaInfo.userName = userName;
+    metaInfo.createdDate = createdDate;
+
+    presentations.insert(metaInfo);
+  }
+
 });
 
 },{"../actions/dataSource.js":1,"../adapters/loki-file-adapter.js":5,"lokijs":157,"reflux":158}],9:[function(require,module,exports){
@@ -428,6 +460,7 @@ var Reflux = require('reflux');
 var dataSourceStore = require('../stores/dataSource.js');
 var filterTransform = require('../config/filterTransforms.js');
 var filterStateStore = require('../stores/filterState.js');
+var usersStore = require('../stores/users.js');
 
 module.exports = Reflux.createStore({
 
@@ -436,6 +469,11 @@ module.exports = Reflux.createStore({
 
   // Data storage for all collections
   dataSource: null,
+
+  transformName: 'ImportFilter',
+
+  // User object
+  user: null,
 
   // Default state object on application load
   filterTransform: null,
@@ -455,17 +493,25 @@ module.exports = Reflux.createStore({
     // Register dataSourceStores's changes
     this.listenTo(dataSourceStore, this.dataSourceChanged);
 
+    // Register usersStores's changes
+    this.listenTo(usersStore, this.userChanged);
+
     // Register filterStateStore's changes
     this.listenTo(filterStateStore, this.filterStateChanged);
   },
 
   // Set the filteredData Object
-  dataSourceChanged: function (dataSource) {
+  dataSourceChanged: function(dataSource) {
 
     this.dataSource = dataSource;
 
     // Call when the source data is updated
     this.filterStateChanged(this.filterTransform);
+  },
+
+  // Set the user Object
+  userChanged: function(user) {
+    this.user = user;
   },
 
   // Set search filter on our collectionTransform
@@ -482,26 +528,36 @@ module.exports = Reflux.createStore({
       return;
     }
 
+    // If the filters have been changed while creating or editing a package set the transform name
+    if (filterTransformObject.creatingPackage && this.user) {
+      this.setTransformName();
+    }
+
     // Add filter to the transform
-    this.collectionTransform = []; // ToDo push transform if new, replace if not
+    this.collectionTransform = [];
     this.collectionTransform.push(collectionTransformObject.filters);
     this.collectionTransform.push(collectionTransformObject.sorting);
 
     // Save the transform to the collection
-    if (collectionToAddTransformTo.chain('ImportFilter')) {
-      collectionToAddTransformTo.setTransform('ImportFilter', this.collectionTransform);
+    if (collectionToAddTransformTo.chain(this.transformName)) {
+      collectionToAddTransformTo.setTransform(this.transformName, this.collectionTransform);
     } else {
-      collectionToAddTransformTo.addTransform('ImportFilter', this.collectionTransform);
+      collectionToAddTransformTo.addTransform(this.transformName, this.collectionTransform);
     }
 
-    this.filteredEvents = collectionToAddTransformTo.chain('ImportFilter').data();
+    this.filteredEvents = collectionToAddTransformTo.chain(this.transformName).data();
 
     // Send object out to all listeners
     this.trigger(this.filteredEvents);
+  },
+
+  // Set transform name base on username and previous number of saved presentations
+  setTransformName: function() {
+    this.transformName = this.user.userName + '~' + dataSourceStore.dataSource.getCollection('Presentations').maxId;
   }
 });
 
-},{"../config/filterTransforms.js":7,"../stores/dataSource.js":8,"../stores/filterState.js":10,"reflux":158}],10:[function(require,module,exports){
+},{"../config/filterTransforms.js":7,"../stores/dataSource.js":8,"../stores/filterState.js":10,"../stores/users.js":15,"reflux":158}],10:[function(require,module,exports){
 'use strict';
 
 var Reflux = require('reflux');
@@ -517,6 +573,13 @@ module.exports = Reflux.createStore({
   searchFilterChanged: function(searchFilterObject) {
 
     this.updateFilteredData(searchFilterObject);
+
+    // If the filter changed when creating or editing a saved package, set the transform name
+    if (searchFilterObject.filterType === 'createPackage') {
+      filterTransforms.creatingPackage = true;
+    } else {
+      filterTransforms.creatingPackage = false;
+    }
 
     // Send object out to all listeners when database loaded
     this.trigger(filterTransforms);
@@ -593,7 +656,7 @@ module.exports = Reflux.createStore({
       if (field.queryType !== 'regex') {
         queryObject[field.queryType] = field.value;
       } else {
-        queryObject['$regex'] = new RegExp(field.value, 'i');
+        queryObject.$regex = new RegExp(field.value, 'i');
       }
 
       fieldObject[field.name] = queryObject;
@@ -641,7 +704,6 @@ module.exports = Reflux.createStore({
     collectionArray = this.parseCSV(fileObject.CSV);
 
     // Create/Update a collection in the database
-    //if (this.collectionExists(dataSource, fileObject.collectionName)) {
     if (dataCollection) {
       dataCollection.clear();
     } else {
