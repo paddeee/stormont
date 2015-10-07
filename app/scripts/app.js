@@ -60,6 +60,9 @@ var importStore = require('./stores/import.js');
   // See https://github.com/Polymer/polymer/issues/1381
   window.addEventListener('WebComponentsReady', function() {
     // imports are loaded and elements have been registered
+
+    // Set the correct path for leaflet images due to it breking with the build
+    L.Icon.Default.imagePath = './images/leaflet/'
   });
 
   // Close drawer after menu item is selected if drawerPanel is narrow
