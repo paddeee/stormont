@@ -15,6 +15,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     :host {
       display: block;
+      height: 100%;
     }
 
     .data-grid-container {
@@ -69,9 +70,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       width: 100%;
     }
 
-    .main-content {
+    .main-content,
+    section,
+    leaflet-map {
       height: 100%;
     }
+
+    /* Height of condensed scroll bar is 64px */
+    .time-map {
+      height: calc(100% + 128px);
+    }
+
   </style>
   <template>
 
@@ -79,7 +88,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       class="main-content"
       attr-for-selected="data-route"
       selected="{{createPackageRoute}}"
-      on-iron-select="setSectionTitle">
+      on-iron-select="createPackageViewSelected">
 
       <!-- DataGrid View -->
       <section data-route="data-grid" class="data-grid">
@@ -149,7 +158,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <!-- Map View -->
       <section data-route="map" class="time-map">
-        Map
+        <leaflet-map id="Map" latitude="0.3516" longitude="102.304" zoom="6">
+
+          <leaflet-tilelayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" max-zoom="19">
+          </leaflet-tilelayer>
+
+          <leaflet-geojson data="[[geoJSONFeature]]">
+          </leaflet-geojson>
+        </leaflet-map>
       </section>
     </iron-pages>
   </template>
@@ -177,12 +193,64 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       sectionTitle: {
         type: String,
-        value: 'Create Package',
-        notify: true
+        value: 'Create Package'
+      },
+
+      geoJSONFeature:  {
+        "type": "FeatureCollection",
+        "features": [
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [102.0, 0.5]
+            },
+            "properties": {
+              "prop0": "value0"
+            }
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [102.0, 0.0],
+                [103.0, 1.0],
+                [104.0, 0.0],
+                [105.0, 1.0]
+              ]
+            },
+            "properties": {
+              "prop0": "value0",
+              "prop1": 0.0
+            }
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [100.0, 0.0],
+                  [101.0, 0.0],
+                  [101.0, 1.0],
+                  [100.0, 1.0],
+                  [100.0, 0.0]
+                ]
+              ]
+            },
+            "properties": {
+              "prop0": "value0",
+              "prop1": {
+                "this": "that"
+              }
+            }
+          }
+        ]
       }
     },
 
-    // ToDo: Must be a cleaner way of doing this
+    // ToDo: Must be a DRYer way of doing this when not rushing
     ready: function() {
 
       if (this.eventsStore) {
@@ -347,11 +415,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.filterStateActions.searchFilterChanged(searchFilterObject);
     },
 
-    // Update header section title based on where we are
-    setSectionTitle: function() {
+    // Update header section title based on where we are and fire event
+    setSectionTitle: function(route) {
 
-      if (this.params) {
-        this.sectionTitle = 'Create Package - Filter ' + this.params.name;
+      if (route === 'data-grid') {
+        if (this.params) {
+          this.sectionTitle = 'Create Package - Filter ' + this.params.name;
+        }
+      } else if (route === 'map') {
+        this.sectionTitle = 'Create Package - Map';
+      }
+
+      this.fire('package-view-changed', {
+        sectionTitle: this.sectionTitle,
+        packageRoute: route
+      });
+    },
+
+    // FIRED BY IRON-PAGES ON-IRON-SELECTED EVENT
+    createPackageViewSelected: function(event) {
+
+      var route = event.detail.item.dataset.route;
+
+      // Set the section title
+      this.setSectionTitle(route);
+
+      // Leaflet seems to need a kick to resize tiles when navigating to and from a map view
+      if (route === 'map') {
+        this.$.Map.fire('resize');
       }
     },
 

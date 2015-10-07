@@ -55,14 +55,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       background-color: transparent;
     }
 
-    paper-toolbar.tall .title {
-      font-size: 36px;
-      margin-left: 60px;
-
-      -webkit-transform-origin: left center;
-      transform-origin: left center;
-    }
-
     paper-toolbar a {
       color: var(--primary-background-color);
     }
@@ -132,17 +124,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <div class="flex"></div>
 
           <!-- Toolbar icons -->
-          <a data-route="/create-package/data-grid/Events" href="/create-package/data-grid/Events">
-            <paper-icon-button id="DataGridButton" icon="list"></paper-icon-button>
+          <a data-route="/create-package/data-grid/Events"
+             href="/create-package/data-grid/Events"
+             on-tap="manageScrollHeader"
+             id="DataGridButton">
+            <paper-icon-button icon="list"></paper-icon-button>
           </a>
-          <a data-route="/create-package/map" href="/create-package/map">
-            <paper-icon-button id="MapButton" icon="maps:map"></paper-icon-button>
+          <a data-route="/create-package/map"
+             href="/create-package/map"
+             on-tap="manageScrollHeader"
+             id="MapButton">
+            <paper-icon-button icon="maps:map"></paper-icon-button>
           </a>
-          <a data-route="/create-package/profiles" href="/create-package/profiles">
-            <paper-icon-button id="ProfilesButton" icon="social:people"></paper-icon-button>
+          <a data-route="/create-package/profiles"
+             href="/create-package/profiles"
+             on-tap="manageScrollHeader"
+             id="ProfilesButton">
+            <paper-icon-button icon="social:people"></paper-icon-button>
           </a>
-          <a data-route="/create-package/source" href="/create-package/source">
-            <paper-icon-button id="SourceButton" icon="description"></paper-icon-button>
+          <a data-route="/create-package/source"
+             href="/create-package/source"
+             on-tap="manageScrollHeader"
+             id="SourceButton">
+            <paper-icon-button icon="description"></paper-icon-button>
           </a>
 
           <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
@@ -176,8 +180,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           <section data-route="choose-option">
             <epe-choose-option
-              user-store="[[userStore]]"
-              section-title="{{sectionTitle}}"></epe-choose-option>
+              user-store="[[userStore]]"></epe-choose-option>
           </section>
 
           <section data-route="import">
@@ -193,7 +196,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               packaged-app="[[packagedApp]]"
               csv-type="Places"
               csv-parser="[[csvParser]]"
-              section-title="{{sectionTitle}}"></epe-import>
+              on-section-title-changed="sectionTitleChanged"></epe-import>
           </section>
 
           <section data-route="create-package" class="create-package">
@@ -206,7 +209,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               places-store="[[placesStore]]"
               people-store="[[peopleStore]]"
               source-store="[[sourceStore]]"
-              section-title="{{sectionTitle}}"></epe-create-package>
+              on-package-view-changed="packageViewChanged"></epe-create-package>
           </section>
         </iron-pages>
 
@@ -282,10 +285,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }.bind(this));
     },
 
-    // Manage paper-drawer-header on route changes
+    // FIRED BY IRON-PAGES ON-IRON-SELECTED EVENT
     routeChanged: function(event, detail) {
 
-      this.setSectionTitle(detail.item.children[0]);
+      this.setSectionTitle(detail.item.dataset.route);
 
       if (this.route === 'login') {
 
@@ -313,11 +316,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Fire setSectionTitle method on selected child of iron-pages
-    setSectionTitle: function($childElement) {
+    setSectionTitle: function(route) {
 
-      if (this.route !== 'login' && $childElement.setSectionTitle) {
-        $childElement.setSectionTitle();
-      }
+      if (route !== 'login') {
+
+        if (route === 'choose-option') {
+          this.sectionTitle = 'What Would You Like To Do?';
+        }
+      };
+    },
+
+    // FIRED BY ON-PACKAGE-VIEW_CHANGED EVENT ON EPE-CREATE-PACKAGE ELEMENT
+    packageViewChanged: function(event) {
+
+      this.sectionTitle = event.detail.sectionTitle;
+
+      this.manageScrollHeader(event.detail.packageRoute);
     },
 
     // Navigate back
@@ -331,6 +345,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return false;
       }
       return true;
+    },
+
+    // Resize scroll header for different views
+    manageScrollHeader: function(packageRoute) {
+
+      var $scrollHeader = this.$.MainScrollHeader;
+
+      switch(packageRoute) {
+        case 'data-grid':
+          $scrollHeader.scroll(0, true);
+          break;
+        case 'map':
+          $scrollHeader.scroll(128, true);
+          break;
+        case 'profiles':
+          $scrollHeader.scroll(0, true);
+          break;
+        case 'source':
+          $scrollHeader.scroll(0, true);
+          break;
+        default:
+          $scrollHeader.scroll(0, true);
+      }
     }
   });
 })();

@@ -47,11 +47,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       EpeCreatePackage.params = data.params;
     });
 
-    page('/create-package/map', function (data) {
+    page('/create-package/map', function () {
       app.route = 'create-package';
       EpeCreatePackage.createPackageRoute = 'map';
-      EpeCreatePackage.dataGridRoute = 'map';
-      EpeCreatePackage.params = data.params;
     });
 
     // add #! before urls

@@ -4,6 +4,7 @@
   "dependencies": {
     "iron-elements": "PolymerElements/iron-elements#1.0.0",
     "iron-list": "PolymerElements/iron-list#~1.1.1",
+    "leaflet-map": "leaflet-extras/leaflet-map#master",
     "neon-elements": "PolymerElements/neon-elements#1.0.0",
     "page": "visionmedia/page.js#~1.6.3",
     "paper-card": "PolymerElements/paper-card#~1.0.4",
