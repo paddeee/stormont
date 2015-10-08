@@ -68,7 +68,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
        */
       weight: {
         type: Number,
-        value: 5
+        value: 2
       },
 
       /**
@@ -156,6 +156,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     ready: function() {
+
+      // Assign functions to the geoJsonLayerOptions Object
       this.geoJsonLayerOptions = {
         pointToLayer: this._pointToLayer,
         onEachFeature: this._onEachFeature,
@@ -164,18 +166,39 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
-    // Function to pass to Leaflet to handle display of features on the map
+    // Function to pass to Leaflet to handle display of single point features on the map
     _pointToLayer: function(feature, latlng) {
 
       var marker = new L.Marker(latlng);
 
-      marker.bindPopup(feature.properties.name);
+      // ToDo: Set custom icons
+      /*if (recordAttr.icon !== undefined) {
+        var eventIcon = L.icon({
+          iconUrl: recordAttr.icon,
+          iconSize:     [100, 20], // size of the icon
+          iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+          shadowAnchor: [4, 62],  // the same for the shadow
+          popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+        });
+        marker.setIcon(eventIcon);
+      }
+
+      // When a marker is clicked, update the fragment id, which will in turn update the timeline
+      marker.on("click", function (e) {
+        var i = _.indexOf(record.collection.models, record);
+        window.location.hash = "#" + i.toString();
+      });*/
+
+      // Using new ECMAScript templates. Note ` character enclosing the value not '.
+      // ToDo: Pass in a custom card element to handle showing event data
+      marker.bindPopup(`<paper-button>${feature.properties.name}</paper-button>`);
+
       return marker;
     },
 
-    // onEachFeature default which adds popup in
+    // Function to pass to Leaflet to handle display of all features on the map
     _onEachFeature: function(feature, layer) {
-      layer.bindPopup(feature.properties.name);
+      //layer.bindPopup(feature.properties.name);
     },
 
     // Function that will be used to decide whether to show a feature or not.
@@ -189,30 +212,49 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Set the style dynamically for a feature
     _setFeatureStyle: function(feature) {
 
+      var stylesObject = {};
+
+      // Set Style Depending on Geometry Category
       switch (feature.properties.type) {
-        case 'Murder': return {
-          color: this.color,
-          weight: this.weight,
-          opacity: this.opacity,
-          fill: this.fill,
-          fillColor: this.fillColor,
-          fillOpacity: this.fillOpacity,
-          dashArray: this.dashArray,
-          lineCap: this.lineCap,
-          lineJoin: this.lineJoin
-        };
-        case 'Arson': return {
-          color: this.color,
-          weight: this.weight,
-          opacity: this.opacity,
-          fill: this.fill,
-          fillColor: this.fillColor,
-          fillOpacity: this.fillOpacity,
-          dashArray: this.dashArray,
-          lineCap: this.lineCap,
-          lineJoin: this.lineJoin
-        };
+
+        case 'Murder':
+          stylesObject.color = this.color;
+          stylesObject.weight = this.weight;
+          stylesObject.opacity = this.opacity;
+          stylesObject.fill = this.fill;
+          stylesObject.fillColor = this.fillColor;
+          stylesObject.fillOpacity = this.fillOpacity;
+          stylesObject.dashArray = this.dashArray;
+          stylesObject.lineCap = this.lineCap;
+          stylesObject.lineJoin = this.lineJoin;
+          break;
+
+        case 'Arson':
+          stylesObject.color = this.color;
+          stylesObject.weight = this.weight;
+          stylesObject.opacity = this.opacity;
+          stylesObject.fill = this.fill;
+          stylesObject.fillColor = this.fillColor;
+          stylesObject.fillOpacity = this.fillOpacity;
+          stylesObject.dashArray = this.dashArray;
+          stylesObject.lineCap = this.lineCap;
+          stylesObject.lineJoin = this.lineJoin;
+          break;
       }
+
+      // Set Style Depending on Geometry Category
+      switch (feature.geometry.type) {
+
+        case 'LineString':
+          stylesObject.fill = false;
+          break;
+
+        case 'Polygon':
+          stylesObject.fill = true;
+          break;
+      }
+
+      return stylesObject;
     },
 
     // Fired by Leaflet
