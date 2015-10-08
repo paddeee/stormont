@@ -1,0 +1,173 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="epe-map">
+  <style>
+
+    :host {
+      display: block;
+    }
+
+    leaflet-map {
+      height: 100%;
+    }
+
+    /deep/ .leaflet-control-attribution.leaflet-control {
+      display: none;
+    }
+
+  </style>
+  <template>
+
+    <leaflet-map id="Map"
+                 latitude="40.20824570152502"
+                 longitude="21.37939453125"
+                 zoom="7"
+                 min-zoom="7"
+                 maxBounds="[[maxBounds]]"
+                 on-load="mapReady">
+
+      <leaflet-tilelayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" max-zoom="19">
+      </leaflet-tilelayer>
+
+      <epe-map-geojson data="[[geoJSONFeature]]">
+      </epe-map-geojson>
+    </leaflet-map>
+
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+    is: 'epe-map',
+
+    properties: {
+
+      geoJSONFeature:  {
+        type: Object,
+        value: {
+          "type": "FeatureCollection",
+          "features": [
+            {
+              "type": "Feature",
+              "geometry": {
+                "type": "Point",
+                "coordinates": [21.37939453125, 40.20824570152502]
+              },
+              "properties": {
+                "name": "Arson at the old vicarage",
+                "placeName": "Old Vicarage",
+                "type": "Arson",
+                "relatedPeople": [
+                  {
+                    name: "Barry Fadge"
+                  },
+                  {
+                    name: "Kevin Mintballs"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Feature",
+              "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                  [21.846313476562496, 40.147637985391874],
+                  [22.846313476562496, 41.147637985391874],
+                  [23.846313476562496, 40.147637985391874],
+                  [24.846313476562496, 41.147637985391874]
+                ]
+              },
+              "properties": {
+                "name": "Murder at the murder house",
+                "placeName": "The Murder House",
+                "type": "Murder",
+                "relatedPeople": [
+                  {
+                    name: "Arthur Ribchest"
+                  },
+                  {
+                    name: "Kevin Mintballs"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Feature",
+              "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                  [
+                    [20.78338623046875, 41.072104440201606],
+                    [21.78338623046875, 41.072104440201606],
+                    [21.78338623046875, 42.072104440201606],
+                    [20.78338623046875, 42.072104440201606],
+                    [20.78338623046875, 41.072104440201606]
+                  ]
+                ]
+              },
+              "properties": {
+                "name": "Murder at the murder house",
+                "placeName": "The Murder House",
+                "type": "Murder",
+                "relatedPeople": [
+                  {
+                    name: "Alan Pumptruck"
+                  },
+                  {
+                    name: "Kevin Mintballs"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+
+    // CALLED FROM LEAFLET MAP LOAD EVENT FIRING
+    mapReady: function() {
+      this.setMaxBounds();
+    },
+
+    // Set the bounds limitations
+    // ToDO: Set bounds based off supplied coordinates
+    setMaxBounds: function() {
+
+      // Need this as mapReady is called several times. I would have expected leaflet map's load event to only fire once
+      // but it doesn't.
+      if (this.$.Map.map.maxBounds) {
+        return;
+      }
+
+      var map = this.$.Map.map;
+      var southWest = {
+        lat: 36.66841891894786,
+        lng: 16.226806640625
+      };
+      var northEast = {
+        lat: 43.572431747409745,
+        lng: 26.531982421874996
+      };
+
+      map.setMaxBounds(L.latLngBounds(southWest, northEast));
+    },
+
+    // Leaflet seems to need a kick to resize tiles when navigating to and from a map view
+    resizeMap: function() {
+      this.$.Map.fire('resize');
+    }
+
+  });
+})();
+</script>

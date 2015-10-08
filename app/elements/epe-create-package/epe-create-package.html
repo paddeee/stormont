@@ -72,12 +72,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .main-content,
     section,
-    leaflet-map {
+    .time-map {
       height: 100%;
     }
 
     /* Height of condensed scroll bar is 64px */
-    .time-map {
+    epe-map {
       height: calc(100% + 128px);
     }
 
@@ -158,14 +158,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <!-- Map View -->
       <section data-route="map" class="time-map">
-        <leaflet-map id="Map" latitude="0.3516" longitude="102.304" zoom="6">
-
-          <leaflet-tilelayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" max-zoom="19">
-          </leaflet-tilelayer>
-
-          <leaflet-geojson data="[[geoJSONFeature]]">
-          </leaflet-geojson>
-        </leaflet-map>
+        <epe-map id="Map"></epe-map>
       </section>
     </iron-pages>
   </template>
@@ -194,62 +187,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       sectionTitle: {
         type: String,
         value: 'Create Package'
-      },
-
-      geoJSONFeature:  {
-        type: Object,
-        value: {
-          "type": "FeatureCollection",
-          "features": [
-            {
-              "type": "Feature",
-              "geometry": {
-                "type": "Point",
-                "coordinates": [102.0, 0.5]
-              },
-              "properties": {
-                "prop0": "value0"
-              }
-            },
-            {
-              "type": "Feature",
-              "geometry": {
-                "type": "LineString",
-                "coordinates": [
-                  [102.0, 0.0],
-                  [103.0, 1.0],
-                  [104.0, 0.0],
-                  [105.0, 1.0]
-                ]
-              },
-              "properties": {
-                "prop0": "value0",
-                "prop1": 0.0
-              }
-            },
-            {
-              "type": "Feature",
-              "geometry": {
-                "type": "Polygon",
-                "coordinates": [
-                  [
-                    [100.0, 0.0],
-                    [101.0, 0.0],
-                    [101.0, 1.0],
-                    [100.0, 1.0],
-                    [100.0, 0.0]
-                  ]
-                ]
-              },
-              "properties": {
-                "prop0": "value0",
-                "prop1": {
-                  "this": "that"
-                }
-              }
-            }
-          ]
-        }
       }
     },
 
@@ -443,10 +380,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Set the section title
       this.setSectionTitle(route);
 
-      // Leaflet seems to need a kick to resize tiles when navigating to and from a map view
-      if (route === 'map') {
-        this.$.Map.fire('resize');
-      }
+      this.$.Map.resizeMap();
     },
 
     // Navigate back
