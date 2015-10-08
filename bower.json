@@ -17,5 +17,8 @@
     "paper-time-picker": "1.0.1",
     "test-fixture": "PolymerElements/test-fixture#^1.0.0",
     "web-component-tester": "*"
+  },
+  "resolutions": {
+    "polymer": "^1.1.0"
   }
 }

@@ -55,15 +55,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .progress-section {
       height: 4px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      z-index: 1;
+      position: absolute;
+      top: 60vh;
+      width: 80%;
+      margin: 0 10%;
     }
 
     paper-progress {
-      --paper-progress-active-color: var(--accent-color);
+      --paper-progress-active-color: var(--dark-primary-color);
       --paper-progress-transition-duration: 0.04s;
       --paper-progress-transition-timing-function: ease;
       --paper-progress-transition-transition-delay: 0s;
@@ -92,10 +91,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <!-- DataGrid View -->
       <section data-route="data-grid" class="data-grid">
-        <!-- Progress Bar -->
-        <div class="progress-section fixed">
-          <paper-progress id="ProgressBar" max="60" hidden="true"></paper-progress>
-        </div>
 
         <!-- Navigation Tabs -->
         <paper-tabs attr-for-selected="name" selected="{{params.name}}" on-iron-select="tabSelected">
@@ -153,6 +148,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             class="no-data horizontal layout center center-justified">
             <p>There is no data available for '<span>[[collectionName]]</span>'.</p>
           </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-section ">
+          <paper-progress id="ProgressBar" max="60" hidden="true"></paper-progress>
         </div>
       </section>
 
