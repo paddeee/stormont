@@ -171,6 +171,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var marker = new L.Marker(latlng);
 
+      // Need to pass an object into leaflet popup so will stringify and parse inside element on the
+      // other side.
+      var eventData = JSON.stringify(feature.properties);
+
       // ToDo: Set custom icons
       /*if (recordAttr.icon !== undefined) {
         var eventIcon = L.icon({
@@ -190,8 +194,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });*/
 
       // Using new ECMAScript templates. Note ` character enclosing the value not '.
-      // ToDo: Pass in a custom card element to handle showing event data
-      marker.bindPopup(`<paper-button>${feature.properties.name}</paper-button>`);
+      // eventData is a stringified object that can be parsed into a JS Object inside epe-event-card.
+      marker.bindPopup(`<epe-event-card event-data='${eventData}'></epe-event-card>`, {
+        minWidth: 500,
+        maxWidth: 500,
+        offset: new L.point(280, -4)
+      });
 
       return marker;
     },

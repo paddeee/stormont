@@ -21,14 +21,48 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       height: 100%;
     }
 
-    /deep/ .leaflet-control-attribution.leaflet-control {
+    leaflet-map /deep/ .leaflet-top {
+      z-index: 0;
+    }
+
+    leaflet-map /deep/ .leaflet-control-attribution.leaflet-control {
       display: none;
+    }
+
+    leaflet-map /deep/ .leaflet-container a.leaflet-popup-close-button {
+      color: var(--text-primary-color);
+    }
+
+    leaflet-map /deep/ .leaflet-container a.leaflet-popup-close-button:hover {
+      color: var(--secondary-text-color);
+    }
+
+    leaflet-map /deep/ .leaflet-popup-content-wrapper {
+      background-color: var(--default-primary-color);
+      color: var(--text-primary-color);
+      border-radius: 0;
+    }
+
+    leaflet-map /deep/ .leaflet-popup-content {
+      margin: 0;
+    }
+
+    leaflet-map /deep/ .leaflet-popup-tip-container {
+      position: absolute;
+      left: -30px;
+      top: 16px;
+      transform: rotate(90deg);
+    }
+
+    leaflet-map /deep/ .leaflet-popup-tip {
+      background-color: var(--default-primary-color);
+      color: var(--text-primary-color);
     }
 
   </style>
   <template>
 
-    <leaflet-map id="Map"
+    <leaflet-map id="LeafletMap"
                  latitude="40.20824570152502"
                  longitude="21.37939453125"
                  zoom="7"
@@ -147,11 +181,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Need this as mapReady is called several times. I would have expected leaflet map's load event to only fire once
       // but it doesn't.
-      if (this.$.Map.map.maxBounds) {
+      if (this.$.LeafletMap.map.maxBounds) {
         return;
       }
 
-      var map = this.$.Map.map;
+      var map = this.$.LeafletMap.map;
       var southWest = {
         lat: 36.66841891894786,
         lng: 16.226806640625
@@ -166,9 +200,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Leaflet seems to need a kick to resize tiles when navigating to and from a map view
     resizeMap: function() {
-      this.$.Map.fire('resize');
+      this.$.LeafletMap.fire('resize');
     }
-
   });
 })();
 </script>
