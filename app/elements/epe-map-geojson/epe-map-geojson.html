@@ -196,9 +196,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Using new ECMAScript templates. Note ` character enclosing the value not '.
       // eventData is a stringified object that can be parsed into a JS Object inside epe-event-card.
       marker.bindPopup(`<epe-event-card event-data='${eventData}'></epe-event-card>`, {
-        minWidth: 500,
-        maxWidth: 500,
-        offset: new L.point(280, -4)
+        autoPan: false,
+        keepInView: true,
+        minWidth: 400,
+        maxWidth: 400,
+        offset: new L.point(230, -4),
+        autoPanPadding: new L.point(230, 28)
       });
 
       return marker;

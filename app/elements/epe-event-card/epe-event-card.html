@@ -18,8 +18,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .event-card__header {
-      font-size: 1.2em;
+      background-color: var(--default-primary-color);
+      color: var(--text-primary-color);
+      font-size: 1.3em;
+      line-height: 1;
       padding: 4px 20px;
+    }
+
+    .event-card__detail {
+      background-color: var(--primary-background-color);
+      color: var(--primary-text-color);
+      display: none;
+      height: 300px;
+      padding: 16px 20px;
+      overflow-y: scroll;
+    }
+
+    .event-card__detail.event-card__detail--show {
+      display: block;
+    }
+
+    .event-card__event-detail-name {
+      font-size: 1.2em;
+      font-weight: bold;
+      margin-bottom: 16px;
     }
   </style>
   <template>
@@ -29,7 +51,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <div class="event-card__header layout horizontal center">
 
         <div class="flex">
-          <span>[[eventData.name]]</span>
+          <span>[[eventData.eventName]]</span>
         </div>
 
         <paper-icon-button
@@ -61,10 +83,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
 
       <!-- Container for event card detail Panels -->
-      <div class="event-card__detail">
+      <div id ="EventCardDetail" class="event-card__detail">
 
         <!-- Event Detail -->
-
+        <div class="event-card__event-detail">
+          <div class="event-card__event-detail-name">
+            <span>[[eventData.eventName]]</span>
+          </div>
+          <div class="event-card__event-detail-description">
+            <span>[[eventData.eventDescription]]</span>
+          </div>
+        </div>
 
         <!-- Related Events -->
 
@@ -99,6 +128,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Show hidden detail panel
     showDetail: function(event) {
+
+      var $detailContainer = this.$.EventCardDetail;
+      var $popUp = this.closest('.leaflet-popup');
+      $popUp.style.bottom="-328px";
+
+      $detailContainer.classList.add('event-card__detail--show');
       console.log(event.currentTarget.id);
     }
   });
