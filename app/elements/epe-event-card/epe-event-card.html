@@ -18,7 +18,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .event-card__header {
-      background-color: var(--default-primary-color);
+      background-color: var(--paper-deep-orange-700);
       color: var(--text-primary-color);
       font-size: 1.3em;
       line-height: 1;
@@ -42,6 +42,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       font-size: 1.2em;
       font-weight: bold;
       margin-bottom: 16px;
+    }
+
+    .expand-less {
+      position: absolute;
+      bottom: 0;
+      right: 0;
     }
   </style>
   <template>
@@ -83,27 +89,67 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
 
       <!-- Container for event card detail Panels -->
-      <div id ="EventCardDetail" class="event-card__detail">
+      <div id ="EventCardDetail" class="event-card__detail relative">
+        <neon-animated-pages id="EventCardDetail"
+                             selected="[[cardViewSelected]]"
+                             entry-animation="[[entryAnimation]]"
+                             exit-animation="[[exitAnimation]]">
 
-        <!-- Event Detail -->
-        <div class="event-card__event-detail">
-          <div class="event-card__event-detail-name">
-            <span>[[eventData.eventName]]</span>
-          </div>
-          <div class="event-card__event-detail-description">
-            <span>[[eventData.eventDescription]]</span>
-          </div>
-        </div>
+          <!-- Event Detail -->
+          <neon-animatable>
+            <div class="event-card__event-detail">
+              <div class="event-card__event-detail-name">
+                <span>[[eventData.eventName]]</span>
+              </div>
+              <div class="event-card__event-detail-description">
+                <span>[[eventData.eventDescription]]</span>
+              </div>
+            </div>
+          </neon-animatable>
 
-        <!-- Related Events -->
+          <!-- Related Events -->
+          <neon-animatable>
+            <div class="event-card__related-events">
+              <div class="event-card__related-events-name">
+                <span>Related Events</span>
+              </div>
+              <div class="event-card__related-events-description">
+                <span>List of related events</span>
+              </div>
+            </div>
+          </neon-animatable>
 
+          <!-- Related People -->
+          <neon-animatable>
+            <div class="event-card__related-people">
+              <div class="event-card__related-people-name">
+                <span>Related People</span>
+              </div>
+              <div class="event-card__related-people-description">
+                <span>List of related people</span>
+              </div>
+            </div>
+          </neon-animatable>
 
-        <!-- Related People -->
+          <!-- Related Places -->
+          <neon-animatable>
+            <div class="event-card__related-places">
+              <div class="event-card__related-places-name">
+                <span>Related Places</span>
+              </div>
+              <div class="event-card__related-places-description">
+                <span>List of related places</span>
+              </div>
+            </div>
+          </neon-animatable>
+        </neon-animated-pages>
 
-
-        <!-- Related Places -->
-
-
+        <!-- Expand Less button -->
+        <paper-icon-button
+          id="ExpandLess"
+          class="expand-less"
+          icon="expand-less"
+          on-tap="hideDetail"></paper-icon-button>
       </div>
 
     </div>
@@ -115,8 +161,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     is: 'epe-event-card',
 
     properties: {
+
       eventData: {
         type: String
+      },
+
+      cardExpanded: {
+        type: Boolean,
+        value: false
+      },
+
+      map: {
+        type: Object
+      },
+
+      cardViewSelected: {
+        type: Number,
+        value: 0
+      },
+
+      entryAnimation: {
+        type: String,
+        value: 'slide-from-right-animation'
+      },
+
+      exitAnimation: {
+        type: String,
+        value: 'slide-left-animation'
       }
     },
 
@@ -124,17 +195,114 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Deserialise Stringified eventData Object
       this.eventData = JSON.parse(this.eventData);
+
+      // Set map
+      this.map = this.closest('#LeafletMap').map;
+
+      this.map.on('zoomend', function() {
+        if (this.cardExpanded) {
+          this.async(this.setExpandedOffset);
+        }
+      }.bind(this));
+    },
+
+    // Set offset for and expanded card
+    setExpandedOffset: function() {
+
+      var $popUp = this.closest('.leaflet-popup');
+
+      if ($popUp) {
+        $popUp.style.bottom="-328px";
+      }
+    },
+
+    // Set offset for and unexpanded card
+    setUnExpandedOffset: function() {
+
+      var $popUp = this.closest('.leaflet-popup');
+
+      if ($popUp) {
+        $popUp.style.bottom="4px";
+      }
     },
 
     // Show hidden detail panel
     showDetail: function(event) {
 
       var $detailContainer = this.$.EventCardDetail;
-      var $popUp = this.closest('.leaflet-popup');
-      $popUp.style.bottom="-328px";
 
-      $detailContainer.classList.add('event-card__detail--show');
-      console.log(event.currentTarget.id);
+      // If card is already expanded, show the relevant pane
+      if (this.cardExpanded) {
+        this.selectPanel(event.currentTarget.id);
+      } else {
+
+        this.setExpandedOffset();
+
+        $detailContainer.classList.add('event-card__detail--show');
+
+        this.cardExpanded = true;
+
+        // Show relevant pane
+        this.selectPanel(event.currentTarget.id);
+      }
+    },
+
+    // Hide detail panel
+    hideDetail: function(event) {
+
+      var $detailContainer = this.$.EventCardDetail;
+
+      this.setUnExpandedOffset();
+
+      $detailContainer.classList.remove('event-card__detail--show');
+
+      this.cardExpanded = false;
+    },
+
+    // Select the relevant panel
+    selectPanel: function(panelType) {
+
+      switch(panelType) {
+        case 'EventDetail':
+          // Set animation to slide correct way
+          this.entryAnimation = 'slide-from-left-animation';
+          this.exitAnimation = 'slide-right-animation';
+
+          this.cardViewSelected = 0;
+          break;
+        case 'RelatedEvents':
+          // Set animation to slide correct way
+          if (this.cardViewSelected > 1) {
+            this.entryAnimation = 'slide-from-left-animation';
+            this.exitAnimation = 'slide-right-animation';
+          } else {
+            this.entryAnimation = 'slide-from-right-animation';
+            this.exitAnimation = 'slide-left-animation';
+          }
+
+          this.cardViewSelected = 1;
+          break;
+        case 'RelatedPeople':
+          // Set animation to slide correct way
+          if (this.cardViewSelected > 2) {
+            this.entryAnimation = 'slide-from-left-animation';
+            this.exitAnimation = 'slide-right-animation';
+          } else {
+            this.entryAnimation = 'slide-from-right-animation';
+            this.exitAnimation = 'slide-left-animation';
+          }
+
+          this.cardViewSelected = 2;
+          break;
+        case 'RelatedPlaces':
+          this.entryAnimation = 'slide-from-right-animation';
+          this.exitAnimation = 'slide-left-animation';
+
+          this.cardViewSelected = 3;
+          break;
+        default:
+          this.cardViewSelected = 0;
+      }
     }
   });
 })();

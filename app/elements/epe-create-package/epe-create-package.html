@@ -373,14 +373,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // FIRED BY IRON-PAGES ON-IRON-SELECTED EVENT
+    // ** IS ALSO TRIGGERED BY THE EVENT CARD ANIMATION
     createPackageViewSelected: function(event) {
 
       var route = event.detail.item.dataset.route;
 
-      // Set the section title
-      this.setSectionTitle(route);
+      // Check for route as if this is triggered via the neon-animated-pages in event card
+      // we don't want to do anything
+      if (route) {
 
-      this.$.Map.resizeMap();
+        // Set the section title
+        this.setSectionTitle(route);
+
+        this.$.Map.resizeMap();
+      }
     },
 
     // Navigate back

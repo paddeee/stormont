@@ -108,7 +108,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       </paper-scroll-header-panel>
 
-      <paper-scroll-header-panel id="MainScrollHeader" main condenses keep-condensed-header>
+      <paper-scroll-header-panel
+        id="MainScrollHeader"
+        main
+        condenses
+        keep-condensed-header
+        on-content-scroll="headerTransformed">
 
         <!-- Main Toolbar -->
         <paper-toolbar class="tall">
@@ -326,8 +331,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     packageViewChanged: function(event) {
 
       this.sectionTitle = event.detail.sectionTitle;
+      this.packageRoute = event.detail.packageRoute;
 
-      this.manageScrollHeader(event.detail.packageRoute);
+      this.manageScrollHeader(this.packageRoute);
     },
 
     // Navigate back
@@ -364,6 +370,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         default:
           $scrollHeader.scroll(0, true);
       }
+    },
+
+    //
+    headerTransformed: function() {
+      console.log('trans');
     }
   });
 })();
