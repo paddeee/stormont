@@ -112,8 +112,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         id="MainScrollHeader"
         main
         condenses
-        keep-condensed-header
-        on-content-scroll="headerTransformed">
+        keep-condensed-header>
 
         <!-- Main Toolbar -->
         <paper-toolbar class="tall">
@@ -370,11 +369,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         default:
           $scrollHeader.scroll(0, true);
       }
-    },
-
-    //
-    headerTransformed: function() {
-      console.log('trans');
     }
   });
 })();
