@@ -161,7 +161,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
 
         <div class="fab-container">
-          <paper-fab icon="save" on-tap="savePresentation"></paper-fab>
+          <paper-fab icon="save" on-tap="savePresentationSelected"></paper-fab>
         </div>
       </div>
     </div>
@@ -317,13 +317,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     },
 
-    // Call savePresentation action
-    savePresentation: function() {
-      if (this.userStore.user) {
+    // Called when Save Presentation button is tapped
+    savePresentationSelected: function() {
+
+      this.fire('save-presentation');
+
+      /*if (this.userStore.user) {
         this.dataSourceActions.savePresentation(this.userStore.user.userName);
       } else {
         console.warn('No user passed in to data grid');
-      }
+      }*/
     }
   });
 })();

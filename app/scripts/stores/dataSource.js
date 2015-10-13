@@ -55,7 +55,6 @@ module.exports = Reflux.createStore({
     this.addSavedPresentationMetaData(userName, createdDate);
     console.log(this.dataSource);
 
-
     // Save database
     this.dataSource.saveDatabase(function() {
       console.log('Database Saved');
@@ -65,13 +64,13 @@ module.exports = Reflux.createStore({
   // Create a meta object and add to presentations collection of loki db
   addSavedPresentationMetaData: function (userName, createdDate) {
 
-    var metaInfo = {};
+    var presentationInfo = {};
     var presentations = this.dataSource.addCollection('Presentations');
 
-    metaInfo.userName = userName;
-    metaInfo.createdDate = createdDate;
+    presentationInfo.userName = userName;
+    presentationInfo.createdDate = createdDate;
 
-    presentations.insert(metaInfo);
+    presentations.insert(presentationInfo);
   }
 
 });

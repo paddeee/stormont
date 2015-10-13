@@ -209,6 +209,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               places-store="[[placesStore]]"
               people-store="[[peopleStore]]"
               source-store="[[sourceStore]]"
+              presentations-actions="[[presentationsActions]]"
+              presentations-store="[[presentationsStore]]"
               on-package-view-changed="packageViewChanged"></epe-create-package>
           </section>
         </iron-pages>
@@ -319,11 +321,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     setSectionTitle: function(route) {
 
       if (route !== 'login') {
-
         if (route === 'choose-option') {
           this.sectionTitle = 'What Would You Like To Do?';
         }
-      };
+      }
     },
 
     // FIRED BY ON-PACKAGE-VIEW_CHANGED EVENT ON EPE-CREATE-PACKAGE ELEMENT
@@ -342,6 +343,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Hide import based on user role
     isNotAdmin: function(user) {
+
       if (user && user.role === 'admin') {
         return false;
       }

@@ -17,10 +17,12 @@ var peopleStore = require('./stores/people.js');
 var sourceStore = require('./stores/source.js');
 var userActions = require('./actions/users.js');
 var userStore = require('./stores/users.js');
+var presentationsActions = require('./actions/presentations.js');
+var presentationsStore = require('./stores/presentations.js');
 var importActions = require('./actions/import.js');
 var importStore = require('./stores/import.js');
 
-(function(document, reflux, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore) {
+(function(document, reflux, presentationsActions, presentationsStore, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore) {
   'use strict';
 
   // Call checkForLDAP action
@@ -37,6 +39,8 @@ var importStore = require('./stores/import.js');
   app.dataSourceActions = dataSourceActions;
   app.userActions = userActions;
   app.userStore = userStore;
+  app.presentationsActions = presentationsActions;
+  app.presentationsStore = presentationsStore;
   app.importActions = importActions;
   app.importStore = importStore;
   app.filterStateActions = filterStateActions;
@@ -73,4 +77,4 @@ var importStore = require('./stores/import.js');
     }
   };
 
-})(document, reflux, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore);
+})(document, reflux, presentationsActions, presentationsStore, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore);

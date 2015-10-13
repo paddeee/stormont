@@ -6,20 +6,14 @@ var FilterStateActions = require('../actions/filterState.js');
 
 module.exports = Reflux.createStore({
 
-  // this will set up listeners to all publishers in DataSourceActions, using onKeyname (or keyname) as callbacks
+  // this will set up listeners to all publishers in FilterStateActions,
+  // using onKeyname (or keyname) as callbacks
   listenables: [FilterStateActions],
 
   // Set search filter on our collectionTransform
   searchFilterChanged: function(searchFilterObject) {
 
     this.updateFilteredData(searchFilterObject);
-
-    // If the filter changed when creating or editing a saved package, set the transform name
-    if (searchFilterObject.filterType === 'createPackage') {
-      filterTransforms.creatingPackage = true;
-    } else {
-      filterTransforms.creatingPackage = false;
-    }
 
     // Send object out to all listeners when database loaded
     this.trigger(filterTransforms);

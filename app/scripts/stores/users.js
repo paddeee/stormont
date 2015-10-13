@@ -10,14 +10,29 @@ module.exports = Reflux.createStore({
 
   user: null,
 
+  // Temporary function while testing different roles
+  // ToDo: Get rid of this when LDAP is done
+  init: function() {
+
+    this.user = {
+      status: 'loggedin',
+      userName: 'Paddy',
+      role: 'user'
+    };
+
+    this.trigger(this.user);
+  },
+
   // When a user has attempted login
   loginAttempted: function (userLoginObject) {
 
-    var status = 'loggedin';
+    var status;
+
+    // ToDo: LDAP - for now just trigger successful login
+    status = 'loggedin';
 
     this.user = this.createUserObject(status, userLoginObject);
 
-    // ToDo: LDAP - for now just trigger successful login
     this.trigger(this.user);
   },
 
@@ -30,7 +45,7 @@ module.exports = Reflux.createStore({
 
     if (status === 'loggedin') {
       userObject.userName = userLoginObject.username;
-      userObject.role = 'admin';
+      userObject.role = 'user';
       userObject.message = userObject.userName + ' has logged in as ' + userObject.role;
       return userObject;
 
@@ -39,7 +54,7 @@ module.exports = Reflux.createStore({
       return userObject;
 
     } else {
-      console.log('Log: Login Fail');
+      console.warn('Log: Login Fail');
     }
   }
 });

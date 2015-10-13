@@ -72,11 +72,6 @@ module.exports = Reflux.createStore({
       return;
     }
 
-    // If the filters have been changed while creating or editing a package set the transform name
-    if (filterTransformObject.creatingPackage && this.user) {
-      this.setTransformName();
-    }
-
     // Add filter to the transform
     this.collectionTransform = [];
     this.collectionTransform.push(collectionTransformObject.filters);
@@ -93,10 +88,5 @@ module.exports = Reflux.createStore({
 
     // Send object out to all listeners
     this.trigger(this.filteredEvents);
-  },
-
-  // Set transform name base on username and previous number of saved presentations
-  setTransformName: function() {
-    this.transformName = this.user.userName + '~' + dataSourceStore.dataSource.getCollection('Presentations').maxId;
   }
 });

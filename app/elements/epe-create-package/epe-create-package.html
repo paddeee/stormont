@@ -81,8 +81,52 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       height: calc(100% + 128px);
     }
 
+    .save-package {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      z-index: 2;
+      display:none;
+    }
+
+    .save-package.save-package--showing {
+      display:block;
+    }
+
+    .save-package__card {
+      height: 1400px;
+      background-color: var(--primary-background-color);
+      max-width: 70vw;
+      margin: 64px auto;
+    }
+
+    .save-package-overlay {
+      background-color: rgba(0, 0, 0, 0.3);
+      opacity: 0;
+    }
+
+    .save-package-overlay.save-package-overlay--showing {
+      opacity: 1;
+      z-index: 1;
+    }
+
   </style>
   <template>
+
+    <!-- Save Package Overlay card -->
+    <div id="SavePackage" class="save-package">
+
+      <paper-material class="save-package__card">
+        <epe-save-package></epe-save-package>
+      </paper-material>
+
+    </div>
+
+    <div id="SavePackageOverlay" class="save-package-overlay fit"></div>
 
     <iron-pages
       class="main-content"
@@ -139,7 +183,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 sorting-state="[[sortingState]]"
                 hidden$="[[hideDataGrid]]"
                 class="data-grid fit"
-                grid-data="[[gridData]]"></epe-data-grid>
+                grid-data="[[gridData]]"
+                on-save-presentation="savePresentation"></epe-data-grid>
             </section>
           </iron-pages>
 
@@ -169,7 +214,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   Polymer({
     is: 'epe-create-package',
 
+    behaviors: [
+      Polymer.NeonAnimationRunnerBehavior
+    ],
+
     properties: {
+
+      savePackageCardOpen: {
+        type: Boolean,
+        value: false
+      },
 
       gridData: {
         type: Array
@@ -188,7 +242,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       sectionTitle: {
         type: String,
         value: 'Create Package'
+      },
+
+      animationConfig: {
+        value: function() {
+          return {
+            'entry': {
+              name: 'transform-animation',
+              node: this.$.SavePackage,
+              transformFrom: 'translateY(100%)',
+              transformTo: 'translateY(0)'
+            },
+            'exit': {
+              name: 'transform-animation',
+              node: this.$.SavePackage,
+              transformFrom: 'translateY(0)',
+              transformTo: 'translateY(100%)'
+            }
+          }
+        }
       }
+    },
+
+    listeners: {
+      'neon-animation-finish': 'cardSlideAnimationFinished'
     },
 
     // ToDo: Must be a DRYer way of doing this when not rushing
@@ -388,6 +465,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         this.$.Map.resizeMap();
       }
+    },
+
+    // If user is editing Presentation, show dialog offering to either update existing
+    // presentation, or create a new version. Otherwise, show the save presentation card.
+    savePresentation: function() {
+
+      var $savePackageCard = this.$.SavePackage;
+
+      if (this.presentationsStore.presentationState !== 'editing') {
+
+        // run slide-up-animation
+        $savePackageCard.classList.add('save-package--showing');
+        this.playAnimation('entry');
+      }
+    },
+
+    // Card slide animation finished
+    cardSlideAnimationFinished: function() {
+      this.$.SavePackageOverlay.classList.add('save-package-overlay--showing');
     },
 
     // Navigate back
