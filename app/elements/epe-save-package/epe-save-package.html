@@ -15,9 +15,53 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     :host {
       display: block;
     }
+
+    .save-package {
+      padding: 8px 20px;
+    }
+
+    .save-package__title {
+      color: var(--secondary-text-color);
+      font-size: 6vh;
+      text-align: center;
+    }
+
+    .save-package__close-card {
+      color: var(--secondary-text-color);
+    }
+
+    .save-package__form {
+      padding: 5vh 8px;
+    }
+
+    paper-input {
+      --paper-input-container-color: var(--secondary-text-color);
+      --paper-input-container-focus-color: var(--dark-primary-color);
+      --paper-input-container-input-color: var(--secondary-text-color);
+    }
   </style>
   <template>
-    <div>Hello from <span>{{foo}}</span></div>
+    <div class="save-package layout vertical">
+      <div class="save-package__close-button-holder flex self-end">
+        <paper-icon-button
+          id="CloseCard"
+          class="save-package__close-card"
+          icon="close"
+          on-tap="closeCard"></paper-icon-button>
+      </div>
+      <div class="save-package__title">
+        Save Presentation Package
+      </div>
+      <div class="save-package__form">
+        <paper-input
+          id="PresentationName"
+          label="Presentation Name"
+          autofocus
+          autovalidate
+          required
+          error-message="Please enter a presentation name"></paper-input>
+      </div>
+    </div>
   </template>
 </dom-module>
 <script>
@@ -31,6 +75,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         value: 'bar',
         notify: true
       }
+    },
+
+    // Called when close card button is tapped
+    closeCard: function() {
+      this.fire('close-card');
     }
   });
 })();

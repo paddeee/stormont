@@ -98,10 +98,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .save-package__card {
-      height: 1400px;
+      height: 100vh;
       background-color: var(--primary-background-color);
       max-width: 70vw;
-      margin: 64px auto;
+      margin: 15vh auto 0;
     }
 
     .save-package-overlay {
@@ -111,6 +111,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .save-package-overlay.save-package-overlay--showing {
       opacity: 1;
+      transition: opacity 0.5s ease-in-out;
       z-index: 1;
     }
 
@@ -120,8 +121,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <!-- Save Package Overlay card -->
     <div id="SavePackage" class="save-package">
 
-      <paper-material class="save-package__card">
-        <epe-save-package></epe-save-package>
+      <paper-material
+        class="save-package__card"
+        elevation="3">
+        <epe-save-package on-close-card="closeCard"></epe-save-package>
       </paper-material>
 
     </div>
@@ -265,7 +268,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     listeners: {
-      'neon-animation-finish': 'cardSlideAnimationFinished'
+      'neon-animation-finish': 'onSlideAnimationFinish'
     },
 
     // ToDo: Must be a DRYer way of doing this when not rushing
@@ -471,19 +474,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // presentation, or create a new version. Otherwise, show the save presentation card.
     savePresentation: function() {
 
-      var $savePackageCard = this.$.SavePackage;
-
       if (this.presentationsStore.presentationState !== 'editing') {
 
+        this.savePackageCardOpen = true;
+
         // run slide-up-animation
-        $savePackageCard.classList.add('save-package--showing');
+        this.$.SavePackageOverlay.classList.add('save-package-overlay--showing');
+        this.$.SavePackage.classList.add('save-package--showing');
         this.playAnimation('entry');
       }
     },
 
-    // Card slide animation finished
-    cardSlideAnimationFinished: function() {
-      this.$.SavePackageOverlay.classList.add('save-package-overlay--showing');
+    // Close the save package card
+    closeCard: function() {
+
+      this.savePackageCardOpen = false;
+
+      // run slide-down-animation
+      this.$.SavePackageOverlay.classList.remove('save-package-overlay--showing');
+      this.playAnimation('exit');
+    },
+
+    // Listener when animation finishes
+    onSlideAnimationFinish: function() {
+
+      if (!this.savePackageCardOpen) {
+        this.$.SavePackage.classList.remove('save-package--showing');
+      }
     },
 
     // Navigate back
