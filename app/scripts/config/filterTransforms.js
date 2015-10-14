@@ -1,7 +1,6 @@
 'use strict';
 
 var filterTransforms = {
-  creatingPackage: false,
   Events: {
     filtersToShow: {
       textInputFilters: [

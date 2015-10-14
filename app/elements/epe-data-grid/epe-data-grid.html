@@ -86,14 +86,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       text-align: center;
     }
 
-    .fab-container {
+    .save-container {
       position: absolute;
-      top: 5vh;
+      top: 5.5vh;
       right: 16px;
     }
 
-    paper-fab {
-      background-color: var(--default-primary-color);
+    .save-container__btn {
+      font-size: 2vh;
     }
   </style>
   <template>
@@ -160,8 +160,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             show-last="true"></epe-paginator>
         </div>
 
-        <div class="fab-container">
-          <paper-fab icon="save" on-tap="savePresentationSelected"></paper-fab>
+        <div class="save-container">
+          <paper-button
+            class="save-container__btn"
+            raised
+            on-tap="savePresentationSelected">Save Presentation
+          </paper-button>
         </div>
       </div>
     </div>

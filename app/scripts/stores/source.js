@@ -13,6 +13,8 @@ module.exports = Reflux.createStore({
   // Data storage for all collections
   dataSource: null,
 
+  transformName: 'ViewingFilter',
+
   // Default state object on application load
   filterTransform: null,
 
@@ -59,18 +61,18 @@ module.exports = Reflux.createStore({
     }
 
     // Add filter to the transform
-    this.collectionTransform = []; // ToDo push transform if new, replace if not
+    this.collectionTransform = [];
     this.collectionTransform.push(collectionTransformObject.filters);
     this.collectionTransform.push(collectionTransformObject.sorting);
 
     // Save the transform to the collection
-    if (collectionToAddTransformTo.chain('ImportFilter')) {
-      collectionToAddTransformTo.setTransform('ImportFilter', this.collectionTransform);
+    if (collectionToAddTransformTo.chain(this.transformName)) {
+      collectionToAddTransformTo.setTransform(this.transformName, this.collectionTransform);
     } else {
-      collectionToAddTransformTo.addTransform('ImportFilter', this.collectionTransform);
+      collectionToAddTransformTo.addTransform(this.transformName, this.collectionTransform);
     }
 
-    this.filteredEvents = collectionToAddTransformTo.chain('ImportFilter').data();
+    this.filteredEvents = collectionToAddTransformTo.chain(this.transformName).data();
 
     // Send object out to all listeners
     this.trigger(this.filteredEvents);

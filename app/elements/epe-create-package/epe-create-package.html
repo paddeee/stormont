@@ -125,7 +125,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <paper-material
         class="save-package__card"
         elevation="3">
-        <epe-save-package on-close-card="closeCard"></epe-save-package>
+        <epe-save-package
+          user-store="[[userStore]]"
+          data-source-actions="[[dataSourceActions]]"
+          on-close-card="closeCard"></epe-save-package>
       </paper-material>
 
     </div>
@@ -180,8 +183,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <iron-pages attr-for-selected="data-route" selected="{{dataGridRoute}}">
             <section data-route="data-grid" class="data-grid-area relative layout horizontal">
               <epe-data-grid
-                user-store="[[userStore]]"
-                data-source-actions="[[dataSourceActions]]"
                 filter-state-actions="[[filterStateActions]]"
                 collection-name="[[collectionName]]"
                 sorting-state="[[sortingState]]"

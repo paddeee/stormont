@@ -47,30 +47,71 @@ module.exports = Reflux.createStore({
   },
 
   // Add meta information, transform information and save loki db
-  savePresentation: function (userName) {
+  savePresentation: function (presentationObject) {
 
+    var presentationName = presentationObject.presentationName;
     var createdDate = new Date();
 
-    // Create Presentation meta info such as user and date created
-    this.addSavedPresentationMetaData(userName, createdDate);
-    console.log(this.dataSource);
+    if (this.collectionExists(presentationName)) {
+      console.log('collection exists');
+    } else {
 
-    // Save database
-    this.dataSource.saveDatabase(function() {
-      console.log('Database Saved');
+      this.manageCollectionTransformNames(presentationName);
+
+      // Create Presentation meta info such as user and date created
+      this.addSavedPresentationMetaData(presentationObject, createdDate);
+
+      // Save database
+      this.dataSource.saveDatabase(function() {
+        console.log('Database Saved');
+      });
+      console.log(this.dataSource.collections);
+    }
+  },
+
+  // Return true if presentationName exists in collection
+  collectionExists: function(presentationName) {
+
+    var presentationCollection = this.dataSource.getCollection('Presentations');
+
+    if (presentationCollection) {
+      if (presentationCollection.find({'presentationName' : presentationName}).length) {
+        return true;
+      }
+    }
+    return false;
+  },
+
+  // Iterate through all collections and set the transform names to the user created
+  // presentation name
+  manageCollectionTransformNames: function(presentationName) {
+
+    this.dataSource.collections.forEach(function(collection) {
+
+      // Check for the old property name to avoid a ReferenceError in strict mode.
+      if (collection.transforms.hasOwnProperty('ViewingFilter')) {
+        collection.transforms[presentationName] = collection.transforms['ViewingFilter'];
+        delete collection.transforms['ViewingFilter'];
+      }
     });
   },
 
   // Create a meta object and add to presentations collection of loki db
-  addSavedPresentationMetaData: function (userName, createdDate) {
+  addSavedPresentationMetaData: function (presentationObject, createdDate) {
 
     var presentationInfo = {};
-    var presentations = this.dataSource.addCollection('Presentations');
+    var presentationsCollection = this.dataSource.getCollection('Presentations');
 
-    presentationInfo.userName = userName;
+    if (!presentationsCollection) {
+      presentationsCollection = this.dataSource.addCollection('Presentations');
+    }
+
+    presentationInfo.presentationName = presentationObject.presentationName;
+    presentationInfo.userName = presentationObject.userName;
+    presentationInfo.notes = presentationObject.notes;
     presentationInfo.createdDate = createdDate;
 
-    presentations.insert(presentationInfo);
+    presentationsCollection.insert(presentationInfo);
   }
 
 });

@@ -31,14 +31,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .save-package__form {
-      padding: 5vh 8px;
+      padding: 0 8px;
     }
 
-    paper-input {
+    paper-input,
+    paper-textarea {
       --paper-input-container-color: var(--secondary-text-color);
       --paper-input-container-focus-color: var(--dark-primary-color);
       --paper-input-container-input-color: var(--secondary-text-color);
+      --paper-input-container-invalid-color: var(--google-red-500);
+      margin: 5vh 0;
     }
+
+    .save-package__fab-container {
+      height: 15vh;
+    }
+
+    .save-package__save-button {
+      background-color: var(--default-primary-color);
+    }
+
   </style>
   <template>
     <div class="save-package layout vertical">
@@ -53,13 +65,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         Save Presentation Package
       </div>
       <div class="save-package__form">
+
         <paper-input
           id="PresentationName"
+          class="save-package__name"
           label="Presentation Name"
           autofocus
           autovalidate
           required
           error-message="Please enter a presentation name"></paper-input>
+
+        <paper-textarea id="Notes"
+                        class="save-package__notes"
+                        label="Notes (optional)"
+                        rows="3"
+                        max-rows="8"></paper-textarea>
+
+        <div class="save-package__fab-container layout horizontal end-justified end">
+          <paper-fab class="save-package__save-button"
+                     icon="save"
+                     on-tap="savePresentation"></paper-fab>
+        </div>
+
       </div>
     </div>
   </template>
@@ -75,6 +102,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         value: 'bar',
         notify: true
       }
+    },
+
+    // Validate form
+    validateForm: function() {
+
+      this.$.PresentationName.validate();
+
+      // If input fields are both valid, return true
+      if (this.$.PresentationName.invalid) {
+        return false;
+      } else {
+        return true;
+      }
+    },
+
+    // Called by save fab button being tapped
+    savePresentation: function() {
+
+      var presentationObject;
+
+      if (this.validateForm()) {
+
+        presentationObject = {
+          userName: this.userStore.user.userName,
+          presentationName: this.$.PresentationName.value,
+          notes: this.$.Notes.value || ''
+        };
+
+        // Call savePresentation action
+        this.dataSourceActions.savePresentation(presentationObject);
+      }
+
     },
 
     // Called when close card button is tapped

@@ -4,7 +4,6 @@ var Reflux = require('reflux');
 var dataSourceStore = require('../stores/dataSource.js');
 var filterTransform = require('../config/filterTransforms.js');
 var filterStateStore = require('../stores/filterState.js');
-var usersStore = require('../stores/users.js');
 
 module.exports = Reflux.createStore({
 
@@ -14,10 +13,7 @@ module.exports = Reflux.createStore({
   // Data storage for all collections
   dataSource: null,
 
-  transformName: 'ImportFilter',
-
-  // User object
-  user: null,
+  transformName: 'ViewingFilter',
 
   // Default state object on application load
   filterTransform: null,
@@ -37,25 +33,17 @@ module.exports = Reflux.createStore({
     // Register dataSourceStores's changes
     this.listenTo(dataSourceStore, this.dataSourceChanged);
 
-    // Register usersStores's changes
-    this.listenTo(usersStore, this.userChanged);
-
     // Register filterStateStore's changes
     this.listenTo(filterStateStore, this.filterStateChanged);
   },
 
   // Set the filteredData Object
-  dataSourceChanged: function(dataSource) {
+  dataSourceChanged: function (dataSource) {
 
     this.dataSource = dataSource;
 
     // Call when the source data is updated
     this.filterStateChanged(this.filterTransform);
-  },
-
-  // Set the user Object
-  userChanged: function(user) {
-    this.user = user;
   },
 
   // Set search filter on our collectionTransform
