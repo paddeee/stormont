@@ -38,9 +38,9 @@ module.exports = Reflux.createStore({
   },
 
   // Set the filteredData Object
-  dataSourceChanged: function (dataSource) {
+  dataSourceChanged: function (dataSourceStore) {
 
-    this.dataSource = dataSource;
+    this.dataSource = dataSourceStore.dataSource;
 
     // Call when the source data is updated
     this.filterStateChanged(this.filterTransform);

@@ -417,7 +417,7 @@ module.exports = Reflux.createStore({
       this.dataSource.loadDatabase({}, function() {
 
         // Send object out to all listeners when database loaded
-        this.trigger(this.dataSource);
+        this.trigger(this);
 
       }.bind(this));
     }
@@ -435,7 +435,7 @@ module.exports = Reflux.createStore({
     this.dataSource = dataSource;
 
     // Send object out to all listeners when database loaded
-    this.trigger(this.dataSource);
+    this.trigger(this);
   },
 
   // Add meta information, transform information and save loki db
@@ -445,7 +445,10 @@ module.exports = Reflux.createStore({
     var createdDate = new Date();
 
     if (this.collectionExists(presentationName)) {
-      console.log('collection exists');
+
+     this.message = 'collectionExists';
+     this.trigger(this);
+
     } else {
 
       this.manageCollectionTransformNames(presentationName);
@@ -455,9 +458,9 @@ module.exports = Reflux.createStore({
 
       // Save database
       this.dataSource.saveDatabase(function() {
-        console.log('Database Saved');
-      });
-      console.log(this.dataSource.collections);
+        this.message = 'presentationSaved';
+        this.trigger(this);
+      }.bind(this));
     }
   },
 
@@ -501,6 +504,7 @@ module.exports = Reflux.createStore({
     presentationInfo.presentationName = presentationObject.presentationName;
     presentationInfo.userName = presentationObject.userName;
     presentationInfo.notes = presentationObject.notes;
+    presentationInfo.markForApproval = presentationObject.markForApproval;
     presentationInfo.createdDate = createdDate;
 
     presentationsCollection.insert(presentationInfo);
@@ -549,9 +553,9 @@ module.exports = Reflux.createStore({
   },
 
   // Set the filteredData Object
-  dataSourceChanged: function (dataSource) {
+  dataSourceChanged: function (dataSourceStore) {
 
-    this.dataSource = dataSource;
+    this.dataSource = dataSourceStore.dataSource;
 
     // Call when the source data is updated
     this.filterStateChanged(this.filterTransform);
@@ -912,9 +916,9 @@ module.exports = Reflux.createStore({
   },
 
   // Set the filteredData Object
-  dataSourceChanged: function (dataSource) {
+  dataSourceChanged: function (dataSourStorece) {
 
-    this.dataSource = dataSource;
+    this.dataSource = dataSourceStore.dataSource;
 
     // Call when the source data is updated
     this.filterStateChanged(this.filterTransform);
@@ -994,9 +998,9 @@ module.exports = Reflux.createStore({
   },
 
   // Set the filteredData Object
-  dataSourceChanged: function (dataSource) {
+  dataSourceChanged: function (dataSourceStore) {
 
-    this.dataSource = dataSource;
+    this.dataSource = dataSourceStore.dataSource;
 
     // Call when the source data is updated
     this.filterStateChanged(this.filterTransform);
@@ -1039,6 +1043,7 @@ module.exports = Reflux.createStore({
 'use strict';
 
 var Reflux = require('reflux');
+var dataSourceStore = require('../stores/dataSource.js');
 var PresentationsActions = require('../actions/presentations.js');
 
 module.exports = Reflux.createStore({
@@ -1048,7 +1053,18 @@ module.exports = Reflux.createStore({
   listenables: [PresentationsActions],
 
   init: function() {
+
+    // Set initial state user is using presentation
     this.presentationState = 'creating';
+
+    // Register dataSourceStores's changes
+    this.listenTo(dataSourceStore, this.dataSourceChanged);
+  },
+
+  // When dataSource object has changed
+  dataSourceChanged: function (dataSourceStore) {
+
+    this.trigger(dataSourceStore);
   },
 
   // Set presentationState
@@ -1061,7 +1077,7 @@ module.exports = Reflux.createStore({
   }
 });
 
-},{"../actions/presentations.js":4,"reflux":160}],16:[function(require,module,exports){
+},{"../actions/presentations.js":4,"../stores/dataSource.js":9,"reflux":160}],16:[function(require,module,exports){
 'use strict';
 
 var Reflux = require('reflux');
@@ -1102,9 +1118,9 @@ module.exports = Reflux.createStore({
   },
 
   // Set the filteredData Object
-  dataSourceChanged: function (dataSource) {
+  dataSourceChanged: function (dataSourceStore) {
 
-    this.dataSource = dataSource;
+    this.dataSource = dataSourceStore.dataSource;
 
     // Call when the source data is updated
     this.filterStateChanged(this.filterTransform);
@@ -1191,7 +1207,7 @@ module.exports = Reflux.createStore({
 
     if (status === 'loggedin') {
       userObject.userName = userLoginObject.username;
-      userObject.role = 'user';
+      userObject.role = 'admin';
       userObject.message = userObject.userName + ' has logged in as ' + userObject.role;
       return userObject;
 

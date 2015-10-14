@@ -88,7 +88,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .save-container {
       position: absolute;
-      top: 5.5vh;
+      top: 5.8vh;
       right: 16px;
     }
 
@@ -160,7 +160,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             show-last="true"></epe-paginator>
         </div>
 
-        <div class="save-container">
+        <div class="save-container" hidden$="[[hideSaveButton]]">
           <paper-button
             class="save-container__btn"
             raised
@@ -181,6 +181,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       gridData: {
         type: Array,
         observer: 'gridDataChanged'
+      },
+
+      hideSaveButton: {
+        type: Boolean,
+        value: false
       },
 
       hideRecordFilters: {
@@ -323,14 +328,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Called when Save Presentation button is tapped
     savePresentationSelected: function() {
-
       this.fire('save-presentation');
-
-      /*if (this.userStore.user) {
-        this.dataSourceActions.savePresentation(this.userStore.user.userName);
-      } else {
-        console.warn('No user passed in to data grid');
-      }*/
     }
   });
 })();

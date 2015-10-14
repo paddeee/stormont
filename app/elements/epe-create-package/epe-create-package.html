@@ -106,11 +106,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .save-package-overlay {
       background-color: rgba(0, 0, 0, 0.3);
+      display: none;
       opacity: 0;
       height: calc(100% + 128px);
     }
 
     .save-package-overlay.save-package-overlay--showing {
+      display: block;
       opacity: 1;
       transition: opacity 0.5s ease-in-out;
       z-index: 1;
@@ -118,22 +120,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   </style>
   <template>
-
-    <!-- Save Package Overlay card -->
-    <div id="SavePackage" class="save-package">
-
-      <paper-material
-        class="save-package__card"
-        elevation="3">
-        <epe-save-package
-          user-store="[[userStore]]"
-          data-source-actions="[[dataSourceActions]]"
-          on-close-card="closeCard"></epe-save-package>
-      </paper-material>
-
-    </div>
-
-    <div id="SavePackageOverlay" class="save-package-overlay fit"></div>
 
     <iron-pages
       class="main-content"
@@ -180,7 +166,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </div>
 
           <!-- DataGrid -->
-          <iron-pages attr-for-selected="data-route" selected="{{dataGridRoute}}">
+          <iron-pages attr-for-selected="data-route"
+                      selected="{{dataGridRoute}}">
             <section data-route="data-grid" class="data-grid-area relative layout horizontal">
               <epe-data-grid
                 filter-state-actions="[[filterStateActions]]"
@@ -212,6 +199,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <epe-map id="Map"></epe-map>
       </section>
     </iron-pages>
+
+    <!-- Dialogs -->
+    <paper-dialog id="SuccessDialog" modal>
+      <h2>Presentation successfully saved</h2>
+      <div>
+        <span>[[message]]</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus on-tap="closeCard">OK</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="WarningDialog" modal>
+      <h2>Presentation name exists</h2>
+      <div>
+        <span>[[message]]</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
+    <!-- Save Package Overlay card -->
+    <div id="SavePackage" class="save-package">
+      <paper-material
+        class="save-package__card"
+        elevation="3">
+        <epe-save-package
+          user-store="[[userStore]]"
+          message="{{message}}"
+          presentations-store="[[presentationsStore]]"
+          data-source-actions="[[dataSourceActions]]"
+          on-close-card="closeCard"
+          on-show-dialog="showDialog"></epe-save-package>
+      </paper-material>
+    </div>
+
+    <div id="SavePackageOverlay" class="save-package-overlay fit"></div>
   </template>
 </dom-module>
 <script>
@@ -246,7 +271,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       sectionTitle: {
         type: String,
-        value: 'Create Package'
+        value: 'Create Package',
+        notify: true
       },
 
       animationConfig: {
@@ -355,6 +381,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Show Progress Bar
       this.startProgress();
 
+      // Set the title in the header
+      this.setSectionTitle('data-grid');
+
       // Add delay due to tabs locking up due to date picker and time pickers
       // Delay can be masked with transition and progress bar
       this.async(function() {
@@ -438,23 +467,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.filterStateActions.searchFilterChanged(searchFilterObject);
     },
 
-    // Update header section title based on where we are and fire event
-    setSectionTitle: function(route) {
-
-      if (route === 'data-grid') {
-        if (this.params) {
-          this.sectionTitle = 'Create Package - Filter ' + this.params.name;
-        }
-      } else if (route === 'map') {
-        this.sectionTitle = 'Create Package - Map';
-      }
-
-      this.fire('package-view-changed', {
-        sectionTitle: this.sectionTitle,
-        packageRoute: route
-      });
-    },
-
     // FIRED BY IRON-PAGES ON-IRON-SELECTED EVENT
     // ** IS ALSO TRIGGERED BY THE EVENT CARD ANIMATION
     createPackageViewSelected: function(event) {
@@ -470,6 +482,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         this.$.Map.resizeMap();
       }
+    },
+
+    // Update header section title based on where we are and fire event
+    setSectionTitle: function(route) {
+
+      if (route === 'data-grid') {
+        if (this.params) {
+          this.sectionTitle = 'Create Package - Filter ' + this.params.name;
+        }
+      } else if (route === 'map') {
+        this.sectionTitle = 'Create Package - Map';
+      }
+
+      this.fire('package-view-changed', {
+        sectionTitle: this.sectionTitle,
+        packageRoute: route
+      });
     },
 
     // If user is editing Presentation, show dialog offering to either update existing
@@ -502,6 +531,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       if (!this.savePackageCardOpen) {
         this.$.SavePackage.classList.remove('save-package--showing');
+      }
+    },
+
+    // Fired from epe-save-package element
+    showDialog: function(event) {
+      if (event.detail.type === 'presentationSaved') {
+        this.$.SuccessDialog.open();
+      } else if (event.detail.type === 'collectionExists') {
+        this.$.WarningDialog.open();
       }
     },
 

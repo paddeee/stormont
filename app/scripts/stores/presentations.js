@@ -1,6 +1,7 @@
 'use strict';
 
 var Reflux = require('reflux');
+var dataSourceStore = require('../stores/dataSource.js');
 var PresentationsActions = require('../actions/presentations.js');
 
 module.exports = Reflux.createStore({
@@ -10,7 +11,18 @@ module.exports = Reflux.createStore({
   listenables: [PresentationsActions],
 
   init: function() {
+
+    // Set initial state user is using presentation
     this.presentationState = 'creating';
+
+    // Register dataSourceStores's changes
+    this.listenTo(dataSourceStore, this.dataSourceChanged);
+  },
+
+  // When dataSource object has changed
+  dataSourceChanged: function (dataSourceStore) {
+
+    this.trigger(dataSourceStore);
   },
 
   // Set presentationState

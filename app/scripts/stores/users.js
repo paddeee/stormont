@@ -45,7 +45,7 @@ module.exports = Reflux.createStore({
 
     if (status === 'loggedin') {
       userObject.userName = userLoginObject.username;
-      userObject.role = 'user';
+      userObject.role = 'admin';
       userObject.message = userObject.userName + ' has logged in as ' + userObject.role;
       return userObject;
 

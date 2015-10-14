@@ -17,7 +17,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .save-package {
-      padding: 8px 20px;
+      padding: 2vh 20px;
     }
 
     .save-package__title {
@@ -40,7 +40,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       --paper-input-container-focus-color: var(--dark-primary-color);
       --paper-input-container-input-color: var(--secondary-text-color);
       --paper-input-container-invalid-color: var(--google-red-500);
-      margin: 5vh 0;
+      margin: 2vh 0;
+    }
+
+    paper-checkbox {
+      --paper-checkbox-label-color: var(--secondary-text-color);
+      --paper-checkbox-unchecked-color: var(--secondary-text-color);
     }
 
     .save-package__fab-container {
@@ -78,8 +83,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-textarea id="Notes"
                         class="save-package__notes"
                         label="Notes (optional)"
-                        rows="3"
-                        max-rows="8"></paper-textarea>
+                        rows="6"
+                        max-rows="10"></paper-textarea>
+
+        <paper-checkbox
+          id="MarkForApproval"
+          class="save-package__approval">Mark for Registry Approval</paper-checkbox>
 
         <div class="save-package__fab-container layout horizontal end-justified end">
           <paper-fab class="save-package__save-button"
@@ -97,10 +106,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     is: 'epe-save-package',
 
     properties: {
-      foo: {
+      message: {
         type: String,
-        value: 'bar',
+        value: '',
         notify: true
+      }
+    },
+
+    ready: function() {
+
+      if (this.presentationsStore) {
+
+        // When the events data is updated, update our grid data
+        this.presentationsStore.listen(function (presentationsStore) {
+
+          if (presentationsStore.message) {
+            this.setMessage(presentationsStore.message);
+            this.fire('show-dialog', {type: presentationsStore.message});
+          }
+        }.bind(this));
+      }
+    },
+
+    // Set the message to be shown in the dialog
+    setMessage: function(messageType) {
+
+      if (messageType === 'collectionExists') {
+        this.message = 'A presentation by this name already exists. Please choose a new name.'
+      } else if (messageType === 'presentationSaved') {
+        this.message = 'The presentation has been saved. Use \'View Packages\' to view or edit it.'
+
+        // Can reset the form
+        this.resetForm();
       }
     },
 
@@ -117,6 +154,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
+    // Reset the form values
+    resetForm: function() {
+      this.$.PresentationName.value = '';
+      this.$.Notes.value = '';
+      this.$.MarkForApproval.checked = false;
+    },
+
     // Called by save fab button being tapped
     savePresentation: function() {
 
@@ -127,13 +171,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         presentationObject = {
           userName: this.userStore.user.userName,
           presentationName: this.$.PresentationName.value,
-          notes: this.$.Notes.value || ''
+          notes: this.$.Notes.value || '',
+          markForApproval: this.$.MarkForApproval.checked
         };
 
         // Call savePresentation action
         this.dataSourceActions.savePresentation(presentationObject);
       }
-
     },
 
     // Called when close card button is tapped

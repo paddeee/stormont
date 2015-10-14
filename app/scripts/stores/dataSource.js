@@ -25,7 +25,7 @@ module.exports = Reflux.createStore({
       this.dataSource.loadDatabase({}, function() {
 
         // Send object out to all listeners when database loaded
-        this.trigger(this.dataSource);
+        this.trigger(this);
 
       }.bind(this));
     }
@@ -43,7 +43,7 @@ module.exports = Reflux.createStore({
     this.dataSource = dataSource;
 
     // Send object out to all listeners when database loaded
-    this.trigger(this.dataSource);
+    this.trigger(this);
   },
 
   // Add meta information, transform information and save loki db
@@ -53,7 +53,10 @@ module.exports = Reflux.createStore({
     var createdDate = new Date();
 
     if (this.collectionExists(presentationName)) {
-      console.log('collection exists');
+
+     this.message = 'collectionExists';
+     this.trigger(this);
+
     } else {
 
       this.manageCollectionTransformNames(presentationName);
@@ -63,9 +66,9 @@ module.exports = Reflux.createStore({
 
       // Save database
       this.dataSource.saveDatabase(function() {
-        console.log('Database Saved');
-      });
-      console.log(this.dataSource.collections);
+        this.message = 'presentationSaved';
+        this.trigger(this);
+      }.bind(this));
     }
   },
 
@@ -109,6 +112,7 @@ module.exports = Reflux.createStore({
     presentationInfo.presentationName = presentationObject.presentationName;
     presentationInfo.userName = presentationObject.userName;
     presentationInfo.notes = presentationObject.notes;
+    presentationInfo.markForApproval = presentationObject.markForApproval;
     presentationInfo.createdDate = createdDate;
 
     presentationsCollection.insert(presentationInfo);

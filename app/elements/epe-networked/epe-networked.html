@@ -196,7 +196,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               packaged-app="[[packagedApp]]"
               csv-type="Places"
               csv-parser="[[csvParser]]"
-              on-section-title-changed="sectionTitleChanged"></epe-import>
+              section-title="{{sectionTitle}}"></epe-import>
           </section>
 
           <section data-route="create-package" class="create-package">
@@ -211,6 +211,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               source-store="[[sourceStore]]"
               presentations-actions="[[presentationsActions]]"
               presentations-store="[[presentationsStore]]"
+              section-title="{{sectionTitle}}"
               on-package-view-changed="packageViewChanged"></epe-create-package>
           </section>
         </iron-pages>
