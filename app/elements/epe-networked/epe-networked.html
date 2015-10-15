@@ -70,6 +70,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .menu-button {
       margin: 0 0 0 16px;
     }
+
+    .package-navigation > a {
+      text-decoration: none;
+    }
   </style>
   <template>
 
@@ -128,26 +132,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <div class="flex"></div>
 
           <!-- Toolbar icons -->
-          <a data-route="/create-package/data-grid/Events"
-             href="/create-package/data-grid/Events"
-             id="DataGridButton">
-            <paper-icon-button icon="view-list"></paper-icon-button>
-          </a>
-          <a data-route="/create-package/map"
-             href="/create-package/map"
-             id="MapButton">
-            <paper-icon-button icon="maps:map"></paper-icon-button>
-          </a>
-          <a data-route="/create-package/profiles"
-             href="/create-package/profiles"
-             id="ProfilesButton">
-            <paper-icon-button icon="social:people"></paper-icon-button>
-          </a>
-          <a data-route="/create-package/source"
-             href="/create-package/source"
-             id="SourceButton">
-            <paper-icon-button icon="description"></paper-icon-button>
-          </a>
+          <div hidden$="[[hideHeaderPackageNavigation]]" class="package-navigation">
+            <a data-route="/create-package/data-grid/Events"
+               href="/create-package/data-grid/Events"
+               id="DataGridButton">
+              <paper-icon-button icon="view-list"></paper-icon-button>
+            </a>
+            <a data-route="/create-package/map"
+               href="/create-package/map"
+               id="MapButton">
+              <paper-icon-button icon="maps:map"></paper-icon-button>
+            </a>
+            <a data-route="/create-package/profiles"
+               href="/create-package/profiles"
+               id="ProfilesButton">
+              <paper-icon-button icon="social:people"></paper-icon-button>
+            </a>
+            <a data-route="/create-package/source"
+               href="/create-package/source"
+               id="SourceButton">
+              <paper-icon-button icon="description"></paper-icon-button>
+            </a>
+          </div>
 
           <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
           <paper-tooltip for="BackArrow" offset="0">Back</paper-tooltip>
@@ -236,6 +242,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       user: {
         type: Object,
         value: null
+      },
+
+      route: {
+        type: Object
+      },
+
+      hideHeaderPackageNavigation: {
+        type: Boolean,
+        computed: 'manageHeaderPackageNavigation(route)'
       },
 
       hideImport: {
@@ -395,6 +410,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         default:
           $scrollHeader.scroll(0, true);
       }
+    },
+
+    // Hide the package view navigation in the header if we are importing
+    manageHeaderPackageNavigation: function(route) {
+
+      if (route === 'create-package') {
+        return false;
+      }
+      return true;
     }
   });
 })();
