@@ -89,8 +89,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <iron-pages
       class="main-content"
       attr-for-selected="data-route"
-      selected="{{importRoute}}"
-      on-iron-select="setSectionTitle">
+      selected="{{importRoute}}">
 
       <!-- Import Parse -->
       <section data-route="import-parse" class="import-area layout horizontal">
@@ -188,23 +187,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       importFinished: {
         type: Object,
         value: null
-      },
-
-      sectionTitle: {
-        type: String,
-        value: 'Import CaseMap File',
-        notify: true
-      }
-    },
-
-    // Update header section title based on where we are
-    setSectionTitle: function() {
-      if (this.importRoute === 'import-parse') {
-        this.sectionTitle = 'Import ' + this.importedFileType + ' CaseMap File';
-      } else if (this.importRoute === 'import-check')  {
-        if (this.$.EpeImportCheck.params) {
-          this.sectionTitle = 'Check ' + this.$.EpeImportCheck.params.name + ' CaseMap File';
-        }
       }
     },
 
@@ -213,7 +195,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       if (this.importedFileType) {
         this.isFileTypeSelected = true;
-        this.setSectionTitle();
       }
 
       return false;

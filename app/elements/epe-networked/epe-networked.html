@@ -195,8 +195,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               source-store="[[sourceStore]]"
               packaged-app="[[packagedApp]]"
               csv-type="Places"
-              csv-parser="[[csvParser]]"
-              section-title="{{sectionTitle}}"></epe-import>
+              csv-parser="[[csvParser]]"></epe-import>
           </section>
 
           <section data-route="create-package" class="create-package">
@@ -211,7 +210,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               source-store="[[sourceStore]]"
               presentations-actions="[[presentationsActions]]"
               presentations-store="[[presentationsStore]]"
-              section-title="{{sectionTitle}}"
               on-package-view-changed="packageViewChanged"></epe-create-package>
           </section>
         </iron-pages>
@@ -289,12 +287,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // FIRED BY IRON-PAGES ON-IRON-SELECTED EVENT
-    routeChanged: function(event, detail) {
+    routeChanged: function() {
 
-      this.setSectionTitle(detail.item.dataset.route);
+      this.setSectionTitle();
 
       if (this.route === 'login') {
-
         this.$.MainScrollHeader.classList.add('hide-header');
         this.$.MainScrollHeader.fixed = true;
       } else {
@@ -319,21 +316,47 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Fire setSectionTitle method on selected child of iron-pages
-    setSectionTitle: function(route) {
+    // ToDO: This is a bit held together by string. May need rethinking if it gets too bad.
+    setSectionTitle: function() {
 
-      if (route !== 'login') {
-        if (route === 'choose-option') {
+      if (app.route !== 'login') {
+        if (app.route === 'choose-option') {
           this.sectionTitle = 'What Would You Like To Do?';
+        } else if (app.route === 'import') {
+          this.setImportTitle();
+        } else if (app.route === 'create-package') {
+          this.setCreatePackageTitle();
         }
+      }
+    },
+
+    // Handle the title when in Create Package section
+    setImportTitle: function() {
+
+      if (EpeImport.importRoute === 'import-parse') {
+        this.sectionTitle = 'Import Casemap File';
+      } else if (EpeImport.importRoute === 'import-check') {
+        if (EpeImportCheck.params) {
+          this.sectionTitle = 'Check ' + EpeImportCheck.params.name + ' CaseMap File';
+        }
+      }
+    },
+
+    // Handle the title when in Create Package section
+    setCreatePackageTitle: function() {
+
+      if (EpeCreatePackage.createPackageRoute === 'data-grid') {
+        if (EpeCreatePackage.params) {
+          this.sectionTitle = 'Create Package - Filter ' + EpeCreatePackage.params.name;
+        }
+      } else if (EpeCreatePackage.createPackageRoute === 'map') {
+        this.sectionTitle = 'Create Package - Map';
       }
     },
 
     // FIRED BY ON-PACKAGE-VIEW_CHANGED EVENT ON EPE-CREATE-PACKAGE ELEMENT
     packageViewChanged: function(event) {
-
-      this.sectionTitle = event.detail.sectionTitle;
       this.packageRoute = event.detail.packageRoute;
-
       this.manageScrollHeader(this.packageRoute);
     },
 

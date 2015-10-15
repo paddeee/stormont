@@ -269,12 +269,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         computed: 'isGridEmpty(gridData)'
       },
 
-      sectionTitle: {
-        type: String,
-        value: 'Create Package',
-        notify: true
-      },
-
       animationConfig: {
         value: function() {
           return {
@@ -487,16 +481,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Update header section title based on where we are and fire event
     setSectionTitle: function(route) {
 
-      if (route === 'data-grid') {
-        if (this.params) {
-          this.sectionTitle = 'Create Package - Filter ' + this.params.name;
-        }
-      } else if (route === 'map') {
-        this.sectionTitle = 'Create Package - Map';
-      }
-
       this.fire('package-view-changed', {
-        sectionTitle: this.sectionTitle,
         packageRoute: route
       });
     },
