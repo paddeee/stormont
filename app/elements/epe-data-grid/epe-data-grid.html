@@ -95,6 +95,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .save-container__btn {
       font-size: 2vh;
     }
+
+    .no-records {
+      font-size: 2vh;
+    }
   </style>
   <template>
     <div class="data-grid layout vertical">
@@ -102,10 +106,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div class="headings">
           <div class="heading layout horizontal">
             <div class="checkbox-holder"
-                 hidden$="[[hideRecordFilters]]">
-              <paper-checkbox on-change="selectAllRecords"></paper-checkbox>
+              hidden$="[[!noRecords]]">
+              <paper-checkbox on-change="selectAllRecords"
+                              hidden$="[[hideRecordFilters]]"></paper-checkbox>
             </div>
-            <template is="dom-repeat" items="[[toArray(gridDataFirstRecord)]]">
+            <template is="dom-repeat"
+                      items="[[toArray(gridDataFirstRecord)]]">
               <div class="field-heading flex layout horizontal"
                    hidden="[[!showField(item.name)]]"
                    sort-status="neutral"
@@ -124,6 +130,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </template>
           </div>
         </div>
+
         <div class="records">
           <iron-list id="List" items="[[paginatedData]]" as="item">
             <template>
@@ -142,10 +149,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </template>
           </iron-list>
         </div>
+
+        <!-- No records returned form filter -->
+        <div hidden$="[[noRecords]]"
+             class="no-records fit layout horizontal center center-justified">
+          <div>There are no records matching the selected filters.</div>
+        </div>
+
       </div>
 
       <!-- Footer Bar -->
-      <div hidden$=[[!totalRecords]]
+      <div hidden$="[[!noRecords]]"
            class="data-grid__footer layout horizontal center center-justified">
         <div class="layout vertical">
           <div class="total-records">
@@ -208,6 +222,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       totalRecords: {
         type: Number,
         computed: 'getTotalRecords(gridData)'
+      },
+
+      noRecords: {
+        type: Boolean,
+        computed: 'areThereAnyRecords(gridData)'
       }
     },
 
@@ -233,6 +252,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return false;
       }
       return true;
+    },
+
+    // Return wheteher there are any records
+    areThereAnyRecords: function(gridData) {
+
+      if (gridData) {
+        if (gridData.length > 0) {
+          return true;
+        }
+      }
+      return false;
     },
 
     // Return total number of records in the gridData

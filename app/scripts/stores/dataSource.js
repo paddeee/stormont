@@ -52,23 +52,25 @@ module.exports = Reflux.createStore({
     var presentationName = presentationObject.presentationName;
     var createdDate = new Date();
 
+    // Broadcast message if collection exists
     if (this.collectionExists(presentationName)) {
 
      this.message = 'collectionExists';
      this.trigger(this);
 
+    // Try to save database
     } else {
 
       this.manageCollectionTransformNames(presentationName);
 
       // Create Presentation meta info such as user and date created
       this.addSavedPresentationMetaData(presentationObject, createdDate);
-
+console.log(this.dataSource);
       // Save database
-      this.dataSource.saveDatabase(function() {
+      /*this.dataSource.saveDatabase(function() {
         this.message = 'presentationSaved';
         this.trigger(this);
-      }.bind(this));
+      }.bind(this));*/
     }
   },
 
