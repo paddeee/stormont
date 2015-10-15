@@ -106,7 +106,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
              href="/view-packages"
              on-tap="toggleMenu">
             <iron-icon icon="view-list"></iron-icon>
-            <span>View Packages</span>
+            <span>View/Edit Packages</span>
           </a>
         </paper-menu>
 
@@ -178,17 +178,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     selected="{{route}}"
                     on-iron-select="routeChanged">
 
+          <!-- Login Section -->
           <section data-route="login">
             <epe-login
               user-actions="[[userActions]]"
               user-store="[[userStore]]"></epe-login>
           </section>
 
+          <!-- Choose Option Section -->
           <section data-route="choose-option">
             <epe-choose-option
               user-store="[[userStore]]"></epe-choose-option>
           </section>
 
+          <!-- Import Section -->
           <section data-route="import">
             <epe-import
               id="EpeImport"
@@ -204,6 +207,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               csv-parser="[[csvParser]]"></epe-import>
           </section>
 
+          <!-- Create Package Section -->
           <section data-route="create-package" class="create-package">
             <epe-create-package
               id="EpeCreatePackage"
@@ -217,6 +221,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               presentations-actions="[[presentationsActions]]"
               presentations-store="[[presentationsStore]]"
               on-package-view-changed="packageViewChanged"></epe-create-package>
+          </section>
+
+          <!-- View Packages Section -->
+          <section data-route="view-packages">
+            <epe-view-packages
+              id="EpeView"
+              user-store="[[userStore]]"
+              presentations-actions="[[presentationsActions]]"
+              presentations-store="[[presentationsStore]]"></epe-view-packages>
           </section>
         </iron-pages>
 
@@ -341,6 +354,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.setImportTitle();
         } else if (app.route === 'create-package') {
           this.setCreatePackageTitle();
+        } else if (app.route === 'view-packages') {
+          this.sectionTitle = 'View/Edit Packages';
         }
       }
     },

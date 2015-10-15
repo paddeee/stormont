@@ -65,12 +65,12 @@ module.exports = Reflux.createStore({
 
       // Create Presentation meta info such as user and date created
       this.addSavedPresentationMetaData(presentationObject, createdDate);
-console.log(this.dataSource);
+
       // Save database
-      /*this.dataSource.saveDatabase(function() {
+      this.dataSource.saveDatabase(function() {
         this.message = 'presentationSaved';
         this.trigger(this);
-      }.bind(this));*/
+      }.bind(this));
     }
   },
 
@@ -114,7 +114,8 @@ console.log(this.dataSource);
     presentationInfo.presentationName = presentationObject.presentationName;
     presentationInfo.userName = presentationObject.userName;
     presentationInfo.notes = presentationObject.notes;
-    presentationInfo.markForApproval = presentationObject.markForApproval;
+    presentationInfo.gateKeeperState = presentationObject.gateKeeperState;
+    presentationInfo.authoriserState = presentationObject.authoriserState;
     presentationInfo.createdDate = createdDate;
 
     presentationsCollection.insert(presentationInfo);

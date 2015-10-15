@@ -165,14 +165,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     savePresentation: function() {
 
       var presentationObject;
+      var gateKeeperState;
 
       if (this.validateForm()) {
+
+        // Change gateKeeperState if tickbox is checked
+        if (this.$.MarkForApproval.checked) {
+          gateKeeperState = 'amber';
+        } else {
+          gateKeeperState = 'red';
+        }
 
         presentationObject = {
           userName: this.userStore.user.userName,
           presentationName: this.$.PresentationName.value,
           notes: this.$.Notes.value || '',
-          markForApproval: this.$.MarkForApproval.checked
+          gateKeeperState: gateKeeperState,
+          authoriserState: 'red'
         };
 
         // Call savePresentation action

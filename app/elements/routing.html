@@ -52,6 +52,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       EpeCreatePackage.createPackageRoute = 'map';
     });
 
+    page('/view-packages', function () {
+      app.route = 'view-packages';
+    });
+
     // add #! before urls
     page({
       hashbang: true

@@ -22,7 +22,19 @@ module.exports = Reflux.createStore({
   // When dataSource object has changed
   dataSourceChanged: function (dataSourceStore) {
 
-    this.trigger(dataSourceStore);
+    this.getPresentationData(dataSourceStore.dataSource);
+
+    this.trigger(this);
+  },
+
+  // Get the data from the Presentation Collection
+  getPresentationData: function (dataSourceStore) {
+
+    if (dataSourceStore.getCollection('Presentations')) {
+      this.presentationsData = dataSourceStore.getCollection('Presentations').data;
+    } else {
+      return [];
+    }
   },
 
   // Set presentationState
