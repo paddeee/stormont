@@ -21,7 +21,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     padding-top: 1px;
     padding-bottom: 16px;
     --iron-list-items-container: {
-       min-height: 100vh;
        max-width: 75vw;
        margin: auto;
        margin-top: 20px;
@@ -30,26 +29,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
      };
     }
 
+    .item {
+      padding: 8px;
+    }
+
     paper-card {
       background-color: var(--primary-background-color);
-      margin: 16px;
       padding: 16px;
+      width: 100%;
     }
   </style>
   <template>
 
     <iron-list id="List" items="[[presentationsData]]" as="item">
       <template>
-        <paper-card on-tap="collapseExpandCard" elevation="3">
-          <div class$="[[getClassForItem(item, item.expanded)]]" tabindex="0">
-            <div>
-              <div class="primary">[[item.presentationName]]</div>
-              <div class="shortText">[[item.createdDate]]</div>
-              <div class="longText">[[item.userName]]</div>
+        <div class="item">
+          <paper-card elevation="3" heading="[[item.presentationName]]">
+            <div class="card-content">
+              <div class="user-name" on-tap="collapseExpandCard">[[item.userName]]</div>
+              <div class="collapse-content">
+                <div class="shortText">[[item.createdDate]]</div>
+              </div>
             </div>
-            <iron-icon icon$="[[iconForItem(item)]]"></iron-icon>
-          </div>
-        </paper-card>
+            <div class="card-actions">
+              <paper-button>Some action</paper-button>
+            </div>
+          </paper-card>
+        </div>
       </template>
       </iron-list>
 

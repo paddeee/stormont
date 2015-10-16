@@ -28,12 +28,12 @@ var filterTransforms = {
         '$and': [
           {
             'Full Name': {
-              '$regex' : new RegExp('', 'i')
+              '$regex' : ['', 'i']
             }
           },
           {
             'Type': {
-              '$regex' : new RegExp('', 'i')
+              '$regex' : ['', 'i']
             }
           },
           {
@@ -68,12 +68,12 @@ var filterTransforms = {
         '$and': [
           {
             'Full Name': {
-              '$regex' : new RegExp('', 'i')
+              '$regex' : ['', 'i']
             }
           },
           {
             'Type': {
-              '$regex' : new RegExp('', 'i')
+              '$regex' : ['', 'i']
             }
           }]
       }
@@ -103,22 +103,22 @@ var filterTransforms = {
         '$and': [
           {
             'Full Name': {
-              '$regex' : new RegExp('', 'i')
+              '$regex' : ['', 'i']
             }
           },
           {
             'Ethnicity': {
-              '$regex' : new RegExp('', 'i')
+              '$regex' : ['', 'i']
             }
           },
           {
             'Affiliation': {
-              '$regex' : new RegExp('', 'i')
+              '$regex' : ['', 'i']
             }
           },
           {
             'Role In Case': {
-              '$regex' : new RegExp('', 'i')
+              '$regex' : ['', 'i']
             }
           }]
       }
@@ -148,12 +148,12 @@ var filterTransforms = {
         '$and': [
           {
             'Full Name': {
-              '$regex': new RegExp('', 'i')
+              '$regex' : ['', 'i']
             }
           },
           {
             'Type': {
-              '$regex': new RegExp('', 'i')
+              '$regex' : ['', 'i']
             }
           }]
       }

@@ -90,7 +90,7 @@ module.exports = Reflux.createStore({
       if (field.queryType !== 'regex') {
         queryObject[field.queryType] = field.value;
       } else {
-        queryObject.$regex = new RegExp(field.value, 'i');
+        queryObject.$regex = [field.value, 'i'];
       }
 
       fieldObject[field.name] = queryObject;

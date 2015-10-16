@@ -249,12 +249,12 @@ var filterTransforms = {
         '$and': [
           {
             'Full Name': {
-              '$regex' : new RegExp('', 'i')
+              '$regex' : ['', 'i']
             }
           },
           {
             'Type': {
-              '$regex' : new RegExp('', 'i')
+              '$regex' : ['', 'i']
             }
           },
           {
@@ -289,12 +289,12 @@ var filterTransforms = {
         '$and': [
           {
             'Full Name': {
-              '$regex' : new RegExp('', 'i')
+              '$regex' : ['', 'i']
             }
           },
           {
             'Type': {
-              '$regex' : new RegExp('', 'i')
+              '$regex' : ['', 'i']
             }
           }]
       }
@@ -324,22 +324,22 @@ var filterTransforms = {
         '$and': [
           {
             'Full Name': {
-              '$regex' : new RegExp('', 'i')
+              '$regex' : ['', 'i']
             }
           },
           {
             'Ethnicity': {
-              '$regex' : new RegExp('', 'i')
+              '$regex' : ['', 'i']
             }
           },
           {
             'Affiliation': {
-              '$regex' : new RegExp('', 'i')
+              '$regex' : ['', 'i']
             }
           },
           {
             'Role In Case': {
-              '$regex' : new RegExp('', 'i')
+              '$regex' : ['', 'i']
             }
           }]
       }
@@ -369,12 +369,12 @@ var filterTransforms = {
         '$and': [
           {
             'Full Name': {
-              '$regex': new RegExp('', 'i')
+              '$regex' : ['', 'i']
             }
           },
           {
             'Type': {
-              '$regex': new RegExp('', 'i')
+              '$regex' : ['', 'i']
             }
           }]
       }
@@ -690,7 +690,7 @@ module.exports = Reflux.createStore({
       if (field.queryType !== 'regex') {
         queryObject[field.queryType] = field.value;
       } else {
-        queryObject.$regex = new RegExp(field.value, 'i');
+        queryObject.$regex = [field.value, 'i'];
       }
 
       fieldObject[field.name] = queryObject;
@@ -22930,7 +22930,13 @@ function hasOwnProperty(obj, prop) {
       }
 
       // for regex ops, precompile
-      if (operator === '$regex') value = new RegExp(value);
+      if (operator === '$regex') {
+        if (typeof(value) === 'object' && Array.isArray(value)) {
+          value = new RegExp(value[0], value[1]);
+        } else {
+          value = new RegExp(value);
+        }
+      }
 
       if (this.collection.data === null) {
         throw new TypeError();
@@ -23376,7 +23382,7 @@ function hasOwnProperty(obj, prop) {
         this.options.persistent = false;
       }
 
-      // 'persistentSortPriority': 
+      // 'persistentSortPriority':
       // 'passive' will defer the sort phase until they call data(). (most efficient overall)
       // 'active' will sort async whenever next idle. (prioritizes read speeds)
       if (!this.options.hasOwnProperty('sortPriority')) {
@@ -23730,7 +23736,7 @@ function hasOwnProperty(obj, prop) {
           self.performSortPhase();
         }, 1);
       } else {
-        // must be passive sorting... since not calling performSortPhase (until data call), lets use queueRebuildEvent to 
+        // must be passive sorting... since not calling performSortPhase (until data call), lets use queueRebuildEvent to
         // potentially notify user that data has changed.
         this.queueRebuildEvent();
       }
@@ -23951,7 +23957,7 @@ function hasOwnProperty(obj, prop) {
       // we will keep track of properties which have unique contraint applied here, and regenerate on load
       this.uniqueNames = [];
 
-      // transforms will be used to store frequently used query chains as a series of steps 
+      // transforms will be used to store frequently used query chains as a series of steps
       // which itself can be stored along with the database.
       this.transforms = {};
 
@@ -25186,7 +25192,7 @@ function hasOwnProperty(obj, prop) {
       this.field = exactField;
     }
 
-    // add the value you want returned to the key in the index 
+    // add the value you want returned to the key in the index
     ExactIndex.prototype = {
       set: function add(key, val) {
         if (this.index[key]) {
@@ -25238,7 +25244,7 @@ function hasOwnProperty(obj, prop) {
       setSort: function (fun) {
         this.bs = new BSonSort(fun);
       },
-      // add the value you want returned  to the key in the index  
+      // add the value you want returned  to the key in the index
       set: function (key, value) {
         var pos = binarySearch(this.keys, key, this.sort);
         if (pos.found) {
