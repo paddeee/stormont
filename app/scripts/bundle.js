@@ -1069,6 +1069,8 @@ module.exports = Reflux.createStore({
 
     this.getPresentationData(dataSourceStore.dataSource);
 
+    this.setMessage(dataSourceStore);
+
     this.trigger(this);
   },
 
@@ -1080,6 +1082,11 @@ module.exports = Reflux.createStore({
     } else {
       return [];
     }
+  },
+
+  // Set the message copied form the dataSourceStore
+  setMessage: function(dataSourceStore) {
+    this.message = dataSourceStore.message;
   },
 
   // Set presentationState
