@@ -34,7 +34,8 @@ module.exports = Reflux.createActions([
 var Reflux = require('reflux');
 
 module.exports = Reflux.createActions([
-  'presentationStateChanged'
+  'presentationStateChanged',
+  'approvalStateChanged'
 ]);
 
 },{"reflux":160}],5:[function(require,module,exports){
@@ -1096,6 +1097,21 @@ module.exports = Reflux.createStore({
 
     // Send object out to all listeners when database loaded
     this.trigger(this);
+  },
+
+  // When a presentation has its approvalStateChanged
+  approvalStateChanged: function(presentation) {
+
+    // Update the model in the Presentations collection
+    dataSourceStore.dataSource.getCollection('Presentations').update(presentation);
+
+    // Save database
+    dataSourceStore.dataSource.saveDatabase(function() {
+
+      // Send object out to all listeners when database loaded
+      this.trigger(this);
+
+    }.bind(this));
   }
 });
 
