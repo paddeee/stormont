@@ -107,6 +107,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .no-records {
       font-size: 2vh;
     }
+
+    paper-button > iron-icon {
+      height: 2.5vw;
+      width: 2.5vw;
+      margin: 0 0 0 1vw;
+    }
   </style>
   <template>
     <div class="data-grid layout vertical">
@@ -186,7 +192,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-button
             class="save-container__btn"
             raised
-            on-tap="savePresentationSelected">Save Presentation
+            on-tap="savePresentationSelected">
+            Save Presentation<iron-icon icon="save"></iron-icon>
           </paper-button>
         </div>
       </div>

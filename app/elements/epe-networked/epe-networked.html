@@ -300,7 +300,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         Polymer.Base.transform('scale(' + scaleMiddle + ') translateZ(0)', sectionName);
       }.bind(this));
 
-
       // Listen to User Store
       this.userStore.listen(function(user) {
 
@@ -310,6 +309,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         this.displayUserMessage();
+
+      }.bind(this));
+
+      // Listen to Presentations Store
+      this.presentationsStore.listen(function(presentationsStore) {
+
+        this.presentationsState = presentationsStore.presentationState;
+        this.presentationName = presentationsStore.presentationName;
+
+        // Need to call this if presentation state changes
+        this.setSectionTitle();
 
       }.bind(this));
     },
@@ -377,10 +387,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       if (EpeCreatePackage.createPackageRoute === 'data-grid') {
         if (EpeCreatePackage.params) {
-          this.sectionTitle = 'Create Package - Filter ' + EpeCreatePackage.params.name;
+          if (this.presentationsState === 'creating') {
+            this.sectionTitle = 'Create Package - Filter ' + EpeCreatePackage.params.name;
+          } else if (this.presentationsState === 'viewing') {
+            this.sectionTitle = 'Viewing Package - ' + this.presentationName;
+          }
         }
       } else if (EpeCreatePackage.createPackageRoute === 'map') {
-        this.sectionTitle = 'Create Package - Map';
+        if (this.presentationsState === 'creating') {
+          this.sectionTitle = 'Create Package - Map';
+        } else if (this.presentationsState === 'viewing') {
+          this.sectionTitle = 'Viewing Map - ' + this.presentationName;
+        }
       }
     },
 
