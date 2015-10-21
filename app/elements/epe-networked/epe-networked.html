@@ -72,6 +72,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .package-navigation > a {
+      display: inline-flex;
       text-decoration: none;
     }
   </style>
@@ -228,6 +229,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <epe-view-packages
               id="EpeView"
               user-store="[[userStore]]"
+              filter-state-actions="[[filterStateActions]]"
               presentations-actions="[[presentationsActions]]"
               presentations-store="[[presentationsStore]]"></epe-view-packages>
           </section>

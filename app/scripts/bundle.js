@@ -16,7 +16,8 @@ var Reflux = require('reflux');
 
 module.exports = Reflux.createActions([
   'searchFilterChanged',
-  'sortingChanged'
+  'sortingChanged',
+  'packageSelected'
 ]);
 
 },{"reflux":160}],3:[function(require,module,exports){
@@ -532,14 +533,6 @@ module.exports = Reflux.createStore({
   // Data storage for all collections
   dataSource: null,
 
-  transformName: 'ViewingFilter',
-
-  // Default state object on application load
-  filterTransform: null,
-
-  // The filtered places object
-  filteredEvents: null,
-
   // The Loki collection transform array
   collectionTransform: [],
 
@@ -585,16 +578,16 @@ module.exports = Reflux.createStore({
     this.collectionTransform.push(collectionTransformObject.sorting);
 
     // Save the transform to the collection
-    if (collectionToAddTransformTo.chain(this.transformName)) {
-      collectionToAddTransformTo.setTransform(this.transformName, this.collectionTransform);
+    if (collectionToAddTransformTo.chain(filterTransformObject.transformName)) {
+      collectionToAddTransformTo.setTransform(filterTransformObject.transformName, this.collectionTransform);
     } else {
-      collectionToAddTransformTo.addTransform(this.transformName, this.collectionTransform);
+      collectionToAddTransformTo.addTransform(filterTransformObject.transformName, this.collectionTransform);
     }
 
-    this.filteredEvents = collectionToAddTransformTo.chain(this.transformName).data();
+    this.filteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).data();
 
     // Send object out to all listeners
-    this.trigger(this.filteredEvents);
+    this.trigger(this.filteredCollection);
   }
 });
 
@@ -611,12 +604,20 @@ module.exports = Reflux.createStore({
   // using onKeyname (or keyname) as callbacks
   listenables: [FilterStateActions],
 
+  init: function() {
+    this.transformName = 'ViewingFilter';
+  },
+
   // Set search filter on our collectionTransform
   searchFilterChanged: function(searchFilterObject) {
 
     this.updateFilteredData(searchFilterObject);
 
-    // Send object out to all listeners when database loaded
+    // Manage the filter transform name in this store and listening collection
+    // stores can use it when broadcasted
+    filterTransforms.transformName = this.transformName;
+
+    // Send object out to all listeners
     this.trigger(filterTransforms);
   },
 
@@ -625,7 +626,11 @@ module.exports = Reflux.createStore({
 
     this.updateSortedData(sortingObject);
 
-    // Send object out to all listeners when database loaded
+    // Manage the filter transform name in this store and listening collection
+    // stores can use it when broadcasted
+    filterTransforms.transformName = this.transformName;
+
+    // Send object out to all listeners
     this.trigger(filterTransforms);
   },
 
@@ -712,6 +717,15 @@ module.exports = Reflux.createStore({
     };
 
     return transform;
+  },
+
+  // Triggered when a package is chosen to be viewed or edited
+  packageSelected: function(presentationName) {
+
+    filterTransforms.transformName = presentationName;
+
+    // Send object out to all listeners
+    this.trigger(filterTransforms);
   }
 });
 
@@ -897,12 +911,6 @@ module.exports = Reflux.createStore({
 
   transformName: 'ViewingFilter',
 
-  // Default state object on application load
-  filterTransform: null,
-
-  // The filtered places object
-  filteredEvents: null,
-
   // The Loki collection transform array
   collectionTransform: [],
 
@@ -954,10 +962,10 @@ module.exports = Reflux.createStore({
       collectionToAddTransformTo.addTransform(this.transformName, this.collectionTransform);
     }
 
-    this.filteredEvents = collectionToAddTransformTo.chain(this.transformName).data();
+    this.filteredCollection = collectionToAddTransformTo.chain(this.transformName).data();
 
     // Send object out to all listeners
-    this.trigger(this.filteredEvents);
+    this.trigger(this.filteredCollection);
   }
 });
 
@@ -978,12 +986,6 @@ module.exports = Reflux.createStore({
   dataSource: null,
 
   transformName: 'ViewingFilter',
-
-  // Default state object on application load
-  filterTransform: null,
-
-  // The filtered places object
-  filteredEvents: null,
 
   // The Loki collection transform array
   collectionTransform: [],
@@ -1036,10 +1038,10 @@ module.exports = Reflux.createStore({
       collectionToAddTransformTo.addTransform(this.transformName, this.collectionTransform);
     }
 
-    this.filteredEvents = collectionToAddTransformTo.chain(this.transformName).data();
+    this.filteredCollection = collectionToAddTransformTo.chain(this.transformName).data();
 
     // Send object out to all listeners
-    this.trigger(this.filteredEvents);
+    this.trigger(this.filteredCollection);
   }
 });
 
@@ -1134,12 +1136,6 @@ module.exports = Reflux.createStore({
 
   transformName: 'ViewingFilter',
 
-  // Default state object on application load
-  filterTransform: null,
-
-  // The filtered places object
-  filteredEvents: null,
-
   // The Loki collection transform array
   collectionTransform: [],
 
@@ -1191,10 +1187,10 @@ module.exports = Reflux.createStore({
       collectionToAddTransformTo.addTransform(this.transformName, this.collectionTransform);
     }
 
-    this.filteredEvents = collectionToAddTransformTo.chain(this.transformName).data();
+    this.filteredCollection = collectionToAddTransformTo.chain(this.transformName).data();
 
     // Send object out to all listeners
-    this.trigger(this.filteredEvents);
+    this.trigger(this.filteredCollection);
   }
 });
 

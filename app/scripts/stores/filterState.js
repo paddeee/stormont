@@ -10,12 +10,20 @@ module.exports = Reflux.createStore({
   // using onKeyname (or keyname) as callbacks
   listenables: [FilterStateActions],
 
+  init: function() {
+    this.transformName = 'ViewingFilter';
+  },
+
   // Set search filter on our collectionTransform
   searchFilterChanged: function(searchFilterObject) {
 
     this.updateFilteredData(searchFilterObject);
 
-    // Send object out to all listeners when database loaded
+    // Manage the filter transform name in this store and listening collection
+    // stores can use it when broadcasted
+    filterTransforms.transformName = this.transformName;
+
+    // Send object out to all listeners
     this.trigger(filterTransforms);
   },
 
@@ -24,7 +32,11 @@ module.exports = Reflux.createStore({
 
     this.updateSortedData(sortingObject);
 
-    // Send object out to all listeners when database loaded
+    // Manage the filter transform name in this store and listening collection
+    // stores can use it when broadcasted
+    filterTransforms.transformName = this.transformName;
+
+    // Send object out to all listeners
     this.trigger(filterTransforms);
   },
 
@@ -111,5 +123,14 @@ module.exports = Reflux.createStore({
     };
 
     return transform;
+  },
+
+  // Triggered when a package is chosen to be viewed or edited
+  packageSelected: function(presentationName) {
+
+    filterTransforms.transformName = presentationName;
+
+    // Send object out to all listeners
+    this.trigger(filterTransforms);
   }
 });

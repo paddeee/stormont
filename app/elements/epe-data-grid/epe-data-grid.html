@@ -109,8 +109,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     paper-button > iron-icon {
-      height: 2.5vw;
-      width: 2.5vw;
+      height: 2vw;
+      width: 2vw;
       margin: 0 0 0 1vw;
     }
   </style>
@@ -245,6 +245,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
+    ready: function() {
+
+      if (this.presentationsStore) {
+
+        // When the presentations data is updated
+        this.presentationsStore.listen(function(presentationsStore) {
+
+          // Manage the Save Button depending on presentation state
+          this.manageSaveButton(presentationsStore.presentationState);
+
+        }.bind(this));
+      }
+    },
+
     // Iterate through keys of an object and return key/value pair
     toArray: function(obj) {
 
@@ -374,6 +388,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Called when Save Presentation button is tapped
     savePresentationSelected: function() {
       this.fire('save-presentation');
+    },
+
+    // set state of hideSaveButton depending on presentation state
+    manageSaveButton: function(presentationState) {
+
+      if (presentationState === 'viewing') {
+        this.hideSaveButton = true;
+      } else {
+        this.hideSaveButton = false;
+      }
     }
   });
 })();

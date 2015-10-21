@@ -179,7 +179,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               </paper-button>
               <paper-button id="EditPackageButton"
                             hidden$="[[hideEditButton(item)]]"
-                            raised>
+                            raised
+                            on-tap="editPackageSelected">
                 Edit Package<iron-icon icon="create"></iron-icon>
               </paper-button>
             </div>
@@ -206,7 +207,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       if (this.presentationsStore) {
 
-        // When the events data is updated, update our grid data
+        // When the presentations data is updated, set this view's presentationsData
         this.presentationsStore.listen(function(presentationsStore) {
           this.presentationsData = presentationsStore.presentationsData;
         }.bind(this));
@@ -249,7 +250,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Set the change to the DOM due to template not auto updating
       this.updateGateKeeperTrafficLight($gateKeeperTrafficLight, event.model.item.gateKeeperState);
-      this.manageActionButtons($actionButtonHolder, event.model.item.gateKeeperState);
+      this.manageActionButtons($actionButtonHolder, event.model.item);
 
       // Call approvalStateChanged action
       this.presentationsActions.approvalStateChanged(event.model.item);
@@ -261,20 +262,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     updateGateKeeperTrafficLight: function($gateKeeperTrafficLight, state) {
       $gateKeeperTrafficLight.classList.remove('amber','red');
       $gateKeeperTrafficLight.classList.add(state);
-    },
-
-    // Have to do this manually as the functions inside the template don't get called
-    // when the presentationsData is updated.
-    // ToDo: Find a better way to let the iron-list manage this if its possible
-    manageActionButtons: function($actionButtonHolder, state) {
-
-      var $editPackageButton = $actionButtonHolder.querySelector('#EditPackageButton');
-
-      if (state === 'red') {
-        $editPackageButton.hidden = false;
-      } else {
-        $editPackageButton.hidden = true;
-      }
     },
 
     // Used to set the checked state on the checkbox
@@ -297,30 +284,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
-    // Called by template to decide whether to hide the Edit Package button
-    hideEditButton: function(item) {
-
-      if (this.isMarkedApproved(item)) {
-        return true;
-      }
-
-      if (!this.isUserCreatedPackage(item.userName)) {
-        return true;
-      }
-
-      return false;
-    },
-
     // View Package action button pressed
     viewPackageSelected: function(event) {
 
       var presentationName = event.model.item.presentationName;
 
-      // Call approvalStateChanged action
+      // Call approvalStateChanged presentations action
       this.presentationsActions.presentationStateChanged({
         presentationState: 'viewing',
         presentationName: presentationName
       });
+
+      // Call packageSelected filterState action
+      this.filterStateActions.packageSelected(presentationName);
+
+      // Navigate to Data Grid Events tab
+      page('/create-package/data-grid/Events');
+    },
+
+    // Edit Package action button pressed
+    editPackageSelected: function(event) {
+
+      var presentationName = event.model.item.presentationName;
+
+      // Call approvalStateChanged presentations action
+      this.presentationsActions.presentationStateChanged({
+        presentationState: 'editing',
+        presentationName: presentationName
+      });
+
+      // Call packageSelected filterState action
+      this.filterStateActions.packageSelected(presentationName);
 
       // Navigate to Data Grid Events tab
       page('/create-package/data-grid/Events');

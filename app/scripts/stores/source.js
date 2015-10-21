@@ -15,12 +15,6 @@ module.exports = Reflux.createStore({
 
   transformName: 'ViewingFilter',
 
-  // Default state object on application load
-  filterTransform: null,
-
-  // The filtered places object
-  filteredEvents: null,
-
   // The Loki collection transform array
   collectionTransform: [],
 
@@ -72,9 +66,9 @@ module.exports = Reflux.createStore({
       collectionToAddTransformTo.addTransform(this.transformName, this.collectionTransform);
     }
 
-    this.filteredEvents = collectionToAddTransformTo.chain(this.transformName).data();
+    this.filteredCollection = collectionToAddTransformTo.chain(this.transformName).data();
 
     // Send object out to all listeners
-    this.trigger(this.filteredEvents);
+    this.trigger(this.filteredCollection);
   }
 });
