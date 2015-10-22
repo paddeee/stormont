@@ -392,6 +392,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       } else {
         this.$.MainScrollHeader.classList.remove('hide-header');
         this.$.MainScrollHeader.fixed = false;
+
+        if (this.route === 'create-package') {
+
+          // Call presentationStateChanged presentations action
+          this.presentationsActions.presentationStateChanged({
+            presentationState: 'creating',
+            presentationName: 'DefaultFilter'
+          });
+        }
       }
     },
 
@@ -455,12 +464,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Handle the title when in Create Package section
     setCreatePackageTitle: function() {
 
-      // Call presentationStateChanged presentations action
-      this.presentationsActions.presentationStateChanged({
-        presentationState: 'creating',
-        presentationName: 'ViewingFilter'
-      });
-
       if (EpeCreatePackage.createPackageRoute === 'data-grid') {
 
         if (EpeCreatePackage.params) {
@@ -486,7 +489,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
       } else if (EpeEditPackage.createPackageRoute === 'map') {
-        this.sectionTitle = 'Viewing Map - ' + this.presentationName;
+        this.sectionTitle = 'Map - ' + this.presentationName;
       }
     },
 

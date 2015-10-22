@@ -4,6 +4,7 @@ var Reflux = require('reflux');
 var dataSourceStore = require('../stores/dataSource.js');
 var filterTransform = require('../config/filterTransforms.js');
 var filterStateStore = require('../stores/filterState.js');
+var presentationsStore = require('../stores/presentations.js');
 
 module.exports = Reflux.createStore({
 
@@ -16,7 +17,7 @@ module.exports = Reflux.createStore({
   // The Loki collection transform array
   collectionTransform: [],
 
-  // Called on Store initialistion
+  // Called on Store initialisation
   init: function() {
 
     // Set filterTransform property on the object from the required config data
@@ -27,12 +28,16 @@ module.exports = Reflux.createStore({
 
     // Register filterStateStore's changes
     this.listenTo(filterStateStore, this.filterStateChanged);
+
+    this.listenTo(presentationsStore, this.presentationsStoreChanged);
   },
 
   // Set the filteredData Object
   dataSourceChanged: function (dataSourceStore) {
 
     this.dataSource = dataSourceStore.dataSource;
+
+    this.setDefaultFilter();
 
     // Call when the source data is updated
     this.filterStateChanged(this.filterTransform);
@@ -46,6 +51,15 @@ module.exports = Reflux.createStore({
       this.updateFilterTransform(filterTransformBroadcast);
     } else {
       this.createFilterTransform(filterTransformBroadcast);
+    }
+  },
+
+  // Listener to changes on Presentations Store
+  presentationsStoreChanged: function() {
+
+    // If presentation name has been set to 'ViewingFilter', reset the presentation
+    if (presentationsStore.presentationName = 'DefaultFilter') {
+      this.resetFilterTransform();
     }
   },
 
@@ -98,5 +112,53 @@ module.exports = Reflux.createStore({
 
     // Send collection object out to all listeners
     this.trigger(this.filteredCollection);
+  },
+
+  // Reset a transform on this collection
+  resetFilterTransform: function() {
+
+    var collectionToAddTransformTo;
+    var transformName = 'DefaultFilter';
+
+    if (!this.dataSource) {
+      return;
+    }
+
+    collectionToAddTransformTo = this.dataSource.getCollection(this.collectionName);
+
+    if (!collectionToAddTransformTo) {
+      return;
+    }
+
+    // Update this store's filterTransform so the filters will be updated when a presentation changes
+    this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
+
+    // Update the collection resulting from the transform
+    this.filteredCollection = collectionToAddTransformTo.chain(transformName).data();
+
+    // Send collection object out to all listeners
+    this.trigger(this.filteredCollection);
+  },
+
+  //
+  setDefaultFilter: function() {
+
+    var collectionToAddTransformTo;
+
+    if (!this.dataSource) {
+      return;
+    }
+
+    collectionToAddTransformTo = this.dataSource.getCollection(this.collectionName);
+
+    if (!collectionToAddTransformTo) {
+      return;
+    }
+
+    this.collectionTransform = [];
+    this.collectionTransform.push(filterTransform[this.collectionName].filters);
+    this.collectionTransform.push(filterTransform[this.collectionName].sorting);
+
+    collectionToAddTransformTo.setTransform('DefaultFilter', this.collectionTransform);
   }
 });
