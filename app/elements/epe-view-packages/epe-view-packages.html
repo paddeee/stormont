@@ -297,7 +297,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var presentationName = event.model.item.presentationName;
       var presentationState = this.getPresentationState(event.model.item);
 
-      // Call approvalStateChanged presentations action
+      // Call presentationStateChanged presentations action
       this.presentationsActions.presentationStateChanged({
         presentationState: presentationState,
         presentationName: presentationName
@@ -307,7 +307,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.filterStateActions.packageSelected(presentationName);
 
       // Navigate to Data Grid Events tab
-      page('/create-package/data-grid/Events');
+      page('/edit-package/data-grid/Events');
     }
   });
 })();

@@ -16,6 +16,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     var EpeImport = document.getElementById('EpeImport');
     var EpeImportCheck = document.getElementById('EpeImportCheck');
     var EpeCreatePackage = document.getElementById('EpeCreatePackage');
+    var EpeEditPackage = document.getElementById('EpeEditPackage');
 
     // We use Page.js for routing. This is a Micro
     // client-side router inspired by the Express router
@@ -54,6 +55,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     page('/view-packages', function () {
       app.route = 'view-packages';
+    });
+
+    page('/edit-package/data-grid/:name', function (data) {
+      app.route = 'edit-package';
+      EpeEditPackage.createPackageRoute = 'data-grid';
+      EpeEditPackage.dataGridRoute = 'data-grid';
+      EpeEditPackage.params = data.params;
+    });
+
+    page('/edit-package/map', function () {
+      app.route = 'edit-package';
+      EpeEditPackage.createPackageRoute = 'map';
     });
 
     // add #! before urls

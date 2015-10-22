@@ -133,27 +133,57 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <div class="flex"></div>
 
           <!-- Toolbar icons -->
+          <!-- ToDO - really crap way to do this with duplicate navs. If ever get time need to manage different views of
+          creating and editing presentations better as they are too similar for all this TomFoolery -->
           <div hidden$="[[hideHeaderPackageNavigation]]" class="package-navigation">
-            <a data-route="/create-package/data-grid/Events"
-               href="/create-package/data-grid/Events"
-               id="DataGridButton">
-              <paper-icon-button icon="view-list"></paper-icon-button>
-            </a>
-            <a data-route="/create-package/map"
-               href="/create-package/map"
-               id="MapButton">
-              <paper-icon-button icon="maps:map"></paper-icon-button>
-            </a>
-            <a data-route="/create-package/profiles"
-               href="/create-package/profiles"
-               id="ProfilesButton">
-              <paper-icon-button icon="social:people"></paper-icon-button>
-            </a>
-            <a data-route="/create-package/source"
-               href="/create-package/source"
-               id="SourceButton">
-              <paper-icon-button icon="description"></paper-icon-button>
-            </a>
+
+            <!-- Creating Navigation Toolbar -->
+            <div hidden$="[[editingPresentation]]" id="CreatingPackageViewNav" class="package-navigation">
+              <a data-route="/create-package/data-grid/Events"
+                 href="/create-package/data-grid/Events"
+                 id="DataGridButton">
+                <paper-icon-button icon="view-list"></paper-icon-button>
+              </a>
+              <a data-route="/create-package/map"
+                 href="/create-package/map"
+                 id="MapButton">
+                <paper-icon-button icon="maps:map"></paper-icon-button>
+              </a>
+              <a data-route="/create-package/profiles"
+                 href="/create-package/profiles"
+                 id="ProfilesButton">
+                <paper-icon-button icon="social:people"></paper-icon-button>
+              </a>
+              <a data-route="/create-package/source"
+                 href="/create-package/source"
+                 id="SourceButton">
+                <paper-icon-button icon="description"></paper-icon-button>
+              </a>
+            </div>
+
+            <!-- Editing Navigation Toolbar -->
+            <div hidden$="[[!editingPresentation]]" id="EditingPackageViewNav" class="package-navigation">
+              <a data-route="/edit-package/data-grid/Events"
+                 href="/edit-package/data-grid/Events"
+                 id="DataGridButton">
+                <paper-icon-button icon="view-list"></paper-icon-button>
+              </a>
+              <a data-route="/edit-package/map"
+                 href="/edit-package/map"
+                 id="MapButton">
+                <paper-icon-button icon="maps:map"></paper-icon-button>
+              </a>
+              <a data-route="/edit-package/profiles"
+                 href="/edit-package/profiles"
+                 id="ProfilesButton">
+                <paper-icon-button icon="social:people"></paper-icon-button>
+              </a>
+              <a data-route="/edit-package/source"
+                 href="/edit-package/source"
+                 id="SourceButton">
+                <paper-icon-button icon="description"></paper-icon-button>
+              </a>
+            </div>
           </div>
 
           <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
@@ -224,6 +254,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               on-package-view-changed="packageViewChanged"></epe-create-package>
           </section>
 
+          <!-- Edit Package Section -->
+          <section data-route="edit-package" class="create-package">
+            <epe-create-package
+              id="EpeEditPackage"
+              user-store="[[userStore]]"
+              data-source-actions="[[dataSourceActions]]"
+              filter-state-actions="[[filterStateActions]]"
+              events-store="[[eventsStore]]"
+              places-store="[[placesStore]]"
+              people-store="[[peopleStore]]"
+              source-store="[[sourceStore]]"
+              presentations-actions="[[presentationsActions]]"
+              presentations-store="[[presentationsStore]]"
+              on-package-view-changed="packageViewChanged"></epe-create-package>
+          </section>
+
           <!-- View Packages Section -->
           <section data-route="view-packages">
             <epe-view-packages
@@ -263,6 +309,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         type: Object
       },
 
+      presentationState: {
+        type: String
+      },
+
       hideHeaderPackageNavigation: {
         type: Boolean,
         computed: 'manageHeaderPackageNavigation(route)'
@@ -271,6 +321,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       hideImport: {
         type: Boolean,
         computed: 'isNotAdmin(user)'
+      },
+
+      editingPresentation: {
+        type: Boolean,
+        computed: 'isEditingPresentation(presentationState)'
       },
 
       sectionTitle: {
@@ -317,7 +372,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Listen to Presentations Store
       this.presentationsStore.listen(function(presentationsStore) {
 
-        this.presentationsState = presentationsStore.presentationState;
+        this.presentationState = presentationsStore.presentationState;
         this.presentationName = presentationsStore.presentationName;
 
         // Need to call this if presentation state changes
@@ -360,14 +415,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     setSectionTitle: function() {
 
       if (app.route !== 'login') {
+
         if (app.route === 'choose-option') {
           this.sectionTitle = 'What Would You Like To Do?';
+
         } else if (app.route === 'import') {
           this.setImportTitle();
+
         } else if (app.route === 'create-package') {
+
           this.setCreatePackageTitle();
+
+        } else if (app.route === 'edit-package') {
+
+          this.setEditPackageTitle();
+
         } else if (app.route === 'view-packages') {
+
           this.sectionTitle = 'View/Edit Packages';
+
+          // While we're here, scroll header to top
+          this.manageScrollHeader('view-packages');
         }
       }
     },
@@ -387,20 +455,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Handle the title when in Create Package section
     setCreatePackageTitle: function() {
 
+      // Call presentationStateChanged presentations action
+      this.presentationsActions.presentationStateChanged({
+        presentationState: 'creating',
+        presentationName: 'ViewingFilter'
+      });
+
       if (EpeCreatePackage.createPackageRoute === 'data-grid') {
+
         if (EpeCreatePackage.params) {
-          if (this.presentationsState === 'creating') {
-            this.sectionTitle = 'Create Package - ' + EpeCreatePackage.params.name;
-          } else {
-            this.sectionTitle = this.presentationName + ' - ' + EpeCreatePackage.params.name;
-          }
+          this.sectionTitle = 'Create Package - ' + EpeCreatePackage.params.name;
         }
+
       } else if (EpeCreatePackage.createPackageRoute === 'map') {
-        if (this.presentationsState === 'creating') {
-          this.sectionTitle = 'Create Package - Map';
-        } else {
-          this.sectionTitle = 'Viewing Map - ' + this.presentationName;
+        this.sectionTitle = 'Create Package - Map';
+      }
+    },
+
+    // Handle the title when in Edit Package section
+    setEditPackageTitle: function() {
+
+      if (EpeEditPackage.createPackageRoute === 'data-grid') {
+
+        if (EpeEditPackage.params) {
+
+          // While we're here, scroll header to top
+          this.manageScrollHeader('data-grid');
+
+          this.sectionTitle = this.presentationName + ' - ' + EpeEditPackage.params.name;
         }
+
+      } else if (EpeEditPackage.createPackageRoute === 'map') {
+        this.sectionTitle = 'Viewing Map - ' + this.presentationName;
       }
     },
 
@@ -425,11 +511,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Resize scroll header for different views
-    manageScrollHeader: function(packageRoute) {
+    manageScrollHeader: function(route) {
 
       var $scrollHeader = this.$.MainScrollHeader;
 
-      switch(packageRoute) {
+      switch(route) {
+        case 'view-packages':
+          $scrollHeader.scroll(0, true);
+          break;
         case 'data-grid':
           $scrollHeader.scroll(0, true);
           break;
@@ -450,7 +539,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Hide the package view navigation in the header if we are importing
     manageHeaderPackageNavigation: function(route) {
 
-      if (route === 'create-package') {
+      if (route === 'create-package' || route === 'edit-package' ) {
+        return false;
+      }
+      return true;
+    },
+
+    // Is a presentation being edited or created
+    isEditingPresentation: function(presentationState) {
+
+      if (presentationState === 'creating') {
         return false;
       }
       return true;

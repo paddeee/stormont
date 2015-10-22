@@ -508,19 +508,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
     },
 
-    // If user is editing Presentation, show dialog offering to either update existing
-    // presentation, or create a new version. Otherwise, show the save presentation card.
+    // Show the save presentation card.
     savePresentation: function() {
 
-      if (this.presentationsStore.presentationState !== 'editing') {
+      this.savePackageCardOpen = true;
 
-        this.savePackageCardOpen = true;
-
-        // run slide-up-animation
-        this.$.SavePackageOverlay.classList.add('save-package-overlay--showing');
-        this.$.SavePackage.classList.add('save-package--showing');
-        this.playAnimation('entry');
-      }
+      // run slide-up-animation
+      this.$.SavePackageOverlay.classList.add('save-package-overlay--showing');
+      this.$.SavePackage.classList.add('save-package--showing');
+      this.playAnimation('entry');
     },
 
     // Close the save package card
