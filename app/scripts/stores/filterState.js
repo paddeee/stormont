@@ -128,9 +128,7 @@ module.exports = Reflux.createStore({
   // Triggered when a package is chosen to be viewed or edited
   packageSelected: function(presentationName) {
 
-    filterTransforms.transformName = presentationName;
-
     // Send object out to all listeners
-    this.trigger(filterTransforms);
+    this.trigger(presentationName);
   }
 });

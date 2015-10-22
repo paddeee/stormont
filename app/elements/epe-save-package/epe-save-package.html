@@ -86,10 +86,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         rows="6"
                         max-rows="10"></paper-textarea>
 
-        <paper-checkbox
-          id="MarkForApproval"
-          class="save-package__approval">Mark for Registry Approval</paper-checkbox>
-
         <div class="save-package__fab-container layout horizontal end-justified end">
           <paper-fab class="save-package__save-button"
                      icon="save"
@@ -106,6 +102,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     is: 'epe-save-package',
 
     properties: {
+
       message: {
         type: String,
         value: '',
@@ -158,29 +155,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     resetForm: function() {
       this.$.PresentationName.value = '';
       this.$.Notes.value = '';
-      this.$.MarkForApproval.checked = false;
     },
 
     // Called by save fab button being tapped
     savePresentation: function() {
 
       var presentationObject;
-      var gateKeeperState;
 
       if (this.validateForm()) {
-
-        // Change gateKeeperState if tickbox is checked
-        if (this.$.MarkForApproval.checked) {
-          gateKeeperState = 'amber';
-        } else {
-          gateKeeperState = 'red';
-        }
 
         presentationObject = {
           userName: this.userStore.user.userName,
           presentationName: this.$.PresentationName.value,
           notes: this.$.Notes.value || '',
-          gateKeeperState: gateKeeperState,
+          gateKeeperState: 'red',
           authoriserState: 'red'
         };
 

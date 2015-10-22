@@ -48,7 +48,10 @@ module.exports = Reflux.createStore({
   presentationStateChanged: function(presentationObject) {
 
     this.presentationState = presentationObject.presentationState;
-    this.presentationName = presentationObject.presentationName;
+
+    if (presentationObject.presentationName) {
+      this.presentationName = presentationObject.presentationName;
+    }
 
     // Send object out to all listeners when database loaded
     this.trigger(this);

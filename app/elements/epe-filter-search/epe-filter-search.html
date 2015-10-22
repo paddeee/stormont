@@ -28,12 +28,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       margin: 0 0 16px 16px;
       text-transform: capitalize;
     }
-
-    .filter-button {
-      background-color: var(--dark-primary-color);
-      color: var(--text-primary-color);
-      margin: 0 16px 0 32px;
-    }
   </style>
   <template>
     <div class="search-container layout horizontal center">
@@ -53,7 +47,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           query-type="[[item.queryType]]"
           date="[[item.defaultDate]]"
           time="[[item.defaultTime]]"
-          on-date-time-changed="filtersChanged"></epe-date-time-picker>
+          on-date-time-changed="filtersChanged"
+          on-user-entered-date-time="userFilterOccurred"></epe-date-time-picker>
       </template>
     </div>
   </template>
@@ -72,8 +67,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // FIRED FROM SEARCH INPUT ELEMENT OR DATE-TIME PICKER
-    filtersChanged: function() {
+    filtersChanged: function(event) {
+
+      // If called from input field call userFilterOccurred.
+      // Doing it like this as need keyup event to fire user-filter-occurred event off backspace key
+      // but can't use more than one callback for keyup.
+      if (event.type === 'keyup') {
+        this.userFilterOccurred();
+      }
+
       this.fire('filters-changed', this.createFilterObject());
+    },
+
+    // FIRED FROM SEARCH INPUT ELEMENT OR DATE-TIME PICKER
+    // NEEDED FOR FUNCTIONALITY WHERE PRESENTATION STATE CHANGES AFTER USER FIRST SELECTS A FILTER
+    // CAN'T USE FILTERSCHANGED ABOVE AS THIS IS FIRED BY DEFAULT WHEN DATE-TIME CHANGES
+    userFilterOccurred: function() {
+      this.fire('user-filter-occurred', this.createFilterObject());
     },
 
     // Create an object from the filter values

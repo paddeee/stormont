@@ -39,7 +39,18 @@ module.exports = Reflux.createStore({
   },
 
   // Set search filter on our collectionTransform
-  filterStateChanged: function(filterTransformObject) {
+  filterStateChanged: function(filterTransformBroadcast) {
+
+    // If the incoming parameter is a string, we are setting the transform from a pre-existing one
+    if (typeof filterTransformBroadcast === 'string') {
+      this.updateFilterTransform(filterTransformBroadcast);
+    } else {
+      this.createFilterTransform(filterTransformBroadcast);
+    }
+  },
+
+  // Create a transform from the passed in object and save it on the collection
+  createFilterTransform: function(filterTransformObject) {
 
     if (!this.dataSource) {
       return;
@@ -65,6 +76,21 @@ module.exports = Reflux.createStore({
     }
 
     this.filteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).data();
+
+    // Send object out to all listeners
+    this.trigger(this.filteredCollection);
+  },
+
+  // Retrieve a transform from the db using a transform name
+  updateFilterTransform: function(transformName) {
+
+    var collectionToAddTransformTo = this.dataSource.getCollection(this.collectionName);
+
+    if (!collectionToAddTransformTo) {
+      return;
+    }
+
+    this.filteredCollection = collectionToAddTransformTo.chain(transformName).data();
 
     // Send object out to all listeners
     this.trigger(this.filteredCollection);

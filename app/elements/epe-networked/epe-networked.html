@@ -390,15 +390,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (EpeCreatePackage.createPackageRoute === 'data-grid') {
         if (EpeCreatePackage.params) {
           if (this.presentationsState === 'creating') {
-            this.sectionTitle = 'Create Package - Filter ' + EpeCreatePackage.params.name;
-          } else if (this.presentationsState === 'viewing') {
-            this.sectionTitle = 'Viewing Package - ' + this.presentationName;
+            this.sectionTitle = 'Create Package - ' + EpeCreatePackage.params.name;
+          } else {
+            this.sectionTitle = this.presentationName + ' - ' + EpeCreatePackage.params.name;
           }
         }
       } else if (EpeCreatePackage.createPackageRoute === 'map') {
         if (this.presentationsState === 'creating') {
           this.sectionTitle = 'Create Package - Map';
-        } else if (this.presentationsState === 'viewing') {
+        } else {
           this.sectionTitle = 'Viewing Map - ' + this.presentationName;
         }
       }

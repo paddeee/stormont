@@ -559,7 +559,18 @@ module.exports = Reflux.createStore({
   },
 
   // Set search filter on our collectionTransform
-  filterStateChanged: function(filterTransformObject) {
+  filterStateChanged: function(filterTransformBroadcast) {
+
+    // If the incoming parameter is a string, we are setting the transform from a pre-existing one
+    if (typeof filterTransformBroadcast === 'string') {
+      this.updateFilterTransform(filterTransformBroadcast);
+    } else {
+      this.createFilterTransform(filterTransformBroadcast);
+    }
+  },
+
+  // Create a transform from the passed in object and save it on the collection
+  createFilterTransform: function(filterTransformObject) {
 
     if (!this.dataSource) {
       return;
@@ -585,6 +596,21 @@ module.exports = Reflux.createStore({
     }
 
     this.filteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).data();
+
+    // Send object out to all listeners
+    this.trigger(this.filteredCollection);
+  },
+
+  // Retrieve a transform from the db using a transform name
+  updateFilterTransform: function(transformName) {
+
+    var collectionToAddTransformTo = this.dataSource.getCollection(this.collectionName);
+
+    if (!collectionToAddTransformTo) {
+      return;
+    }
+
+    this.filteredCollection = collectionToAddTransformTo.chain(transformName).data();
 
     // Send object out to all listeners
     this.trigger(this.filteredCollection);
@@ -722,10 +748,8 @@ module.exports = Reflux.createStore({
   // Triggered when a package is chosen to be viewed or edited
   packageSelected: function(presentationName) {
 
-    filterTransforms.transformName = presentationName;
-
     // Send object out to all listeners
-    this.trigger(filterTransforms);
+    this.trigger(presentationName);
   }
 });
 
@@ -1096,7 +1120,10 @@ module.exports = Reflux.createStore({
   presentationStateChanged: function(presentationObject) {
 
     this.presentationState = presentationObject.presentationState;
-    this.presentationName = presentationObject.presentationName;
+
+    if (presentationObject.presentationName) {
+      this.presentationName = presentationObject.presentationName;
+    }
 
     // Send object out to all listeners when database loaded
     this.trigger(this);
