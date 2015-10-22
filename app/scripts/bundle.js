@@ -578,7 +578,7 @@ module.exports = Reflux.createStore({
   presentationsStoreChanged: function() {
 
     // If presentation name has been set to 'ViewingFilter', reset the presentation
-    if (presentationsStore.presentationName = 'ViewingFilter') {
+    if (presentationsStore.presentationName === 'ViewingFilter') {
       this.resetFilterTransform();
     }
   },
@@ -1044,7 +1044,7 @@ module.exports = Reflux.createStore({
   presentationsStoreChanged: function() {
 
     // If presentation name has been set to 'ViewingFilter', reset the presentation
-    if (presentationsStore.presentationName = 'ViewingFilter') {
+    if (presentationsStore.presentationName === 'ViewingFilter') {
       this.resetFilterTransform();
     }
   },
@@ -1210,7 +1210,7 @@ module.exports = Reflux.createStore({
   presentationsStoreChanged: function() {
 
     // If presentation name has been set to 'ViewingFilter', reset the presentation
-    if (presentationsStore.presentationName = 'ViewingFilter') {
+    if (presentationsStore.presentationName === 'ViewingFilter') {
       this.resetFilterTransform();
     }
   },
@@ -1367,7 +1367,7 @@ module.exports = Reflux.createStore({
 
     this.presentationState = presentationObject.presentationState;
 
-    if (presentationObject.presentationName && presentationObject.presentationName !== 'ViewingFilter') {
+    if (presentationObject.presentationName) {
       this.presentationName = presentationObject.presentationName;
     }
 
@@ -1452,7 +1452,7 @@ module.exports = Reflux.createStore({
   presentationsStoreChanged: function() {
 
     // If presentation name has been set to 'ViewingFilter', reset the presentation
-    if (presentationsStore.presentationName = 'ViewingFilter') {
+    if (presentationsStore.presentationName === 'ViewingFilter') {
       this.resetFilterTransform();
     }
   },

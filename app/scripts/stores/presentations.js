@@ -49,7 +49,7 @@ module.exports = Reflux.createStore({
 
     this.presentationState = presentationObject.presentationState;
 
-    if (presentationObject.presentationName && presentationObject.presentationName !== 'ViewingFilter') {
+    if (presentationObject.presentationName) {
       this.presentationName = presentationObject.presentationName;
     }
 
