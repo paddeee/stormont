@@ -371,7 +371,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Listen to Presentations Store
       this.presentationsStore.listen(function(presentationsStore) {
-
+console.log(presentationsStore.presentationName);
         this.presentationState = presentationsStore.presentationState;
         this.presentationName = presentationsStore.presentationName;
 
@@ -398,7 +398,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // Call presentationStateChanged presentations action
           this.presentationsActions.presentationStateChanged({
             presentationState: 'creating',
-            presentationName: 'DefaultFilter'
+            presentationName: 'ViewingFilter'
           });
         }
       }

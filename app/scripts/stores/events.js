@@ -58,7 +58,7 @@ module.exports = Reflux.createStore({
   presentationsStoreChanged: function() {
 
     // If presentation name has been set to 'ViewingFilter', reset the presentation
-    if (presentationsStore.presentationName = 'DefaultFilter') {
+    if (presentationsStore.presentationName = 'ViewingFilter') {
       this.resetFilterTransform();
     }
   },

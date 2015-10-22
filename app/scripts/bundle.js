@@ -578,7 +578,7 @@ module.exports = Reflux.createStore({
   presentationsStoreChanged: function() {
 
     // If presentation name has been set to 'ViewingFilter', reset the presentation
-    if (presentationsStore.presentationName = 'DefaultFilter') {
+    if (presentationsStore.presentationName = 'ViewingFilter') {
       this.resetFilterTransform();
     }
   },
@@ -1044,7 +1044,7 @@ module.exports = Reflux.createStore({
   presentationsStoreChanged: function() {
 
     // If presentation name has been set to 'ViewingFilter', reset the presentation
-    if (presentationsStore.presentationName = 'DefaultFilter') {
+    if (presentationsStore.presentationName = 'ViewingFilter') {
       this.resetFilterTransform();
     }
   },
@@ -1210,7 +1210,7 @@ module.exports = Reflux.createStore({
   presentationsStoreChanged: function() {
 
     // If presentation name has been set to 'ViewingFilter', reset the presentation
-    if (presentationsStore.presentationName = 'DefaultFilter') {
+    if (presentationsStore.presentationName = 'ViewingFilter') {
       this.resetFilterTransform();
     }
   },
@@ -1367,11 +1367,11 @@ module.exports = Reflux.createStore({
 
     this.presentationState = presentationObject.presentationState;
 
-    if (presentationObject.presentationName) {
+    if (presentationObject.presentationName && presentationObject.presentationName !== 'ViewingFilter') {
       this.presentationName = presentationObject.presentationName;
     }
 
-    // Send object out to all listeners when database loaded
+    // Send object out to all listeners when presentation state changed
     this.trigger(this);
   },
 
@@ -1452,7 +1452,7 @@ module.exports = Reflux.createStore({
   presentationsStoreChanged: function() {
 
     // If presentation name has been set to 'ViewingFilter', reset the presentation
-    if (presentationsStore.presentationName = 'DefaultFilter') {
+    if (presentationsStore.presentationName = 'ViewingFilter') {
       this.resetFilterTransform();
     }
   },
@@ -1530,14 +1530,11 @@ module.exports = Reflux.createStore({
     // Update the collection resulting from the transform
     this.filteredCollection = collectionToAddTransformTo.chain(transformName).data();
 
-    // Set transform name back to active ViewingFilter
-    this.transformName = 'ViewingFilter';
-
     // Send collection object out to all listeners
     this.trigger(this.filteredCollection);
   },
 
-  // Set a default filter to use when we want to reset, i.e. to create a new package
+  //
   setDefaultFilter: function() {
 
     var collectionToAddTransformTo;
