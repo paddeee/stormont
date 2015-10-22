@@ -90,9 +90,13 @@ module.exports = Reflux.createStore({
       return;
     }
 
+    // Update this store's filterTransform so the filters will be updated when a presentation changes
+    this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
+
+    // Update the collection resulting from the transform
     this.filteredCollection = collectionToAddTransformTo.chain(transformName).data();
 
-    // Send object out to all listeners
+    // Send collection object out to all listeners
     this.trigger(this.filteredCollection);
   }
 });

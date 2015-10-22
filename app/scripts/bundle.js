@@ -610,9 +610,13 @@ module.exports = Reflux.createStore({
       return;
     }
 
+    // Update this store's filterTransform so the filters will be updated when a presentation changes
+    this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
+
+    // Update the collection resulting from the transform
     this.filteredCollection = collectionToAddTransformTo.chain(transformName).data();
 
-    // Send object out to all listeners
+    // Send collection object out to all listeners
     this.trigger(this.filteredCollection);
   }
 });
@@ -933,8 +937,6 @@ module.exports = Reflux.createStore({
   // Data storage for all collections
   dataSource: null,
 
-  transformName: 'ViewingFilter',
-
   // The Loki collection transform array
   collectionTransform: [],
 
@@ -952,7 +954,7 @@ module.exports = Reflux.createStore({
   },
 
   // Set the filteredData Object
-  dataSourceChanged: function (dataSourStorece) {
+  dataSourceChanged: function (dataSourceStore) {
 
     this.dataSource = dataSourceStore.dataSource;
 
@@ -961,13 +963,24 @@ module.exports = Reflux.createStore({
   },
 
   // Set search filter on our collectionTransform
-  filterStateChanged: function(filterTransformObject) {
+  filterStateChanged: function(filterTransformBroadcast) {
+
+    // If the incoming parameter is a string, we are setting the transform from a pre-existing one
+    if (typeof filterTransformBroadcast === 'string') {
+      this.updateFilterTransform(filterTransformBroadcast);
+    } else {
+      this.createFilterTransform(filterTransformBroadcast);
+    }
+  },
+
+  // Create a transform from the passed in object and save it on the collection
+  createFilterTransform: function(filterTransformObject) {
 
     if (!this.dataSource) {
       return;
     }
 
-    var collectionTransformObject = filterTransformObject.People;
+    var collectionTransformObject = filterTransformObject[this.collectionName];
     var collectionToAddTransformTo = this.dataSource.getCollection(this.collectionName);
 
     if (!collectionToAddTransformTo) {
@@ -980,15 +993,34 @@ module.exports = Reflux.createStore({
     this.collectionTransform.push(collectionTransformObject.sorting);
 
     // Save the transform to the collection
-    if (collectionToAddTransformTo.chain(this.transformName)) {
-      collectionToAddTransformTo.setTransform(this.transformName, this.collectionTransform);
+    if (collectionToAddTransformTo.chain(filterTransformObject.transformName)) {
+      collectionToAddTransformTo.setTransform(filterTransformObject.transformName, this.collectionTransform);
     } else {
-      collectionToAddTransformTo.addTransform(this.transformName, this.collectionTransform);
+      collectionToAddTransformTo.addTransform(filterTransformObject.transformName, this.collectionTransform);
     }
 
-    this.filteredCollection = collectionToAddTransformTo.chain(this.transformName).data();
+    this.filteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).data();
 
     // Send object out to all listeners
+    this.trigger(this.filteredCollection);
+  },
+
+  // Retrieve a transform from the db using a transform name
+  updateFilterTransform: function(transformName) {
+
+    var collectionToAddTransformTo = this.dataSource.getCollection(this.collectionName);
+
+    if (!collectionToAddTransformTo) {
+      return;
+    }
+
+    // Update this store's filterTransform so the filters will be updated when a presentation changes
+    this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
+
+    // Update the collection resulting from the transform
+    this.filteredCollection = collectionToAddTransformTo.chain(transformName).data();
+
+    // Send collection object out to all listeners
     this.trigger(this.filteredCollection);
   }
 });
@@ -1008,8 +1040,6 @@ module.exports = Reflux.createStore({
 
   // Data storage for all collections
   dataSource: null,
-
-  transformName: 'ViewingFilter',
 
   // The Loki collection transform array
   collectionTransform: [],
@@ -1037,13 +1067,24 @@ module.exports = Reflux.createStore({
   },
 
   // Set search filter on our collectionTransform
-  filterStateChanged: function(filterTransformObject) {
+  filterStateChanged: function(filterTransformBroadcast) {
+
+    // If the incoming parameter is a string, we are setting the transform from a pre-existing one
+    if (typeof filterTransformBroadcast === 'string') {
+      this.updateFilterTransform(filterTransformBroadcast);
+    } else {
+      this.createFilterTransform(filterTransformBroadcast);
+    }
+  },
+
+  // Create a transform from the passed in object and save it on the collection
+  createFilterTransform: function(filterTransformObject) {
 
     if (!this.dataSource) {
       return;
     }
 
-    var collectionTransformObject = filterTransformObject.Places;
+    var collectionTransformObject = filterTransformObject[this.collectionName];
     var collectionToAddTransformTo = this.dataSource.getCollection(this.collectionName);
 
     if (!collectionToAddTransformTo) {
@@ -1056,15 +1097,34 @@ module.exports = Reflux.createStore({
     this.collectionTransform.push(collectionTransformObject.sorting);
 
     // Save the transform to the collection
-    if (collectionToAddTransformTo.chain(this.transformName)) {
-      collectionToAddTransformTo.setTransform(this.transformName, this.collectionTransform);
+    if (collectionToAddTransformTo.chain(filterTransformObject.transformName)) {
+      collectionToAddTransformTo.setTransform(filterTransformObject.transformName, this.collectionTransform);
     } else {
-      collectionToAddTransformTo.addTransform(this.transformName, this.collectionTransform);
+      collectionToAddTransformTo.addTransform(filterTransformObject.transformName, this.collectionTransform);
     }
 
-    this.filteredCollection = collectionToAddTransformTo.chain(this.transformName).data();
+    this.filteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).data();
 
     // Send object out to all listeners
+    this.trigger(this.filteredCollection);
+  },
+
+  // Retrieve a transform from the db using a transform name
+  updateFilterTransform: function(transformName) {
+
+    var collectionToAddTransformTo = this.dataSource.getCollection(this.collectionName);
+
+    if (!collectionToAddTransformTo) {
+      return;
+    }
+
+    // Update this store's filterTransform so the filters will be updated when a presentation changes
+    this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
+
+    // Update the collection resulting from the transform
+    this.filteredCollection = collectionToAddTransformTo.chain(transformName).data();
+
+    // Send collection object out to all listeners
     this.trigger(this.filteredCollection);
   }
 });
@@ -1161,8 +1221,6 @@ module.exports = Reflux.createStore({
   // Data storage for all collections
   dataSource: null,
 
-  transformName: 'ViewingFilter',
-
   // The Loki collection transform array
   collectionTransform: [],
 
@@ -1189,13 +1247,24 @@ module.exports = Reflux.createStore({
   },
 
   // Set search filter on our collectionTransform
-  filterStateChanged: function(filterTransformObject) {
+  filterStateChanged: function(filterTransformBroadcast) {
+
+    // If the incoming parameter is a string, we are setting the transform from a pre-existing one
+    if (typeof filterTransformBroadcast === 'string') {
+      this.updateFilterTransform(filterTransformBroadcast);
+    } else {
+      this.createFilterTransform(filterTransformBroadcast);
+    }
+  },
+
+  // Create a transform from the passed in object and save it on the collection
+  createFilterTransform: function(filterTransformObject) {
 
     if (!this.dataSource) {
       return;
     }
 
-    var collectionTransformObject = filterTransformObject.Source;
+    var collectionTransformObject = filterTransformObject[this.collectionName];
     var collectionToAddTransformTo = this.dataSource.getCollection(this.collectionName);
 
     if (!collectionToAddTransformTo) {
@@ -1208,15 +1277,34 @@ module.exports = Reflux.createStore({
     this.collectionTransform.push(collectionTransformObject.sorting);
 
     // Save the transform to the collection
-    if (collectionToAddTransformTo.chain(this.transformName)) {
-      collectionToAddTransformTo.setTransform(this.transformName, this.collectionTransform);
+    if (collectionToAddTransformTo.chain(filterTransformObject.transformName)) {
+      collectionToAddTransformTo.setTransform(filterTransformObject.transformName, this.collectionTransform);
     } else {
-      collectionToAddTransformTo.addTransform(this.transformName, this.collectionTransform);
+      collectionToAddTransformTo.addTransform(filterTransformObject.transformName, this.collectionTransform);
     }
 
-    this.filteredCollection = collectionToAddTransformTo.chain(this.transformName).data();
+    this.filteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).data();
 
     // Send object out to all listeners
+    this.trigger(this.filteredCollection);
+  },
+
+  // Retrieve a transform from the db using a transform name
+  updateFilterTransform: function(transformName) {
+
+    var collectionToAddTransformTo = this.dataSource.getCollection(this.collectionName);
+
+    if (!collectionToAddTransformTo) {
+      return;
+    }
+
+    // Update this store's filterTransform so the filters will be updated when a presentation changes
+    this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
+
+    // Update the collection resulting from the transform
+    this.filteredCollection = collectionToAddTransformTo.chain(transformName).data();
+
+    // Send collection object out to all listeners
     this.trigger(this.filteredCollection);
   }
 });

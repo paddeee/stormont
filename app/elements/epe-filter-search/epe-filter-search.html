@@ -31,15 +31,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
     <div class="search-container layout horizontal center">
-      <template is="dom-repeat" items="[[filtersToShow.textInputFilters]]">
-        <input is="iron-input"
-               id="[[item]]"
-               class="flex search-input"
-               placeholder="[[item]]"
-               on-keyup="filtersChanged">
-        </input>
+      <template is="dom-repeat" items="[[filtersToShow]]">
+        <template is="dom-repeat" items="[[toArray(item)]]">
+          <input is="iron-input"
+                 id="[[item.name]]"
+                 class="flex search-input"
+                 placeholder="[[item.name]]"
+                 value="[[getInputValue(item.value)]]"
+                 on-keyup="filtersChanged">
+          </input>
+        </template>
       </template>
-      <template is="dom-repeat" items="[[filtersToShow.datePickerFilters]]">
+
+      <!--<template is="dom-repeat" items="[[filtersToShow.datePickerFilters]]">
         <epe-date-time-picker
           class="flex-2 self-start date-time-picker"
           id="[[item.name]]"
@@ -49,7 +53,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           time="[[item.defaultTime]]"
           on-date-time-changed="filtersChanged"
           on-user-entered-date-time="userFilterOccurred"></epe-date-time-picker>
-      </template>
+      </template>-->
     </div>
   </template>
 </dom-module>
@@ -64,6 +68,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         type: Array,
         value: []
       }
+    },
+
+    // Iterate through keys of an object and return key/value pair
+    toArray: function(obj) {
+      return Object.keys(obj).map(function(key) {
+        return {name: key, value: obj[key]};
+      });
+    },
+
+    // Can't have arrays in template expressions so need this function to return first
+    // part of a $regex value
+    getInputValue: function(value) {
+
+      if (value.$regex) {
+        return value.$regex[0];
+      }
+      return '';
     },
 
     // FIRED FROM SEARCH INPUT ELEMENT OR DATE-TIME PICKER
@@ -115,8 +136,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         fieldObject.name = $filterElement.id;
         fieldObject.queryType = 'regex';
 
-        if ($filterElement.bindValue) {
-          fieldObject.value = $filterElement.bindValue;
+        if ($filterElement.value) {
+          fieldObject.value = $filterElement.value;
         } else {
           fieldObject.value = '';
         }
