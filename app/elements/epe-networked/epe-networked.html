@@ -99,7 +99,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </a>
           <a data-route="/create-package/data-grid/Events"
              href="/create-package/data-grid/Events"
-             on-tap="toggleMenu">
+             on-tap="toggleMenu"
+            id="CreatePackageMenuNavigation">
             <iron-icon icon="create"></iron-icon>
             <span>Create Package</span>
           </a>
@@ -392,15 +393,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       } else {
         this.$.MainScrollHeader.classList.remove('hide-header');
         this.$.MainScrollHeader.fixed = false;
-
-        if (this.route === 'create-package') {
-
-          // Call presentationStateChanged presentations action
-          this.presentationsActions.presentationStateChanged({
-            presentationState: 'creating',
-            presentationName: 'ViewingFilter'
-          });
-        }
       }
     },
 
@@ -415,8 +407,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Toggle Menu panel
-    toggleMenu: function() {
+    toggleMenu: function(event) {
+
+      // If Create Package selected than reset the presentation package to no filters
+      if (event.currentTarget.id === 'CreatePackageMenuNavigation') {
+        this.resetPackage();
+      }
+
       this.$.paperDrawerPanel.togglePanel();
+    },
+
+    // Trigger resetting a package to no filters
+    resetPackage: function() {
+
+      // Call presentationStateChanged presentations action
+      this.presentationsActions.presentationStateChanged({
+        presentationState: 'creating',
+        presentationName: 'ViewingFilter'
+      });
     },
 
     // Fire setSectionTitle method on selected child of iron-pages
