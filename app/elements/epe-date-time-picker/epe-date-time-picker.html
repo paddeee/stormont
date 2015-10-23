@@ -119,12 +119,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       displayDate: {
         type: String,
-        value: 'Choose Date'
+        value: 'Choose Date',
+        computed: 'getDate(date)'
       },
 
       displayTime: {
         type: String,
-        value: 'Choose Time'
+        value: 'Choose Time',
+        computed: 'getTime(time)'
       },
 
       date: {
@@ -185,10 +187,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.displayTime = selectedTime;
 
         // Set the time to be used in the query
-        this.time = $timePicker.hour + ':' + $timePicker.minute + ':00';
+        this.time = this.addZerosToTime($timePicker.hour) + ':' + this.addZerosToTime($timePicker.minute) + ':00';
 
         this.fire('user-entered-date-time');
       }
+    },
+
+    // Time Picker only returns hours like 3 not 03
+    addZerosToTime: function(number) {
+
+      if (number < 10) {
+        return '0' + number;
+      }
+      return number;
     },
 
     // Show time dialog
@@ -199,6 +210,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Set the date-time string that can be used for a loki query
     setDateTime: function(date, time) {
       return date + ' ' + time;
+    },
+
+    // Computed function to set date on template
+    getDate: function(date) {
+
+      // If default dates, set text value
+      if (date === '1900-01-01' || date === '2100-12-31') {
+        return 'Choose Date'
+      }
+      return date;
+    },
+
+    // Computed function to set date on template
+    getTime: function(time) {
+
+      // If default dates, set text value
+      if (time === '00:00:00') {
+        return 'Choose Time'
+      }
+      return time;
     }
   });
 })();
