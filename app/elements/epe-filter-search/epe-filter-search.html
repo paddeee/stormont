@@ -33,6 +33,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
     <div class="search-container layout horizontal center">
+
+      <!-- Text Input Filters -->
       <template is="dom-repeat" items="[[textInputFilters]]">
         <template is="dom-repeat" items="[[toArray(item)]]">
           <input is="iron-input"
@@ -45,31 +47,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </template>
       </template>
 
+      <!-- Date-Time Filters -->
       <template is="dom-repeat" items="[[dateTimeFilters]]">
         <template is="dom-repeat" items="[[toArray(item)]]">
           <epe-date-time-picker
             class="flex-2 self-start date-time-picker"
             id="[[item.name]]"
             label="[[item.name]]"
-            query-type="[[item.queryType]]"
-            date="[[item.defaultDate]]"
-            time="[[item.defaultTime]]"
+            query-type="[[getQueryType(item.value)]]"
+            date="[[getFilterDate(item.value)]]"
+            time="[[getFilterTime(item.value)]]"
             on-date-time-changed="filtersChanged"
             on-user-entered-date-time="userFilterOccurred"></epe-date-time-picker>
         </template>
       </template>
 
-      <!--<template is="dom-repeat" items="[[filtersToShow.datePickerFilters]]">
-        <epe-date-time-picker
-          class="flex-2 self-start date-time-picker"
-          id="[[item.name]]"
-          label="[[item.name]]"
-          query-type="[[item.queryType]]"
-          date="[[item.defaultDate]]"
-          time="[[item.defaultTime]]"
-          on-date-time-changed="filtersChanged"
-          on-user-entered-date-time="userFilterOccurred"></epe-date-time-picker>
-      </template>-->
     </div>
   </template>
 </dom-module>
@@ -111,6 +103,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return value.$regex[0];
       }
       return '';
+    },
+
+    // Get whether $gte or $lte for datetime picker
+    getQueryType: function(value) {
+      return Object.keys(value)[0];
+    },
+
+    // Get date for date picker
+    getFilterDate: function(value) {
+      return this.toArray(value)[0].value.split(' ')[0];
+    },
+
+    // Get time for date picker
+    getFilterTime: function(value) {
+      return this.toArray(value)[0].value.split(' ')[1];
     },
 
     // FIRED FROM SEARCH INPUT ELEMENT OR DATE-TIME PICKER
