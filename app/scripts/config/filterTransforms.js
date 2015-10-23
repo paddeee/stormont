@@ -2,26 +2,6 @@
 
 var filterTransforms = {
   Events: {
-    filtersToShow: {
-      textInputFilters: [
-        'Full Name',
-        'Type'
-      ],
-      datePickerFilters: [
-        {
-          defaultDate: '1900-01-01',
-          defaultTime: '00:00:00',
-          queryType: '$gte',
-          name: 'Begin Date and Time'
-        },
-        {
-          defaultDate: '2100-12-31',
-          defaultTime: '00:00:00',
-          queryType: '$lte',
-          name: 'End Date and Time'
-        }
-      ]
-    },
     filters: {
       type: 'find',
       value: {
@@ -55,13 +35,6 @@ var filterTransforms = {
     }
   },
   Places: {
-    filtersToShow: {
-      textInputFilters: [
-        'Full Name',
-        'Type'
-      ],
-      datePickerFilters: []
-    },
     filters: {
       type: 'find',
       value: {
@@ -85,13 +58,6 @@ var filterTransforms = {
     }
   },
   People: {
-    filtersToShow: {
-      textInputFilters: [
-        'Full Name',
-        'Type'
-      ],
-      datePickerFilters: []
-    },
     filters: {
       type: 'find',
       textInputFilters: [
@@ -130,13 +96,6 @@ var filterTransforms = {
     }
   },
   Source: {
-    filtersToShow: {
-      textInputFilters: [
-        'Full Name',
-        'Type'
-      ],
-      datePickerFilters: []
-    },
     filters: {
       type: 'find',
       textInputFilters: [

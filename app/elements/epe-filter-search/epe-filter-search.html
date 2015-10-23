@@ -42,7 +42,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                  class="flex search-input"
                  placeholder="[[item.name]]"
                  value="[[getInputValue(item.value)]]"
-                 on-keyup="filtersChanged">
+                 on-keyup="userFilterOccurred">
           </input>
         </template>
       </template>
@@ -57,7 +57,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             query-type="[[getQueryType(item.value)]]"
             date="[[getFilterDate(item.value)]]"
             time="[[getFilterTime(item.value)]]"
-            on-date-time-changed="filtersChanged"
             on-user-entered-date-time="userFilterOccurred"></epe-date-time-picker>
         </template>
       </template>
@@ -121,23 +120,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // FIRED FROM SEARCH INPUT ELEMENT OR DATE-TIME PICKER
-    filtersChanged: function(event) {
-
-      // If called from input field call userFilterOccurred.
-      // Doing it like this as need keyup event to fire user-filter-occurred event off backspace key
-      // but can't use more than one callback for keyup.
-      if (event.type === 'keyup') {
-        this.userFilterOccurred();
-      }
-
-      this.fire('filters-changed', this.createFilterObject());
-    },
-
-    // FIRED FROM SEARCH INPUT ELEMENT OR DATE-TIME PICKER
     // NEEDED FOR FUNCTIONALITY WHERE PRESENTATION STATE CHANGES AFTER USER FIRST SELECTS A FILTER
     // CAN'T USE FILTERSCHANGED ABOVE AS THIS IS FIRED BY DEFAULT WHEN DATE-TIME CHANGES
     userFilterOccurred: function() {
-      this.fire('user-filter-occurred', this.createFilterObject());
+      this.fire('filters-changed', this.createFilterObject());
     },
 
     // Create an object from the filter values

@@ -137,8 +137,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       dateTime: {
         type: String,
-        computed: 'setDateTime(date, time)',
-        observer: 'dateTimeChanged'
+        computed: 'setDateTime(date, time)'
       },
 
       label: {
@@ -200,11 +199,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Set the date-time string that can be used for a loki query
     setDateTime: function(date, time) {
       return date + ' ' + time;
-    },
-
-    // OBSERVER ON DATETIME PROPERTY
-    dateTimeChanged: function() {
-      this.fire('date-time-changed');
     }
   });
 })();
