@@ -420,6 +420,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Trigger resetting a package to no filters
     resetPackage: function() {
 
+      // ToDo: Maybe have a dialog here if state is editing or cloning or whatever
+
       // Call presentationStateChanged presentations action
       this.presentationsActions.presentationStateChanged({
         presentationState: 'creating',

@@ -10,6 +10,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
+<script src="../../scripts/vendor/lodash.js"></script>
+
 <dom-module id="epe-filter-search">
   <style>
     :host {
@@ -31,7 +33,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
     <div class="search-container layout horizontal center">
-      <template is="dom-repeat" items="[[filtersToShow]]">
+      <template is="dom-repeat" items="[[textInputFilters]]">
         <template is="dom-repeat" items="[[toArray(item)]]">
           <input is="iron-input"
                  id="[[item.name]]"
@@ -40,6 +42,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                  value="[[getInputValue(item.value)]]"
                  on-keyup="filtersChanged">
           </input>
+        </template>
+      </template>
+
+      <template is="dom-repeat" items="[[dateTimeFilters]]">
+        <template is="dom-repeat" items="[[toArray(item)]]">
+          <epe-date-time-picker
+            class="flex-2 self-start date-time-picker"
+            id="[[item.name]]"
+            label="[[item.name]]"
+            query-type="[[item.queryType]]"
+            date="[[item.defaultDate]]"
+            time="[[item.defaultTime]]"
+            on-date-time-changed="filtersChanged"
+            on-user-entered-date-time="userFilterOccurred"></epe-date-time-picker>
         </template>
       </template>
 
@@ -64,9 +80,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     properties: {
 
-      textInputFilters: {
+      filtersToShow: {
         type: Array,
         value: []
+      },
+
+      textInputFilters: {
+        type: Array,
+        computed: 'getTextInputFilters(filtersToShow)'
+      },
+
+      dateTimeFilters: {
+        type: Array,
+        computed: 'getDateTimeFilters(filtersToShow)'
       }
     },
 
@@ -160,6 +186,42 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         searchFilterObject.fields.push(fieldObject);
       });
+    },
+
+    // Computed function to set text input filters if using $regex
+    getTextInputFilters: function(filtersShow) {
+
+      var textInputFiltersArray =[];
+
+      filtersShow.forEach(function(filter) {
+
+        _.findKey(filter, function(filterName) {
+
+          if (filterName['$regex']) {
+            textInputFiltersArray.push(filter);
+          }
+        });
+      });
+
+      return textInputFiltersArray;
+    },
+
+    // Computed function to set datetime filters
+    getDateTimeFilters: function(filtersShow) {
+
+      var dateTimeFiltersArray =[];
+
+      filtersShow.forEach(function(filter) {
+
+        _.findKey(filter, function(filterName) {
+
+          if (filterName['$lte'] || filterName['$gte']) {
+            dateTimeFiltersArray.push(filter);
+          }
+        });
+      });
+
+      return dateTimeFiltersArray;
     }
   });
 })();
