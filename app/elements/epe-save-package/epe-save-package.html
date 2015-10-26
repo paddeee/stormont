@@ -84,7 +84,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         class="save-package__notes"
                         label="Notes (optional)"
                         rows="6"
-                        max-rows="10"></paper-textarea>
+                        max-rows="10"
+                        value="[[notes]]"></paper-textarea>
 
         <div class="save-package__fab-container layout horizontal end-justified end">
           <paper-fab class="save-package__save-button"
@@ -107,6 +108,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         type: String,
         value: '',
         notify: true
+      },
+
+      selectedPresentation: {
+        type: Object
+      },
+
+      notes: {
+        type: String,
+        computed: 'getNotesValue(selectedPresentation)'
       }
     },
 
@@ -117,9 +127,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // When the events data is updated, update our grid data
         this.presentationsStore.listen(function (presentationsStore) {
 
+          this.selectedPresentation = presentationsStore.selectedPresentationObject;
+
           if (presentationsStore.message) {
+
             this.setMessage(presentationsStore.message);
-            this.fire('show-dialog', {type: presentationsStore.message});
+
+            this.fire('show-dialog', {
+              type: presentationsStore.message
+            });
           }
         }.bind(this));
       }
@@ -175,6 +191,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Call savePresentation action
         this.dataSourceActions.savePresentation(presentationObject);
       }
+    },
+
+    // Get the value of Notes for the template
+    getNotesValue: function(selectedPresentation) {
+
+      if (selectedPresentation) {
+        return this.selectedPresentation.notes;
+      }
+      return '';
     },
 
     // Called when close card button is tapped

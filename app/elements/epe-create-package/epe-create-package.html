@@ -366,6 +366,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // When the presentations data is updated, set this view's presentationsData
         this.presentationsStore.listen(function(presentationsStore) {
+          this.presentationName = presentationsStore.presentationName
           this.presentationState = presentationsStore.presentationState
         }.bind(this));
       }
@@ -480,6 +481,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Call presentationStateChanged presentations action
         this.presentationsActions.presentationStateChanged({
+          presentationName: this.presentationName,
           presentationState: 'cloning'
         });
       }
