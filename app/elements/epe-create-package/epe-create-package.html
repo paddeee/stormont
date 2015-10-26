@@ -160,8 +160,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 filter-type="createPackage"
                 collection-name="[[collectionName]]"
                 filters-to-show="[[filtersToShow]]"
-                on-filters-changed="filtersChanged"
-                on-user-filter-occurred="userFilterOccurred">
+                on-filters-changed="filtersChanged">
               </epe-filter-search>
             </div>
           </div>
@@ -169,7 +168,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <!-- DataGrid -->
           <iron-pages attr-for-selected="data-route"
                       selected="{{dataGridRoute}}">
-            <section data-route="data-grid" class="data-grid-area relative layout horizontal">
+            <section data-route="data-grid"
+                     class="data-grid-area relative layout horizontal">
               <epe-data-grid
                 filter-state-actions="[[filterStateActions]]"
                 presentations-store="[[presentationsStore]]"
@@ -466,6 +466,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     filtersChanged: function (event) {
 
       var searchFilterObject = event.detail;
+
+      this.userFilterOccurred();
 
       // Call fileImported action
       this.filterStateActions.searchFilterChanged(searchFilterObject);
