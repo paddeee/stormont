@@ -27,6 +27,9 @@ module.exports = Reflux.createStore({
     this.setMessage(dataSourceStore);
 
     this.trigger(this);
+
+    // Reset message
+    this.message = '';
   },
 
   // Get the data from the Presentation Collection
