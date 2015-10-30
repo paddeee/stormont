@@ -26,6 +26,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       padding: 0 8px;
     }
 
+    .save-package__container--editing .save-package__title {
+      min-height: 21vh;
+    }
+
     .save-package__close-card {
       color: var(--secondary-text-color);
     }
@@ -49,13 +53,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .save-package__fab-container {
-      height: 15vh;
+      height: 10vh;
     }
 
-    .save-package__save-button {
-      background-color: var(--default-primary-color);
+    .save-package__container {
+      @apply(--layout-flex);
+      @apply(--layout-horizontal);
     }
 
+    .save-package__or {
+      color: var(--secondary-text-color);
+      font-size: 5vw;
+      margin: 33vh 3vw 0 3vw;
+    }
   </style>
   <template>
     <div class="save-package layout vertical">
@@ -66,34 +76,78 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           icon="close"
           on-tap="closeCard"></paper-icon-button>
       </div>
-      <div class="save-package__title">
-        Save Presentation Package
-      </div>
-      <div class="save-package__form">
 
-        <paper-input
-          id="PresentationName"
-          class="save-package__name"
-          label="Presentation Name"
-          autofocus
-          autovalidate
-          required
-          error-message="Please enter a presentation name"></paper-input>
+      <div id="SavePackageContainer" class="save-package__container">
 
-        <paper-textarea id="Notes"
-                        class="save-package__notes"
-                        label="Notes (optional)"
-                        rows="6"
-                        max-rows="10"
-                        value="[[notes]]"></paper-textarea>
+        <!-- Save new package -->
+        <div class="save-package__new flex">
+          <div class="save-package__title">
+            Save a New Package
+          </div>
+          <div class="save-package__form">
 
-        <div class="save-package__fab-container layout horizontal end-justified end">
-          <paper-fab class="save-package__save-button"
-                     icon="save"
-                     on-tap="savePresentation"></paper-fab>
+            <paper-input
+              id="PresentationNameSave"
+              class="save-package__name"
+              label="Presentation Name"
+              autofocus
+              autovalidate
+              required
+              error-message="Please enter a presentation name"></paper-input>
+
+            <paper-textarea id="NotesSave"
+                            class="save-package__notes"
+                            label="Notes (optional)"
+                            rows="6"
+                            max-rows="10"
+                            value="[[notes]]"></paper-textarea>
+
+            <div class="save-package__fab-container layout horizontal end-justified end">
+              <paper-button
+                class="save-package__save-button"
+                raised
+                on-tap="savePresentation">Save Presentation</paper-button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Or -->
+        <div class="save-package__or" hidden$="[[hideUpdateForm]]">Or</div>
+
+        <!-- Update existing package -->
+        <div class="save-package__update flex" hidden$="[[hideUpdateForm]]">
+          <div class="save-package__title">
+            Update an Existing Package
+          </div>
+          <div class="save-package__form">
+
+            <paper-input
+              id="PresentationNameUpdate"
+              class="save-package__name"
+              label="Presentation Name"
+              disabled
+              value="[[presentationName]]"></paper-input>
+
+            <paper-textarea id="NotesUpdate"
+                            class="save-package__notes"
+                            label="Notes (optional)"
+                            rows="6"
+                            max-rows="10"
+                            value="[[notes]]"></paper-textarea>
+
+            <div class="save-package__fab-container layout horizontal end-justified end">
+              <paper-button
+                class="save-package__save-button"
+                raised
+                on-tap="updatePresentation">Update Presentation</paper-button>
+            </div>
+
+          </div>
         </div>
 
       </div>
+
     </div>
   </template>
 </dom-module>
@@ -114,6 +168,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         type: Object
       },
 
+      presentationState: {
+        type: String
+      },
+
+      hideUpdateForm: {
+        type: String,
+        computed: 'getHideUpdateForm(presentationState)',
+        value: true
+      },
+
+      presentationName: {
+        type: String,
+        computed: 'getPresentationNameValue(selectedPresentation, presentationState)'
+      },
+
       notes: {
         type: String,
         computed: 'getNotesValue(selectedPresentation)'
@@ -128,6 +197,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.presentationsStore.listen(function (presentationsStore) {
 
           this.selectedPresentation = presentationsStore.selectedPresentationObject;
+          this.presentationState = presentationsStore.presentationState;
 
           if (presentationsStore.message) {
 
@@ -155,12 +225,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Validate form
-    validateForm: function() {
+    validateSaveForm: function() {
 
-      this.$.PresentationName.validate();
+      this.$.PresentationNameSave.validate();
 
       // If input fields are both valid, return true
-      if (this.$.PresentationName.invalid) {
+      if (this.$.PresentationNameSave.invalid) {
         return false;
       } else {
         return true;
@@ -169,8 +239,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Reset the form values
     resetForm: function() {
-      this.$.PresentationName.value = '';
-      this.$.Notes.value = '';
+      this.$.PresentationNameSave.value = '';
+      this.$.NotesSave.value = '';
     },
 
     // Called by save fab button being tapped
@@ -178,12 +248,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var presentationObject;
 
-      if (this.validateForm()) {
+      if (this.validateSaveForm()) {
 
         presentationObject = {
           userName: this.userStore.user.userName,
-          presentationName: this.$.PresentationName.value,
-          notes: this.$.Notes.value || '',
+          presentationName: this.$.PresentationNameSave.value,
+          notes: this.$.NotesSave.value || '',
           gateKeeperState: 'red',
           authoriserState: 'red'
         };
@@ -193,6 +263,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
+    // Get the value of the presentation name for the template
+    getPresentationNameValue: function(selectedPresentation, presentationState) {
+
+      if (selectedPresentation && presentationState === 'editing') {
+        return this.selectedPresentation.presentationName;
+      }
+      return '';
+    },
+
     // Get the value of Notes for the template
     getNotesValue: function(selectedPresentation) {
 
@@ -200,6 +279,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return this.selectedPresentation.notes;
       }
       return '';
+    },
+
+    // Computed function used by template to show update form or not
+    getHideUpdateForm: function(presentationState) {
+
+      var $packageContainer = this.$.SavePackageContainer;
+
+      if (presentationState === 'editing') {
+        $packageContainer.classList.add('save-package__container--editing');
+        return false;
+      }
+      $packageContainer.classList.remove('save-package__container--editing');
+      return true;
     },
 
     // Called when close card button is tapped
