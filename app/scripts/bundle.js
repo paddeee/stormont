@@ -6,7 +6,8 @@ var Reflux = require('reflux');
 module.exports = Reflux.createActions([
   'checkForLDAP',
   'collectionImported',
-  'savePresentation'
+  'savePresentation',
+  'updatePresentation'
 ]);
 
 },{"reflux":160}],2:[function(require,module,exports){
@@ -414,10 +415,10 @@ module.exports = Reflux.createStore({
     // Try to save database
     } else {
 
-      this.manageCollectionTransformNames(presentationName);
+      this.manageCollectionTransformNames(presentationObject, presentationName);
 
       // Create Presentation meta info such as user and date created
-      this.addSavedPresentationMetaData(presentationObject, createdDate);
+      this.savePresentationMetaData(presentationObject, createdDate, 'save');
 
       // Save database
       this.dataSource.saveDatabase(function() {
@@ -425,6 +426,24 @@ module.exports = Reflux.createStore({
         this.trigger(this);
       }.bind(this));
     }
+  },
+
+  // Add meta information, transform information and update loki db
+  updatePresentation: function (presentationObject) {
+
+    var presentationName = presentationObject.presentationName;
+    var createdDate = new Date();
+
+    this.manageCollectionTransformNames(presentationObject, presentationName);
+
+    // Create Presentation meta info such as user and date created
+    this.savePresentationMetaData(presentationObject, createdDate, 'update');
+
+    // Save database
+    this.dataSource.saveDatabase(function() {
+      this.message = 'presentationSaved';
+      this.trigger(this);
+    }.bind(this));
   },
 
   // Return true if presentationName exists in collection
@@ -442,20 +461,26 @@ module.exports = Reflux.createStore({
 
   // Iterate through all collections and set the transform names to the user created
   // presentation name
-  manageCollectionTransformNames: function(presentationName) {
+  manageCollectionTransformNames: function(presentationObject) {
 
-    this.dataSource.collections.forEach(function(collection) {
+    var state = presentationObject.presentationState;
 
-      // Check for the old property name to avoid a ReferenceError in strict mode.
+    this.dataSource.collections.forEach(function (collection) {
+
       if (collection.transforms.hasOwnProperty('ViewingFilter')) {
-        collection.transforms[presentationName] = collection.transforms['ViewingFilter'];
+        collection.transforms[presentationObject.presentationName] = collection.transforms['ViewingFilter'];
         delete collection.transforms['ViewingFilter'];
+
+      // Could hit this condition if user is editing but haven't changed filters before saving.
+      // If so, just use the transform from the package that's being created from.
+      } else {
+        collection.transforms[presentationObject.presentationName] = collection.transforms[presentationObject.originalName];
       }
     });
   },
 
   // Create a meta object and add to presentations collection of loki db
-  addSavedPresentationMetaData: function (presentationObject, createdDate) {
+  savePresentationMetaData: function (presentationObject, createdDate, action) {
 
     var presentationInfo = {};
     var presentationsCollection = this.dataSource.getCollection('Presentations');
@@ -464,14 +489,19 @@ module.exports = Reflux.createStore({
       presentationsCollection = this.dataSource.addCollection('Presentations');
     }
 
-    presentationInfo.presentationName = presentationObject.presentationName;
-    presentationInfo.userName = presentationObject.userName;
-    presentationInfo.notes = presentationObject.notes;
-    presentationInfo.gateKeeperState = presentationObject.gateKeeperState;
-    presentationInfo.authoriserState = presentationObject.authoriserState;
-    presentationInfo.createdDate = createdDate;
+    if (action === 'save') {
 
-    presentationsCollection.insert(presentationInfo);
+      presentationInfo.presentationName = presentationObject.presentationName;
+      presentationInfo.userName = presentationObject.userName;
+      presentationInfo.notes = presentationObject.notes;
+      presentationInfo.gateKeeperState = presentationObject.gateKeeperState;
+      presentationInfo.authoriserState = presentationObject.authoriserState;
+      presentationInfo.createdDate = createdDate;
+
+      presentationsCollection.insert(presentationInfo);
+    } else if (action === 'update') {
+      presentationsCollection.update(presentationObject);
+    }
   }
 
 });

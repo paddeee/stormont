@@ -250,9 +250,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               places-store="[[placesStore]]"
               people-store="[[peopleStore]]"
               source-store="[[sourceStore]]"
+              message="{{message}}"
               presentations-actions="[[presentationsActions]]"
               presentations-store="[[presentationsStore]]"
-              on-package-view-changed="packageViewChanged"></epe-create-package>
+              on-package-view-changed="packageViewChanged"
+              on-show-dialog="showDialog"></epe-create-package>
           </section>
 
           <!-- Edit Package Section -->
@@ -266,9 +268,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               places-store="[[placesStore]]"
               people-store="[[peopleStore]]"
               source-store="[[sourceStore]]"
+              message="{{message}}"
               presentations-actions="[[presentationsActions]]"
               presentations-store="[[presentationsStore]]"
-              on-package-view-changed="packageViewChanged"></epe-create-package>
+              on-package-view-changed="packageViewChanged"
+              on-show-dialog="showDialog"></epe-create-package>
           </section>
 
           <!-- View Packages Section -->
@@ -284,6 +288,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       </paper-scroll-header-panel>
     </paper-drawer-panel>
+
+    <!-- Dialogs -->
+    <paper-dialog id="SuccessDialog" modal>
+      <h2>Presentation successfully saved</h2>
+      <div>
+        <span>[[message]]</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus on-tap="closeCard">OK</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="WarningDialog" modal>
+      <h2>Presentation name exists</h2>
+      <div>
+        <span>[[message]]</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
 
     <paper-toast id="UserToast" duration="3000">
       <h2><span>User Login:</span></h2>
@@ -565,6 +590,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return false;
       }
       return true;
+    },
+
+    // Fired from epe-create-package elements
+    showDialog: function(event) {
+      if (event.detail.type === 'presentationSaved') {
+        this.$.SuccessDialog.open();
+      } else if (event.detail.type === 'collectionExists') {
+        this.$.WarningDialog.open();
+      }
+    },
+
+    // Close the save presentation overlay on the epe-create-package elements
+    closeCard: function () {
+      this.$.EpeCreatePackage.closeCard();
+      this.$.EpeEditPackage.closeCard();
     }
   });
 })();

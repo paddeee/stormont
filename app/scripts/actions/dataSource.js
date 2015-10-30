@@ -5,5 +5,6 @@ var Reflux = require('reflux');
 module.exports = Reflux.createActions([
   'checkForLDAP',
   'collectionImported',
-  'savePresentation'
+  'savePresentation',
+  'updatePresentation'
 ]);

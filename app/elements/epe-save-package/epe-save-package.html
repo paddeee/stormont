@@ -224,7 +224,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
-    // Validate form
+    // Validate save form
     validateSaveForm: function() {
 
       this.$.PresentationNameSave.validate();
@@ -241,12 +241,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     resetForm: function() {
       this.$.PresentationNameSave.value = '';
       this.$.NotesSave.value = '';
+      this.$.PresentationNameUpdate.value = '';
+      this.$.NotesUpdate.value = '';
     },
 
-    // Called by save fab button being tapped
+    // Called by save button being tapped
     savePresentation: function() {
 
       var presentationObject;
+      var originalName;
+
+      if (this.selectedPresentation) {
+        originalName = this.selectedPresentation.presentationName;
+      }
 
       if (this.validateSaveForm()) {
 
@@ -255,12 +262,40 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           presentationName: this.$.PresentationNameSave.value,
           notes: this.$.NotesSave.value || '',
           gateKeeperState: 'red',
-          authoriserState: 'red'
+          authoriserState: 'red',
+          presentationState: this.presentationState,
+          originalName: originalName
         };
 
         // Call savePresentation action
         this.dataSourceActions.savePresentation(presentationObject);
       }
+    },
+
+    // Called by update  button being tapped
+    updatePresentation: function() {
+
+      var presentationObject;
+      var originalName;
+
+      if (this.selectedPresentation) {
+        originalName = this.selectedPresentation.presentationName;
+      }
+
+      presentationObject = {
+        $loki: this.selectedPresentation.$loki,
+        meta: this.selectedPresentation.meta,
+        userName: this.userStore.user.userName,
+        presentationName: this.$.PresentationNameUpdate.value,
+        notes: this.$.NotesUpdate.value || '',
+        gateKeeperState: 'red',
+        authoriserState: 'red',
+        presentationState: this.presentationState,
+        originalName: originalName
+      };
+
+      // Call savePresentation action
+      this.dataSourceActions.updatePresentation(presentationObject);
     },
 
     // Get the value of the presentation name for the template
