@@ -290,22 +290,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       switch (collectionName) {
         case 'Events':
           this.gridData = this.eventsData;
-          this.filtersToShow = this.eventsStore.filterTransform.Events.filtersToShow;
+          this.filtersToShow = this.eventsStore.filterTransform.Events.filters.value.$and;
           this.sortingState = this.eventsStore.filterTransform.Events.sorting;
           break;
         case 'Places':
           this.gridData = this.placesData;
-          this.filtersToShow = this.placesStore.filterTransform.Places.filtersToShow;
+          this.filtersToShow = this.placesStore.filterTransform.Places.filters.value.$and;
           this.sortingState = this.placesStore.filterTransform.Places.sorting;
           break;
         case 'People':
           this.gridData = this.peopleData;
-          this.filtersToShow = this.peopleStore.filterTransform.People.filtersToShow;
+          this.filtersToShow = this.peopleStore.filterTransform.People.filters.value.$and;
           this.sortingState = this.peopleStore.filterTransform.People.sorting;
           break;
         case 'Source':
           this.gridData = this.sourceData;
-          this.filtersToShow = this.sourceStore.filterTransform.Source.filtersToShow;
+          this.filtersToShow = this.sourceStore.filterTransform.Source.filters.value.$and;
           this.sortingState = this.sourceStore.filterTransform.Source.sorting;
           break;
         default:

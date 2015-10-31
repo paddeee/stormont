@@ -51,11 +51,14 @@ module.exports = Reflux.createStore({
   presentationStateChanged: function(presentationObject) {
 
     var presentationCollection = dataSourceStore.dataSource.getCollection('Presentations');
+    var selectedPresentationObject;
 
     // Get Presentation Object if it exists
-    var selectedPresentationObject = presentationCollection.find({'presentationName': presentationObject.presentationName});
+    if (presentationCollection) {
+      selectedPresentationObject = presentationCollection.find({'presentationName': presentationObject.presentationName});
+    }
 
-    if (selectedPresentationObject.length > 0) {
+    if (selectedPresentationObject && selectedPresentationObject.length > 0) {
       this.selectedPresentationObject = selectedPresentationObject[0];
     } else {
       this.selectedPresentationObject = null;

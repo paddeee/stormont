@@ -66,6 +66,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       font-size: 5vw;
       margin: 33vh 3vw 0 3vw;
     }
+
+    paper-button {
+      margin: 0;
+    }
   </style>
   <template>
     <div class="save-package layout vertical">
@@ -102,7 +106,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             max-rows="10"
                             value="[[notes]]"></paper-textarea>
 
-            <div class="save-package__fab-container layout horizontal end-justified end">
+            <div class="save-package__fab-container layout horizontal center">
               <paper-button
                 class="save-package__save-button"
                 raised
@@ -136,7 +140,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             max-rows="10"
                             value="[[notes]]"></paper-textarea>
 
-            <div class="save-package__fab-container layout horizontal end-justified end">
+            <div class="save-package__fab-container layout horizontal center">
               <paper-button
                 class="save-package__save-button"
                 raised

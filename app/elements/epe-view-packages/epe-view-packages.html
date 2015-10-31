@@ -14,10 +14,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <style>
     :host {
       display: block;
+      min-height: 80vh;
     }
 
     iron-list {
       background-color: var(--paper-grey-200);
+      min-height: inherit;
       --iron-list-items-container: {
          max-width: 75vw;
          margin: auto;
@@ -204,6 +206,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // When the presentations data is updated, set this view's presentationsData
         this.presentationsStore.listen(function(presentationsStore) {
           this.presentationsData = presentationsStore.presentationsData;
+
+          // ToDo: Don't know why I have to do this with iron-list. When presentationData array
+          // changes I would expect the template to update but it isn't. In meantime, forcing it
+          // by clearing the array and resetting it.
+          this.$.List.items = [];
+          this.$.List.items = this.presentationsData;
+
         }.bind(this));
       }
     },
