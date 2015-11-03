@@ -60,11 +60,6 @@ var filterTransforms = {
   People: {
     filters: {
       type: 'find',
-      textInputFilters: [
-        'Full Name',
-        'Type'
-      ],
-      datePickerFilters: [],
       value: {
         '$and': [
           {
@@ -98,20 +93,15 @@ var filterTransforms = {
   Source: {
     filters: {
       type: 'find',
-      textInputFilters: [
-        'Full Name',
-        'Type'
-      ],
-      datePickerFilters: [],
       value: {
         '$and': [
           {
-            'Full Name': {
+            'Headline': {
               '$regex' : ['', 'i']
             }
           },
           {
-            'Type': {
+            'Description': {
               '$regex' : ['', 'i']
             }
           }]

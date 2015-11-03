@@ -243,12 +243,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <section data-route="create-package" class="create-package">
             <epe-create-package
               id="EpeCreatePackage"
+              edit-state="creating"
               user-store="[[userStore]]"
               data-source-actions="[[dataSourceActions]]"
               filter-state-actions="[[filterStateActions]]"
               events-store="[[eventsStore]]"
               places-store="[[placesStore]]"
               people-store="[[peopleStore]]"
+              source-actions="[[sourceActions]]"
               source-store="[[sourceStore]]"
               message="{{message}}"
               presentations-actions="[[presentationsActions]]"
@@ -261,12 +263,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <section data-route="edit-package" class="create-package">
             <epe-create-package
               id="EpeEditPackage"
+              edit-state="editing"
               user-store="[[userStore]]"
               data-source-actions="[[dataSourceActions]]"
               filter-state-actions="[[filterStateActions]]"
               events-store="[[eventsStore]]"
               places-store="[[placesStore]]"
               people-store="[[peopleStore]]"
+              source-actions="[[sourceActions]]"
               source-store="[[sourceStore]]"
               message="{{message}}"
               presentations-actions="[[presentationsActions]]"

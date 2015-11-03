@@ -5,8 +5,13 @@ var dataSourceStore = require('../stores/dataSource.js');
 var filterTransform = require('../config/filterTransforms.js');
 var filterStateStore = require('../stores/filterState.js');
 var presentationsStore = require('../stores/presentations.js');
+var SourceActions = require('../actions/source.js');
 
 module.exports = Reflux.createStore({
+
+  // this will set up listeners to all publishers in SourceActions,
+  // using onKeyname (or keyname) as callbacks
+  listenables: [SourceActions],
 
   // Name to use for this collection
   collectionName: 'Source',
@@ -91,8 +96,11 @@ module.exports = Reflux.createStore({
 
     this.filteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).data();
 
+    // Set viewingSource property to false
+    this.viewingSource = false;
+
     // Send object out to all listeners
-    this.trigger(this.filteredCollection);
+    this.trigger(this);
   },
 
   // Retrieve a transform from the db using a transform name
@@ -105,13 +113,20 @@ module.exports = Reflux.createStore({
     }
 
     // Update this store's filterTransform so the filters will be updated when a presentation changes
+    if (!this.dataSource.getCollection(this.collectionName).transforms[transformName]) {
+      return;
+    }
+
     this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
 
     // Update the collection resulting from the transform
     this.filteredCollection = collectionToAddTransformTo.chain(transformName).data();
 
+    // Set viewingSource property to false
+    this.viewingSource = false;
+
     // Send collection object out to all listeners
-    this.trigger(this.filteredCollection);
+    this.trigger(this);
   },
 
   // Reset a transform on this collection
@@ -136,8 +151,11 @@ module.exports = Reflux.createStore({
     // Update the collection resulting from the transform
     this.filteredCollection = collectionToAddTransformTo.chain(transformName).data();
 
+    // Set viewingSource property to false
+    this.viewingSource = false;
+
     // Send collection object out to all listeners
-    this.trigger(this.filteredCollection);
+    this.trigger(this);
   },
 
   //
@@ -160,5 +178,53 @@ module.exports = Reflux.createStore({
     this.collectionTransform.push(filterTransform[this.collectionName].sorting);
 
     collectionToAddTransformTo.setTransform('DefaultFilter', this.collectionTransform);
+  },
+
+  // Called when a user attempts to view a source file
+  viewSourceFile: function(sourceObject) {
+
+    // Set selectedSourceObject property
+    this.setSelectedSourceObject(sourceObject);
+
+    // Set selectedSourceObject property
+    this.setSelectedSourceFileType(sourceObject);
+
+    // Set viewingSource property to true
+    this.viewingSource = true;
+
+    // Send object out to all listeners
+    this.trigger(this);
+  },
+
+  // Set a property on this store object to indicate current selected source object
+  setSelectedSourceObject: function(sourceObject) {
+    this.selectedSourceObject = sourceObject;
+  },
+
+  // Set a property on this store object to indicate the type of file
+  setSelectedSourceFileType: function(sourceObject) {
+
+    var filePath = sourceObject.Src;
+    var fileExtension = filePath.substr(filePath.lastIndexOf('.') + 1);
+
+    switch (fileExtension) {
+      case "pdf":
+        this.selectedSourceFileType = 'pdf';
+        break;
+      case "jpg":
+        this.selectedSourceFileType = 'image';
+        break;
+      case "jpeg":
+        this.selectedSourceFileType = 'image';
+        break;
+      case ".mp3":
+        this.selectedSourceFileType = 'audio';
+        break;
+      case ".mp4":
+        this.selectedSourceFileType = 'video';
+        break;
+      default:
+        console.warn(fileExtension + "not a supported type");
+    }
   }
 });

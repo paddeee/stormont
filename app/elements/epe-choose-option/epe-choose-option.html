@@ -150,9 +150,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     ready: function() {
 
       // When the user data is updated, update our user
-      this.userStore.listen(function(userData) {
-        this.user = userData;
-      }.bind(this));
+      if (this.userStore) {
+
+        this.userStore.listen(function(userData) {
+          this.user = userData;
+        }.bind(this));
+      }
     },
 
     // Called by parent element

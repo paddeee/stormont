@@ -157,7 +157,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
             <div class="filter-search-container">
               <epe-filter-search
-                filter-type="createPackage"
                 collection-name="[[collectionName]]"
                 filters-to-show="[[filtersToShow]]"
                 on-filters-changed="filtersChanged">
@@ -172,6 +171,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                      class="data-grid-area relative layout horizontal">
               <epe-data-grid
                 filter-state-actions="[[filterStateActions]]"
+                source-actions="[[sourceActions]]"
                 presentations-store="[[presentationsStore]]"
                 collection-name="[[collectionName]]"
                 sorting-state="[[sortingState]]"
@@ -199,6 +199,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <!-- Map View -->
       <section data-route="map" class="time-map">
         <epe-map id="Map"></epe-map>
+      </section>
+
+      <!-- Source View -->
+      <section data-route="source" class="source">
+        <epe-source-viewer
+          id="EpeSourceViewer"
+          source-store="[[sourceStore]]"
+          on-navigate-to-source-viewer="navigateToSourceViewer"></epe-source-viewer>
       </section>
     </iron-pages>
 
@@ -254,6 +262,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       hideDataGrid: {
         type: Boolean,
         computed: 'isGridEmpty(gridData)'
+      },
+
+      editState: {
+        type: String,
+        value: 'creating'
       },
 
       animationConfig: {
@@ -336,7 +349,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // When the source data is updated, update our grid data
         this.sourceStore.listen(function (sourceData) {
 
-          this.sourceData = sourceData;
+          this.sourceData = sourceData.filteredCollection;
 
           if (this.params) {
 
@@ -531,6 +544,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.fire('show-dialog', {
         type: event.detail.type
       });
+    },
+
+    // FIRED BY EPE-SOURCE-VIEWER ELEMENT: Navigate to the relevant source viewer
+    navigateToSourceViewer: function(event) {
+
+      if (event.detail.viewingSource) {
+
+        // ToDo: Fix this weirdness caused by having two epe-create-package elements
+        if (this.editState === 'creating' && this.presentationState === 'creating') {
+          page('/create-package/source/' + event.detail.selectedSourceFileType)
+        } else if (this.editState === 'editing' && this.presentationState !== 'creating') {
+          page('/edit-package/source/' + event.detail.selectedSourceFileType)
+        }
+      }
     },
 
     // Navigate back

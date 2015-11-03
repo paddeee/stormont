@@ -14,6 +14,7 @@ var filterStateActions = require('./actions/filterState.js');
 var eventsStore = require('./stores/events.js');
 var placesStore = require('./stores/places.js');
 var peopleStore = require('./stores/people.js');
+var sourceActions = require('./actions/source.js');
 var sourceStore = require('./stores/source.js');
 var userActions = require('./actions/users.js');
 var userStore = require('./stores/users.js');
@@ -22,7 +23,7 @@ var presentationsStore = require('./stores/presentations.js');
 var importActions = require('./actions/import.js');
 var importStore = require('./stores/import.js');
 
-(function(document, reflux, presentationsActions, presentationsStore, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore) {
+(function(document, reflux, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore) {
   'use strict';
 
   // Call checkForLDAP action
@@ -48,6 +49,7 @@ var importStore = require('./stores/import.js');
   app.placesStore = placesStore;
   app.peopleStore = peopleStore;
   app.sourceStore = sourceStore;
+  app.sourceActions = sourceActions;
   app.packagedApp = global.packagedApp ? true : false;
 
   app.displayInstalledToast = function() {
@@ -77,4 +79,4 @@ var importStore = require('./stores/import.js');
     }
   };
 
-})(document, reflux, presentationsActions, presentationsStore, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore);
+})(document, reflux, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore);

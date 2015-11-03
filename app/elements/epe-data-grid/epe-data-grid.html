@@ -41,7 +41,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       border-top: 1px var(--divider-color) solid;
       color: var(--secondary-text-color);
       line-height: 4;
-      padding: 0 16px;
+      padding: 0 0 0 16px;
       text-transform: capitalize;
     }
 
@@ -49,7 +49,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       background-color: var(--text-primary-color);
       border-bottom: 1px var(--divider-color) solid;
       line-height: 4;
-      padding: 0 16px;
+      padding: 0 0 0 16px;
     }
 
     .field-heading,
@@ -131,6 +131,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       width: 30vw;
     }
 
+    .blank-source,
+    .field__source {
+      width: 8vw;
+    }
+
+    .field__button {
+      font-size: 1vw;
+      line-height: 3;
+      padding: 0 0.5vw;
+    }
+
   </style>
   <template>
     <div class="data-grid layout vertical">
@@ -158,8 +169,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     class="chevron"><iron-icon>
                 </div>
               </div>
-
             </template>
+            <div class="blank-source" hidden$="[[hideViewSourceButton]]"></div>
           </div>
         </div>
 
@@ -177,6 +188,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <span>{{item.value}}</span>
                   </div>
                 </template>
+                <div class="field__source" hidden$="[[hideViewSourceButton]]">
+                  <paper-button
+                    class="field__button"
+                    raised
+                    on-tap="viewSourceFile">View <iron-icon icon="description"></iron-icon></paper-button>
+                </div>
               </div>
             </template>
           </iron-list>
@@ -265,6 +282,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       noRecords: {
         type: Boolean,
         computed: 'areThereAnyRecords(gridData)'
+      },
+
+      hideViewSourceButton: {
+        tye: Boolean,
+        computed: 'isSource(collectionName)'
       }
     },
 
@@ -434,6 +456,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       } else {
         this.hideNoSaveMessage = true;
       }
+    },
+
+    // Computed function to return true if we're looking at a 'Source' data-grid
+    isSource: function(collectionName) {
+
+      if (collectionName !== 'Source') {
+        return true;
+      }
+      return false;
+    },
+
+    // FIRED WHEN USER TAPS VIEW SOURCE BUTTON
+    viewSourceFile: function(event) {
+
+      var sourceObject = event.model.item;
+
+      // Call viewSourceFile sources action
+      this.sourceActions.viewSourceFile(sourceObject);
     }
   });
 })();

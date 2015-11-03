@@ -105,7 +105,9 @@ module.exports = Reflux.createStore({
     }
 
     // Update this store's filterTransform so the filters will be updated when a presentation changes
-    this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
+    if (this.dataSource.getCollection(this.collectionName).transforms[transformName][0]) {
+      this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
+    }
 
     // Update the collection resulting from the transform
     this.filteredCollection = collectionToAddTransformTo.chain(transformName).data();
