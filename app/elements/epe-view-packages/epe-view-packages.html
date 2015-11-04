@@ -219,7 +219,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Return a friendly date
     formatCreatedDate: function(timeStamp) {
-      return moment(timeStamp).calendar();
+      return window.moment(timeStamp).calendar();
     },
 
     // Handle expanded content for a list item
@@ -243,7 +243,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var $item = event.currentTarget.closest('.item');
       var $gateKeeperTrafficLight = $item.querySelector('.gatekeeper-state iron-icon');
-      var $actionButtonHolder = $item.querySelector('.card-actions');
 
       if (event.target.checked) {
         event.model.item.gateKeeperState = 'amber';

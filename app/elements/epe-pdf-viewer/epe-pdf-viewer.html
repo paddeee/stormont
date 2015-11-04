@@ -17,11 +17,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       display: block;
     }
 
-    .pdf__canvas {
-      margin-bottom: 6vh;
-      min-height: 80vh;
-    }
-
     .pdf__footer {
       background: rgb(55, 64, 70);
       color: var(--text-primary-color);
@@ -42,12 +37,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       font-size: 3vh;
       margin-right: 2px;
     }
+
   </style>
+  <link rel="stylesheet" href="../../styles/vendor/pdf/pdf.css">
   <script src="../../scripts/vendor/pdf/l10n.js"></script>
   <script src="../../scripts/vendor/pdf/pdf.js"></script>
   <script src="../../scripts/vendor/pdf/pdf-viewer.js"></script>
 
   <template>
+
     <!-- Loading Bar ToDo: Use Polymer loading bar  -->
     <div id="loadingBar">
       <div class="progress">
@@ -130,7 +128,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
 
       <!-- ToDo: Just putting this in as not sure if needed later -->
-      <div id="errorWrapper" hidden>
+      <div id="errorWrapper" class="error-wrapper" hidden>
         <div id="errorMessageLeft">
           <span id="errorMessage"></span>
           <button id="errorShowMore" data-l10n-id="error_more_info">
