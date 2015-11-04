@@ -116,6 +116,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <paper-scroll-header-panel
         id="MainScrollHeader"
+        class="source-viewer"
         main
         condenses
         keep-condensed-header>
@@ -235,7 +236,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               people-store="[[peopleStore]]"
               source-store="[[sourceStore]]"
               packaged-app="[[packagedApp]]"
-              csv-type="Places"
               csv-parser="[[csvParser]]"></epe-import>
           </section>
 
@@ -417,6 +417,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       this.setSectionTitle();
 
+      // See if we need to customise the header for the Source viewer
+      this.setSourceHeader();
+
       if (this.route === 'login') {
         this.$.MainScrollHeader.classList.add('hide-header');
         this.$.MainScrollHeader.fixed = true;
@@ -512,6 +515,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       } else if (EpeCreatePackage.createPackageRoute === 'map') {
         this.sectionTitle = 'Create Package - Map';
+
+      } else if (EpeCreatePackage.createPackageRoute === 'source') {
+        this.sectionTitle = 'Create Package - Supporting Evidence';
       }
     },
 
@@ -530,6 +536,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       } else if (EpeEditPackage.createPackageRoute === 'map') {
         this.sectionTitle = 'Map - ' + this.presentationName;
+
+      } else if (EpeEditPackage.createPackageRoute === 'source') {
+        this.sectionTitle = 'Supporting Evidence - ' + this.presentationName;
       }
     },
 
@@ -572,7 +581,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           $scrollHeader.scroll(0, true);
           break;
         case 'source':
-          $scrollHeader.scroll(0, true);
+          $scrollHeader.scroll(128, true);
+          break;
+        case 'pdf':
+          $scrollHeader.scroll(128, true);
           break;
         default:
           $scrollHeader.scroll(0, true);
@@ -586,6 +598,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return false;
       }
       return true;
+    },
+
+    // If Source view, customise the header
+    // ToDo: See if there is a better way to change colour and fix header to a slim bar that doesn't condense
+    setSourceHeader: function() {
+
+      if ((app.route === 'create-package' || app.route === 'edit-package') && EpeCreatePackage.createPackageRoute === 'source') {
+        this.$.MainScrollHeader.querySelector('#condensedHeaderBg').style.backgroundColor = '#374046';
+      } else {
+        this.$.MainScrollHeader.querySelector('#condensedHeaderBg').style.backgroundColor = '#03A9F4';
+      }
     },
 
     // Is a presentation being edited or created

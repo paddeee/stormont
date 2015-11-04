@@ -1,0 +1,127 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="epe-pdf-viewer">
+  <style>
+
+    :host {
+      display: block;
+    }
+
+    .pdf__canvas {
+      margin-bottom: 6vh;
+      min-height: 80vh;
+    }
+
+    .pdf__footer {
+      height: 6vh;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgb(55, 64, 70);
+      color: var(--text-primary-color);
+    }
+  </style>
+  <script src="../../scripts/vendor/pdf.js"></script>
+  <script type="text/javascript">
+    PDFJS.disableWorker = true;
+    // Specify the main script used to create a new PDF.JS web worker.
+    // In production, change this to point to the combined `pdf.js` file.
+    //PDFJS.workerSrc = '../../scripts/vendor/pdf.js';
+  </script>
+
+  <template>
+    <div class="pdf layout vertical">
+      <div class="pdf__canvas flex">
+        <canvas id="PDFCanvas"/>
+      </div>
+      <div class="pdf__footer horizontal layout center center-justified">
+        Footer
+      </div>
+    </div>
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+    is: 'epe-pdf-viewer',
+
+    properties: {
+
+      scale: {
+        type: Number,
+        value: 1
+      },
+
+      page: {
+        type: Number,
+        value: 1
+      },
+
+      pdfObject: {
+        type: Object,
+        value: null,
+        observer: 'pdfObjectChanged'
+      }
+    },
+
+    // CALLED FROM OBSERVER ON PDFOBJECT
+    pdfObjectChanged: function() {
+
+      if (this.pdfObject) {
+
+        this.pdf = null;
+        this.page = 1;
+
+        PDFJS.getDocument('test.pdf').then(function(pdf) {
+          this.pdf = pdf;
+          this.renderPDF();
+        }.bind(this), function(error) {
+          console.log(error);
+        });
+      }
+    },
+
+    // Draw PDF onto canvas
+    renderPDF: function() {
+
+      var canvas = this.$.PDFCanvas;
+      var scale = this.scale;
+
+      if (!this.pdf) {
+        return;
+      }
+
+      // Using promise to fetch the page
+      this.pdf.getPage(this.page).then(function(page) {
+
+        var viewport = page.getViewport(scale);
+        var context = canvas.getContext('2d');
+        var renderContext;
+
+        // Prepare canvas using PDF page dimensions
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        // Render PDF page into canvas context
+        renderContext = {
+          canvasContext: context,
+          viewport: viewport
+        };
+
+        page.render(renderContext);
+      });
+    }
+  });
+})();
+</script>

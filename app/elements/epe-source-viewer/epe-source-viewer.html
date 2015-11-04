@@ -15,28 +15,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     :host {
       display: block;
     }
+
+    epe-pdf-viewer {
+      background-color: #52585A;
+      padding: 16px;
+    }
   </style>
   <template>
+
     <iron-pages attr-for-selected="data-route"
                 selected="{{route}}">
 
       <!-- PDF Viewer Section -->
-      <section data-route="pdf">
-        <div>PDF Viewer</div>
+      <section data-route="pdf" class="fit">
+        <epe-pdf-viewer
+          class="layout horizontal center-justified"
+          pdf-object="[[selectedSourceObject]]"></epe-pdf-viewer>
       </section>
 
       <!-- Image Viewer Section -->
-      <section data-route="image">
+      <section data-route="image" class="fit">
         <div>Image Viewer</div>
       </section>
 
       <!-- Audio Section -->
-      <section data-route="audio">
+      <section data-route="audio" class="fit">
         <div>Audio Viewer</div>
       </section>
 
       <!-- Video Section -->
-      <section data-route="video">
+      <section data-route="video" class="fit">
         <div>Video Viewer</div>
       </section>
 
@@ -50,6 +58,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     properties: {
 
+      selectedSourceObject: {
+        type: Object
+      }
     },
 
     ready: function() {
@@ -58,6 +69,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // When the source data is updated, update our grid data
         this.sourceStore.listen(function (sourceData) {
+
+          this.selectedSourceObject = sourceData.selectedSourceObject;
 
           this.fire('navigate-to-source-viewer', sourceData);
 

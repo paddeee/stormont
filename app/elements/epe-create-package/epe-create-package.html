@@ -77,7 +77,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     /* Height of condensed scroll bar is 64px */
     epe-map,
-    .data-grid {
+    .data-grid,
+    epe-source-viewer {
+      background-color: var(--primary-background-color);
       height: calc(100% + 128px);
     }
 
@@ -205,6 +207,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <section data-route="source" class="source">
         <epe-source-viewer
           id="EpeSourceViewer"
+          class="relative"
           source-store="[[sourceStore]]"
           on-navigate-to-source-viewer="navigateToSourceViewer"></epe-source-viewer>
       </section>
