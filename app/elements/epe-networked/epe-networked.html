@@ -367,6 +367,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Set up listeners when element is ready
     ready: function() {
 
+      window.onscroll = function(event) {
+        console.log(event);
+      };
+
       addEventListener('paper-header-transform', function(e) {
         var sectionName = this.$.SectionName;
         var middleContainer = this.$.MiddleContainer;
