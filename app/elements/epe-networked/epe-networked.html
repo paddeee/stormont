@@ -367,9 +367,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Set up listeners when element is ready
     ready: function() {
 
-      window.onscroll = function(event) {
-        console.log(event);
-      };
+      addEventListener('content-scroll', function(e) {
+
+        var $header = e.detail.target;
+
+        this.deCondenseHeader($header);
+
+      }.bind(this));
 
       addEventListener('paper-header-transform', function(e) {
         var sectionName = this.$.SectionName;
@@ -637,6 +641,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     closeCard: function () {
       this.$.EpeCreatePackage.closeCard();
       this.$.EpeEditPackage.closeCard();
+    },
+
+    // Keep header small and fixed in certain conditions
+    deCondenseHeader: function($header) {
+
+      // If in Source View
+      if ((app.route === 'create-package' || app.route === 'edit-package') && EpeCreatePackage.createPackageRoute === 'source') {
+
+        if ($header.scrollTop < 128) {
+          this.$.MainScrollHeader.scroll(128, false);
+        }
+      }
     }
   });
 })();
