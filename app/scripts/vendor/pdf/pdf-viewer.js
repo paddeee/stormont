@@ -153,7 +153,7 @@ function scrollIntoView(element, spot, skipOverflowHiddenElements) {
   // producing the error. See also animationStartedClosure.
   var parent = element.offsetParent;
   if (!parent) {
-    console.error('offsetParent is not set -- cannot scroll');
+    //console.error('offsetParent is not set -- cannot scroll');
     return;
   }
   var checkOverflow = skipOverflowHiddenElements || false;
@@ -3991,8 +3991,10 @@ var PDFPageView = (function PDFPageViewClosure() {
           zoomLayerCanvas.width = 0;
           zoomLayerCanvas.height = 0;
 
-          div.removeChild(self.zoomLayer);
-          self.zoomLayer = null;
+          if (self.zoomLayer.parentNode == div) {
+            div.removeChild(self.zoomLayer);
+            self.zoomLayer = null;
+          }
         }
 
         self.error = error;
@@ -6492,11 +6494,15 @@ var PDFViewerApplication = {
   },
 
   set page(val) {
-    this.pdfLinkService.page = val;
+    if (this.pdfLinkService) {
+      this.pdfLinkService.page = val;
+    }
   },
 
   get page() { // TODO remove
-    return this.pdfLinkService.page;
+    if (this.pdfLinkService) {
+      return this.pdfLinkService.page;
+    }
   },
 
   get supportsPrinting() {
@@ -7439,26 +7445,6 @@ function webViewerInitialized() {
       PDFViewerApplication.switchSidebarView('attachments');
     });
 
-  document.getElementById('previous').addEventListener('click',
-    function() {
-      PDFViewerApplication.page--;
-    });
-
-  document.getElementById('next').addEventListener('click',
-    function() {
-      PDFViewerApplication.page++;
-    });
-
-  document.getElementById('zoomIn').addEventListener('click',
-    function() {
-      PDFViewerApplication.zoomIn();
-    });
-
-  document.getElementById('zoomOut').addEventListener('click',
-    function() {
-      PDFViewerApplication.zoomOut();
-    });
-
   document.getElementById('pageNumber').addEventListener('click', function() {
     this.select();
   });
@@ -7472,6 +7458,7 @@ function webViewerInitialized() {
     }
   });
 
+  /* ToDo: Remove when we want to work on these features
   document.getElementById('scaleSelect').addEventListener('change', function() {
     if (this.value === 'custom') {
       return;
@@ -7479,7 +7466,6 @@ function webViewerInitialized() {
     PDFViewerApplication.pdfViewer.currentScaleValue = this.value;
   });
 
-  /* ToDo: Remove when we want to work on these features
   document.getElementById('presentationMode').addEventListener('click',
     SecondaryToolbar.presentationModeClick.bind(SecondaryToolbar));
 
@@ -7527,8 +7513,7 @@ document.addEventListener('pagerendered', function (e) {
   var pageView = PDFViewerApplication.pdfViewer.getPageView(pageIndex);
 
   if (PDFViewerApplication.sidebarOpen) {
-    var thumbnailView = PDFViewerApplication.pdfThumbnailViewer.
-      getThumbnail(pageIndex);
+    var thumbnailView = PDFViewerApplication.pdfThumbnailViewer.getThumbnail(pageIndex);
     thumbnailView.setImage(pageView);
   }
 
@@ -7756,8 +7741,6 @@ window.addEventListener('localized', function localized(evt) {
 }, true);
 
 window.addEventListener('scalechange', function scalechange(evt) {
-  document.getElementById('zoomOut').disabled = (evt.scale === MIN_SCALE);
-  document.getElementById('zoomIn').disabled = (evt.scale === MAX_SCALE);
 
   // Update the 'scaleSelect' DOM element.
   var predefinedValueFound = selectScaleOption(evt.presetValue ||
@@ -7784,9 +7767,6 @@ window.addEventListener('pagechange', function pagechange(evt) {
     }
   }
   var numPages = PDFViewerApplication.pagesCount;
-
-  document.getElementById('previous').disabled = (page <= 1);
-  document.getElementById('next').disabled = (page >= numPages);
 
   // ToDo: Re-add when needed
   //document.getElementById('firstPage').disabled = (page <= 1);

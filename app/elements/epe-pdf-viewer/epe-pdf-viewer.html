@@ -34,8 +34,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .pdf_current-page {
-      font-size: 3vh;
-      margin-right: 2px;
+      margin-right: 4px;
+    }
+
+    .pdf_total-pages {
+      margin-left: 4px;
+    }
+
+    .rotate {
+      transform: rotate(90deg);
     }
 
   </style>
@@ -95,12 +102,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <span>[[pdfName]]</span>
           </div>
           <div class="pdf_button-holder flex">
-            <paper-icon-button id="sidebarToggle" tabindex="11" icon="toggle"></paper-icon-button>
+            <paper-icon-button id="sidebarToggle" tabindex="11" icon="toggle" hidden></paper-icon-button>
             <paper-icon-button icon="search"></paper-icon-button>
-            <paper-icon-button id="previous" icon="arrow-back"></paper-icon-button>
-            <paper-icon-button id="next" icon="arrow-forward"></paper-icon-button>
-            <paper-icon-button id="zoomIn" icon="zoom-in"></paper-icon-button>
-            <paper-icon-button id="zoomOut" icon="zoom-out"></paper-icon-button>
+            <paper-icon-button id="Previous" icon="arrow-back" on-tap="showPreviousPage"></paper-icon-button>
+            <paper-icon-button id="Next" icon="arrow-forward" on-tap="showNextPage"></paper-icon-button>
+            <paper-icon-button id="ZoomOut" icon="zoom-out" on-tap="zoomOut"></paper-icon-button>
+            <paper-icon-button id="ZoomIn" icon="zoom-in" on-tap="zoomIn"></paper-icon-button>
+            <paper-icon-button icon="device:developer-mode" on-tap="fitToPage"></paper-icon-button>
+            <paper-icon-button class="rotate" icon="device:developer-mode" on-tap="fitToWidth"></paper-icon-button>
 
             <!-- ToDo: Can remove hide when ready to work on this -->
             <span id="scaleSelectContainer" class="dropdownToolbarButton" hidden>
@@ -123,6 +132,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </div>
           <div class="pdf_page-info flex">
             <span id="pageNumber" class="pdf_current-page">[[page]]</span>/<span id="numPages" class="pdf_total-pages">[[totalPages]]</span>
+          </div>
+          <div class="pdf_button-holder flex">
+
           </div>
         </div>
       </div>
@@ -158,6 +170,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     properties: {
 
+      minScale: {
+        type: Number,
+        value: 0.25,
+        readOnly: true
+      },
+
+      maxScale: {
+        type: Number,
+        value: 10.0,
+        readOnly: true
+      },
+
+      pdfName: {
+        type: String
+      },
+
+      page: {
+        type: Number,
+        value: 1
+      },
+
+      numPages: {
+        type: Number,
+        value: 1
+      },
+
       pdfObject: {
         type: Object,
         value: null,
@@ -165,15 +203,78 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
+    ready: function() {
+
+      // Add listener to make sure page is updated when a new one is rendered
+      window.addEventListener('pagechange', function pagechange(evt) {
+
+        this.page = PDFViewerApplication.page;
+        this.numPages = PDFViewerApplication.pagesCount;
+
+        this.$.Previous.disabled = (this.page <= 1);
+        this.$.Next.disabled = (this.page >= this.numPages);
+      }.bind(this), true);
+
+      // Add listener to make sure can't scale beyond certain sizes
+      window.addEventListener('scalechange', function scalechange(evt) {
+        this.$.ZoomOut.disabled = (evt.scale === this.minScale);
+        this.$.ZoomIn.disabled = (evt.scale === this.maxScale);
+      }.bind(this), true);
+    },
+
     // CALLED FROM OBSERVER ON PDFOBJECT
     pdfObjectChanged: function() {
 
       if (this.pdfObject) {
 
+        this.pdfName = this.pdfObject.Headline;
+
         if (!PDFViewerApplication.initialized) {
+
+          if (PDFViewerApplication.page) {
+            this.page = PDFViewerApplication.page;
+            this.scaleToAuto();
+          }
+
+          // Kickstart loading PDF using this global created from pdf-viewer.js
           webViewerLoad();
         }
       }
+    },
+
+    // Show previous page of PDF
+    showPreviousPage: function() {
+      PDFViewerApplication.page--;
+    },
+
+    // Show next page of PDF
+    showNextPage: function() {
+      PDFViewerApplication.page++;
+    },
+
+    // Zoom in to PDF
+    zoomIn: function() {
+      PDFViewerApplication.zoomIn();
+    },
+
+    // Zoom out of PDF
+    zoomOut: function() {
+      PDFViewerApplication.zoomOut();
+    },
+
+    // Set PDF Scale to actual size
+    scaleToAuto: function() {
+      PDFViewerApplication.pdfViewer.currentScaleValue = 'auto';
+    },
+
+    // Fit PDF Scale to width
+    fitToWidth: function() {
+      PDFViewerApplication.pdfViewer.currentScaleValue = 'page-width';
+    },
+
+    // Fit PDF Scale to page
+    fitToPage: function() {
+      PDFViewerApplication.pdfViewer.currentScaleValue = 'page-fit';
     }
   });
 })();
