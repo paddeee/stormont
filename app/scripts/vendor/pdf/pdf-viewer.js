@@ -1181,7 +1181,7 @@ var PDFFindController = (function PDFFindControllerClosure() {
     this.startedTextExtraction = false;
     this.extractTextPromises = [];
     this.pendingFindMatches = {};
-    this.active = false; // If active, find results will be highlighted.
+    this.active = true; // If active, find results will be highlighted.
     this.pageContents = []; // Stores the text for each page.
     this.pageMatches = [];
     this.matchCount = 0;
@@ -2282,8 +2282,6 @@ var SecondaryToolbar = {
       { element: this.viewBookmark, handler: this.viewBookmarkClick },
       { element: this.firstPage, handler: this.firstPageClick },
       { element: this.lastPage, handler: this.lastPageClick },
-      { element: this.pageRotateCw, handler: this.pageRotateCwClick },
-      { element: this.pageRotateCcw, handler: this.pageRotateCcwClick },
       { element: this.documentPropertiesButton,
         handler: this.documentPropertiesClick }
     ];
@@ -7692,11 +7690,13 @@ window.addEventListener('change', function webViewerChange(evt) {
   PDFViewerApplication.setTitleUsingUrl(file.name);
 
   // URL does not reflect proper document location - hiding some icons.
+  /* ToDo: Re-add if needed
   document.getElementById('viewBookmark').setAttribute('hidden', 'true');
   document.getElementById('secondaryViewBookmark').
     setAttribute('hidden', 'true');
   document.getElementById('download').setAttribute('hidden', 'true');
   document.getElementById('secondaryDownload').setAttribute('hidden', 'true');
+   */
 }, true);
 
 function selectScaleOption(value) {
