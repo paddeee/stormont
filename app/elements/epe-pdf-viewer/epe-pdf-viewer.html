@@ -349,8 +349,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             // Close findBar if it was left open
             if (PDFViewerApplication.findBar) {
-              this.closeFindBar();
               PDFViewerApplication.findBar.updateResultsCount();
+              this.closeFindBar();
+              this.$.findResultsCount.classList.add('hidden');
               this.$.findInput.value = '';
               this.$.findMsg.textContent = 'Search document';
             }
@@ -423,7 +424,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var $caseCheckbox = this.$.findMatchCase;
       var $highlightCheck = this.$.findHighlightAll;
 
-      PDFFindBar.prototype.dispatchEvent('again', true, $queryInput, $caseCheckbox, $highlightCheck);
+      PDFViewerApplication.findBar.dispatchEvent('again', true, $queryInput, $caseCheckbox, $highlightCheck);
     },
 
     // Find next result in PDF
@@ -433,7 +434,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var $caseCheckbox = this.$.findMatchCase;
       var $highlightCheck = this.$.findHighlightAll;
 
-      PDFFindBar.prototype.dispatchEvent('again', false, $queryInput, $caseCheckbox, $highlightCheck);
+      PDFViewerApplication.findBar.dispatchEvent('again', false, $queryInput, $caseCheckbox, $highlightCheck);
     }
 
   });
