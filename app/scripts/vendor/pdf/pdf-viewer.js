@@ -1031,18 +1031,6 @@ var PDFFindBar = (function PDFFindBarClosure() {
       });
     }
 
-    if (this.findPreviousButton !== null) {
-      this.findPreviousButton.addEventListener('click', function () {
-        self.dispatchEvent('again', true);
-      });
-    }
-
-    if (this.findNextButton !== null) {
-      this.findNextButton.addEventListener('click', function () {
-        self.dispatchEvent('again', false);
-      });
-    }
-
     if (this.highlightAll !== null) {
       this.highlightAll.addEventListener('click', function () {
         self.dispatchEvent('highlightallchange');
@@ -1057,12 +1045,12 @@ var PDFFindBar = (function PDFFindBarClosure() {
   }
 
   PDFFindBar.prototype = {
-    dispatchEvent: function PDFFindBar_dispatchEvent(type, findPrev) {
+    dispatchEvent: function PDFFindBar_dispatchEvent(type, findPrev, $queryInput, $caseCheckbox, $highlightCheckbox) {
       var event = document.createEvent('CustomEvent');
       event.initCustomEvent('find' + type, true, true, {
-        query: this.findField.value,
-        caseSensitive: this.caseSensitive.checked,
-        highlightAll: this.highlightAll.checked,
+        query: $queryInput ? $queryInput.value : this.findField.value,
+        caseSensitive: $caseCheckbox ? $caseCheckbox.checked : this.caseSensitive.checked,
+        highlightAll: $highlightCheckbox ? $highlightCheckbox.checked : this.highlightAll.checked,
         findPrevious: findPrev
       });
       return window.dispatchEvent(event);

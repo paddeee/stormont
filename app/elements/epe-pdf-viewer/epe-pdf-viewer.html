@@ -227,10 +227,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <div>
                   <paper-icon-button id="findPrevious"
                                      icon="arrow-back"
-                                     tabindex="92"></paper-icon-button>
+                                     tabindex="92"
+                                     on-tap="findPrevious"></paper-icon-button>
                   <paper-icon-button id="findNext"
                                      icon="arrow-forward"
-                                     tabindex="93"></paper-icon-button>
+                                     tabindex="93"
+                                     on-tap="findNext"></paper-icon-button>
                 </div>
                 <paper-checkbox
                         id="findHighlightAll"
@@ -396,6 +398,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     closeFindBar: function() {
       PDFFindBar.prototype.opened = true;
       PDFFindBar.prototype.close();
+    },
+
+    // Find previous result in PDF
+    findPrevious: function() {
+
+      var $queryInput = this.$.findInput;
+      var $caseCheckbox = this.$.findMatchCase;
+      var $highlightCheck = this.$.findHighlightAll;
+
+      PDFFindBar.prototype.dispatchEvent('again', true, $queryInput, $caseCheckbox, $highlightCheck);
+    },
+
+    // Find next result in PDF
+    findNext: function() {
+
+      var $queryInput = this.$.findInput;
+      var $caseCheckbox = this.$.findMatchCase;
+      var $highlightCheck = this.$.findHighlightAll;
+
+      PDFFindBar.prototype.dispatchEvent('again', false, $queryInput, $caseCheckbox, $highlightCheck);
     }
 
   });
