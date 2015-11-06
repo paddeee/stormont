@@ -135,16 +135,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <!-- Navigation Tabs -->
         <paper-tabs attr-for-selected="name" selected="{{params.name}}" on-iron-select="tabSelected">
           <paper-tab name="Events" link>
-            <a href="/create-package/data-grid/Events" class="horizontal center-center layout">EVENTS</a>
+            <a href="/data-grid/Events"
+               class="horizontal center-center layout"
+               on-tap="tabNavigate">EVENTS</a>
           </paper-tab>
           <paper-tab name="People" link>
-            <a href="/create-package/data-grid/People" class="horizontal center-center layout">PEOPLE</a>
+            <a href="/data-grid/People"
+               class="horizontal center-center layout"
+               on-tap="tabNavigate">PEOPLE</a>
           </paper-tab>
           <paper-tab name="Places" link>
-            <a href="/create-package/data-grid/Places" class="horizontal center-center layout">PLACES</a>
+            <a href="/data-grid/Places"
+               class="horizontal center-center layout"
+               on-tap="tabNavigate">PLACES</a>
           </paper-tab>
           <paper-tab name="Source" link>
-            <a href="/create-package/data-grid/Source" class="horizontal center-center layout">SOURCE</a>
+            <a href="/data-grid/Source"
+               class="horizontal center-center layout"
+               on-tap="tabNavigate">SOURCE</a>
           </paper-tab>
         </paper-tabs>
 
@@ -207,6 +215,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <section data-route="source" class="source">
         <epe-source-viewer
           id="EpeSourceViewer"
+          edit-state="[[editState]]"
+          presentation-state="[[presentationState]]"
           class="relative"
           source-store="[[sourceStore]]"
           on-navigate-to-source-viewer="navigateToSourceViewer"></epe-source-viewer>
@@ -544,9 +554,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Fired from epe-save-package element
     showDialog: function(event) {
+
+      event.preventDefault();
       this.fire('show-dialog', {
         type: event.detail.type
       });
+    },
+
+    // Used by template to set tab links depending on whether user is creating or editing
+    tabNavigate: function(event) {
+
+      event.preventDefault();
+
+      if (this.editState === 'creating' && this.presentationState === 'creating') {
+        page('/create-package' + event.currentTarget.pathname);
+      } else if (this.editState === 'editing' && this.presentationState !== 'creating') {
+        page('/edit-package' + event.currentTarget.pathname);
+      }
     },
 
     // FIRED BY EPE-SOURCE-VIEWER ELEMENT: Navigate to the relevant source viewer
@@ -556,9 +580,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // ToDo: Fix this weirdness caused by having two epe-create-package elements
         if (this.editState === 'creating' && this.presentationState === 'creating') {
-          page('/create-package/source/' + event.detail.selectedSourceFileType)
+          page('/create-package/source/' + event.detail.selectedSourceFileType);
         } else if (this.editState === 'editing' && this.presentationState !== 'creating') {
-          page('/edit-package/source/' + event.detail.selectedSourceFileType)
+          page('/edit-package/source/' + event.detail.selectedSourceFileType);
         }
       }
     },

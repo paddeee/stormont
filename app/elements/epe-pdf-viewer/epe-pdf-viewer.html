@@ -63,7 +63,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       background: rgb(55, 64, 70);
       bottom: 8vh;
       color: #fff;
-      height: 10vh;
+      height: 12vh;
       right: 0;
       position: absolute;
       z-index: 10000;
@@ -114,8 +114,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       text-align: center;
     }
 
-    .find-top-container {
-      margin-bottom: -2vh;
+    .find-bottom-container {
+      padding-bottom: 2vh;
     }
 
   </style>
@@ -204,7 +204,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </div>
           <div class="pdf_page-info layout horizontal center">
             <span id="pageNumber" class="pdf_current-page">[[page]]</span>/
-            <span id="numPages" class="pdf_total-pages">[[totalPages]]</span>
+            <span id="numPages" class="pdf_total-pages">[[numPages]]</span>
           </div>
           <div class="pdf_secondary-button-holder flex layout horizontal center end-justified">
             <paper-icon-button icon="image:rotate-left" on-tap="rotateAntiClockWise"></paper-icon-button>
@@ -221,7 +221,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   <paper-icon-button icon="close" on-tap="closeFindBar"></paper-icon-button>
                 </div>
               </div>
-              <div class="layout horizontal center">
+              <div class="find-bottom-container layout horizontal center">
                 <label for="findInput">Find:</label>
                 <input id="findInput" class="find-input" tabindex="91">
                 <div>
@@ -336,7 +336,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         this.pdfName = this.pdfObject.Headline;
 
-        if (!PDFViewerApplication.initialized) {
+        //if (!PDFViewerApplication.initialized) {
 
           if (PDFViewerApplication.page) {
             this.page = PDFViewerApplication.page;
@@ -344,8 +344,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }
 
           // Kickstart loading PDF using this global created from pdf-viewer.js
-          webViewerLoad();
-        }
+          // but only for one instance of this element
+          if (this.editState === this.presentationState) {
+            webViewerLoad(this);
+          }
+        //}
       }
     },
 

@@ -186,6 +186,13 @@ module.exports = Reflux.createStore({
     // Set selectedSourceObject property
     this.setSelectedSourceObject(sourceObject);
 
+    // Hack based around need to trigger pdf creation in pdf element so we broadcast a change to null
+    // before sending out the object again.
+    if (!sourceObject) {
+      this.trigger(this);
+      return;
+    }
+
     // Set selectedSourceObject property
     this.setSelectedSourceFileType(sourceObject);
 

@@ -612,7 +612,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // ToDo: See if there is a better way to change colour and fix header to a slim bar that doesn't condense
     setSourceHeader: function() {
 
-      if ((app.route === 'create-package' || app.route === 'edit-package') && EpeCreatePackage.createPackageRoute === 'source') {
+      var $packageElement;
+
+      if (app.route === 'create-package') {
+        $packageElement = this.$.EpeCreatePackage;
+      } else if (app.route === 'edit-package') {
+        $packageElement = this.$.EpeEditPackage;
+      }
+
+      if ((app.route === 'create-package' || app.route === 'edit-package') && $packageElement.createPackageRoute === 'source') {
         this.$.MainScrollHeader.querySelector('#condensedHeaderBg').style.backgroundColor = '#374046';
       } else {
         this.$.MainScrollHeader.querySelector('#condensedHeaderBg').style.backgroundColor = '#03A9F4';
@@ -646,8 +654,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Keep header small and fixed in certain conditions
     deCondenseHeader: function($header) {
 
+      var $packageElement;
+
+      if (app.route === 'create-package') {
+        $packageElement = this.$.EpeCreatePackage;
+      } else if (app.route === 'edit-package') {
+        $packageElement = this.$.EpeEditPackage;
+      }
+
       // If in Source View
-      if ((app.route === 'create-package' || app.route === 'edit-package') && EpeCreatePackage.createPackageRoute === 'source') {
+      if ((app.route === 'create-package' || app.route === 'edit-package') && $packageElement.createPackageRoute === 'source') {
 
         if ($header.scrollTop < 128) {
           this.$.MainScrollHeader.scroll(128, false);
