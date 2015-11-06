@@ -224,10 +224,10 @@ module.exports = Reflux.createStore({
       case "jpeg":
         this.selectedSourceFileType = 'image';
         break;
-      case ".mp3":
+      case "mp3":
         this.selectedSourceFileType = 'audio';
         break;
-      case ".mp4":
+      case "mp4":
         this.selectedSourceFileType = 'video';
         break;
       default:

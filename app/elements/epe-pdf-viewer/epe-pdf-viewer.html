@@ -332,7 +332,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // CALLED FROM OBSERVER ON PDFOBJECT
     pdfObjectChanged: function() {
 
-      if (this.pdfObject) {
+      if (this.pdfObject && this.selectedSourceFileType === 'pdf') {
 
         this.pdfName = this.pdfObject.Headline;
 

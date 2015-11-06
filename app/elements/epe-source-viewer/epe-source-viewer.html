@@ -31,23 +31,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <epe-pdf-viewer
           class="layout horizontal center-justified"
           pdf-object="[[selectedSourceObject]]"
+          selected-source-file-type="[[selectedSourceFileType]]"
           edit-state="[[editState]]"
           presentation-state="[[presentationState]]"></epe-pdf-viewer>
+      </section>
+
+      <!-- Video Section -->
+      <section data-route="video" class="fit">
+        <epe-media-viewer></epe-media-viewer>
+      </section>
+
+      <!-- Audio Section -->
+      <section data-route="audio" class="fit">
+        <epe-media-viewer></epe-media-viewer>
       </section>
 
       <!-- Image Viewer Section -->
       <section data-route="image" class="fit">
         <div>Image Viewer</div>
-      </section>
-
-      <!-- Audio Section -->
-      <section data-route="audio" class="fit">
-        <div>Audio Viewer</div>
-      </section>
-
-      <!-- Video Section -->
-      <section data-route="video" class="fit">
-        <div>Video Viewer</div>
       </section>
 
     </iron-pages>
@@ -61,7 +62,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     properties: {
 
       selectedSourceObject: {
-        type: Object
+        type: Object,
+        value: null
+      },
+
+      selectedSourceFileType: {
+        type: String,
+        value: ''
       }
     },
 
@@ -72,10 +79,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // When the source data is updated, update our grid data
         this.sourceStore.listen(function (sourceData) {
 
+          this.selectedSourceFileType = sourceData.selectedSourceFileType;
           this.selectedSourceObject = sourceData.selectedSourceObject;
 
-          this.fire('navigate-to-source-viewer', sourceData);
-
+          if (this.selectedSourceObject) {
+            this.fire('navigate-to-source-viewer', sourceData);
+          }
         }.bind(this));
       }
     }
