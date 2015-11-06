@@ -499,10 +499,6 @@ html[dir='rtl'] #toolbarContainer, .findbar, .secondaryToolbar {
   animation: progressIndeterminate 950ms linear infinite;
 }
 
-.find-input.notFound {
-  background-color: rgb(255, 102, 102);
-}
-
 #customScaleOption {
   display: none;
 }
