@@ -1872,7 +1872,7 @@ var PDFHistory = (function () {
           // is opened in the web viewer.
           this.reInitialized = true;
         }
-        this._pushOrReplaceState({fingerprint: this.fingerprint}, true);
+        //this._pushOrReplaceState({fingerprint: this.fingerprint}, true);
       }
 
       var self = this;
@@ -1974,7 +1974,7 @@ var PDFHistory = (function () {
     },
 
     clearHistoryState: function pdfHistory_clearHistoryState() {
-      this._pushOrReplaceState(null, true);
+      //this._pushOrReplaceState(null, true);
     },
 
     _isStateObjectDefined: function pdfHistory_isStateObjectDefined(state) {
@@ -1983,8 +1983,7 @@ var PDFHistory = (function () {
       state.target && state.target.hash) ? true : false;
     },
 
-    _pushOrReplaceState: function pdfHistory_pushOrReplaceState(stateObj,
-                                                                replace) {
+    _pushOrReplaceState: function pdfHistory_pushOrReplaceState(stateObj, replace) {
       if (replace) {
         window.history.replaceState(stateObj, '', document.URL);
       } else {
@@ -2142,8 +2141,7 @@ var PDFHistory = (function () {
           this._pushToHistory(previousParams, false, replacePrevious);
         }
       }
-      this._pushOrReplaceState(this._stateObj(params),
-        (overwrite || this.uid === 0));
+      //this._pushOrReplaceState(this._stateObj(params), (overwrite || this.uid === 0));
       this.currentUid = this.uid++;
       this.current = params;
       this.updatePreviousBookmark = true;
