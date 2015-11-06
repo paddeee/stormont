@@ -1056,8 +1056,7 @@ var PDFFindBar = (function PDFFindBarClosure() {
       return window.dispatchEvent(event);
     },
 
-    updateUIState:
-      function PDFFindBar_updateUIState(state, previous, matchCount) {
+    updateUIState: function PDFFindBar_updateUIState(state, previous, matchCount) {
         var notFound = false;
         var findMsg = '';
         var status = '';
@@ -1105,6 +1104,7 @@ var PDFFindBar = (function PDFFindBarClosure() {
 
       // If there are no matches, hide the counter
       if (!matchCount) {
+        this.findMsg.textContent = 'Search document';
         this.findResultsCount.classList.add('hidden');
         return;
       }
@@ -1117,13 +1117,13 @@ var PDFFindBar = (function PDFFindBarClosure() {
     },
 
     open: function PDFFindBar_open() {
-      document.getElementById('findbar').classList.remove('hidden');
+      this.bar.classList.remove('hidden');
       this.findField.select();
       this.findField.focus();
     },
 
     close: function PDFFindBar_close() {
-      document.getElementById('findbar').classList.add('hidden');
+      this.bar.classList.add('hidden');
     }
   };
   return PDFFindBar;

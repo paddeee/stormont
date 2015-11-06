@@ -346,6 +346,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // Kickstart loading PDF using this global created from pdf-viewer.js
           // but only for one instance of this element
           if (this.editState === this.presentationState) {
+
+            // Close findBar if it was left open
+            if (PDFViewerApplication.findBar) {
+              this.closeFindBar();
+              PDFViewerApplication.findBar.updateResultsCount();
+              this.$.findInput.value = '';
+              this.$.findMsg.textContent = 'Search document';
+            }
+
+            // Instantiate PDF Viewer
             webViewerLoad(this);
           }
         //}
@@ -399,8 +409,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Close the find bar
     closeFindBar: function() {
-      PDFFindBar.prototype.opened = true;
-      PDFFindBar.prototype.close();
+
+      if (PDFViewerApplication.findBar) {
+        PDFViewerApplication.findBar.opened = true;
+        PDFViewerApplication.findBar.close();
+      }
     },
 
     // Find previous result in PDF
