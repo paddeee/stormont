@@ -995,7 +995,7 @@ html[dir='rtl'] #documentPropertiesOverlay .row > * {
 
   .toolbarField.pageNumber.visiblePageIsLoading,
   #findInput[data-status="pending"] {
-    background-image: url(images/loading-small@2x.png);
+    background-image: url(/images/pdf/loading-small@2x.png);
     background-size: 16px 17px;
   }
 

@@ -797,8 +797,6 @@ Preferences._readFromStorage = function (prefObj) {
   }
 })();
 
-
-
 var DownloadManager = (function DownloadManagerClosure() {
 
   function download(blobUrl, filename) {
@@ -1008,7 +1006,7 @@ var PDFFindBar = (function PDFFindBarClosure() {
 
     if (this.toggleButton !== null) {
       this.toggleButton.addEventListener('click', function () {
-        self.toggle();
+        self.open();
       });
     }
 
@@ -1131,31 +1129,13 @@ var PDFFindBar = (function PDFFindBarClosure() {
     },
 
     open: function PDFFindBar_open() {
-      if (!this.opened) {
-        this.opened = true;
-        this.toggleButton.classList.add('toggled');
-        this.bar.classList.remove('hidden');
-      }
+      document.getElementById('findbar').classList.remove('hidden');
       this.findField.select();
       this.findField.focus();
     },
 
     close: function PDFFindBar_close() {
-      if (!this.opened) {
-        return;
-      }
-      this.opened = false;
-      this.toggleButton.classList.remove('toggled');
-      this.bar.classList.add('hidden');
-      this.findController.active = false;
-    },
-
-    toggle: function PDFFindBar_toggle() {
-      if (this.opened) {
-        this.close();
-      } else {
-        this.open();
-      }
+      document.getElementById('findbar').classList.add('hidden');
     }
   };
   return PDFFindBar;

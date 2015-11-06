@@ -63,10 +63,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       background: rgb(55, 64, 70);
       bottom: 8vh;
       color: #fff;
-      right: 2vw;
+      height: 10vh;
+      right: 0;
       position: absolute;
       z-index: 10000;
-      height: 6vh;
       min-width: 16px;
       padding: 0 2vw;
       margin: 4px 2px 4px 2px;
@@ -82,22 +82,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       -moz-user-select: none;
     }
 
+    .find-input {
+      border: 0 none;
+      font-size: 2vh;
+      line-height: 1.6;
+    }
+
     .find-input[data-status="pending"] {
       background-image: url(/images/pdf/loading-small.png);
       background-repeat: no-repeat;
-      background-position: right;
+      background-position: 90%;
     }
 
     .find-results-count {
       background-color: #fff;
       color: hsl(0, 0%, 32%);
       text-align: center;
+      margin-right: 14px;
       padding: 3px 4px;
     }
 
     .find-message {
       font-style: italic;
-      color: #A6B7D0;
+      color: var(--accent-color);
+      text-align: center;
+    }
+
+    .find-top-container {
+      margin-bottom: -2vh;
     }
 
   </style>
@@ -195,27 +207,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </div>
 
           <!-- Findbar -->
-          <div id="findbar"
-               class="findbar hidden layout horizontal center">
-            <label for="findInput">Find:</label>
-            <input id="findInput" class="find-input" tabindex="91">
-            <div>
-              <paper-icon-button id="findPrevious"
-                                 icon="arrow-back"
-                                 tabindex="92"></paper-icon-button>
-              <paper-icon-button id="findNext"
-                                 icon="arrow-forward"
-                                 tabindex="93"></paper-icon-button>
+            <div id="findbar" class="findbar hidden layout vertical">
+              <div class="find-top-container layout horizontal center">
+                <div id="findResultsCount" class="find-results-count hidden"></div>
+                <div id="findMsg" class="find-message">Search document</div>
+                <div class="layout horizontal end-justified flex">
+                  <paper-icon-button icon="close" on-tap="closeFindBar"></paper-icon-button>
+                </div>
+              </div>
+              <div class="layout horizontal center">
+                <label for="findInput">Find:</label>
+                <input id="findInput" class="find-input" tabindex="91">
+                <div>
+                  <paper-icon-button id="findPrevious"
+                                     icon="arrow-back"
+                                     tabindex="92"></paper-icon-button>
+                  <paper-icon-button id="findNext"
+                                     icon="arrow-forward"
+                                     tabindex="93"></paper-icon-button>
+                </div>
+                <paper-checkbox
+                        id="findHighlightAll"
+                        tabindex="94">Highlight all</paper-checkbox>
+                <paper-checkbox
+                        id="findMatchCase"
+                        tabindex="95">Match case</paper-checkbox>
+              </div>
             </div>
-            <paper-checkbox
-                    checked
-                    id="findHighlightAll"
-                    tabindex="94">Highlight all</paper-checkbox>
-            <paper-checkbox
-                    id="findMatchCase"
-                    tabindex="95">Match case</paper-checkbox>
-            <span id="findResultsCount" class="find-results-count hidden"></span>
-            <span id="findMsg" class="find-message"></span>
           </div>
         </div>
       </div>
@@ -368,9 +386,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       PDFViewerApplication.rotatePages(-90);
     },
 
-    // Hide the find bar
-    hideFindBar: function() {
-      console.log(this.$.findbar);
+    // Close the find bar
+    closeFindBar: function() {
+      PDFFindBar.prototype.opened = true;
+      PDFFindBar.prototype.close();
     }
 
   });
