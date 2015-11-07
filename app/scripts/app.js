@@ -8,6 +8,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 */
 
 var reflux = require('reflux');
+var videoJS = require('video.js');
 var CSVParser = require('./vendor/harb-customised.js');
 var dataSourceActions = require('./actions/dataSource.js');
 var filterStateActions = require('./actions/filterState.js');
@@ -23,7 +24,7 @@ var presentationsStore = require('./stores/presentations.js');
 var importActions = require('./actions/import.js');
 var importStore = require('./stores/import.js');
 
-(function(document, reflux, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore) {
+(function(document, reflux, videoJS, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore) {
   'use strict';
 
   // Call checkForLDAP action
@@ -36,6 +37,7 @@ var importStore = require('./stores/import.js');
 
   // Set required modules as attributes on app
   app.reflux = reflux;
+  app.videoJS = videoJS;
   app.CSVParser = CSVParser;
   app.dataSourceActions = dataSourceActions;
   app.userActions = userActions;
@@ -78,4 +80,4 @@ var importStore = require('./stores/import.js');
     }
   };
 
-})(document, reflux, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore);
+})(document, reflux, videoJS, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore);

@@ -17,7 +17,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
   </style>
   <template>
-    <div>Hello from <span>{{foo}}</span></div>
+    <div class="video fit layout horizontal center center-justified">
+      <div class="video__container">
+        <epe-video-js
+          controls
+          preload="auto"
+          width="640"
+          height="264"
+          poster="http://video-js.zencoder.com/oceans-clip.png">
+
+          <source src="http://video-js.zencoder.com/oceans-clip.mp4" type='video/mp4'/>
+          <source src="http://video-js.zencoder.com/oceans-clip.webm" type='video/webm'/>
+          <source src="http://video-js.zencoder.com/oceans-clip.ogv" type='video/ogg'/>
+
+        </epe-video-js>
+      </div>
+    </div>
   </template>
 </dom-module>
 <script>
@@ -26,11 +41,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     is: 'epe-media-viewer',
 
     properties: {
-      foo: {
-        type: String,
-        value: 'bar',
-        notify: true
-      }
+
     }
   });
 })();

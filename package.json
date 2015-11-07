@@ -45,6 +45,7 @@
     "should": "^7.0.4",
     "ssf": "^0.8.2",
     "through2": "^2.0.0",
+    "video.js": "^5.0.2",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "vulcanize": ">= 1.4.2",
