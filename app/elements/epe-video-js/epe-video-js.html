@@ -18,13 +18,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
   </style>
   <template>
-    <video class="video-js vjs-default-skin"
-           id="Video"
+    <!-- Create instance -->
+    <video class="video-js vjs-default-skin vjs-big-play-centered"
+           id="CreatingVideo"
            controls
-           width="[[width]]"
-           height="[[height]]"
            preload="[[preload]]"
            poster="[[poster]]">
+      <content></content>
+    </video>
+
+    <!-- Editing instance -->
+    <video class="video-js vjs-default-skin vjs-big-play-centered"
+           id="EditingVideo"
+           controls
+           preload="[[preload]]"
+           poster="[[poster]]"
+           hidden>
       <content></content>
     </video>
   </template>
@@ -36,14 +45,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       properties: {
 
+        editState: {
+          type: String,
+          value: ''
+        },
+
+        fluid: {
+          type: Boolean,
+          value: true
+        },
+
         width: {
           type: Number,
-          value: 640
+          value: 'auto'
         },
 
         height: {
           type: Number,
-          value: 264
+          value: 'auto'
         },
 
         preload: {
@@ -58,7 +77,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       ready: function() {
-        app.videoJS(this.$.Video);
+
+        var videoJS = app.videoJS;
+
+        this.videoPlayer = videoJS(this.$.CreatingVideo, {
+          fluid: this.fluid
+        });
+      },
+
+      // Remove Polymer listeners from controls to prevent toggle buttons such as play/pause
+      // from firing twice. Polymer is capturing tap events and video.js is automatically adding
+      // a click event to control buttons.
+      // ToDo: For now going to manually manage removing Polymer's tap event from relevant elements
+      // but may want to look at not passing in 'controls' as an option and building competely custom controls
+      RemoveControlListeners: function() {
+
+        var playToggleButton = this.videoPlayer.controlBar.playToggle.el();
+        var fullScreenToggle = this.videoPlayer.controlBar.fullscreenToggle.el();
+
+        videoJS.off(playToggleButton, 'tap');
+        videoJS.off(fullScreenToggle, 'tap');
       }
     });
   })();

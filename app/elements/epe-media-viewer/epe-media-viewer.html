@@ -18,18 +18,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
     <div class="video fit layout horizontal center center-justified">
-      <div class="video__container">
+      <div class="video__container fit">
         <epe-video-js
           controls
           preload="auto"
-          width="640"
-          height="264"
-          poster="http://video-js.zencoder.com/oceans-clip.png">
-
+          width="auto"
+          height="auto"
+          poster="http://video-js.zencoder.com/oceans-clip.png"
+          edit-state="[[editState]]">
           <source src="http://video-js.zencoder.com/oceans-clip.mp4" type='video/mp4'/>
-          <source src="http://video-js.zencoder.com/oceans-clip.webm" type='video/webm'/>
-          <source src="http://video-js.zencoder.com/oceans-clip.ogv" type='video/ogg'/>
-
         </epe-video-js>
       </div>
     </div>
