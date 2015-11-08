@@ -78,11 +78,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       ready: function() {
 
-        var videoJS = app.videoJS;
+        this.videoJS = app.videoJS;
 
-        this.videoPlayer = videoJS(this.$.CreatingVideo, {
+        this.videoPlayer = this.videoJS(this.$.CreatingVideo, {
           fluid: this.fluid
         });
+
+        this.RemoveControlListeners();
       },
 
       // Remove Polymer listeners from controls to prevent toggle buttons such as play/pause
@@ -95,8 +97,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var playToggleButton = this.videoPlayer.controlBar.playToggle.el();
         var fullScreenToggle = this.videoPlayer.controlBar.fullscreenToggle.el();
 
-        videoJS.off(playToggleButton, 'tap');
-        videoJS.off(fullScreenToggle, 'tap');
+        this.videoJS.off(playToggleButton, 'tap');
+        this.videoJS.off(fullScreenToggle, 'tap');
       }
     });
   })();
