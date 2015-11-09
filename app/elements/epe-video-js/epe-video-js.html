@@ -26,16 +26,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
            poster="[[poster]]">
       <content></content>
     </video>
-
-    <!-- Editing instance -->
-    <video class="video-js vjs-default-skin vjs-big-play-centered"
-           id="EditingVideo"
-           controls
-           preload="[[preload]]"
-           poster="[[poster]]"
-           hidden>
-      <content></content>
-    </video>
   </template>
 </dom-module>
 <script>
@@ -47,7 +37,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         editState: {
           type: String,
-          value: ''
+          value: '',
+          observer: 'editStateChanged'
         },
 
         fluid: {
@@ -77,28 +68,79 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       ready: function() {
+        this.createVideoJS();
+      },
+
+      // Create a clean instance of videoJS on the video element
+      createVideoJS: function() {
+
+        if (this.videoPlayer) {
+          console.log(this.videoPlayer);
+        }
 
         this.videoJS = app.videoJS;
 
         this.videoPlayer = this.videoJS(this.$.CreatingVideo, {
           fluid: this.fluid
+        }).ready(function() {
+
+          var videoPlayer = this;
+          console.log("Loaded");
+
+          videoPlayer.on("ended", function() {
+            console.log("Video ended");
+            videoPlayer.posterImage.show();
+            videoPlayer.bigPlayButton.show();
+            videoPlayer.currentTime(0);
+          });
         });
 
+        this.addControlListeners();
         this.RemoveControlListeners();
+      },
+
+      // CALLED FROM OBSERVER ON EDITSTATE OBJECT
+      editStateChanged: function() {
+
+        if (this.editState === 'creating') {
+
+        }
+      },
+
+      // ToDo: get this to work. Needs to reposition video
+      fullScreenToggleTapped: function() {
+
+        var $mainScrollHeader;
+
+        this.isFullScreen = !this.isFullScreen;
+
+        if (!this.isFullScreen) {
+          $mainScrollHeader = document.querySelector('#MainScrollHeader');
+          setTimeout($mainScrollHeader.scroll(128, false), 10000);
+        }
+      },
+
+      // Set up any listeners required for player controls
+      addControlListeners: function() {
+
+        var fullScreenToggle = this.videoPlayer.controlBar.fullscreenToggle.el();
+        var self = this;
+
+        this.videoJS.on(fullScreenToggle, 'tap', self.fullScreenToggleTapped);
       },
 
       // Remove Polymer listeners from controls to prevent toggle buttons such as play/pause
       // from firing twice. Polymer is capturing tap events and video.js is automatically adding
       // a click event to control buttons.
-      // ToDo: For now going to manually manage removing Polymer's tap event from relevant elements
+      // ToDo: For now going to manually manage removing VideoJS.s 'click' event from relevant elements
       // but may want to look at not passing in 'controls' as an option and building competely custom controls
       RemoveControlListeners: function() {
 
         var playToggleButton = this.videoPlayer.controlBar.playToggle.el();
         var fullScreenToggle = this.videoPlayer.controlBar.fullscreenToggle.el();
 
-        this.videoJS.off(playToggleButton, 'tap');
-        this.videoJS.off(fullScreenToggle, 'tap');
+        this.videoJS.off(playToggleButton, 'click');
+        this.videoJS.off(fullScreenToggle, 'click');
       }
     });
   })();

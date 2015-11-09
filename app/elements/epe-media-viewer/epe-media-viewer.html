@@ -15,6 +15,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     :host {
       display: block;
     }
+
+    .video__container {
+      background-color: rgb(62, 70, 76);
+      padding: 2vw;
+    }
   </style>
   <template>
     <div class="video fit layout horizontal center center-justified">
@@ -25,7 +30,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           width="auto"
           height="auto"
           poster="http://video-js.zencoder.com/oceans-clip.png"
-          edit-state="[[editState]]">
+          edit-state="[[editState]]"
+          media-type="[[mediaType]]">
           <source src="http://video-js.zencoder.com/oceans-clip.mp4" type='video/mp4'/>
         </epe-video-js>
       </div>

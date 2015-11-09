@@ -19,8 +19,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .data-grid-container {
-      transition: opacity 0.5s ease-in-out;
-      -webkit-transition: opacity 0.5s ease-in-out;
       opacity: 1;
     }
 
@@ -54,11 +52,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .progress-section {
-      height: 4px;
+      height: 100%;
       position: absolute;
-      top: 60vh;
+      top: 0;
       width: 80%;
-      margin: 0 10%;
+      padding: 0 10%;
+      pointer-events: none;
+      background-color: var(--primary-background-color);
     }
 
     paper-progress {
@@ -66,6 +66,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       --paper-progress-transition-duration: 0.04s;
       --paper-progress-transition-timing-function: ease;
       --paper-progress-transition-transition-delay: 0s;
+      margin-top: 30vh;
       width: 100%;
     }
 
@@ -157,40 +158,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </paper-tabs>
 
         <!-- Container Area For DataGrid and Filters -->
-        <div id="DataGridContainer" class="data-grid-container fade-out">
+        <div class="relative">
 
-          <!-- Filters -->
-          <div class="filter-container layout vertical"
-               hidden$="[[hideDataGrid]]">
-            <div class="filters-title horizontal layout">
-              <div class="flex">Filters</div>
+          <div id="DataGridContainer" class="fade-out data-grid-container">
+
+            <!-- Filters -->
+            <div class="filter-container layout vertical"
+                 hidden$="[[hideDataGrid]]">
+              <div class="filters-title horizontal layout">
+                <div class="flex">Filters</div>
+              </div>
+              <div class="filter-search-container">
+                <epe-filter-search
+                  collection-name="[[collectionName]]"
+                  filters-to-show="[[filtersToShow]]"
+                  on-filters-changed="filtersChanged">
+                </epe-filter-search>
+              </div>
             </div>
-            <div class="filter-search-container">
-              <epe-filter-search
-                collection-name="[[collectionName]]"
-                filters-to-show="[[filtersToShow]]"
-                on-filters-changed="filtersChanged">
-              </epe-filter-search>
-            </div>
+
+            <!-- DataGrid -->
+            <iron-pages attr-for-selected="data-route"
+                        selected="{{dataGridRoute}}">
+              <section data-route="data-grid"
+                       class="data-grid-area relative layout horizontal">
+                <epe-data-grid
+                  filter-state-actions="[[filterStateActions]]"
+                  source-actions="[[sourceActions]]"
+                  presentations-store="[[presentationsStore]]"
+                  collection-name="[[collectionName]]"
+                  sorting-state="[[sortingState]]"
+                  hidden$="[[hideDataGrid]]"
+                  class="data-grid fit"
+                  grid-data="[[gridData]]"
+                  on-save-presentation="savePresentation"></epe-data-grid>
+              </section>
+            </iron-pages>
+
           </div>
-
-          <!-- DataGrid -->
-          <iron-pages attr-for-selected="data-route"
-                      selected="{{dataGridRoute}}">
-            <section data-route="data-grid"
-                     class="data-grid-area relative layout horizontal">
-              <epe-data-grid
-                filter-state-actions="[[filterStateActions]]"
-                source-actions="[[sourceActions]]"
-                presentations-store="[[presentationsStore]]"
-                collection-name="[[collectionName]]"
-                sorting-state="[[sortingState]]"
-                hidden$="[[hideDataGrid]]"
-                class="data-grid fit"
-                grid-data="[[gridData]]"
-                on-save-presentation="savePresentation"></epe-data-grid>
-            </section>
-          </iron-pages>
 
           <!-- No data message -->
           <div
@@ -198,13 +203,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             class="no-data horizontal layout center center-justified">
             <p>There is no data available for '<span>[[collectionName]]</span>'.</p>
           </div>
-        </div>
 
-        <!-- Progress Bar -->
-        <div class="progress-section ">
-          <paper-progress id="ProgressBar" max="60" hidden="true"></paper-progress>
-        </div>
-      </section>
+          <!-- Progress Bar -->
+          <div id="ProgressBarContainer" class="progress-section" hidden>
+            <paper-progress id="ProgressBar" max="60"></paper-progress>
+          </div>
+
+        </section>
+      </div>
 
       <!-- Map View -->
       <section data-route="map" class="time-map">
@@ -426,9 +432,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Show and start the progress of the progress bar
     startProgress: function () {
 
+      var $progressBarContainer = this.$.ProgressBarContainer;
       var $progressBar = this.$.ProgressBar;
 
-      $progressBar.hidden = false;
+      $progressBarContainer.hidden = false;
 
       if ($progressBar.value < $progressBar.max) {
         $progressBar.value += $progressBar.step;
@@ -437,7 +444,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Show Data Grid
         this.$.DataGridContainer.classList.remove('fade-out');
 
-        $progressBar.hidden = true;
+        $progressBarContainer.hidden = true;
         $progressBar.value = $progressBar.min;
         return;
       }
