@@ -22,6 +22,8 @@ module.exports = Reflux.createStore({
   // When dataSource object has changed
   dataSourceChanged: function (dataSourceStore) {
 
+    this.lastAction = 'dataSourceChanged';
+
     this.getPresentationData(dataSourceStore.dataSource);
 
     this.setMessage(dataSourceStore);
@@ -53,9 +55,13 @@ module.exports = Reflux.createStore({
     var presentationCollection = dataSourceStore.dataSource.getCollection('Presentations');
     var selectedPresentationObject;
 
+    this.lastAction = 'presentationStateChanged';
+
     // Get Presentation Object if it exists
     if (presentationCollection) {
-      selectedPresentationObject = presentationCollection.find({'presentationName': presentationObject.presentationName});
+      selectedPresentationObject = presentationCollection.find({
+        'presentationName': presentationObject.presentationName
+      });
     }
 
     if (selectedPresentationObject && selectedPresentationObject.length > 0) {
@@ -76,6 +82,8 @@ module.exports = Reflux.createStore({
 
   // When a presentation has its approvalStateChanged
   approvalStateChanged: function(presentation) {
+
+    this.lastAction = 'approvalStateChanged';
 
     // Update the model in the Presentations collection
     dataSourceStore.dataSource.getCollection('Presentations').update(presentation);
