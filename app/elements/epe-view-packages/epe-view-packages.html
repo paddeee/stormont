@@ -139,7 +139,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <iron-list id="List" items="[[presentationsData]]" as="item">
       <template>
-        <div class="item" class$="[[getClassForItem(item, item.expanded)]]">
+        <div class="item">
           <paper-card elevation="1" heading="[[item.presentationName]]">
             <div class="card-content">
               <div class="visible-content layout horizontal center" on-tap="collapseExpand">
@@ -219,12 +219,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // When the presentations data is updated, set this view's presentationsData
         this.presentationsStore.listen(function(presentationsStore) {
 
+          this.presentationsData = [];
           this.presentationsData = presentationsStore.presentationsData;
 
           // ToDo: Don't know why I have to do this with iron-list. When presentationData array
           // changes I would expect the template to update but it isn't. In meantime, forcing it
           // by clearing the array and resetting it.
-          this.$.List.items = [];
+          //this.$.List.items = [];
           this.$.List.items = this.presentationsData;
 
         }.bind(this));
@@ -241,15 +242,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var list = this.$.List;
       var index = event.model.index;
-      var isExpanded = list.items[index].expanded;
+      var $item = event.currentTarget.closest('.item');
 
-      list.set('items.' + index + '.expanded', !isExpanded);
+      this.getClassForItem($item, true);
       list.updateSizeForItem(index);
     },
 
     // Return expanded class for an item
-    getClassForItem: function(item, expanded) {
-      return expanded ? 'item expanded' : 'item';
+    getClassForItem: function($item, expanded) {
+      if ($item.classList.contains('expanded')) {
+        $item.classList.remove('expanded');
+      } else {
+        $item.classList.add('expanded');
+      }
     },
 
     // Checkbox has been changed in marking for approval.

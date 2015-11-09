@@ -414,8 +414,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.presentationState = presentationsStore.presentationState;
         this.presentationName = presentationsStore.presentationName;
 
-        // Need to call this if presentation state changes
-        this.setSectionTitle();
+        // Need to call this if presentation state changes but not if it was just because of an approval state change
+        if (presentationsStore.lastAction !== 'approvalStateChanged') {
+          this.setSectionTitle();
+        }
 
       }.bind(this));
     },
