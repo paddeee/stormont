@@ -36,19 +36,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           presentation-state="[[presentationState]]"></epe-pdf-viewer>
       </section>
 
-      <!-- Video Section -->
-      <section data-route="video" class="fit">
+      <!-- Media Section -->
+      <section data-route="media" class="fit">
         <epe-media-viewer
-          media-type="video"
-          edit-state="[[editState]]"></epe-media-viewer>
+          edit-state="[[editState]]"
+          media-object="[[selectedSourceObject]]"
+          selected-source-file-type="[[selectedSourceFileType]]"></epe-media-viewer>
       </section>
 
-      <!-- Audio Section -->
+      <!-- Audio Section
       <section data-route="audio" class="fit">
         <epe-media-viewer
           media-type="audio"
-          edit-state="[[editState]]"></epe-media-viewer>
-      </section>
+          edit-state="[[editState]]"
+          media-object="[[selectedSourceObject]]"
+          selected-source-file-type="[[selectedSourceFileType]]"></epe-media-viewer>
+      </section> -->
 
       <!-- Image Viewer Section -->
       <section data-route="image" class="fit">

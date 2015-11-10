@@ -16,23 +16,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       display: block;
     }
 
-    .video__container {
+    .media__container {
       background-color: rgb(62, 70, 76);
       padding: 2vw;
     }
   </style>
   <template>
-    <div class="video fit layout horizontal center center-justified">
-      <div class="video__container fit">
+    <div class="media fit layout horizontal center center-justified">
+      <div class="media__container fit">
         <epe-video-js
           controls
           preload="auto"
           width="auto"
           height="auto"
-          poster="http://video-js.zencoder.com/oceans-clip.png"
+          poster="[[poster]]"
           edit-state="[[editState]]"
-          media-type="[[mediaType]]">
-          <source src="http://video-js.zencoder.com/oceans-clip.mp4" type='video/mp4'/>
+          media-type="[[mediaType]]"
+          media-object="[[mediaObject]]">
         </epe-video-js>
       </div>
     </div>
@@ -45,6 +45,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     properties: {
 
+      mediaObject: {
+        type: Object,
+        value: null,
+        observer: 'mediaObjectChanged'
+      }
+    },
+
+    // CALLED FROM OBSERVER ON MEDIAOBJECT
+    mediaObjectChanged: function() {
+
+      if (this.selectedSourceFileType === 'video') {
+        this.mediaType = 'video';
+      } else if (this.selectedSourceFileType === 'audio') {
+        this.mediaType = 'audio';
+      }
     }
   });
 })();

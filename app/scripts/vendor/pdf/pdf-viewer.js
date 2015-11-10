@@ -6546,7 +6546,7 @@ var PDFViewerApplication = {
       // Embedded PDF viewers should not be changing their parent page's title.
       return;
     }
-    document.title = title;
+    //document.title = title;
   },
 
   /**
@@ -6756,6 +6756,10 @@ var PDFViewerApplication = {
               'Line: {{line}}');
         }
       }
+    }
+
+    if (!$pdfViewerElement) {
+      return;
     }
 
     var errorWrapper = $pdfViewerElement.querySelector('#errorWrapper');

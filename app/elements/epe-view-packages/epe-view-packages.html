@@ -68,6 +68,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .traffic-lights {
+      font-size: 1.5vh;
       position: absolute;
       right: 0;
       top: -4vh;
@@ -124,6 +125,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     paper-checkbox {
       --paper-checkbox-label-color: var(--secondary-text-color);
       --paper-checkbox-unchecked-color: var(--secondary-text-color);
+      font-size: 1.7vh;
     }
 
     .submit-package {
@@ -219,13 +221,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // When the presentations data is updated, set this view's presentationsData
         this.presentationsStore.listen(function(presentationsStore) {
 
-          this.presentationsData = [];
-          this.presentationsData = presentationsStore.presentationsData;
-
           // ToDo: Don't know why I have to do this with iron-list. When presentationData array
           // changes I would expect the template to update but it isn't. In meantime, forcing it
           // by clearing the array and resetting it.
-          //this.$.List.items = [];
+          this.presentationsData = [];
+
+          this.presentationsData = presentationsStore.presentationsData;
+
           this.$.List.items = this.presentationsData;
 
         }.bind(this));
