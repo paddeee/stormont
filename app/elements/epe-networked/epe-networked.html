@@ -541,7 +541,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // While we're here, scroll header to top
           this.manageScrollHeader('data-grid');
 
-          this.sectionTitle = this.presentationName + ' - ' + EpeEditPackage.params.name;
+          if (this.presentationName) {
+            this.sectionTitle = this.presentationName + ' - ' + EpeEditPackage.params.name;
+          }
         }
 
       } else if (EpeEditPackage.createPackageRoute === 'map') {

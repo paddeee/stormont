@@ -19,13 +19,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
     <!-- Create instance -->
-    <video class="video-js vjs-default-skin vjs-big-play-centered"
-           id="CreatingVideo"
+    <video id="Video"
+           class="video-js vjs-default-skin vjs-big-play-centered"
            controls
            preload="[[preload]]"
-           poster="[[poster]]">
-      <content></content>
+           poster="[[poster]]"
+           hidden>
+      <source src="[[videoSource]]" type='video/mp4'/>
     </video>
+
+    <audio id="Audio"
+           class="video-js vjs-default-skin"
+           controls
+           preload="auto"
+           hidden>
+      <source src="[[audioSource]]" type='audio/mp3'/>
+    </audio>
   </template>
 </dom-module>
 <script>
@@ -35,25 +44,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       properties: {
 
-        editState: {
-          type: String,
-          value: '',
-          observer: 'editStateChanged'
-        },
-
         fluid: {
           type: Boolean,
           value: true
-        },
-
-        width: {
-          type: Number,
-          value: 'auto'
-        },
-
-        height: {
-          type: Number,
-          value: 'auto'
         },
 
         preload: {
@@ -64,47 +57,82 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         poster: {
           type: String,
           value: ''
+        },
+
+        mediaObject: {
+          type: Object,
+          value: null,
+          observer: 'setUpMedia'
+        },
+
+        mediaType: {
+          type: String,
+          value: '',
+          observer: 'setUpMedia'
         }
       },
 
-      ready: function() {
-        this.createVideoJS();
+      setUpMedia: function() {
+
+        if (this.mediaType) {
+
+          if (this.mediaType === 'video') {
+            this.createVideoJS();
+          } else if (this.mediaType === 'audio') {
+            if (this.audioObject && this.audioObject.Src) {
+              this.createAudioJS();
+            }
+          }
+        }
       },
 
       // Create a clean instance of videoJS on the video element
       createVideoJS: function() {
 
-        if (this.videoPlayer) {
-          console.log(this.videoPlayer);
-        }
+        if (this.mediaObject) {
 
-        this.videoJS = app.videoJS;
+          this.videoSource = this.mediaObject.Src;
 
-        this.videoPlayer = this.videoJS(this.$.CreatingVideo, {
-          fluid: this.fluid
-        }).ready(function() {
+          this.$.Audio.setAttribute('hidden','');
+          //this.$.Audio.parentElement.setAttribute('hidden','');
+          this.$.Video.removeAttribute('hidden');
 
-          var videoPlayer = this;
-          console.log("Loaded");
+          if (!this.videoJS) {
+            this.videoJS = app.videoJS;
+          }
 
-          videoPlayer.on("ended", function() {
-            console.log("Video ended");
-            videoPlayer.posterImage.show();
-            videoPlayer.bigPlayButton.show();
-            videoPlayer.currentTime(0);
+          this.videoPlayer = this.videoJS(this.$.Video, {
+            fluid: this.fluid
+          }).ready(function() {
+            console.log("Loaded");
           });
-        });
 
-        this.addControlListeners();
-        this.RemoveControlListeners();
+          this.addControlListeners('video');
+          this.RemoveControlListeners('video');
+        }
       },
 
-      // CALLED FROM OBSERVER ON EDITSTATE OBJECT
-      editStateChanged: function() {
+      // Create a clean instance of videoJS on the audio element
+      createAudioJS: function() {
 
-        if (this.editState === 'creating') {
+        this.audioSource = this.mediaObject.Src;
 
+        this.$.Video.setAttribute('hidden','');
+        this.$.Audio.removeAttribute('hidden');
+        //this.$.Audio.parentElement.removeAttribute('hidden');
+
+        if (!this.videoJS) {
+          this.videoJS = app.videoJS;
         }
+
+        this.audioPlayer = this.videoJS(this.$.Audio, {
+          fluid: this.fluid
+        }).ready(function() {
+          console.log("Audio Loaded");
+        });
+
+        this.addControlListeners('audio');
+        this.RemoveControlListeners('audio');
       },
 
       // ToDo: get this to work. Needs to reposition video
@@ -121,12 +149,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       // Set up any listeners required for player controls
-      addControlListeners: function() {
+      addControlListeners: function(player) {
 
-        var fullScreenToggle = this.videoPlayer.controlBar.fullscreenToggle.el();
+        var fullScreenToggle;
+        var fullScreenAudioToggle;
         var self = this;
 
-        this.videoJS.on(fullScreenToggle, 'tap', self.fullScreenToggleTapped);
+        if (player === 'video') {
+          fullScreenToggle = this.videoPlayer.controlBar.fullscreenToggle.el();
+          this.videoJS.on(fullScreenToggle, 'tap', self.fullScreenToggleTapped);
+        } else if (player === 'audio') {
+          fullScreenAudioToggle = this.audioPlayer.controlBar.fullscreenToggle.el();
+          this.videoJS.on(fullScreenAudioToggle, 'tap', self.fullScreenToggleTapped);
+        }
       },
 
       // Remove Polymer listeners from controls to prevent toggle buttons such as play/pause
@@ -134,13 +169,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // a click event to control buttons.
       // ToDo: For now going to manually manage removing VideoJS.s 'click' event from relevant elements
       // but may want to look at not passing in 'controls' as an option and building competely custom controls
-      RemoveControlListeners: function() {
+      RemoveControlListeners: function(player) {
 
-        var playToggleButton = this.videoPlayer.controlBar.playToggle.el();
-        var fullScreenToggle = this.videoPlayer.controlBar.fullscreenToggle.el();
+        var playToggleButton;
+        var fullScreenToggle;
+        var playToggleAudioButton;
+        var fullScreenAudioToggle;
 
-        this.videoJS.off(playToggleButton, 'click');
-        this.videoJS.off(fullScreenToggle, 'click');
+        if (player === 'video') {
+          playToggleButton = this.videoPlayer.controlBar.playToggle.el();
+          fullScreenToggle = this.videoPlayer.controlBar.fullscreenToggle.el();
+          this.videoJS.off(playToggleButton, 'click');
+          this.videoJS.off(fullScreenToggle, 'click');
+        } else if (player === 'audio') {
+          playToggleAudioButton = this.audioPlayer.controlBar.playToggle.el();
+          fullScreenAudioToggle = this.audioPlayer.controlBar.fullscreenToggle.el();
+          this.videoJS.off(playToggleAudioButton, 'click');
+          this.videoJS.off(fullScreenAudioToggle, 'click');
+        }
       }
     });
   })();

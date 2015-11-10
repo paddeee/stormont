@@ -587,9 +587,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // ToDo: Fix this weirdness caused by having two epe-create-package elements
         if (this.editState === 'creating' && this.presentationState === 'creating') {
-          page('/create-package/source/' + event.detail.selectedSourceFileType);
+          page('/create-package/source/' + event.detail.selectedSourceRoute);
         } else if (this.editState === 'editing' && this.presentationState !== 'creating') {
-          page('/edit-package/source/' + event.detail.selectedSourceFileType);
+          page('/edit-package/source/' + event.detail.selectedSourceRoute);
         }
       }
     },

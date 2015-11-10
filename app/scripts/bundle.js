@@ -1638,18 +1638,23 @@ module.exports = Reflux.createStore({
 
     switch (fileExtension) {
       case "pdf":
+        this.selectedSourceRoute = 'pdf';
         this.selectedSourceFileType = 'pdf';
         break;
       case "jpg":
+        this.selectedSourceRoute = 'image';
         this.selectedSourceFileType = 'image';
         break;
       case "jpeg":
+        this.selectedSourceRoute = 'image';
         this.selectedSourceFileType = 'image';
         break;
       case "mp3":
+        this.selectedSourceRoute = 'media';
         this.selectedSourceFileType = 'audio';
         break;
       case "mp4":
+        this.selectedSourceRoute = 'media';
         this.selectedSourceFileType = 'video';
         break;
       default:
