@@ -20,6 +20,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       background-color: #52585A;
       height: 4px;
     }
+
+    .media__container {
+      background-color: rgb(62, 70, 76);
+      padding: 2vw;
+    }
   </style>
   <template>
 
@@ -38,20 +43,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <!-- Media Section -->
       <section data-route="media" class="fit">
-        <epe-media-viewer
-          edit-state="[[editState]]"
-          media-object="[[selectedSourceObject]]"
-          selected-source-file-type="[[selectedSourceFileType]]"></epe-media-viewer>
+        <div class="media fit layout horizontal center center-justified">
+          <div class="media__container fit">
+            <epe-media-viewer
+              controls
+              preload="auto"
+              width="auto"
+              height="auto"
+              poster="[[poster]]"
+              edit-state="[[editState]]"
+              media-type="[[selectedSourceFileType]]"
+              media-object="[[selectedSourceObject]]">
+            </epe-media-viewer>
+          </div>
+        </div>
       </section>
-
-      <!-- Audio Section
-      <section data-route="audio" class="fit">
-        <epe-media-viewer
-          media-type="audio"
-          edit-state="[[editState]]"
-          media-object="[[selectedSourceObject]]"
-          selected-source-file-type="[[selectedSourceFileType]]"></epe-media-viewer>
-      </section> -->
 
       <!-- Image Viewer Section -->
       <section data-route="image" class="fit">
@@ -76,6 +82,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       selectedSourceFileType: {
         type: String,
         value: ''
+      },
+
+      mediaObject: {
+        type: Object,
+        value: null,
+        observer: 'mediaObjectChanged'
       }
     },
 
