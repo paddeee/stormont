@@ -11,12 +11,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
 <dom-module id="epe-media-viewer">
-  <link rel="stylesheet" href="../../styles/vendor/videoJS/videoJS.css">
+  <link rel="stylesheet" href="../../scripts/vendor/videoJS/videoJS.css">
   <style>
     :host {
       display: block;
     }
   </style>
+  <script src="../../scripts/vendor/videoJS/video.js"></script>
+  <script src="../../scripts/vendor/videoJS/wavesurfer/wavesurfer.min.js"></script>
+  <script src="../../scripts/vendor/videoJS/wavesurfer/videojs-wavesurfer.js"></script>
   <template>
     <!-- Create instance -->
     <video id="Video"
@@ -97,11 +100,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         this.videoSource = this.mediaObject.Src;
 
-        if (!this.videoJS) {
-          this.videoJS = app.videoJS;
-        }
-
-        this.videoPlayer = this.videoJS(this.$.Video, {
+        this.videoPlayer = videojs(this.$.Video, {
           fluid: this.fluid
         }).ready(function() {
           console.log("Loaded");
@@ -124,12 +123,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         this.audioSource = this.mediaObject.Src;
 
-        if (!this.videoJS) {
-          this.videoJS = app.videoJS;
-        }
-
-        this.audioPlayer = this.videoJS(this.$.Audio, {
-          fluid: this.fluid
+        this.audioPlayer = videojs(this.$.Audio, {
+          fluid: this.fluid/*,
+          plugins: {
+            wavesurfer: {
+              src: this.audioSource,
+              msDisplayMax: 10,
+              waveColor: "grey",
+              progressColor: "black",
+              cursorColor: "black",
+              hideScrollbar: true
+            }
+          }*/
         }).ready(function() {
           console.log("Audio Loaded");
         });
@@ -160,10 +165,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         if (player === 'video') {
           fullScreenToggle = this.videoPlayer.controlBar.fullscreenToggle.el();
-          this.videoJS.on(fullScreenToggle, 'tap', self.fullScreenToggleTapped);
+          videojs.on(fullScreenToggle, 'tap', self.fullScreenToggleTapped);
         } else if (player === 'audio') {
           fullScreenAudioToggle = this.audioPlayer.controlBar.fullscreenToggle.el();
-          this.videoJS.on(fullScreenAudioToggle, 'tap', self.fullScreenToggleTapped);
+          videojs.on(fullScreenAudioToggle, 'tap', self.fullScreenToggleTapped);
         }
       },
 
@@ -182,13 +187,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (player === 'video') {
           playToggleButton = this.videoPlayer.controlBar.playToggle.el();
           fullScreenToggle = this.videoPlayer.controlBar.fullscreenToggle.el();
-          this.videoJS.off(playToggleButton, 'click');
-          this.videoJS.off(fullScreenToggle, 'click');
+          videojs.off(playToggleButton, 'click');
+          videojs.off(fullScreenToggle, 'click');
         } else if (player === 'audio') {
           playToggleAudioButton = this.audioPlayer.controlBar.playToggle.el();
           fullScreenAudioToggle = this.audioPlayer.controlBar.fullscreenToggle.el();
-          this.videoJS.off(playToggleAudioButton, 'click');
-          this.videoJS.off(fullScreenAudioToggle, 'click');
+          videojs.off(playToggleAudioButton, 'click');
+          videojs.off(fullScreenAudioToggle, 'click');
         }
       }
     });
