@@ -23,7 +23,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .media__container {
       background-color: rgb(62, 70, 76);
-      height: 100%;
+      height: calc(100% - 28px);
       opacity: 1;
       padding: 2vw;
       transition: opacity 0.5s ease;
@@ -119,6 +119,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         $epeNetworked.addEventListener('not-media-route', this.hideMedia.bind(this));
       },
 
+      // FIRED FROM OBSERVERS ON MEDIAOBJECT AND MEDIATYPE
       setUpMedia: function() {
 
         if (this.mediaType && this.mediaObject && this.mediaObject.Src) {
