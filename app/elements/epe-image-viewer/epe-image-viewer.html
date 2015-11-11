@@ -81,8 +81,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     ready: function() {
-
-
+      //window.addEventListener('resize', this.resizeImageContainer.bind(this));
     },
 
     // Set source on image element
@@ -120,21 +119,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Resize the image container to the size of the image
-    resizeImageContainer: function(imageWidth, imageHeight) {
+    resizeImageContainer: function() {
 
-      var $containerWidth = imageWidth;
-      var $containerHeight = imageHeight;
-      var imageRatio = imageWidth/imageHeight;
+      var $image;
+      var $containerWidth;
+      var $containerHeight;
+      var imageRatio;
 
-      // If the image width is wider than the container, set it to the size of the container
-      // and the height to the container width * imageRatio
-      if (imageWidth > this.$.ImageContainer.clientWidth) {
-        $containerWidth = this.$.ImageContainer.clientWidth;
-        $containerHeight = $containerWidth / imageRatio;
+      if (!this.$ || !this.$.Image || !this.$.Image.src) {
+        return;
       }
 
-      this.$.ImageContainer.style.height = Math.round($containerHeight) + 'px';
-      this.$.ImageContainer.style.width = Math.round($containerWidth) + 'px';
+      if (this.editState === this.presentationState) {
+
+        $image = this.$.Image;
+        $containerWidth = $image.naturalWidth;
+        $containerHeight = $image.naturalHeight;
+        imageRatio = $containerWidth / $containerHeight;
+
+        // If the image width is wider than the container, set it to the size of the container
+        // and the height to the container width * imageRatio
+        if ($containerHeight > this.$.ImageContainer.clientWidth) {
+          $containerWidth = this.$.ImageContainer.clientWidth;
+          $containerHeight = $containerWidth / imageRatio;
+        }
+
+        this.$.ImageContainer.style.height = Math.round($containerHeight) + 'px';
+        this.$.ImageContainer.style.width = Math.round($containerWidth) + 'px';
+      }
     }
   });
 })();
