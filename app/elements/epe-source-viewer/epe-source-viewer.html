@@ -20,11 +20,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       background-color: #52585A;
       height: 4px;
     }
-
-    .media__container {
-      background-color: rgb(62, 70, 76);
-      padding: 2vw;
-    }
   </style>
   <template>
 
@@ -43,9 +38,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <!-- Media Section -->
       <section data-route="media" class="fit">
-        <div class="media fit layout horizontal center center-justified">
-          <div class="media__container fit">
+        <div class="media fit">
+          <div class="media__container fit layout horizontal center center-justified">
             <epe-media-viewer
+              class="fit"
               controls
               preload="auto"
               width="auto"

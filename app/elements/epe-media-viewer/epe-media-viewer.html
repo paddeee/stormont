@@ -16,28 +16,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     :host {
       display: block;
     }
+
+    .audio-player {
+      background-color: var(--paper-grey-700);
+    }
+
+    canvas {
+      outline: none;
+    }
+
+    .media__container {
+      background-color: rgb(62, 70, 76);
+      padding: 2vw;
+    }
+
   </style>
   <script src="../../scripts/vendor/videoJS/video.js"></script>
-  <script src="../../scripts/vendor/videoJS/wavesurfer/wavesurfer.min.js"></script>
+  <script src="../../scripts/vendor/videoJS/wavesurfer/wavesurfer.js"></script>
   <script src="../../scripts/vendor/videoJS/wavesurfer/videojs-wavesurfer.js"></script>
   <template>
-    <!-- Create instance -->
-    <video id="Video"
-           class="video-js vjs-default-skin vjs-big-play-centered"
-           controls
-           preload="[[preload]]"
-           poster="[[poster]]"
-           hidden>
-      <source src="[[videoSource]]" type='video/mp4'/>
-    </video>
 
-    <audio id="Audio"
-           class="video-js vjs-default-skin"
-           controls
-           preload="auto"
-           hidden>
-      <source src="[[audioSource]]" type='audio/mp3'/>
-    </audio>
+    <div id="MediaContainer" class="media__container fit layout horizontal center-justified">
+
+      <!-- Create instance -->
+      <video id="Video"
+             class="video-js vjs-default-skin vjs-big-play-centered"
+             controls
+             preload="[[preload]]"
+             poster="[[poster]]"
+             hidden>
+        <source src="[[videoSource]]" type='video/mp4'/>
+      </video>
+
+      <audio id="Audio"
+             class="audio-player video-js vjs-default-skin"
+             controls
+             preload="auto"
+             hidden></audio>
+    </div>
   </template>
 </dom-module>
 <script>
@@ -110,31 +126,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.RemoveControlListeners('video');
       },
 
-      // Create a clean instance of videoJS on the audio element
+      // Create a clean instance of videoJS on an audio element
       createAudioJS: function() {
 
         var $videoContainer = this.$.Video.closest('.video-js');
         var $audioContainer = this.$.Audio.closest('.video-js');
+        var $mediaContainer = this.$.MediaContainer;
+        var $audioElement;
 
         this.$.Video.setAttribute('hidden','');
         $videoContainer && $videoContainer.setAttribute('hidden','');
         this.$.Audio.removeAttribute('hidden');
         $audioContainer && $audioContainer.removeAttribute('hidden');
 
-        this.audioSource = this.mediaObject.Src;
+        if (this.audioPlayer) {
+          this.audioPlayer.waveform.destroy();
+          $audioElement = document.createElement('audio');
+          $audioElement.setAttribute('id', 'Audio');
+          $audioElement.setAttribute('controls', '');
+          $audioElement.classList.add('audio-player', 'video-js', 'vjs-default-skin');
+          $mediaContainer.appendChild($audioElement);
+          console.log(this.$.Audio);
+        } else {
+          $audioElement = this.$.Audio;
+        }
 
-        this.audioPlayer = videojs(this.$.Audio, {
-          fluid: this.fluid/*,
+        this.audioPlayer = videojs($audioElement, {
+          width: 600,
+          height: 300,
           plugins: {
             wavesurfer: {
-              src: this.audioSource,
+              src: this.mediaObject.Src,
               msDisplayMax: 10,
-              waveColor: "grey",
-              progressColor: "black",
-              cursorColor: "black",
-              hideScrollbar: true
+              waveColor: "black",
+              progressColor: "white",
+              cursorColor: "white",
+              scrollParent: true
             }
-          }*/
+          }
         }).ready(function() {
           console.log("Audio Loaded");
         });
