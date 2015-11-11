@@ -75,6 +75,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       display: inline-flex;
       text-decoration: none;
     }
+
+    paper-drawer-panel {
+      --paper-drawer-panel-drawer-container: {
+        z-index: 2;
+      };
+    }
   </style>
   <template>
 
@@ -430,6 +436,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // See if we need to customise the header for the Source viewer
       this.setSourceHeader();
 
+      if (this.route !== 'media') {
+        this.fire('not-media-route');
+      }
+
       if (this.route === 'login') {
         this.$.MainScrollHeader.classList.add('hide-header');
         this.$.MainScrollHeader.fixed = true;
@@ -596,6 +606,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           $scrollHeader.scroll(128, true);
           break;
         case 'pdf':
+          $scrollHeader.scroll(128, true);
+          break;
+        case 'media':
+          $scrollHeader.scroll(128, true);
+          break;
+        case 'image':
           $scrollHeader.scroll(128, true);
           break;
         default:

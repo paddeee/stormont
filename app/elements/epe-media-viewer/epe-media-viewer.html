@@ -17,17 +17,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       display: block;
     }
 
-    .audio-player {
-      background-color: var(--paper-grey-700);
-    }
-
     canvas {
       outline: none;
     }
 
     .media__container {
       background-color: rgb(62, 70, 76);
+      height: 100%;
+      opacity: 1;
       padding: 2vw;
+      transition: opacity 0.5s ease;
+    }
+
+    .media__container--hidden {
+      opacity: 0;
+    }
+
+    .loading-mask {
+      background-color: var(--primary-background-color);
+      height: 100%;
     }
 
   </style>
@@ -36,7 +44,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script src="../../scripts/vendor/videoJS/wavesurfer/videojs-wavesurfer.js"></script>
   <template>
 
-    <div id="MediaContainer" class="media__container fit layout horizontal center-justified">
+    <!-- Loading Mask -->
+    <div id="LoadingMask" class="loading-mask layout horizontal center center-justified">
+      <paper-spinner alt="Loading Media" active$="[[loadingMedia]]"></paper-spinner>
+    </div>
+
+    <!-- Media Container -->
+    <div id="MediaContainer"
+         class="media__container media__container--hidden layout horizontal center-justified">
 
       <!-- Create instance -->
       <video id="Video"
@@ -62,6 +77,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       is: 'epe-media-viewer',
 
       properties: {
+
+        loadingMedia: {
+          type: Boolean,
+          value: true
+        },
 
         fluid: {
           type: Boolean,
@@ -91,6 +111,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       },
 
+      ready: function() {
+
+        // Get element this way as parent element isn't yet available through document.querySelector
+        var $epeNetworked = app.$.epeNetworked;
+
+        $epeNetworked.addEventListener('not-media-route', this.hideMedia.bind(this));
+      },
+
       setUpMedia: function() {
 
         if (this.mediaType && this.mediaObject && this.mediaObject.Src) {
@@ -107,7 +135,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       createVideoJS: function() {
 
         var $videoContainer = this.$.Video.closest('.video-js');
-        var $audioContainer = this.$.Audio.closest('.video-js');
+        var $audioContainer = this.$$('#Audio').closest('.video-js');
 
         this.$.Audio.setAttribute('hidden','');
         $audioContainer && $audioContainer.setAttribute('hidden','');
@@ -119,8 +147,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.videoPlayer = videojs(this.$.Video, {
           fluid: this.fluid
         }).ready(function() {
-          console.log("Loaded");
-        });
+
+          // Show video
+          this.async(this.showMedia, 700);
+
+        }.bind(this));
 
         this.addControlListeners('video');
         this.RemoveControlListeners('video');
@@ -129,16 +160,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Create a clean instance of videoJS on an audio element
       createAudioJS: function() {
 
-        var $videoContainer = this.$.Video.closest('.video-js');
-        var $audioContainer = this.$.Audio.closest('.video-js');
-        var $mediaContainer = this.$.MediaContainer;
         var $audioElement;
+        var $videoContainer = this.$.Video.closest('.video-js');
+        var $audioContainer = this.$$('#Audio').closest('.video-js');
+        var $mediaContainer = this.$.MediaContainer;
 
+        // Hide Video element and show audio element
         this.$.Video.setAttribute('hidden','');
         $videoContainer && $videoContainer.setAttribute('hidden','');
         this.$.Audio.removeAttribute('hidden');
         $audioContainer && $audioContainer.removeAttribute('hidden');
 
+        // If audio already exists, kill it and create a new audio element
         if (this.audioPlayer) {
           this.audioPlayer.waveform.destroy();
           $audioElement = document.createElement('audio');
@@ -146,11 +179,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           $audioElement.setAttribute('controls', '');
           $audioElement.classList.add('audio-player', 'video-js', 'vjs-default-skin');
           $mediaContainer.appendChild($audioElement);
-          console.log(this.$.Audio);
         } else {
           $audioElement = this.$.Audio;
         }
 
+        // Create an audio player instance
         this.audioPlayer = videojs($audioElement, {
           width: 600,
           height: 300,
@@ -158,15 +191,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             wavesurfer: {
               src: this.mediaObject.Src,
               msDisplayMax: 10,
-              waveColor: "black",
-              progressColor: "white",
+              waveColor: "white",
+              progressColor: "yellow",
               cursorColor: "white",
               scrollParent: true
             }
           }
         }).ready(function() {
-          console.log("Audio Loaded");
-        });
+
+          // change player background color
+          this.audioPlayer.el().style.backgroundColor = "#212121";
+
+          // Show audio
+          this.async(this.showMedia, 700);
+
+        }.bind(this));
 
         this.addControlListeners('audio');
         this.RemoveControlListeners('audio');
@@ -224,6 +263,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           videojs.off(playToggleAudioButton, 'click');
           videojs.off(fullScreenAudioToggle, 'click');
         }
+      },
+
+      // Remove loading spinner and hide loading mask
+      showMedia: function() {
+        this.loadingMedia = false;
+        this.$.MediaContainer.classList.remove('media__container--hidden');
+        this.$.LoadingMask.hidden = true;
+      },
+
+      // Add loading spinner and show loading mask
+      hideMedia: function() {
+        this.loadingMedia = true;
+        this.$.MediaContainer.classList.add('media__container--hidden');
+        this.$.LoadingMask.hidden = false;
       }
     });
   })();
