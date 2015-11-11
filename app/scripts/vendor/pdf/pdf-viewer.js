@@ -6758,7 +6758,7 @@ var PDFViewerApplication = {
       }
     }
 
-    if (!$pdfViewerElement) {
+    if (typeof $pdfViewerElement == 'undefined') {
       return;
     }
 

@@ -20,6 +20,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       background-color: #52585A;
       height: 4px;
     }
+
+    epe-image-viewer {
+      background-color: #52585A
+    }
   </style>
   <template>
 
@@ -57,7 +61,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <!-- Image Viewer Section -->
       <section data-route="image" class="fit">
-        <div>Image Viewer</div>
+        <epe-image-viewer
+          class="fit"
+          image-object="[[selectedSourceObject]]"
+          edit-state="[[editState]]"></epe-image-viewer>
       </section>
 
     </iron-pages>
