@@ -1,0 +1,141 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="epe-image-viewer">
+  <style>
+    :host {
+      display: block;
+    }
+
+    .image__container {
+      box-sizing: border-box;
+      height: 80vh;
+      width: 100vw;
+      padding: 4vh 4vw;
+    }
+
+    paper-material {
+      background-color: var(--primary-background-color);
+      height: 100%;
+      width: 100%;
+    }
+
+    .loading-mask {
+      background-color: var(--primary-background-color);
+      height: 100%;
+    }
+
+    .image {
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+  <template>
+
+    <!-- Image Container -->
+    <div class="image__container layout horizontal center center-justified">
+      <paper-material id="ImageContainer" elevation="5">
+
+        <!-- Loading Mask -->
+        <div id="LoadingMask" class="loading-mask layout horizontal center center-justified">
+          <paper-spinner alt="Loading Media" active$="[[loadingImage]]"></paper-spinner>
+        </div>
+
+        <!-- Image -->
+        <img id="Image"
+             class="image"
+             alt="[[headline]]"
+             src="[[imageSource]]"
+             hidden/>
+
+      </paper-material>
+    </div>
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+    is: 'epe-image-viewer',
+
+    properties: {
+
+      loadingImage: {
+        type: Boolean,
+        value: true
+      },
+
+      imageObject: {
+        type: Object,
+        value: null,
+        observer: 'setUpImage'
+      }
+    },
+
+    ready: function() {
+
+
+    },
+
+    // Set source on image element
+    setUpImage: function() {
+
+      if (this.imageObject && this.imageObject.Src) {
+
+        // Render the image and hide spinner
+        this.renderImage();
+      }
+    },
+
+    // Show image and hide spinner when an image has loaded
+    renderImage: function() {
+
+      var $image = this.$.Image;
+
+      $image.addEventListener('load', function () {
+
+        // Resize the paper-material element to size of the image
+        this.resizeImageContainer($image.naturalWidth, $image.naturalHeight);
+
+        this.loadingImage = false;
+        $image.removeAttribute('hidden');
+        this.$.LoadingMask.hidden = true;
+      }.bind(this));
+
+      // Set the src of the image
+      this.imageSource = this.imageObject.Src;
+
+      // If image has already loaded in cache we need to manually trigger the load event
+      /*if ($image.complete) {
+        $image.load();
+      }*/
+    },
+
+    // Resize the image container to the size of the image
+    resizeImageContainer: function(imageWidth, imageHeight) {
+
+      var $containerWidth = imageWidth;
+      var $containerHeight = imageHeight;
+      var imageRatio = imageWidth/imageHeight;
+
+      // If the image width is wider than the container, set it to the size of the container
+      // and the height to the container width * imageRatio
+      if (imageWidth > this.$.ImageContainer.clientWidth) {
+        $containerWidth = this.$.ImageContainer.clientWidth;
+        $containerHeight = $containerWidth / imageRatio;
+      }
+
+      this.$.ImageContainer.style.height = Math.round($containerHeight) + 'px';
+      this.$.ImageContainer.style.width = Math.round($containerWidth) + 'px';
+    }
+  });
+})();
+</script>
