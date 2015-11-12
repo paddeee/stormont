@@ -22,20 +22,54 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .media__container {
-      background-color: rgb(62, 70, 76);
-      height: calc(100% - 28px);
+      overflow: auto;
+      position: absolute;
+      top: 4px;
+      right: 0;
+      bottom: 7vh;
+      left: 0;
+    }
+
+    .media__content {
+      box-sizing: border-box;
+      height: 80vh;
+      width: 100vw;
+      padding: 4vh 4vw;
       opacity: 1;
-      padding: 2vw;
       transition: opacity 0.5s ease;
     }
 
-    .media__container--hidden {
+    .media__content--hidden {
       opacity: 0;
+    }
+
+    .media-name {
+      padding: 0 2vw 2vh;
+      font-size: 2.5vh;
+      color: var(--text-primary-color);
+    }
+
+    .media-description {
+      padding: 2vh 2vw;
+      font-size: 1.8vh;
+      color: var(--text-primary-color);
     }
 
     .loading-mask {
       background-color: var(--primary-background-color);
       height: 100%;
+    }
+
+    .media__footer {
+      background: rgb(55, 64, 70);
+      color: var(--text-primary-color);
+      padding: 8px;
+      font-size: 2vh;
+      height: 5vh;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
     }
 
   </style>
@@ -44,31 +78,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script src="../../scripts/vendor/videoJS/wavesurfer/videojs-wavesurfer.js"></script>
   <template>
 
-    <!-- Loading Mask -->
-    <div id="LoadingMask" class="loading-mask layout horizontal center center-justified">
-      <paper-spinner alt="Loading Media" active$="[[loadingMedia]]"></paper-spinner>
-    </div>
+      <!-- Loading Mask -->
+      <div id="LoadingMask" class="fit loading-mask layout horizontal center center-justified">
+        <paper-spinner alt="Loading Media" active$="[[loadingMedia]]"></paper-spinner>
+      </div>
 
-    <!-- Media Container -->
-    <div id="MediaContainer"
-         class="media__container media__container--hidden layout horizontal center-justified">
+      <!-- Media Container -->
+      <div id="MediaContainer"
+           class="media__container layout vertical">
 
-      <!-- Create instance -->
-      <video id="Video"
-             class="video-js vjs-default-skin vjs-big-play-centered"
-             controls
-             preload="[[preload]]"
-             poster="[[poster]]"
-             hidden>
-        <source src="[[videoSource]]" type='video/mp4'/>
-      </video>
+        <!-- Media Content -->
+        <div id="MediaContent"
+             class="media__content  media__content--hidden  layout vertical center flex">
 
-      <audio id="Audio"
-             class="audio-player video-js vjs-default-skin"
-             controls
-             preload="auto"
-             hidden></audio>
-    </div>
+          <!-- Headline -->
+          <div class="media-name">[[mediaName]]</div>
+
+          <!-- Create instance -->
+          <video id="Video"
+                 class="video-js vjs-default-skin vjs-big-play-centered"
+                 controls
+                 preload="[[preload]]"
+                 poster="[[poster]]"
+                 hidden>
+            <source src="[[videoSource]]" type='video/mp4'/>
+          </video>
+
+          <audio id="Audio"
+                 class="audio-player video-js vjs-default-skin"
+                 controls
+                 preload="auto"
+                 hidden></audio>
+
+          <!-- Description -->
+          <div id="MediaDescription" class="media-description">[[mediaDescription]]</div>
+        </div>
+
+        <!-- Media Footer -->
+        <div class="media__footer">dfdfd</div>
+      </div>
   </template>
 </dom-module>
 <script>
@@ -124,6 +172,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         if (this.mediaType && this.mediaObject && this.mediaObject.Src) {
 
+          // Set media titles
+          this.mediaName = this.mediaObject.Headline;
+          this.mediaDescription = this.mediaObject.Description;
+
           if (this.mediaType === 'video') {
             this.createVideoJS();
           } else if (this.mediaType === 'audio') {
@@ -164,7 +216,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var $audioElement;
         var $videoContainer = this.$.Video.closest('.video-js');
         var $audioContainer = this.$$('#Audio').closest('.video-js');
-        var $mediaContainer = this.$.MediaContainer;
+        var $mediaDescription = this.$.MediaDescription;
 
         // Hide Video element and show audio element
         this.$.Video.setAttribute('hidden','');
@@ -179,15 +231,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           $audioElement.setAttribute('id', 'Audio');
           $audioElement.setAttribute('controls', '');
           $audioElement.classList.add('audio-player', 'video-js', 'vjs-default-skin');
-          $mediaContainer.appendChild($audioElement);
+          $mediaDescription.parentNode.insertBefore($audioElement, $mediaDescription);
         } else {
           $audioElement = this.$.Audio;
         }
 
+        // Set the sizes to be used for the Audio Player
+        this.setAudioPlayerDimensions();
+
         // Create an audio player instance
         this.audioPlayer = videojs($audioElement, {
-          width: 600,
-          height: 300,
+          width: this.audioPlayerWidth,
+          height: this.audioPlayerHeight,
           plugins: {
             wavesurfer: {
               src: this.mediaObject.Src,
@@ -195,7 +250,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               waveColor: "white",
               progressColor: "yellow",
               cursorColor: "white",
-              scrollParent: true
+              scrollParent: false
             }
           }
         }).ready(function() {
@@ -210,6 +265,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         this.addControlListeners('audio');
         this.RemoveControlListeners('audio');
+      },
+
+      // Called just before instantiating an Audio Player (not on resize)
+      setAudioPlayerDimensions: function() {
+
+        // Container values
+        var containerPaddingRight = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue("padding-right"), 10);
+        var containerPaddingLeft = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue("padding-left"), 10);
+        var containerWidth = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue("width"), 10);
+
+        this.audioPlayerWidth = containerWidth - containerPaddingLeft - containerPaddingRight;
+        this.audioPlayerHeight = this.audioPlayerWidth * (9/16);
       },
 
       // ToDo: get this to work. Needs to reposition video
@@ -269,14 +336,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Remove loading spinner and hide loading mask
       showMedia: function() {
         this.loadingMedia = false;
-        this.$.MediaContainer.classList.remove('media__container--hidden');
+        this.$.MediaContent.classList.remove('media__content--hidden');
         this.$.LoadingMask.hidden = true;
       },
 
       // Add loading spinner and show loading mask
       hideMedia: function() {
         this.loadingMedia = true;
-        this.$.MediaContainer.classList.add('media__container--hidden');
+        this.$.MediaContent.classList.add('media__content--hidden');
         this.$.LoadingMask.hidden = false;
       }
     });
