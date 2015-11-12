@@ -276,7 +276,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var containerWidth = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue("width"), 10);
 
         this.audioPlayerWidth = containerWidth - containerPaddingLeft - containerPaddingRight;
-        this.audioPlayerHeight = this.audioPlayerWidth * (9/16);
+        this.audioPlayerHeight = Math.round(this.audioPlayerWidth / 2);
       },
 
       // ToDo: get this to work. Needs to reposition video
