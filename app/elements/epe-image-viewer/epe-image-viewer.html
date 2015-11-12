@@ -81,7 +81,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     ready: function() {
-      //window.addEventListener('resize', this.resizeImageContainer.bind(this));
+      window.addEventListener('resize', this.resizeImageContainer.bind(this));
     },
 
     // Set source on image element
@@ -126,26 +126,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var $containerHeight;
       var imageRatio;
 
-      if (!this.$ || !this.$.Image || !this.$.Image.src) {
-        return;
-      }
+      // Resize event can be triggered by other unrelated parts of the application such as Leaflet Map or iron-resize
+      // If this method hasn't been called by the image load or event or a window resize event, do nothing
+      if ((event.srcElement.document && event.srcElement.location) || event.srcElement === this.$.Image) {
 
-      if (this.editState === this.presentationState) {
-
-        $image = this.$.Image;
-        $containerWidth = $image.naturalWidth;
-        $containerHeight = $image.naturalHeight;
-        imageRatio = $containerWidth / $containerHeight;
-
-        // If the image width is wider than the container, set it to the size of the container
-        // and the height to the container width * imageRatio
-        if ($containerHeight > this.$.ImageContainer.clientWidth) {
-          $containerWidth = this.$.ImageContainer.clientWidth;
-          $containerHeight = $containerWidth / imageRatio;
+        if (!this.$ || !this.$.Image || !this.$.Image.height) {
+          return;
         }
 
-        this.$.ImageContainer.style.height = Math.round($containerHeight) + 'px';
-        this.$.ImageContainer.style.width = Math.round($containerWidth) + 'px';
+        if (this.editState === this.presentationState) {
+
+          $image = this.$.Image;
+          $containerWidth = $image.naturalWidth;
+          $containerHeight = $image.naturalHeight;
+          imageRatio = $containerWidth / $containerHeight;
+
+          // If the image width is wider than the container, set it to the size of the container
+          // and the height to the container width * imageRatio
+          if ($containerWidth > this.$.ImageContainer.clientWidth) {
+            $containerWidth = this.$.ImageContainer.clientWidth;
+            $containerHeight = $containerWidth / imageRatio;
+          }
+
+          this.$.ImageContainer.style.height = Math.round($containerHeight) + 'px';
+          this.$.ImageContainer.style.width = Math.round($containerWidth) + 'px';
+        }
       }
     }
   });
