@@ -17,10 +17,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .image__container {
+      overflow: auto;
+      position: absolute;
+      top: 4px;
+      right: 0;
+      bottom: 7vh;
+      left: 0;
+    }
+
+    .image__content {
       box-sizing: border-box;
       height: 80vh;
       width: 100vw;
       padding: 4vh 4vw;
+      opacity: 1;
+      transition: opacity 0.5s ease;
     }
 
     paper-material {
@@ -36,8 +47,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       height: 100%;
     }
 
+    .image-name {
+      padding: 0 2vw 2vh;
+      font-size: 2.5vh;
+      color: var(--text-primary-color);
+    }
+
+    .image-description {
+      padding: 2vh 2vw;
+      font-size: 1.8vh;
+      color: var(--text-primary-color);
+    }
+
     .image {
       height: 100%;
+      width: 100%;
+    }
+
+    .image__footer {
+      background: rgb(55, 64, 70);
+      color: var(--text-primary-color);
+      padding: 8px;
+      font-size: 2vh;
+      height: 5vh;
+      position: fixed;
+      bottom: 0;
+      left: 0;
       width: 100%;
     }
   </style>
@@ -45,24 +80,39 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <!-- Image Container -->
     <div id="ImageContainer"
-         class="image__container layout horizontal center center-justified">
+         class="image__container layout vertical center center-justified">
 
-      <!-- Image Card -->
-      <paper-material id="ImageCard" elevation="5">
+      <!-- Image Content -->
+      <div id="ImageContent"
+           class="image__content layout vertical center flex">
 
-        <!-- Loading Mask -->
-        <div id="LoadingMask" class="loading-mask layout horizontal center center-justified">
-          <paper-spinner alt="Loading Media" active$="[[loadingImage]]"></paper-spinner>
-        </div>
+        <!-- Headline -->
+        <div class="image-name">[[imageName]]</div>
 
-        <!-- Image -->
-        <img id="Image"
-             class="image"
-             alt="[[headline]]"
-             src="[[imageSource]]"
-             hidden/>
+        <!-- Image Card -->
+        <paper-material id="ImageCard" elevation="5">
 
-      </paper-material>
+          <!-- Loading Mask -->
+          <div id="LoadingMask" class="loading-mask layout horizontal center center-justified">
+            <paper-spinner alt="Loading Media" active$="[[loadingImage]]"></paper-spinner>
+          </div>
+
+          <!-- Image -->
+          <img id="Image"
+               class="image"
+               alt="[[headline]]"
+               src="[[imageSource]]"
+               hidden/>
+        </paper-material>
+
+        <!-- Description -->
+        <div class="image-description">[[imageDescription]]</div>
+
+      </div>
+
+      <!-- Media Footer -->
+      <div class="image__footer">dfdfd</div>
+
     </div>
   </template>
 </dom-module>
@@ -93,6 +143,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     setUpImage: function() {
 
       if (this.imageObject && this.imageObject.Src) {
+
+        // Set image titles
+        this.imageName = this.imageObject.Headline;
+        this.imageDescription = this.imageObject.Description;
 
         // Render the image and hide spinner
         this.renderImage();
@@ -150,12 +204,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           imageRatio = $containerWidth / $containerHeight;
 
           // Container values
-          containerPaddingTop = parseInt(getComputedStyle(this.$.ImageContainer).getPropertyValue("padding-top"), 10);
-          containerPaddingRight = parseInt(getComputedStyle(this.$.ImageContainer).getPropertyValue("padding-right"), 10);
-          containerPaddingBottom = parseInt(getComputedStyle(this.$.ImageContainer).getPropertyValue("padding-bottom"), 10);
-          containerPaddingLeft = parseInt(getComputedStyle(this.$.ImageContainer).getPropertyValue("padding-left"), 10);
-          actualContainerWidth = this.$.ImageContainer.clientWidth - containerPaddingLeft - containerPaddingRight;
-          actualContainerHeight = this.$.ImageContainer.clientHeight - containerPaddingTop - containerPaddingBottom;
+          containerPaddingTop = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue("padding-top"), 10);
+          containerPaddingRight = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue("padding-right"), 10);
+          containerPaddingBottom = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue("padding-bottom"), 10);
+          containerPaddingLeft = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue("padding-left"), 10);
+          actualContainerWidth = this.$.ImageContent.clientWidth - containerPaddingLeft - containerPaddingRight;
+          actualContainerHeight = this.$.ImageContent.clientHeight - containerPaddingTop - containerPaddingBottom;
 
           // Landscape Image
           if (imageRatio >= 1) {

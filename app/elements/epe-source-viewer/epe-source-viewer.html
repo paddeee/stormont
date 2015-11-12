@@ -21,7 +21,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       height: 4px;
     }
 
-    epe-image-viewer {
+    .viewer-element {
       background-color: #52585A
     }
   </style>
@@ -33,7 +33,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <!-- PDF Viewer Section -->
       <section data-route="pdf" class="fit">
         <epe-pdf-viewer
-          class="layout horizontal center-justified"
+          class="viewer-element layout horizontal center-justified"
           pdf-object="[[selectedSourceObject]]"
           selected-source-file-type="[[selectedSourceFileType]]"
           edit-state="[[editState]]"
@@ -42,27 +42,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <!-- Media Section -->
       <section data-route="media" class="fit">
-        <div class="media fit">
-          <div class="media__container fit layout horizontal center center-justified">
-            <epe-media-viewer
-              class="fit"
-              controls
-              preload="auto"
-              width="auto"
-              height="auto"
-              poster="[[poster]]"
-              edit-state="[[editState]]"
-              media-type="[[selectedSourceFileType]]"
-              media-object="[[selectedSourceObject]]">
-            </epe-media-viewer>
-          </div>
-        </div>
+        <epe-media-viewer
+          class="viewer-element fit layout horizontal center-justified"
+          controls
+          preload="auto"
+          width="auto"
+          height="auto"
+          poster="[[poster]]"
+          edit-state="[[editState]]"
+          media-type="[[selectedSourceFileType]]"
+          media-object="[[selectedSourceObject]]">
+        </epe-media-viewer>
       </section>
 
       <!-- Image Viewer Section -->
       <section data-route="image" class="fit">
         <epe-image-viewer
-          class="fit"
+          class="viewer-element fit layout horizontal center-justified"
           image-object="[[selectedSourceObject]]"
           edit-state="[[editState]]"
           presentation-state="[[presentationState]]"></epe-image-viewer>
