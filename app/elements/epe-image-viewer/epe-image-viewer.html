@@ -42,8 +42,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <template>
 
     <!-- Image Container -->
-    <div class="image__container layout horizontal center center-justified">
-      <paper-material id="ImageContainer" elevation="5">
+    <div id="ImageContainer"
+         class="image__container layout horizontal center center-justified">
+
+      <!-- Image Card -->
+      <paper-material id="ImageCard" elevation="5">
 
         <!-- Loading Mask -->
         <div id="LoadingMask" class="loading-mask layout horizontal center center-justified">
@@ -125,6 +128,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var $containerWidth;
       var $containerHeight;
       var imageRatio;
+      var containerPaddingTop;
+      var containerPaddingRight;
+      var containerPaddingBottom;
+      var containerPaddingLeft;
+      var actualContainerWidth;
+      var actualContainerHeight;
 
       // Resize event can be triggered by other unrelated parts of the application such as Leaflet Map or iron-resize
       // If this method hasn't been called by the image load or event or a window resize event, do nothing
@@ -141,15 +150,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           $containerHeight = $image.naturalHeight;
           imageRatio = $containerWidth / $containerHeight;
 
-          // If the image width is wider than the container, set it to the size of the container
-          // and the height to the container width * imageRatio
-          if ($containerWidth > this.$.ImageContainer.clientWidth) {
-            $containerWidth = this.$.ImageContainer.clientWidth;
-            $containerHeight = $containerWidth / imageRatio;
+          // Container values
+          containerPaddingTop = parseInt(getComputedStyle(this.$.ImageContainer).getPropertyValue("padding-top"), 10);
+          containerPaddingRight = parseInt(getComputedStyle(this.$.ImageContainer).getPropertyValue("padding-right"), 10);
+          containerPaddingBottom = parseInt(getComputedStyle(this.$.ImageContainer).getPropertyValue("padding-bottom"), 10);
+          containerPaddingLeft = parseInt(getComputedStyle(this.$.ImageContainer).getPropertyValue("padding-left"), 10);
+          actualContainerWidth = this.$.ImageContainer.clientWidth - containerPaddingLeft - containerPaddingRight;
+          actualContainerHeight = this.$.ImageContainer.clientHeight - containerPaddingTop - containerPaddingBottom;
+
+          // Landscape Image
+          if (imageRatio >= 1) {
+
+            // If the image width is wider than the container, set it to the size of the container
+            // and the height to the container width * imageRatio
+            if ($containerWidth > actualContainerWidth) {
+              $containerWidth = actualContainerWidth;
+              $containerHeight = $containerWidth / imageRatio;
+            }
+
+            // If the image height is taller than the container, set it to the size of the container
+            // and the width to the container height * imageRatio
+            if ($containerHeight > actualContainerHeight) {
+              $containerHeight = actualContainerHeight;
+              $containerWidth = $containerHeight * imageRatio;
+            }
+
+          // Portrait Image
+          } else {
+
+            // If the image height is taller than the container, set it to the size of the container
+            // and the width to the container height * imageRatio
+            if ($containerHeight > actualContainerHeight) {
+              $containerHeight = actualContainerHeight;
+              $containerWidth = $containerHeight * imageRatio;
+            }
           }
 
-          this.$.ImageContainer.style.height = Math.round($containerHeight) + 'px';
-          this.$.ImageContainer.style.width = Math.round($containerWidth) + 'px';
+          this.$.ImageCard.style.height = Math.round($containerHeight) + 'px';
+          this.$.ImageCard.style.width = Math.round($containerWidth) + 'px';
         }
       }
     }
