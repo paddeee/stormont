@@ -1655,7 +1655,15 @@ module.exports = Reflux.createStore({
         this.selectedSourceRoute = 'media';
         this.selectedSourceFileType = 'audio';
         break;
+      case "avi":
+        this.selectedSourceRoute = 'media';
+        this.selectedSourceFileType = 'audio';
+        break;
       case "mp4":
+        this.selectedSourceRoute = 'media';
+        this.selectedSourceFileType = 'video';
+        break;
+      case "mov":
         this.selectedSourceRoute = 'media';
         this.selectedSourceFileType = 'video';
         break;
