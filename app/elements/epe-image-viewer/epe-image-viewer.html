@@ -27,6 +27,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       background-color: var(--primary-background-color);
       height: 100%;
       width: 100%;
+      transition: height 0.5s ease;
+      transition: width 0.5s ease;
     }
 
     .loading-mask {
@@ -107,18 +109,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Resize the paper-material element to size of the image
         this.resizeImageContainer($image.naturalWidth, $image.naturalHeight);
 
-        this.loadingImage = false;
-        $image.removeAttribute('hidden');
-        this.$.LoadingMask.hidden = true;
+        this.async(function() {
+          this.loadingImage = false;
+          $image.removeAttribute('hidden');
+          this.$.LoadingMask.hidden = true;
+        }, 500);
       }.bind(this));
 
       // Set the src of the image
       this.imageSource = this.imageObject.Src;
-
-      // If image has already loaded in cache we need to manually trigger the load event
-      /*if ($image.complete) {
-        $image.load();
-      }*/
     },
 
     // Resize the image container to the size of the image
