@@ -178,6 +178,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     resizeImageContainer: function() {
 
       var $image;
+      var bottom;
       var $containerWidth;
       var $containerHeight;
       var imageRatio;
@@ -203,13 +204,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           $containerHeight = $image.naturalHeight;
           imageRatio = $containerWidth / $containerHeight;
 
+          // Take footer into account
+          bottom = parseInt(getComputedStyle(this.$.ImageContainer).getPropertyValue("bottom"), 10);
+
           // Container values
           containerPaddingTop = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue("padding-top"), 10);
           containerPaddingRight = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue("padding-right"), 10);
           containerPaddingBottom = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue("padding-bottom"), 10);
           containerPaddingLeft = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue("padding-left"), 10);
           actualContainerWidth = this.$.ImageContent.clientWidth - containerPaddingLeft - containerPaddingRight;
-          actualContainerHeight = this.$.ImageContent.clientHeight - containerPaddingTop - containerPaddingBottom;
+          actualContainerHeight = this.$.ImageContent.clientHeight - containerPaddingTop - containerPaddingBottom - bottom;
 
           // Landscape Image
           if (imageRatio >= 1) {
