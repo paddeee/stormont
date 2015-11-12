@@ -1,0 +1,242 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="epe-parse-spreadsheet">
+  <style>
+    :host {
+      display: block;
+    }
+
+    /*  Paper spinner default height and width is 28px
+        so position at 50% minus half that */
+    paper-spinner {
+      left: calc(50% - 20px);
+      height: 40px;
+      pointer-events: none;
+      position: absolute;
+      top: calc(50% - 20px);
+      width: 40px;
+    }
+
+    .drop-area {
+      border-style: dashed;
+      color: var(--divider-color);
+      height: 40vh;
+      font-size: 3.5vw;
+    }
+
+    .drop-area__text[invisible] {
+      visibility: hidden;
+    }
+
+    .files {
+      cursor: pointer;
+      display: block;
+      margin: 0 auto;
+      outline: none;
+      padding: 2vh 0 0;
+      color: var(--text-primary-color);
+    }
+
+    .files::-webkit-file-upload-button {
+      visibility: hidden;
+    }
+
+    .files::before {
+      content: 'or click to select a file';
+      background: var(--paper-blue-500);
+      border-radius: 5px;
+      padding: 2vh;
+      outline: none;
+      white-space: nowrap;
+      -webkit-user-select: none;
+      cursor: pointer;
+      font-size: 14pt;
+      margin: 0 auto;
+    }
+
+    .files:hover::before {
+      border-color: black;
+    }
+
+    .files:active::before {
+      background: -webkit-linear-gradient(top, #e3e3e3, #f9f9f9);
+    }
+
+    /* Small */
+    @media (max-width: 600px) {
+
+      .drop-area {
+        font-size: 7vw;
+      }
+    }
+
+  </style>
+  <template>
+
+    <div class="import-location" hidden="{{!packagedApp}}">
+      <input id="importLocation" type="file" nwdirectory/>
+    </div>
+
+    <div id="DropArea"
+         class="drop-area layout horizontal center center-justified"
+         on-drop="handleDrop"
+         on-dragover="handleDragOver">
+
+      <div class="drop-area__text  vertical layout center center-justified"
+           invisible$="{{importing}}">
+        <p>Drag <span>[[csvType]]</span> CaseMap file here</p>
+        <input type="file"
+               id="files"
+               class="files"
+               name="files[]"
+               on-change="handleFilePick"
+               multiple>
+      </div>
+
+      <paper-spinner alt="Loading contacts list" active$="[[importing]]"></paper-spinner>
+    </div>
+    </div>
+
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+
+    is: 'epe-parse-spreadsheet',
+
+    properties: {
+
+      importActions: {
+        type: Array
+      },
+
+      importStore: {
+        type: Object,
+        value: {}
+      },
+
+      importing: {
+        type: Boolean,
+        value: false
+      },
+
+      packagedApp: {
+        type: Boolean,
+        value: false
+      },
+
+      csvType: {
+        type: String,
+        value: ''
+      },
+
+      csvParser: {
+        type: Object,
+        value: null
+      }
+    },
+
+    ready: function() {
+
+      this.importStore.listen(function(importFinished) {
+
+        this.fire('import-finished', importFinished);
+
+        // Reset input file type
+        this.$.files.value = '';
+
+      }.bind(this));
+    },
+
+    // When Drop area is tapped click the file input element to display Files
+    handleTap: function (event) {
+      event.stopPropagation();
+      event.preventDefault();
+      this.$.files.click();
+    },
+
+    // When a file is dragged, prevent the default behaviour
+    handleDragOver: function (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    },
+
+    // When file input value is changed, parse the sheet
+    handleFilePick: function(event) {
+      event.stopPropagation();
+      event.preventDefault();
+
+      this.importing = true;
+
+      this.parseSheet(event, 'file-input');
+    },
+
+    // When a file is dropped, parse the sheet
+    handleDrop: function (event) {
+      event.stopPropagation();
+      event.preventDefault();
+
+      this.importing = true;
+
+      this.parseSheet(event, 'drop');
+    },
+
+    // Loop through files and convert from binary to a JavaScript object
+    parseSheet: function(event, inputMethod) {
+
+      var files;
+      var i, f;
+
+      if (inputMethod === 'file-input') {
+        files = event.target.files;
+      } else if (inputMethod === 'drop') {
+        files = event.dataTransfer.files;
+      }
+
+      for (i = 0, f = files[i]; i !== files.length; ++i) {
+
+        var reader = new FileReader();
+
+        reader.onload = this.sheetLoaded.bind(this);
+
+        reader.readAsBinaryString(f);
+      }
+    },
+
+    sheetLoaded: function (event) {
+
+      var data = event.target.result;
+      var importData = data.split('[ImportData]')[1].trim();
+
+      /* if binary string, read with type 'binary' */
+      var CSV = this.csvParser.read(importData, {
+        type: 'binary'
+      });
+
+      var action = {
+        collectionName: this.csvType,
+        CSV: CSV
+      };
+
+      // Call fileImported action
+      this.importActions.fileImported(action);
+
+      // Avoid flash of spinner if import is very quick, by delaying a minimum of 1 second
+      this.async(function () {
+        this.importing = false;
+      }, 1000);
+    }
+  });
+})();
+</script>

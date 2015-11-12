@@ -1,0 +1,351 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="epe-media-viewer">
+  <link rel="stylesheet" href="../../scripts/vendor/videoJS/videoJS.css">
+  <style>
+    :host {
+      display: block;
+    }
+
+    canvas {
+      outline: none;
+    }
+
+    .media__container {
+      overflow: auto;
+      position: absolute;
+      top: 4px;
+      right: 0;
+      bottom: 7vh;
+      left: 0;
+    }
+
+    .media__content {
+      box-sizing: border-box;
+      height: 80vh;
+      width: 100vw;
+      padding: 2vh 4vw;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+
+    .media__content--hidden {
+      opacity: 0;
+    }
+
+    .media-name {
+      padding: 0 2vw 2vh;
+      font-size: 2.5vh;
+      color: var(--text-primary-color);
+    }
+
+    .media-description {
+      padding: 2vh 2vw;
+      font-size: 1.8vh;
+      color: var(--text-primary-color);
+    }
+
+    .loading-mask {
+      background-color: var(--primary-background-color);
+      height: 100%;
+    }
+
+    .media__footer {
+      background: rgb(55, 64, 70);
+      color: var(--text-primary-color);
+      padding: 8px;
+      font-size: 2vh;
+      height: 5vh;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+    }
+
+  </style>
+  <script src="../../scripts/vendor/videoJS/video.js"></script>
+  <script src="../../scripts/vendor/videoJS/wavesurfer/wavesurfer.js"></script>
+  <script src="../../scripts/vendor/videoJS/wavesurfer/videojs-wavesurfer.js"></script>
+  <template>
+
+      <!-- Loading Mask -->
+      <div id="LoadingMask" class="fit loading-mask layout horizontal center center-justified">
+        <paper-spinner alt="Loading Media" active$="[[loadingMedia]]"></paper-spinner>
+      </div>
+
+      <!-- Media Container -->
+      <div id="MediaContainer"
+           class="media__container layout vertical">
+
+        <!-- Media Content -->
+        <div id="MediaContent"
+             class="media__content  media__content--hidden  layout vertical center flex">
+
+          <!-- Headline -->
+          <div class="media-name">[[mediaName]]</div>
+
+          <!-- Create instance -->
+          <video id="Video"
+                 class="video-js vjs-default-skin vjs-big-play-centered"
+                 controls
+                 preload="[[preload]]"
+                 poster="[[poster]]"
+                 hidden>
+            <source src="[[videoSource]]" type='video/mp4'/>
+          </video>
+
+          <audio id="Audio"
+                 class="audio-player video-js vjs-default-skin"
+                 controls
+                 preload="auto"
+                 hidden></audio>
+
+          <!-- Description -->
+          <div id="MediaDescription" class="media-description">[[mediaDescription]]</div>
+        </div>
+
+        <!-- Media Footer -->
+        <div class="media__footer">dfdfd</div>
+      </div>
+  </template>
+</dom-module>
+<script>
+  (function() {
+    Polymer({
+      is: 'epe-media-viewer',
+
+      properties: {
+
+        loadingMedia: {
+          type: Boolean,
+          value: true
+        },
+
+        fluid: {
+          type: Boolean,
+          value: true
+        },
+
+        preload: {
+          type: String,
+          value: 'auto'
+        },
+
+        poster: {
+          type: String,
+          value: ''
+        },
+
+        mediaObject: {
+          type: Object,
+          value: null,
+          observer: 'setUpMedia'
+        },
+
+        mediaType: {
+          type: String,
+          value: '',
+          observer: 'setUpMedia'
+        }
+      },
+
+      ready: function() {
+
+        // Get element this way as parent element isn't yet available through document.querySelector
+        var $epeNetworked = app.$.epeNetworked;
+
+        $epeNetworked.addEventListener('not-media-route', this.hideMedia.bind(this));
+      },
+
+      // FIRED FROM OBSERVERS ON MEDIAOBJECT AND MEDIATYPE
+      setUpMedia: function() {
+
+        if (this.mediaType && this.mediaObject && this.mediaObject.Src) {
+
+          // Set media titles
+          this.mediaName = this.mediaObject.Headline;
+          this.mediaDescription = this.mediaObject.Description;
+
+          if (this.mediaType === 'video') {
+            this.createVideoJS();
+          } else if (this.mediaType === 'audio') {
+            this.createAudioJS();
+          }
+        }
+      },
+
+      // Create a clean instance of videoJS on the video element
+      createVideoJS: function() {
+
+        var $videoContainer = this.$.Video.closest('.video-js');
+        var $audioContainer = this.$$('#Audio').closest('.video-js');
+
+        this.$.Audio.setAttribute('hidden','');
+        $audioContainer && $audioContainer.setAttribute('hidden','');
+        this.$.Video.removeAttribute('hidden');
+        $videoContainer && $videoContainer.removeAttribute('hidden');
+
+        this.videoSource = this.mediaObject.Src;
+
+        this.videoPlayer = videojs(this.$.Video, {
+          fluid: this.fluid
+        }).ready(function() {
+
+          // Show video
+          this.async(this.showMedia, 700);
+
+        }.bind(this));
+
+        this.addControlListeners('video');
+        this.RemoveControlListeners('video');
+      },
+
+      // Create a clean instance of videoJS on an audio element
+      createAudioJS: function() {
+
+        var $audioElement;
+        var $videoContainer = this.$.Video.closest('.video-js');
+        var $audioContainer = this.$$('#Audio').closest('.video-js');
+        var $mediaDescription = this.$.MediaDescription;
+
+        // Hide Video element and show audio element
+        this.$.Video.setAttribute('hidden','');
+        $videoContainer && $videoContainer.setAttribute('hidden','');
+        this.$.Audio.removeAttribute('hidden');
+        $audioContainer && $audioContainer.removeAttribute('hidden');
+
+        // If audio already exists, kill it and create a new audio element
+        if (this.audioPlayer) {
+          this.audioPlayer.waveform.destroy();
+          $audioElement = document.createElement('audio');
+          $audioElement.setAttribute('id', 'Audio');
+          $audioElement.setAttribute('controls', '');
+          $audioElement.classList.add('audio-player', 'video-js', 'vjs-default-skin');
+          $mediaDescription.parentNode.insertBefore($audioElement, $mediaDescription);
+        } else {
+          $audioElement = this.$.Audio;
+        }
+
+        // Set the sizes to be used for the Audio Player
+        this.setAudioPlayerDimensions();
+
+        // Create an audio player instance
+        this.audioPlayer = videojs($audioElement, {
+          width: this.audioPlayerWidth,
+          height: this.audioPlayerHeight,
+          plugins: {
+            wavesurfer: {
+              src: this.mediaObject.Src,
+              msDisplayMax: 10,
+              waveColor: "white",
+              progressColor: "yellow",
+              cursorColor: "white",
+              scrollParent: false
+            }
+          }
+        }).ready(function() {
+
+          // change player background color
+          this.audioPlayer.el().style.backgroundColor = "#212121";
+
+          // Show audio
+          this.async(this.showMedia, 700);
+
+        }.bind(this));
+
+        this.addControlListeners('audio');
+        this.RemoveControlListeners('audio');
+      },
+
+      // Called just before instantiating an Audio Player (not on resize)
+      setAudioPlayerDimensions: function() {
+
+        // Container values
+        var containerPaddingRight = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue("padding-right"), 10);
+        var containerPaddingLeft = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue("padding-left"), 10);
+        var containerWidth = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue("width"), 10);
+
+        this.audioPlayerWidth = containerWidth - containerPaddingLeft - containerPaddingRight;
+        this.audioPlayerHeight = Math.round(this.audioPlayerWidth / 2);
+      },
+
+      // ToDo: get this to work. Needs to reposition video
+      fullScreenToggleTapped: function() {
+
+        var $mainScrollHeader;
+
+        this.isFullScreen = !this.isFullScreen;
+
+        if (!this.isFullScreen) {
+          $mainScrollHeader = document.querySelector('#MainScrollHeader');
+          setTimeout($mainScrollHeader.scroll(128, false), 10000);
+        }
+      },
+
+      // Set up any listeners required for player controls
+      addControlListeners: function(player) {
+
+        var fullScreenToggle;
+        var fullScreenAudioToggle;
+        var self = this;
+
+        if (player === 'video') {
+          fullScreenToggle = this.videoPlayer.controlBar.fullscreenToggle.el();
+          videojs.on(fullScreenToggle, 'tap', self.fullScreenToggleTapped);
+        } else if (player === 'audio') {
+          fullScreenAudioToggle = this.audioPlayer.controlBar.fullscreenToggle.el();
+          videojs.on(fullScreenAudioToggle, 'tap', self.fullScreenToggleTapped);
+        }
+      },
+
+      // Remove Polymer listeners from controls to prevent toggle buttons such as play/pause
+      // from firing twice. Polymer is capturing tap events and video.js is automatically adding
+      // a click event to control buttons.
+      // ToDo: For now going to manually manage removing VideoJS.s 'click' event from relevant elements
+      // but may want to look at not passing in 'controls' as an option and building competely custom controls
+      RemoveControlListeners: function(player) {
+
+        var playToggleButton;
+        var fullScreenToggle;
+        var playToggleAudioButton;
+        var fullScreenAudioToggle;
+
+        if (player === 'video') {
+          playToggleButton = this.videoPlayer.controlBar.playToggle.el();
+          fullScreenToggle = this.videoPlayer.controlBar.fullscreenToggle.el();
+          videojs.off(playToggleButton, 'click');
+          videojs.off(fullScreenToggle, 'click');
+        } else if (player === 'audio') {
+          playToggleAudioButton = this.audioPlayer.controlBar.playToggle.el();
+          fullScreenAudioToggle = this.audioPlayer.controlBar.fullscreenToggle.el();
+          videojs.off(playToggleAudioButton, 'click');
+          videojs.off(fullScreenAudioToggle, 'click');
+        }
+      },
+
+      // Remove loading spinner and hide loading mask
+      showMedia: function() {
+        this.loadingMedia = false;
+        this.$.MediaContent.classList.remove('media__content--hidden');
+        this.$.LoadingMask.hidden = true;
+      },
+
+      // Add loading spinner and show loading mask
+      hideMedia: function() {
+        this.loadingMedia = true;
+        this.$.MediaContent.classList.add('media__content--hidden');
+        this.$.LoadingMask.hidden = false;
+      }
+    });
+  })();
+</script>

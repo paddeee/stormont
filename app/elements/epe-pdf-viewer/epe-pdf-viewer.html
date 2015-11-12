@@ -1,0 +1,442 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="epe-pdf-viewer">
+  <style>
+
+    :host {
+      display: block;
+    }
+
+    .pdf__footer {
+      background: rgb(55, 64, 70);
+      color: var(--text-primary-color);
+      padding: 8px;
+      font-size: 2vh;
+      height: 5vh;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+    }
+
+    .pdf_name {
+      margin: 0 2vw;
+    }
+
+    .pdf_current-page {
+      margin-right: 4px;
+    }
+
+    .pdf_total-pages {
+      margin-left: 4px;
+    }
+
+    .rotate {
+      transform: rotate(90deg);
+    }
+
+    .rotate-one-eighty {
+      transform: rotate(180deg);
+    }
+
+    .pdf_secondary-button-holder {
+      margin-right: 2vw;
+    }
+
+    paper-checkbox {
+      --paper-checkbox-label-color: var(--text-primary-color);
+      --paper-checkbox-unchecked-color: var(--primary-background-color);
+      margin: 0 2vw 0 0;
+    }
+
+    .findbar {
+      background: rgb(55, 64, 70);
+      bottom: 8vh;
+      color: #fff;
+      height: 12vh;
+      right: 0;
+      position: absolute;
+      z-index: 10000;
+      min-width: 16px;
+      padding: 0 2vw;
+      margin: 4px 2px 4px 2px;
+      font-size: 2vh;
+      line-height: 1;
+      text-align: left;
+      cursor: default;
+    }
+
+    .findbar label {
+      margin-right: 1vw;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+    }
+
+    .find-input {
+      border: 0 none;
+      font-size: 2vh;
+      line-height: 1.6;
+      padding: 2px 6px;
+    }
+
+    .find-input.notFound {
+      background-color: var(--google-red-500);
+      color: var(--text-primary-color);
+    }
+
+    .find-input[data-status="pending"] {
+      background-image: url(/images/pdf/loading-small.png);
+      background-repeat: no-repeat;
+      background-position: 90%;
+    }
+
+    .find-results-count {
+      background-color: #fff;
+      color: var(--primary-text-color);
+      text-align: center;
+      margin-right: 14px;
+      padding: 3px 4px;
+    }
+
+    .find-message {
+      font-style: italic;
+      color: var(--accent-color);
+      text-align: center;
+    }
+
+    .find-bottom-container {
+      padding-bottom: 2vh;
+    }
+
+  </style>
+  <link rel="stylesheet" href="../../styles/vendor/pdf/pdf.css">
+  <script src="../../scripts/vendor/pdf/l10n.js"></script>
+  <script src="../../scripts/vendor/pdf/pdf.js"></script>
+  <script src="../../scripts/vendor/pdf/pdf-viewer.js"></script>
+
+  <template>
+
+    <!-- Loading Bar ToDo: Use Polymer loading bar  -->
+    <div id="loadingBar">
+      <div class="progress">
+        <div class="glimmer">
+        </div>
+      </div>
+    </div>
+
+    <div class="pdf layout horizontal">
+
+      <!-- ToDo: Sidebar - Can turn on at later date by removing hidden and sorting toggle functionality for it -->
+      <div id="sidebarContainer" hidden>
+        <div id="toolbarSidebar">
+          <div class="splitToolbarButton toggled">
+            <button id="viewThumbnail" class="toolbarButton group toggled" title="Show Thumbnails" tabindex="2" data-l10n-id="thumbs">
+              <span data-l10n-id="thumbs_label">Thumbnails</span>
+            </button>
+            <button id="viewOutline" class="toolbarButton group" title="Show Document Outline" tabindex="3" data-l10n-id="outline">
+              <span data-l10n-id="outline_label">Document Outline</span>
+            </button>
+            <button id="viewAttachments" class="toolbarButton group" title="Show Attachments" tabindex="4" data-l10n-id="attachments">
+              <span data-l10n-id="attachments_label">Attachments</span>
+            </button>
+          </div>
+        </div>
+        <div id="sidebarContent">
+          <div id="thumbnailView">
+          </div>
+          <div id="outlineView" class="hidden">
+          </div>
+          <div id="attachmentsView" class="hidden">
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Area -->
+      <div class="layout vertical">
+
+        <!-- Viewer -->
+        <div id="viewerContainer" class="pdf__canvas flex" tabindex="0">
+          <div id="viewer" class="pdfViewer"></div>
+        </div>
+
+        <!-- Footer -->
+        <div class="pdf__footer relative horizontal layout center">
+          <div class="pdf_name">
+            <span>[[pdfName]]</span>
+          </div>
+          <div class="pdf_button-holder flex">
+            <paper-icon-button id="sidebarToggle" tabindex="11" icon="toggle" hidden></paper-icon-button>
+            <paper-icon-button id="Previous" icon="arrow-back" on-tap="showPreviousPage"></paper-icon-button>
+            <paper-icon-button id="Next" icon="arrow-forward" on-tap="showNextPage"></paper-icon-button>
+            <paper-icon-button id="ZoomOut" icon="zoom-out" on-tap="zoomOut"></paper-icon-button>
+            <paper-icon-button id="ZoomIn" icon="zoom-in" on-tap="zoomIn"></paper-icon-button>
+            <paper-icon-button icon="device:developer-mode" on-tap="fitToPage"></paper-icon-button>
+            <paper-icon-button icon="device:developer-mode" on-tap="fitToWidth" class="rotate"></paper-icon-button>
+
+            <!-- ToDo: Can remove hide when ready to work on this -->
+            <span id="scaleSelectContainer" class="dropdownToolbarButton" hidden>
+              <select id="scaleSelect" title="Zoom" tabindex="23" data-l10n-id="zoom">
+               <option id="pageAutoOption" title="" value="auto" selected="selected" data-l10n-id="page_scale_auto">Automatic Zoom</option>
+               <option id="pageActualOption" title="" value="page-actual" data-l10n-id="page_scale_actual">Actual Size</option>
+               <option id="pageFitOption" title="" value="page-fit" data-l10n-id="page_scale_fit">Fit Page</option>
+               <option id="pageWidthOption" title="" value="page-width" data-l10n-id="page_scale_width">Full Width</option>
+               <option id="customScaleOption" title="" value="custom"></option>
+               <option title="" value="0.5" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 50 }'>50%</option>
+               <option title="" value="0.75" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 75 }'>75%</option>
+               <option title="" value="1" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 100 }'>100%</option>
+               <option title="" value="1.25" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 125 }'>125%</option>
+               <option title="" value="1.5" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 150 }'>150%</option>
+               <option title="" value="2" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 200 }'>200%</option>
+               <option title="" value="3" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 300 }'>300%</option>
+               <option title="" value="4" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 400 }'>400%</option>
+              </select>
+            </span>
+          </div>
+          <div class="pdf_page-info layout horizontal center">
+            <span id="pageNumber" class="pdf_current-page">[[page]]</span>/
+            <span id="numPages" class="pdf_total-pages">[[numPages]]</span>
+          </div>
+          <div class="pdf_secondary-button-holder flex layout horizontal center end-justified">
+            <paper-icon-button icon="image:rotate-left" on-tap="rotateAntiClockWise"></paper-icon-button>
+            <paper-icon-button icon="image:rotate-right" on-tap="rotateClockWise"></paper-icon-button>
+            <paper-icon-button id="viewFind" icon="search"></paper-icon-button>
+          </div>
+
+          <!-- Findbar -->
+            <div id="findbar" class="findbar hidden layout vertical">
+              <div class="find-top-container layout horizontal center">
+                <div id="findResultsCount" class="find-results-count hidden"></div>
+                <div id="findMsg" class="find-message">Search document</div>
+                <div class="layout horizontal end-justified flex">
+                  <paper-icon-button icon="close" on-tap="closeFindBar"></paper-icon-button>
+                </div>
+              </div>
+              <div class="find-bottom-container layout horizontal center">
+                <label for="findInput">Find:</label>
+                <input id="findInput" class="find-input" tabindex="91">
+                <div>
+                  <paper-icon-button id="findPrevious"
+                                     icon="arrow-back"
+                                     tabindex="92"
+                                     on-tap="findPrevious"></paper-icon-button>
+                  <paper-icon-button id="findNext"
+                                     icon="arrow-forward"
+                                     tabindex="93"
+                                     on-tap="findNext"></paper-icon-button>
+                </div>
+                <paper-checkbox
+                        id="findHighlightAll"
+                        tabindex="94">Highlight all</paper-checkbox>
+                <paper-checkbox
+                        id="findMatchCase"
+                        tabindex="95">Match case</paper-checkbox>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ToDo: Just putting this in as not sure if needed later -->
+      <div id="errorWrapper" class="error-wrapper" hidden>
+        <div id="errorMessageLeft">
+          <span id="errorMessage"></span>
+          <button id="errorShowMore" data-l10n-id="error_more_info">
+            More Information
+          </button>
+          <button id="errorShowLess" data-l10n-id="error_less_info" hidden='true'>
+            Less Information
+          </button>
+        </div>
+        <div id="errorMessageRight">
+          <button id="errorClose" data-l10n-id="error_close">
+            Close
+          </button>
+        </div>
+        <div class="clearBoth"></div>
+        <textarea id="errorMoreInfo" hidden='true' readonly="readonly"></textarea>
+      </div>
+    </div>
+
+    </div>
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+    is: 'epe-pdf-viewer',
+
+    properties: {
+
+      minScale: {
+        type: Number,
+        value: 0.25,
+        readOnly: true
+      },
+
+      maxScale: {
+        type: Number,
+        value: 10.0,
+        readOnly: true
+      },
+
+      pdfName: {
+        type: String
+      },
+
+      page: {
+        type: Number,
+        value: 1
+      },
+
+      numPages: {
+        type: Number,
+        value: 1
+      },
+
+      pdfObject: {
+        type: Object,
+        value: null,
+        observer: 'pdfObjectChanged'
+      }
+    },
+
+    ready: function() {
+
+      // Add listener to make sure page is updated when a new one is rendered
+      window.addEventListener('pagechange', function pagechange(evt) {
+
+        this.page = PDFViewerApplication.page;
+        this.numPages = PDFViewerApplication.pagesCount;
+
+        this.$.Previous.disabled = (this.page <= 1);
+        this.$.Next.disabled = (this.page >= this.numPages);
+      }.bind(this), true);
+
+      // Add listener to make sure can't scale beyond certain sizes
+      window.addEventListener('scalechange', function scalechange(evt) {
+        this.$.ZoomOut.disabled = (evt.scale === this.minScale);
+        this.$.ZoomIn.disabled = (evt.scale === this.maxScale);
+      }.bind(this), true);
+    },
+
+    // CALLED FROM OBSERVER ON PDFOBJECT
+    pdfObjectChanged: function() {
+
+      if (this.pdfObject && this.selectedSourceFileType === 'pdf') {
+
+        this.pdfName = this.pdfObject.Headline;
+
+        //if (!PDFViewerApplication.initialized) {
+
+          if (PDFViewerApplication.page) {
+            this.page = PDFViewerApplication.page;
+            this.scaleToAuto();
+          }
+
+          // Kickstart loading PDF using this global created from pdf-viewer.js
+          // but only for one instance of this element
+          if (this.editState === this.presentationState) {
+
+            // Close findBar if it was left open
+            if (PDFViewerApplication.findBar) {
+              PDFViewerApplication.findBar.updateResultsCount();
+              this.closeFindBar();
+              this.$.findResultsCount.classList.add('hidden');
+              this.$.findInput.value = '';
+              this.$.findMsg.textContent = 'Search document';
+            }
+
+            // Instantiate PDF Viewer
+            webViewerLoad(this);
+          }
+        //}
+      }
+    },
+
+    // Show previous page of PDF
+    showPreviousPage: function() {
+      PDFViewerApplication.page--;
+    },
+
+    // Show next page of PDF
+    showNextPage: function() {
+      PDFViewerApplication.page++;
+    },
+
+    // Zoom in to PDF
+    zoomIn: function() {
+      PDFViewerApplication.zoomIn();
+    },
+
+    // Zoom out of PDF
+    zoomOut: function() {
+      PDFViewerApplication.zoomOut();
+    },
+
+    // Set PDF Scale to actual size
+    scaleToAuto: function() {
+      PDFViewerApplication.pdfViewer.currentScaleValue = 'auto';
+    },
+
+    // Fit PDF Scale to width
+    fitToWidth: function() {
+      PDFViewerApplication.pdfViewer.currentScaleValue = 'page-width';
+    },
+
+    // Fit PDF Scale to page
+    fitToPage: function() {
+      PDFViewerApplication.pdfViewer.currentScaleValue = 'page-fit';
+    },
+
+    // Rotate Page clockwise
+    rotateClockWise: function() {
+      PDFViewerApplication.rotatePages(90);
+    },
+
+    // Rotate Page anti-clockwise
+    rotateAntiClockWise: function() {
+      PDFViewerApplication.rotatePages(-90);
+    },
+
+    // Close the find bar
+    closeFindBar: function() {
+
+      if (PDFViewerApplication.findBar) {
+        PDFViewerApplication.findBar.opened = true;
+        PDFViewerApplication.findBar.close();
+      }
+    },
+
+    // Find previous result in PDF
+    findPrevious: function() {
+
+      var $queryInput = this.$.findInput;
+      var $caseCheckbox = this.$.findMatchCase;
+      var $highlightCheck = this.$.findHighlightAll;
+
+      PDFViewerApplication.findBar.dispatchEvent('again', true, $queryInput, $caseCheckbox, $highlightCheck);
+    },
+
+    // Find next result in PDF
+    findNext: function() {
+
+      var $queryInput = this.$.findInput;
+      var $caseCheckbox = this.$.findMatchCase;
+      var $highlightCheck = this.$.findHighlightAll;
+
+      PDFViewerApplication.findBar.dispatchEvent('again', false, $queryInput, $caseCheckbox, $highlightCheck);
+    }
+
+  });
+})();
+</script>

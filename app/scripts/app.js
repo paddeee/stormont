@@ -7,26 +7,50 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 */
 
-var moment = require('moment');
 var reflux = require('reflux');
-var CSV = require('harb');
-var importActions = require('./actions/import.js'); // All available Reflux actions
-var importStore = require('./stores/import.js'); // All available Reflux stores
+var CSVParser = require('./vendor/harb-customised.js');
+var dataSourceActions = require('./actions/dataSource.js');
+var filterStateActions = require('./actions/filterState.js');
+var eventsStore = require('./stores/events.js');
+var placesStore = require('./stores/places.js');
+var peopleStore = require('./stores/people.js');
+var sourceActions = require('./actions/source.js');
+var sourceStore = require('./stores/source.js');
+var userActions = require('./actions/users.js');
+var userStore = require('./stores/users.js');
+var presentationsActions = require('./actions/presentations.js');
+var presentationsStore = require('./stores/presentations.js');
+var importActions = require('./actions/import.js');
+var importStore = require('./stores/import.js');
 
-(function(document, reflux, moment, importActions, importStore) {
+(function(document, reflux, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore) {
   'use strict';
+
+  // Call checkForLDAP action
+  dataSourceActions.checkForLDAP();
 
   // Grab a reference to our auto-binding template
   // and give it some initial binding values
   // Learn more about auto-binding templates at http://goo.gl/Dx1u2g
   var app = document.querySelector('#app');
 
-  // Set globals as attributes on app
+  // Set required modules as attributes on app
   app.reflux = reflux;
-  app.CSV = CSV;
-  app.moment = moment;
+  app.CSVParser = CSVParser;
+  app.dataSourceActions = dataSourceActions;
+  app.userActions = userActions;
+  app.userStore = userStore;
+  app.presentationsActions = presentationsActions;
+  app.presentationsStore = presentationsStore;
   app.importActions = importActions;
   app.importStore = importStore;
+  app.filterStateActions = filterStateActions;
+  app.eventsStore = eventsStore;
+  app.placesStore = placesStore;
+  app.peopleStore = peopleStore;
+  app.sourceStore = sourceStore;
+  app.sourceActions = sourceActions;
+  app.packagedApp = global.packagedApp ? true : false;
 
   app.displayInstalledToast = function() {
     document.querySelector('#caching-complete').show();
@@ -35,37 +59,15 @@ var importStore = require('./stores/import.js'); // All available Reflux stores
   // Listen for template bound event to know when bindings
   // have resolved and content has been stamped to the page
   app.addEventListener('dom-change', function() {
-    console.log('Op Farrell is ready to rock!');
+    console.log('Operation Farrell content all added to page!');
+    app.route = 'login';
   });
 
   // See https://github.com/Polymer/polymer/issues/1381
   window.addEventListener('WebComponentsReady', function() {
-    // imports are loaded and elements have been registered
-  });
 
-  // Main area's paper-scroll-header-panel custom condensing transformation of
-  // the appName in the middle-container and the bottom title in the bottom-container.
-  // The appName is moved to top and shrunk on condensing. The bottom sub title
-  // is shrunk to nothing on condensing.
-  addEventListener('paper-header-transform', function(e) {
-    var appName = document.querySelector('.app-name');
-    var middleContainer = document.querySelector('.middle-container');
-    var bottomContainer = document.querySelector('.bottom-container');
-    var detail = e.detail;
-    var heightDiff = detail.height - detail.condensedHeight;
-    var yRatio = Math.min(1, detail.y / heightDiff);
-    var maxMiddleScale = 0.50;  // appName max size when condensed. The smaller the number the smaller the condensed size.
-    var scaleMiddle = Math.max(maxMiddleScale, (heightDiff - detail.y) / (heightDiff / (1-maxMiddleScale))  + maxMiddleScale);
-    var scaleBottom = 1 - yRatio;
-
-    // Move/translate middleContainer
-    Polymer.Base.transform('translate3d(0,' + yRatio * 100 + '%,0)', middleContainer);
-
-    // Scale bottomContainer and bottom sub title to nothing and back
-    Polymer.Base.transform('scale(' + scaleBottom + ') translateZ(0)', bottomContainer);
-
-    // Scale middleContainer appName
-    Polymer.Base.transform('scale(' + scaleMiddle + ') translateZ(0)', appName);
+    // Set the correct path for leaflet images due to it breking with the build
+    L.Icon.Default.imagePath = './images/leaflet/'
   });
 
   // Close drawer after menu item is selected if drawerPanel is narrow
@@ -76,4 +78,4 @@ var importStore = require('./stores/import.js'); // All available Reflux stores
     }
   };
 
-})(document, reflux, moment, importActions, importStore);
+})(document, reflux, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore);

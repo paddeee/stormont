@@ -1,33 +1,40 @@
 'use strict';
 
 var Reflux = require('reflux');
-var loki = require('lokijs');
-var unique = require('lodash/array/uniq');
 var ImportActions = require('../actions/import.js');
+var DataSourceActions = require('../actions/dataSource.js');
+var dataSourceStore = require('../stores/dataSource.js');
 
 module.exports = Reflux.createStore({
 
   // this will set up listeners to all publishers in ImportActions, using onKeyname (or keyname) as callbacks
-  listenables: [ImportActions],
+  listenables: [ImportActions, DataSourceActions],
 
   // When a CSV file has been selected by an Administrator
-  onFileImported: function (action) {
+  onFileImported: function (fileObject) {
 
     var collectionArray;
-    var db;
-    var dataCollection;
+    var dataSource = dataSourceStore.dataSource;
+    var dataCollection = dataSource.getCollection(fileObject.collectionName);
 
     // Parse the CSV into an array
-    collectionArray = this.parseCSV(action.CSV);
+    collectionArray = this.parseCSV(fileObject.CSV);
 
-    // Create In-Memory database
-    db = new loki('Farrell');
-
-    // Create a collection in the database
-    dataCollection = this.addDBCollection(db, action);
+    // Create/Update a collection in the database
+    if (dataCollection) {
+      dataCollection.clear();
+    } else {
+      dataCollection = this.addDBCollection(dataSource, fileObject);
+    }
 
     // Insert the array into the database collection
-    this.populateCollection(collectionArray, dataCollection, action);
+    this.populateCollection(collectionArray, dataCollection, fileObject.collectionName);
+
+    // Save database
+    dataSource.saveDatabase(function() {
+      DataSourceActions.collectionImported(dataSource);
+    });
+
   },
 
   // Create an array of cellObjects which can be iterated through to return a dataCollection
@@ -55,12 +62,12 @@ module.exports = Reflux.createStore({
       cellLetterIdentifier = lettersPattern.exec(cellIdentifier)[0];
 
       // If the cell belongs to a new row, add the cellObject to the array
-      if (cellRow != cellIdentifier.replace(/\D+/g, "")) {
+      if (cellRow !== parseInt(cellIdentifier.replace(/\D+/g, ''), 10)) {
 
         if (cellRow) {
           dataCollection.push(dataRecord);
         }
-        cellRow = parseInt(cellIdentifier.replace(/\D+/g, ""), 10);
+        cellRow = parseInt(cellIdentifier.replace(/\D+/g, ''), 10);
       }
 
       // If the cell comes from the row of headings, keep a record in the temporary headingsHash
@@ -74,6 +81,9 @@ module.exports = Reflux.createStore({
         // headings
         dataRecord = dataCollection[cellRow - 2];
         dataRecord[headingsHash[cellLetterIdentifier]] = cellObject[cellIdentifier].v;
+
+        // Set all record's 'showRecord' property to false by default
+        dataRecord.showRecord = false;
       }
 
     }, this);
@@ -107,13 +117,15 @@ module.exports = Reflux.createStore({
     return cellArray;
   },
 
-  addDBCollection: function (db, action) {
+  // Add a collection to a Loki database
+  addDBCollection: function (db, fileObject) {
 
-    return db.addCollection(action.collectionName, {
-      indices: this.getIndices(action.collectionName)
+    return db.addCollection(fileObject.collectionName, {
+      indices: this.getIndices(fileObject.collectionName)
     });
   },
 
+  // Based on which collection has been imported, return an array of indices
   getIndices: function (collectionName) {
 
     var indices = [];
@@ -135,16 +147,16 @@ module.exports = Reflux.createStore({
     return indices;
   },
 
-  populateCollection: function (collectionArray, dataCollection, action) {
+  // Populate the Loki collection with our array of data
+  populateCollection: function (collectionArray, dataCollection, collectionName) {
 
-    var peopleCollection = dataCollection.insert(collectionArray);
-
-    console.log(dataCollection
-      .chain()
-      .find({'time-start':{'$gt': 959558399}})
-      .data());
+    dataCollection.insert(collectionArray);
 
     // Pass on to listeners
-    // this.trigger(doc);
+    this.trigger({
+      type: 'success',
+      title: 'Import Successful',
+      message: collectionName + ' CSV has been successfully imported'
+    });
   }
 });

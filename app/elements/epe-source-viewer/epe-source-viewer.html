@@ -1,0 +1,112 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="epe-source-viewer">
+  <style>
+    :host {
+      display: block;
+    }
+
+    epe-pdf-viewer {
+      background-color: #52585A;
+      height: 4px;
+    }
+
+    .viewer-element {
+      background-color: #52585A
+    }
+  </style>
+  <template>
+
+    <iron-pages attr-for-selected="data-route"
+                selected="{{route}}">
+
+      <!-- PDF Viewer Section -->
+      <section data-route="pdf" class="fit">
+        <epe-pdf-viewer
+          class="viewer-element layout horizontal center-justified"
+          pdf-object="[[selectedSourceObject]]"
+          selected-source-file-type="[[selectedSourceFileType]]"
+          edit-state="[[editState]]"
+          presentation-state="[[presentationState]]"></epe-pdf-viewer>
+      </section>
+
+      <!-- Media Section -->
+      <section data-route="media" class="fit">
+        <epe-media-viewer
+          class="viewer-element fit layout horizontal center-justified"
+          controls
+          preload="auto"
+          width="auto"
+          height="auto"
+          poster="[[poster]]"
+          edit-state="[[editState]]"
+          media-type="[[selectedSourceFileType]]"
+          media-object="[[selectedSourceObject]]">
+        </epe-media-viewer>
+      </section>
+
+      <!-- Image Viewer Section -->
+      <section data-route="image" class="fit">
+        <epe-image-viewer
+          class="viewer-element fit layout horizontal center-justified"
+          image-object="[[selectedSourceObject]]"
+          edit-state="[[editState]]"
+          presentation-state="[[presentationState]]"></epe-image-viewer>
+      </section>
+
+    </iron-pages>
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+    is: 'epe-source-viewer',
+
+    properties: {
+
+      selectedSourceObject: {
+        type: Object,
+        value: null
+      },
+
+      selectedSourceFileType: {
+        type: String,
+        value: ''
+      },
+
+      mediaObject: {
+        type: Object,
+        value: null,
+        observer: 'mediaObjectChanged'
+      }
+    },
+
+    ready: function() {
+
+      if (this.sourceStore) {
+
+        // When the source data is updated, update our grid data
+        this.sourceStore.listen(function (sourceData) {
+
+          this.selectedSourceFileType = sourceData.selectedSourceFileType;
+          this.selectedSourceObject = sourceData.selectedSourceObject;
+
+          if (this.selectedSourceObject) {
+            this.fire('navigate-to-source-viewer', sourceData);
+          }
+        }.bind(this));
+      }
+    }
+  });
+})();
+</script>

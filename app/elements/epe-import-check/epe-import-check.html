@@ -1,0 +1,326 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="epe-import-check">
+  <style>
+
+    :host {
+      display: block;
+    }
+
+    .import-container {
+      transition: opacity 0.5s ease-in-out;
+      -webkit-transition: opacity 0.5s ease-in-out;
+      opacity: 1;
+    }
+
+    .import-container.fade-out {
+      opacity: 0;
+    }
+
+    .data-grid {
+      font-size: 1.3vw;
+    }
+
+    .filters-title {
+      color: var(--secondary-text-color);
+      font-size: 1.5vw;
+      padding: 16px 16px 8px;
+    }
+
+    .filter-container[hidden],
+    epe-data-grid[hidden] {
+      display: none !important;
+    }
+
+    .no-data[hidden] {
+      display: none !important;
+    }
+
+    .no-data {
+      color: var(--secondary-text-color);
+      font-size: 3vh;
+      height: 30vh;
+    }
+
+    .progress-section {
+      height: 4px;
+      position: absolute;
+      top: 60vh;
+      width: 80%;
+      margin: 0 10%;
+    }
+
+    paper-progress {
+      --paper-progress-active-color: var(--dark-primary-color);
+      --paper-progress-transition-duration: 0.04s;
+      --paper-progress-transition-timing-function: ease;
+      --paper-progress-transition-transition-delay: 0s;
+      width: 100%;
+    }
+  </style>
+  <template>
+
+    <!-- Navigation Tabs -->
+    <paper-tabs attr-for-selected="name" selected="{{params.name}}" on-iron-select="tabSelected">
+      <paper-tab name="Events" link>
+        <a href="/import-check/Events" class="horizontal center-center layout">EVENTS</a>
+      </paper-tab>
+      <paper-tab name="People" link>
+        <a href="/import-check/People" class="horizontal center-center layout">PEOPLE</a>
+      </paper-tab>
+      <paper-tab name="Places" link>
+        <a href="/import-check/Places" class="horizontal center-center layout">PLACES</a>
+      </paper-tab>
+      <paper-tab name="Source" link>
+        <a href="/import-check/Source" class="horizontal center-center layout">SOURCE</a>
+      </paper-tab>
+    </paper-tabs>
+
+    <!-- Container Area For DataGrid and Filters -->
+    <div id="ImportContainer" class="import-container">
+
+      <!-- Filters -->
+      <div class="filter-container layout vertical"
+           hidden$="[[hideDataGrid]]">
+        <div class="filters-title horizontal layout">
+          <div class="flex">Filters</div>
+        </div>
+        <div class="filter-search-container">
+          <epe-filter-search
+            filter-type="importCheck"
+            collection-name="[[collectionName]]"
+            filters-to-show="[[filtersToShow]]"
+            on-filters-changed="filtersChanged">
+          </epe-filter-search>
+        </div>
+      </div>
+
+      <!-- Check data -->
+      <iron-pages attr-for-selected="data-route" selected="{{importCheckRoute}}">
+        <section data-route="import-check" class="import-check-area relative layout horizontal">
+          <epe-data-grid
+            hide-record-filters
+            hide-save-button
+            filter-state-actions="[[filterStateActions]]"
+            collection-name="[[collectionName]]"
+            sorting-state="[[sortingState]]"
+            hidden$="[[hideDataGrid]]"
+            class="data-grid fit"
+            grid-data="[[gridData]]"></epe-data-grid>
+        </section>
+      </iron-pages>
+
+      <!-- No data message -->
+      <div
+        hidden$="[[!hideDataGrid]]"
+        class="no-data horizontal layout center center-justified">
+        <p>There is no data imported for the '<span>[[collectionName]]</span>' file.</p>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-section ">
+      <paper-progress id="ProgressBar" max="60" hidden="true"></paper-progress>
+    </div>
+
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+    is: 'epe-import-check',
+
+    properties: {
+
+      gridData: {
+        type: Array
+      },
+
+      collectionName: {
+        type: String,
+        value: ''
+      },
+
+      hideDataGrid: {
+        type: Boolean,
+        computed: 'isGridEmpty(gridData)'
+      }
+    },
+
+    // ToDo: Must be a cleaner way of doing this
+    ready: function() {
+
+      if (this.eventsStore) {
+
+        // When the events data is updated, update our grid data
+        this.eventsStore.listen(function(eventsData) {
+
+          this.eventsData = eventsData;
+
+          if (this.params) {
+
+            this.collectionName = this.params.name;
+
+            this.setUpGrid(this.collectionName);
+          }
+        }.bind(this));
+      }
+
+      if (this.placesStore) {
+
+        // When the places data is updated, update our grid data
+        this.placesStore.listen(function (placesData) {
+
+          this.placesData = placesData;
+
+          if (this.params) {
+
+            this.collectionName = this.params.name;
+
+            this.setUpGrid(this.collectionName);
+          }
+        }.bind(this));
+      }
+
+      if (this.peopleStore) {
+
+        // When the people data is updated, update our grid data
+        this.peopleStore.listen(function (peopleData) {
+
+          this.peopleData = peopleData;
+
+          if (this.params) {
+
+            this.collectionName = this.params.name;
+
+            this.setUpGrid(this.collectionName);
+          }
+        }.bind(this));
+      }
+
+      if (this.sourceStore) {
+
+        // When the source data is updated, update our grid data
+        this.sourceStore.listen(function (sourceData) {
+
+          this.sourceData = sourceData.filteredCollection;
+
+          if (this.params) {
+
+            this.collectionName = this.params.name;
+
+            this.setUpGrid(this.collectionName);
+          }
+        }.bind(this));
+      }
+    },
+
+    // When a tab is selected set the collectionData if available
+    tabSelected: function(event) {
+
+      var tabChosen = event.detail.item.getAttribute('name');
+      var $importCheckContainer = this.$.ImportContainer;
+
+      this.collectionName = tabChosen;
+
+      // Fade out the current view
+      this.fadeOut($importCheckContainer);
+
+      // Show Progress Bar
+      this.startProgress();
+
+      // Add delay due to tabs locking up due to date picker and time pickers
+      // Delay can be masked with transition and progress bar
+      this.async(function() {
+
+        this.setUpGrid(tabChosen);
+
+      }, 1000);
+    },
+
+    // Return Boolean based on gridData
+    isGridEmpty: function(gridData) {
+
+      if (gridData) {
+        return false;
+      }
+      return true;
+    },
+
+    // Return Boolean based on gridData
+    fadeOut: function($el) {
+      $el.classList.add('fade-out');
+    },
+
+    // Show and start the progress of the progress bar
+    startProgress: function () {
+
+      var $progressBar = this.$.ProgressBar;
+
+      $progressBar.hidden = false;
+
+      if ($progressBar.value < $progressBar.max) {
+        $progressBar.value += $progressBar.step;
+      } else {
+
+        // Show Data Grid
+        this.$.ImportContainer.classList.remove('fade-out');
+
+        $progressBar.hidden = true;
+        $progressBar.value = $progressBar.min;
+        return;
+      }
+
+      requestAnimationFrame(this.startProgress.bind(this));
+    },
+
+    // Set the gridData and Filter Search boxes
+    setUpGrid: function(collectionName) {
+
+      switch (collectionName) {
+        case 'Events':
+          this.gridData = this.eventsData;
+          this.filtersToShow = this.eventsStore.filterTransform.Events.filters.value.$and;
+          this.sortingState = this.eventsStore.filterTransform.Events.sorting;
+          break;
+        case 'Places':
+          this.gridData = this.placesData;
+          this.filtersToShow = this.placesStore.filterTransform.Places.filters.value.$and;
+          this.sortingState = this.placesStore.filterTransform.Places.sorting;
+          break;
+        case 'People':
+          this.gridData = this.peopleData;
+          this.filtersToShow = this.peopleStore.filterTransform.People.filters.value.$and;
+          this.sortingState = this.peopleStore.filterTransform.People.sorting;
+          break;
+        case 'Source':
+          this.gridData = this.sourceData;
+          this.filtersToShow = this.sourceStore.filterTransform.Source.filters.value.$and;
+          this.sortingState = this.sourceStore.filterTransform.Source.sorting;
+          break;
+        default:
+          console.log('Sorry, no collectionName set for grid data');
+      }
+    },
+
+    // EPE-SEARCH-FILTER LISTENER
+    filtersChanged: function (event) {
+
+      var searchFilterObject = event.detail;
+
+      // Call fileImported action
+      this.filterStateActions.searchFilterChanged(searchFilterObject);
+    }
+  });
+})();
+</script>

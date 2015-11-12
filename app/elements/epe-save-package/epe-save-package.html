@@ -1,0 +1,342 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="epe-save-package">
+  <style>
+    :host {
+      display: block;
+    }
+
+    .save-package {
+      padding: 2vh 20px;
+    }
+
+    .save-package__title {
+      color: var(--secondary-text-color);
+      font-size: 6vh;
+      padding: 0 8px;
+    }
+
+    .save-package__container--editing .save-package__title {
+      min-height: 21vh;
+    }
+
+    .save-package__close-card {
+      color: var(--secondary-text-color);
+    }
+
+    .save-package__form {
+      padding: 0 8px;
+    }
+
+    paper-input,
+    paper-textarea {
+      --paper-input-container-color: var(--secondary-text-color);
+      --paper-input-container-focus-color: var(--dark-primary-color);
+      --paper-input-container-input-color: var(--secondary-text-color);
+      --paper-input-container-invalid-color: var(--google-red-500);
+      margin: 2vh 0;
+    }
+
+    paper-checkbox {
+      --paper-checkbox-label-color: var(--secondary-text-color);
+      --paper-checkbox-unchecked-color: var(--secondary-text-color);
+    }
+
+    .save-package__fab-container {
+      height: 10vh;
+    }
+
+    .save-package__container {
+      @apply(--layout-flex);
+      @apply(--layout-horizontal);
+    }
+
+    .save-package__or {
+      color: var(--secondary-text-color);
+      font-size: 5vw;
+      margin: 33vh 3vw 0 3vw;
+    }
+
+    paper-button {
+      margin: 0;
+    }
+  </style>
+  <template>
+    <div class="save-package layout vertical">
+      <div class="save-package__close-button-holder flex self-end">
+        <paper-icon-button
+          id="CloseCard"
+          class="save-package__close-card"
+          icon="close"
+          on-tap="closeCard"></paper-icon-button>
+      </div>
+
+      <div id="SavePackageContainer" class="save-package__container">
+
+        <!-- Save new package -->
+        <div class="save-package__new flex">
+          <div class="save-package__title">
+            Save a New Package
+          </div>
+          <div class="save-package__form">
+
+            <paper-input
+              id="PresentationNameSave"
+              class="save-package__name"
+              label="Presentation Name"
+              autofocus
+              autovalidate
+              required
+              error-message="Please enter a presentation name"></paper-input>
+
+            <paper-textarea id="NotesSave"
+                            class="save-package__notes"
+                            label="Notes (optional)"
+                            rows="6"
+                            max-rows="10"
+                            value="[[notes]]"></paper-textarea>
+
+            <div class="save-package__fab-container layout horizontal center">
+              <paper-button
+                class="save-package__save-button"
+                raised
+                on-tap="savePresentation">Save Presentation</paper-button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Or -->
+        <div class="save-package__or" hidden$="[[hideUpdateForm]]">Or</div>
+
+        <!-- Update existing package -->
+        <div class="save-package__update flex" hidden$="[[hideUpdateForm]]">
+          <div class="save-package__title">
+            Update an Existing Package
+          </div>
+          <div class="save-package__form">
+
+            <paper-input
+              id="PresentationNameUpdate"
+              class="save-package__name"
+              label="Presentation Name"
+              disabled
+              value="[[presentationName]]"></paper-input>
+
+            <paper-textarea id="NotesUpdate"
+                            class="save-package__notes"
+                            label="Notes (optional)"
+                            rows="6"
+                            max-rows="10"
+                            value="[[notes]]"></paper-textarea>
+
+            <div class="save-package__fab-container layout horizontal center">
+              <paper-button
+                class="save-package__save-button"
+                raised
+                on-tap="updatePresentation">Update Presentation</paper-button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+    is: 'epe-save-package',
+
+    properties: {
+
+      message: {
+        type: String,
+        value: '',
+        notify: true
+      },
+
+      selectedPresentation: {
+        type: Object
+      },
+
+      presentationState: {
+        type: String
+      },
+
+      hideUpdateForm: {
+        type: String,
+        computed: 'getHideUpdateForm(presentationState)',
+        value: true
+      },
+
+      presentationName: {
+        type: String,
+        computed: 'getPresentationNameValue(selectedPresentation, presentationState)'
+      },
+
+      notes: {
+        type: String,
+        computed: 'getNotesValue(selectedPresentation)'
+      }
+    },
+
+    ready: function() {
+
+      if (this.presentationsStore) {
+
+        // When the events data is updated, update our grid data
+        this.presentationsStore.listen(function (presentationsStore) {
+
+          this.selectedPresentation = presentationsStore.selectedPresentationObject;
+          this.presentationState = presentationsStore.presentationState;
+
+          if (presentationsStore.message) {
+
+            this.setMessage(presentationsStore.message);
+
+            this.fire('show-dialog', {
+              type: presentationsStore.message
+            });
+          }
+        }.bind(this));
+      }
+    },
+
+    // Set the message to be shown in the dialog
+    setMessage: function(messageType) {
+
+      if (messageType === 'collectionExists') {
+        this.message = 'A presentation by this name already exists. Please choose a new name.'
+      } else if (messageType === 'presentationSaved') {
+        this.message = 'The presentation has been saved. Use \'View Packages\' to view or edit it.'
+
+        // Can reset the form
+        this.resetForm();
+      }
+    },
+
+    // Validate save form
+    validateSaveForm: function() {
+
+      this.$.PresentationNameSave.validate();
+
+      // If input fields are both valid, return true
+      if (this.$.PresentationNameSave.invalid) {
+        return false;
+      } else {
+        return true;
+      }
+    },
+
+    // Reset the form values
+    resetForm: function() {
+      this.$.PresentationNameSave.value = '';
+      this.$.NotesSave.value = '';
+      this.$.PresentationNameUpdate.value = '';
+      this.$.NotesUpdate.value = '';
+    },
+
+    // Called by save button being tapped
+    savePresentation: function() {
+
+      var presentationObject;
+      var originalName;
+
+      if (this.selectedPresentation) {
+        originalName = this.selectedPresentation.presentationName;
+      }
+
+      if (this.validateSaveForm()) {
+
+        presentationObject = {
+          userName: this.userStore.user.userName,
+          presentationName: this.$.PresentationNameSave.value,
+          notes: this.$.NotesSave.value || '',
+          gateKeeperState: 'red',
+          authoriserState: 'red',
+          presentationState: this.presentationState,
+          originalName: originalName
+        };
+
+        // Call savePresentation action
+        this.dataSourceActions.savePresentation(presentationObject);
+      }
+    },
+
+    // Called by update  button being tapped
+    updatePresentation: function() {
+
+      var presentationObject;
+      var originalName;
+
+      if (this.selectedPresentation) {
+        originalName = this.selectedPresentation.presentationName;
+      }
+
+      presentationObject = {
+        $loki: this.selectedPresentation.$loki,
+        meta: this.selectedPresentation.meta,
+        userName: this.userStore.user.userName,
+        presentationName: this.$.PresentationNameUpdate.value,
+        notes: this.$.NotesUpdate.value || '',
+        gateKeeperState: 'red',
+        authoriserState: 'red',
+        presentationState: this.presentationState,
+        originalName: originalName
+      };
+
+      // Call savePresentation action
+      this.dataSourceActions.updatePresentation(presentationObject);
+    },
+
+    // Get the value of the presentation name for the template
+    getPresentationNameValue: function(selectedPresentation, presentationState) {
+
+      if (selectedPresentation && presentationState === 'editing') {
+        return this.selectedPresentation.presentationName;
+      }
+      return '';
+    },
+
+    // Get the value of Notes for the template
+    getNotesValue: function(selectedPresentation) {
+
+      if (selectedPresentation) {
+        return this.selectedPresentation.notes;
+      }
+      return '';
+    },
+
+    // Computed function used by template to show update form or not
+    getHideUpdateForm: function(presentationState) {
+
+      var $packageContainer = this.$.SavePackageContainer;
+
+      if (presentationState === 'editing') {
+        $packageContainer.classList.add('save-package__container--editing');
+        return false;
+      }
+      $packageContainer.classList.remove('save-package__container--editing');
+      return true;
+    },
+
+    // Called when close card button is tapped
+    closeCard: function() {
+      this.fire('close-card');
+    }
+  });
+})();
+</script>
