@@ -1,0 +1,481 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="epe-data-grid">
+  <style>
+    :host {
+      display: block;
+    }
+
+    iron-list {
+      background-color: var(--primary-background-color);
+      --iron-list-items-container: {
+         border-bottom: 0 none;
+       };
+    }
+
+    .data-grid__container {
+      margin-bottom: 15vh;
+    }
+
+    .data-grid__footer {
+      background-color: var(--text-primary-color);
+      height: 15vh;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+
+    .heading {
+      border-bottom: 1px var(--divider-color) solid;
+      border-top: 1px var(--divider-color) solid;
+      color: var(--secondary-text-color);
+      line-height: 4;
+      padding: 0 0 0 16px;
+      text-transform: capitalize;
+    }
+
+    .list-item {
+      background-color: var(--text-primary-color);
+      border-bottom: 1px var(--divider-color) solid;
+      line-height: 4;
+      padding: 0 0 0 16px;
+    }
+
+    .field-heading,
+    .field {
+      margin: 0 16px 0 0;
+    }
+
+    .field-heading__text,
+    .field {
+      display: block;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .chevron-holder {
+      cursor: pointer;
+      line-height: 3.87;
+    }
+
+    .chevron {
+      color: var(--primary-text-color);
+      transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1) 200ms, background-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+      -webkit-transition: -webkit-transform 200ms cubic-bezier(0.4, 0, 0.2, 1) 200ms, background-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+      -webkit-transform: rotate(90deg);
+      transform: rotate(90deg);
+      -webkit-transform-origin: 50% 50%;
+      transform-origin: 50% 50%;
+    }
+
+    .field-heading[sort-status="true"] .chevron {
+      -webkit-transform: rotate(180deg);
+    }
+
+    .field-heading[sort-status="false"] .chevron {
+      -webkit-transform: rotate(0);
+    }
+
+    .total-records {
+      color: var(--secondary-text-color);
+      font-size: 1.5vh;
+      text-align: center;
+    }
+
+    .save-container {
+      position: absolute;
+      top: 5.8vh;
+      right: 16px;
+    }
+
+    .save-container__btn {
+      font-size: 2vh;
+    }
+
+    .no-records {
+      font-size: 2vh;
+    }
+
+    paper-button > iron-icon {
+      height: 2vw;
+      width: 2vw;
+      margin: 0 0 0 1vw;
+    }
+
+    .fab-container {
+      position: absolute;
+      top: 5vh;
+      right: 16px;
+    }
+
+    paper-fab {
+      background-color: var(--default-primary-color);
+    }
+
+    .no-save-message {
+      position: absolute;
+      top: 6vh;
+      right: 1vw;
+      width: 30vw;
+    }
+
+    .blank-source,
+    .field__source {
+      width: 8vw;
+    }
+
+    .field__button {
+      font-size: 1vw;
+      line-height: 3;
+      padding: 0 0.5vw;
+    }
+
+  </style>
+  <template>
+    <div class="data-grid layout vertical">
+      <div class="data-grid__container flex">
+        <div class="headings">
+          <div class="heading layout horizontal">
+            <div class="checkbox-holder"
+              hidden$="[[!noRecords]]">
+              <paper-checkbox on-change="selectAllRecords"
+                              hidden$="[[hideRecordFilters]]"></paper-checkbox>
+            </div>
+            <template is="dom-repeat"
+                      items="[[toArray(gridDataFirstRecord)]]">
+              <div class="field-heading flex layout horizontal"
+                   hidden="[[!showField(item.name)]]"
+                   sort-status="neutral"
+                   heading-name$="[[item.name]]"
+                   on-tap="sortByColumn">
+                <div class="field-heading__text flex">
+                  <span>{{item.name}}</span>
+                </div>
+                <div class="chevron-holder">
+                  <iron-icon
+                    icon="arrow-drop-up"
+                    class="chevron"><iron-icon>
+                </div>
+              </div>
+            </template>
+            <div class="blank-source" hidden$="[[hideViewSourceButton]]"></div>
+          </div>
+        </div>
+
+        <div class="records">
+          <iron-list id="List" items="[[paginatedData]]" as="item">
+            <template>
+              <div class="list-item layout horizontal">
+                <div class="checkbox-holder"
+                     hidden$="[[hideCheckBoxes()]]">
+                  <paper-checkbox on-iron-change="selectRecord"
+                                  checked$="[[item.showRecord]]"></paper-checkbox>
+                </div>
+                <template is="dom-repeat" items="[[toArray(item)]]">
+                  <div class="field flex" hidden="[[!showField(item.name)]]">
+                    <span>{{item.value}}</span>
+                  </div>
+                </template>
+                <div class="field__source" hidden$="[[hideViewSourceButton]]">
+                  <paper-button
+                    class="field__button"
+                    raised
+                    on-tap="viewSourceFile">View <iron-icon icon="description"></iron-icon></paper-button>
+                </div>
+              </div>
+            </template>
+          </iron-list>
+        </div>
+
+        <!-- No records returned form filter -->
+        <div hidden$="[[noRecords]]"
+             class="no-records fit layout horizontal center center-justified">
+          <div>There are no records matching the selected filters.</div>
+        </div>
+
+      </div>
+
+      <!-- Footer Bar -->
+      <div hidden$="[[!noRecords]]"
+           class="data-grid__footer layout horizontal center center-justified">
+        <div class="layout vertical">
+          <div class="total-records">
+            <span>[[totalRecords]]</span> Results
+          </div>
+          <epe-paginator
+            id="Paginator"
+            perpage="50"
+            items="{{paginatedData}}"
+            data="[[gridData]]"
+            show-first="true"
+            show-last="true"></epe-paginator>
+        </div>
+
+        <div class="fab-container" hidden$="[[hideSaveButton]]">
+          <paper-fab icon="save" on-tap="savePresentationSelected"></paper-fab>
+        </div>
+
+        <div class="no-save-message" hidden$="[[hideNoSaveMessage]]">
+          This presentation is awaiting authorisation so cannot currently be saved.
+        </div>
+
+      </div>
+    </div>
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+    is: 'epe-data-grid',
+
+    properties: {
+
+      gridData: {
+        type: Array,
+        observer: 'gridDataChanged'
+      },
+
+      hideSaveButton: {
+        type: Boolean,
+        value: false
+      },
+
+      hideNoSaveMessage: {
+        type: Boolean,
+        value: true
+      },
+
+      hideRecordFilters: {
+        type: Boolean,
+        value: false
+      },
+
+      // Used to get the headings
+      gridDataFirstRecord: {
+        type: Object,
+        value: {}
+      },
+
+      // Used to retain sort info on column headers
+      sortingState: {
+        type: Object,
+        observer: 'sortingStateChanged'
+      },
+
+      totalRecords: {
+        type: Number,
+        computed: 'getTotalRecords(gridData)'
+      },
+
+      noRecords: {
+        type: Boolean,
+        computed: 'areThereAnyRecords(gridData)'
+      },
+
+      hideViewSourceButton: {
+        tye: Boolean,
+        computed: 'isSource(collectionName)'
+      }
+    },
+
+    ready: function() {
+
+      if (this.presentationsStore) {
+
+        // When the presentations data is updated
+        this.presentationsStore.listen(function(presentationsStore) {
+
+          // Manage the Save Button depending on presentation state
+          this.manageSaveButton(presentationsStore.presentationState);
+
+          // Manage the footer message depending on presentation state
+          this.manageFooterMessage(presentationsStore.presentationState);
+
+        }.bind(this));
+      }
+    },
+
+    // Iterate through keys of an object and return key/value pair
+    toArray: function(obj) {
+
+      if (obj) {
+        return Object.keys(obj).map(function (key) {
+          return {
+            name: key,
+            value: obj[key]
+          };
+        });
+      } else {
+        return [];
+      }
+    },
+
+    // Return false if item is a loki property
+    showField: function(keyName) {
+
+      if (keyName === 'meta' || keyName === '$loki' || keyName === 'showRecord') {
+        return false;
+      }
+      return true;
+    },
+
+    // Return wheteher there are any records
+    areThereAnyRecords: function(gridData) {
+
+      if (gridData) {
+        if (gridData.length > 0) {
+          return true;
+        }
+      }
+      return false;
+    },
+
+    // Return total number of records in the gridData
+    getTotalRecords: function(gridData) {
+
+      if (gridData) {
+        return gridData.length;
+      }
+      return 0;
+    },
+
+    // Don't know why I need this but if I just use the hideRecordFilters property in the iron-list template it won't
+    // show the checkboxes when it should.
+    hideCheckBoxes: function () {
+
+      if (this.hideRecordFilters) {
+        return true;
+      }
+      return false;
+    },
+
+    // CALLED BY OBSERVABLE ON GRIDDATA
+    gridDataChanged: function() {
+
+      if(this.gridData) {
+        this.gridDataFirstRecord = this.gridData[0];
+
+        // Fire this so iron-list can calculate all list item positions correctly
+        this.$.List.fire('resize');
+
+        // Reset Pagination to first page on grid data changing
+        this.$.Paginator.currentpage = 0;
+      }
+    },
+
+    // CALLED BY OBSERVABLE ON SORTINGSTATE
+    sortingStateChanged: function() {
+      // Stick in async so the gridData headings will have been added to DOM in template
+      this.async(this.resetHeadingSortIndicators);
+    },
+
+    // Reset all heading sort statuses to neutral
+    resetHeadingSortIndicators: function() {
+
+      var selectorName = '.field-heading[heading-name="' + this.sortingState.property + '"]';
+      var $sortedHeader = Polymer.dom(this.root).querySelector(selectorName);
+      var $headers = Polymer.dom(this.root).querySelectorAll('.field-heading');
+
+      if (!$sortedHeader) {
+        return;
+      }
+
+      // Set any current sorts back to neutral
+      $headers.forEach(function($header) {
+        $header.setAttribute('sort-status', 'neutral');
+      });
+
+      if (this.sortingState.desc === true) {
+        $sortedHeader.setAttribute('sort-status', 'false');
+      } else if (this.sortingState.desc === false) {
+        $sortedHeader.setAttribute('sort-status', 'true');
+      }
+    },
+
+    // Sort gridData by column
+    sortByColumn: function(event) {
+
+      var desc;
+      var sortingObject;
+      var sortStatus = event.currentTarget.getAttribute('sort-status');
+
+      // Set the desc property to send to the sorting collection transform
+      if (sortStatus === 'neutral' || sortStatus === 'false') {
+        desc = false;
+      } else if (sortStatus === 'true') {
+        desc = true;
+      }
+
+      sortingObject = {
+        collectionName: this.collectionName,
+        fieldName: event.model.item.name,
+        desc: desc
+      };
+
+      // Call sortingChanged action
+      this.filterStateActions.sortingChanged(sortingObject);
+    },
+
+    // Select all checkboxes in list
+    selectAllRecords: function() {
+
+    },
+
+    // Called when Save Presentation button is tapped
+    savePresentationSelected: function() {
+      this.fire('save-presentation');
+    },
+
+    // set state of hideSaveButton depending on presentation state
+    manageSaveButton: function(presentationState) {
+
+      if (presentationState === 'viewing' || presentationState === 'viewingLocked') {
+        this.hideSaveButton = true;
+      } else {
+        this.hideSaveButton = false;
+      }
+    },
+
+    // set state of footer message depending on presentation state
+    manageFooterMessage: function(presentationState) {
+
+      if (presentationState === 'viewingLocked') {
+        this.hideNoSaveMessage = false;
+      } else {
+        this.hideNoSaveMessage = true;
+      }
+    },
+
+    // Computed function to return true if we're looking at a 'Source' data-grid
+    isSource: function(collectionName) {
+
+      if (collectionName !== 'Source' || app.route === 'import') {
+        return true;
+      }
+      return false;
+    },
+
+    // FIRED WHEN USER TAPS VIEW SOURCE BUTTON
+    viewSourceFile: function(event) {
+
+      var sourceObject = event.model.item;
+
+      // Hack based around need to trigger pdf creation in pdf element so we broadcast a change to null
+      // before sending out the object again.
+      this.sourceActions.viewSourceFile(null);
+      this.sourceActions.viewSourceFile(sourceObject);
+    }
+  });
+})();
+</script>

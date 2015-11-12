@@ -1,8 +1,10 @@
 {
-  "suites": ["app/test"],
+  "suites": ["app/test/elements"],
+  "expanded": true,
   "plugins": {
     "local": {
       "browsers": ["chrome"]
     }
-  }
+  },
+  "persistent": true
 }

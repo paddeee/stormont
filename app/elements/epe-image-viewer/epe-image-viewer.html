@@ -1,0 +1,253 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="epe-image-viewer">
+  <style>
+    :host {
+      display: block;
+    }
+
+    .image__container {
+      overflow: auto;
+      position: absolute;
+      top: 4px;
+      right: 0;
+      bottom: 7vh;
+      left: 0;
+    }
+
+    .image__content {
+      box-sizing: border-box;
+      height: 80vh;
+      width: 100vw;
+      padding: 4vh 4vw;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+
+    paper-material {
+      background-color: var(--primary-background-color);
+      height: 100%;
+      width: 100%;
+      transition: height 0.5s ease;
+      transition: width 0.5s ease;
+    }
+
+    .loading-mask {
+      background-color: var(--primary-background-color);
+      height: 100%;
+    }
+
+    .image-name {
+      padding: 0 2vw 2vh;
+      font-size: 2.5vh;
+      color: var(--text-primary-color);
+    }
+
+    .image-description {
+      padding: 2vh 2vw;
+      font-size: 1.8vh;
+      color: var(--text-primary-color);
+    }
+
+    .image {
+      height: 100%;
+      width: 100%;
+    }
+
+    .image__footer {
+      background: rgb(55, 64, 70);
+      color: var(--text-primary-color);
+      padding: 8px;
+      font-size: 2vh;
+      height: 5vh;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+    }
+  </style>
+  <template>
+
+    <!-- Image Container -->
+    <div id="ImageContainer"
+         class="image__container layout vertical center center-justified">
+
+      <!-- Image Content -->
+      <div id="ImageContent"
+           class="image__content layout vertical center flex">
+
+        <!-- Headline -->
+        <div class="image-name">[[imageName]]</div>
+
+        <!-- Image Card -->
+        <paper-material id="ImageCard" elevation="5">
+
+          <!-- Loading Mask -->
+          <div id="LoadingMask" class="loading-mask layout horizontal center center-justified">
+            <paper-spinner alt="Loading Media" active$="[[loadingImage]]"></paper-spinner>
+          </div>
+
+          <!-- Image -->
+          <img id="Image"
+               class="image"
+               alt="[[headline]]"
+               src="[[imageSource]]"
+               hidden/>
+        </paper-material>
+
+        <!-- Description -->
+        <div class="image-description">[[imageDescription]]</div>
+
+      </div>
+
+      <!-- Media Footer -->
+      <div class="image__footer">dfdfd</div>
+
+    </div>
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+    is: 'epe-image-viewer',
+
+    properties: {
+
+      loadingImage: {
+        type: Boolean,
+        value: true
+      },
+
+      imageObject: {
+        type: Object,
+        value: null,
+        observer: 'setUpImage'
+      }
+    },
+
+    ready: function() {
+      window.addEventListener('resize', this.resizeImageContainer.bind(this));
+    },
+
+    // Set source on image element
+    setUpImage: function() {
+
+      if (this.imageObject && this.imageObject.Src) {
+
+        // Set image titles
+        this.imageName = this.imageObject.Headline;
+        this.imageDescription = this.imageObject.Description;
+
+        // Render the image and hide spinner
+        this.renderImage();
+      }
+    },
+
+    // Show image and hide spinner when an image has loaded
+    renderImage: function() {
+
+      var $image = this.$.Image;
+
+      $image.addEventListener('load', function () {
+
+        // Resize the paper-material element to size of the image
+        this.resizeImageContainer($image.naturalWidth, $image.naturalHeight);
+
+        this.async(function() {
+          this.loadingImage = false;
+          $image.removeAttribute('hidden');
+          this.$.LoadingMask.hidden = true;
+        }, 500);
+      }.bind(this));
+
+      // Set the src of the image
+      this.imageSource = this.imageObject.Src;
+    },
+
+    // Resize the image container to the size of the image
+    resizeImageContainer: function() {
+
+      var $image;
+      var bottom;
+      var $containerWidth;
+      var $containerHeight;
+      var imageRatio;
+      var containerPaddingTop;
+      var containerPaddingRight;
+      var containerPaddingBottom;
+      var containerPaddingLeft;
+      var actualContainerWidth;
+      var actualContainerHeight;
+
+      // Resize event can be triggered by other unrelated parts of the application such as Leaflet Map or iron-resize
+      // If this method hasn't been called by the image load or event or a window resize event, do nothing
+      if ((event.srcElement.document && event.srcElement.location) || event.srcElement === this.$.Image) {
+
+        if (!this.$ || !this.$.Image || !this.$.Image.height) {
+          return;
+        }
+
+        if (this.editState === this.presentationState) {
+
+          $image = this.$.Image;
+          $containerWidth = $image.naturalWidth;
+          $containerHeight = $image.naturalHeight;
+          imageRatio = $containerWidth / $containerHeight;
+
+          // Take footer into account
+          bottom = parseInt(getComputedStyle(this.$.ImageContainer).getPropertyValue("bottom"), 10);
+
+          // Container values
+          containerPaddingTop = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue("padding-top"), 10);
+          containerPaddingRight = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue("padding-right"), 10);
+          containerPaddingBottom = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue("padding-bottom"), 10);
+          containerPaddingLeft = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue("padding-left"), 10);
+          actualContainerWidth = this.$.ImageContent.clientWidth - containerPaddingLeft - containerPaddingRight;
+          actualContainerHeight = this.$.ImageContent.clientHeight - containerPaddingTop - containerPaddingBottom - bottom;
+
+          // Landscape Image
+          if (imageRatio >= 1) {
+
+            // If the image width is wider than the container, set it to the size of the container
+            // and the height to the container width * imageRatio
+            if ($containerWidth > actualContainerWidth) {
+              $containerWidth = actualContainerWidth;
+              $containerHeight = $containerWidth / imageRatio;
+            }
+
+            // If the image height is taller than the container, set it to the size of the container
+            // and the width to the container height * imageRatio
+            if ($containerHeight > actualContainerHeight) {
+              $containerHeight = actualContainerHeight;
+              $containerWidth = $containerHeight * imageRatio;
+            }
+
+          // Portrait Image
+          } else {
+
+            // If the image height is taller than the container, set it to the size of the container
+            // and the width to the container height * imageRatio
+            if ($containerHeight > actualContainerHeight) {
+              $containerHeight = actualContainerHeight;
+              $containerWidth = $containerHeight * imageRatio;
+            }
+          }
+
+          this.$.ImageCard.style.height = Math.round($containerHeight) + 'px';
+          this.$.ImageCard.style.width = Math.round($containerWidth) + 'px';
+        }
+      }
+    }
+  });
+})();
+</script>

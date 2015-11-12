@@ -1,0 +1,603 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="epe-create-package">
+  <style>
+
+    :host {
+      display: block;
+      height: 100%;
+    }
+
+    .data-grid-container {
+      opacity: 1;
+    }
+
+    .data-grid-container.fade-out {
+      opacity: 0;
+    }
+
+    .data-grid {
+      font-size: 1.1vw;
+    }
+
+    .filters-title {
+      color: var(--secondary-text-color);
+      font-size: 1.5vw;
+      padding: 16px 16px 8px;
+    }
+
+    .filter-container[hidden],
+    epe-data-grid[hidden] {
+      display: none !important;
+    }
+
+    .no-data[hidden] {
+      display: none !important;
+    }
+
+    .no-data {
+      color: var(--secondary-text-color);
+      font-size: 3vh;
+      height: 30vh;
+    }
+
+    .progress-section {
+      height: 100%;
+      position: absolute;
+      top: 0;
+      width: 80%;
+      padding: 0 10%;
+      pointer-events: none;
+      background-color: var(--primary-background-color);
+    }
+
+    paper-progress {
+      --paper-progress-active-color: var(--dark-primary-color);
+      --paper-progress-transition-duration: 0.04s;
+      --paper-progress-transition-timing-function: ease;
+      --paper-progress-transition-transition-delay: 0s;
+      margin-top: 30vh;
+      width: 100%;
+    }
+
+    .main-content,
+    section,
+    .time-map {
+      height: 100%;
+    }
+
+    /* Height of condensed scroll bar is 64px */
+    epe-map,
+    .data-grid,
+    epe-source-viewer {
+      background-color: var(--primary-background-color);
+      height: calc(100% + 128px);
+    }
+
+    .save-package {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      z-index: 2;
+      display:none;
+    }
+
+    .save-package.save-package--showing {
+      display:block;
+    }
+
+    .save-package__card {
+      height: 85vh;
+      background-color: var(--primary-background-color);
+      max-width: 70vw;
+      margin: 15vh auto 0;
+    }
+
+    .save-package-overlay {
+      background-color: rgba(0, 0, 0, 0.3);
+      display: none;
+      opacity: 0;
+      height: calc(100% + 128px);
+    }
+
+    .save-package-overlay.save-package-overlay--showing {
+      display: block;
+      opacity: 1;
+      transition: opacity 0.5s ease-in-out;
+      z-index: 1;
+    }
+
+  </style>
+  <template>
+
+    <iron-pages
+      class="main-content"
+      attr-for-selected="data-route"
+      selected="{{createPackageRoute}}"
+      on-iron-select="createPackageViewSelected">
+
+      <!-- DataGrid View -->
+      <section data-route="data-grid" class="data-grid">
+
+        <!-- Navigation Tabs -->
+        <paper-tabs attr-for-selected="name" selected="{{params.name}}" on-iron-select="tabSelected">
+          <paper-tab name="Events" link>
+            <a href="/data-grid/Events"
+               class="horizontal center-center layout"
+               on-tap="tabNavigate">EVENTS</a>
+          </paper-tab>
+          <paper-tab name="People" link>
+            <a href="/data-grid/People"
+               class="horizontal center-center layout"
+               on-tap="tabNavigate">PEOPLE</a>
+          </paper-tab>
+          <paper-tab name="Places" link>
+            <a href="/data-grid/Places"
+               class="horizontal center-center layout"
+               on-tap="tabNavigate">PLACES</a>
+          </paper-tab>
+          <paper-tab name="Source" link>
+            <a href="/data-grid/Source"
+               class="horizontal center-center layout"
+               on-tap="tabNavigate">SOURCE</a>
+          </paper-tab>
+        </paper-tabs>
+
+        <!-- Container Area For DataGrid and Filters -->
+        <div class="relative">
+
+          <div id="DataGridContainer" class="fade-out data-grid-container">
+
+            <!-- Filters -->
+            <div class="filter-container layout vertical"
+                 hidden$="[[hideDataGrid]]">
+              <div class="filters-title horizontal layout">
+                <div class="flex">Filters</div>
+              </div>
+              <div class="filter-search-container">
+                <epe-filter-search
+                  collection-name="[[collectionName]]"
+                  filters-to-show="[[filtersToShow]]"
+                  on-filters-changed="filtersChanged">
+                </epe-filter-search>
+              </div>
+            </div>
+
+            <!-- DataGrid -->
+            <iron-pages attr-for-selected="data-route"
+                        selected="{{dataGridRoute}}">
+              <section data-route="data-grid"
+                       class="data-grid-area relative layout horizontal">
+                <epe-data-grid
+                  filter-state-actions="[[filterStateActions]]"
+                  source-actions="[[sourceActions]]"
+                  presentations-store="[[presentationsStore]]"
+                  collection-name="[[collectionName]]"
+                  sorting-state="[[sortingState]]"
+                  hidden$="[[hideDataGrid]]"
+                  class="data-grid fit"
+                  grid-data="[[gridData]]"
+                  on-save-presentation="savePresentation"></epe-data-grid>
+              </section>
+            </iron-pages>
+
+          </div>
+
+          <!-- No data message -->
+          <div
+            hidden$="[[!hideDataGrid]]"
+            class="no-data horizontal layout center center-justified">
+            <p>There is no data available for '<span>[[collectionName]]</span>'.</p>
+          </div>
+
+          <!-- Progress Bar -->
+          <div id="ProgressBarContainer" class="progress-section" hidden>
+            <paper-progress id="ProgressBar" max="60"></paper-progress>
+          </div>
+
+        </section>
+      </div>
+
+      <!-- Map View -->
+      <section data-route="map" class="time-map">
+        <epe-map id="Map"></epe-map>
+      </section>
+
+      <!-- Source View -->
+      <section data-route="source" class="source">
+        <epe-source-viewer
+          id="EpeSourceViewer"
+          edit-state="[[editState]]"
+          presentation-state="[[presentationState]]"
+          class="relative"
+          source-store="[[sourceStore]]"
+          on-navigate-to-source-viewer="navigateToSourceViewer"></epe-source-viewer>
+      </section>
+    </iron-pages>
+
+    <!-- Save Package Overlay card -->
+    <div id="SavePackage" class="save-package">
+      <paper-material
+        class="save-package__card"
+        elevation="3">
+        <epe-save-package
+          user-store="[[userStore]]"
+          message="{{message}}"
+          presentations-store="[[presentationsStore]]"
+          data-source-actions="[[dataSourceActions]]"
+          on-close-card="closeCard"
+          on-show-dialog="showDialog"></epe-save-package>
+      </paper-material>
+    </div>
+
+    <div id="SavePackageOverlay" class="save-package-overlay fit"></div>
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+    is: 'epe-create-package',
+
+    behaviors: [
+      Polymer.NeonAnimationRunnerBehavior
+    ],
+
+    properties: {
+
+      message: {
+        type: String,
+        value: '',
+        notify: true
+      },
+
+      savePackageCardOpen: {
+        type: Boolean,
+        value: false
+      },
+
+      gridData: {
+        type: Array
+      },
+
+      collectionName: {
+        type: String,
+        value: ''
+      },
+
+      hideDataGrid: {
+        type: Boolean,
+        computed: 'isGridEmpty(gridData)'
+      },
+
+      editState: {
+        type: String,
+        value: 'creating'
+      },
+
+      animationConfig: {
+        value: function() {
+          return {
+            'entry': {
+              name: 'transform-animation',
+              node: this.$.SavePackage,
+              transformFrom: 'translateY(100%)',
+              transformTo: 'translateY(0)'
+            },
+            'exit': {
+              name: 'transform-animation',
+              node: this.$.SavePackage,
+              transformFrom: 'translateY(0)',
+              transformTo: 'translateY(100%)'
+            }
+          }
+        }
+      }
+    },
+
+    listeners: {
+      'neon-animation-finish': 'onSlideAnimationFinish'
+    },
+
+    // ToDo: Must be a DRYer way of doing this when not rushing
+    ready: function() {
+
+      if (this.eventsStore) {
+
+        // When the events data is updated, update our grid data
+        this.eventsStore.listen(function(eventsData) {
+
+          this.eventsData = eventsData;
+
+          if (this.params) {
+
+            this.collectionName = this.params.name;
+
+            this.setUpGrid(this.collectionName);
+          }
+        }.bind(this));
+      }
+
+      if (this.placesStore) {
+
+        // When the places data is updated, update our grid data
+        this.placesStore.listen(function (placesData) {
+
+          this.placesData = placesData;
+
+          if (this.params) {
+
+            this.collectionName = this.params.name;
+
+            this.setUpGrid(this.collectionName);
+          }
+        }.bind(this));
+      }
+
+      if (this.peopleStore) {
+
+        // When the people data is updated, update our grid data
+        this.peopleStore.listen(function (peopleData) {
+
+          this.peopleData = peopleData;
+
+          if (this.params) {
+
+            this.collectionName = this.params.name;
+
+            this.setUpGrid(this.collectionName);
+          }
+        }.bind(this));
+      }
+
+      if (this.sourceStore) {
+
+        // When the source data is updated, update our grid data
+        this.sourceStore.listen(function (sourceData) {
+
+          this.sourceData = sourceData.filteredCollection;
+
+          if (this.params) {
+
+            this.collectionName = this.params.name;
+
+            this.setUpGrid(this.collectionName);
+          }
+        }.bind(this));
+      }
+
+      if (this.presentationsStore) {
+
+        // When the presentations data is updated, set this view's presentationsData
+        this.presentationsStore.listen(function(presentationsStore) {
+          this.presentationName = presentationsStore.presentationName
+          this.presentationState = presentationsStore.presentationState
+        }.bind(this));
+      }
+    },
+
+    // When a tab is selected set the collectionData if available
+    tabSelected: function(event) {
+
+      var tabChosen = event.detail.item.getAttribute('name');
+      var $dataGridContainer = this.$.DataGridContainer;
+
+      this.collectionName = tabChosen;
+
+      // Fade out the current view
+      this.fadeOut($dataGridContainer);
+
+      // Show Progress Bar
+      this.startProgress();
+
+      // Set the title in the header
+      this.setSectionTitle('data-grid');
+
+      // Add delay due to tabs locking up due to date picker and time pickers
+      // Delay can be masked with transition and progress bar
+      this.async(function() {
+
+        this.setUpGrid(tabChosen);
+
+      }, 1000);
+    },
+
+    // Return Boolean based on gridData
+    isGridEmpty: function(gridData) {
+
+      if (gridData) {
+        return false;
+      }
+      return true;
+    },
+
+    // Return Boolean based on gridData
+    fadeOut: function($el) {
+      $el.classList.add('fade-out');
+    },
+
+    // Show and start the progress of the progress bar
+    startProgress: function () {
+
+      var $progressBarContainer = this.$.ProgressBarContainer;
+      var $progressBar = this.$.ProgressBar;
+
+      $progressBarContainer.hidden = false;
+
+      if ($progressBar.value < $progressBar.max) {
+        $progressBar.value += $progressBar.step;
+      } else {
+
+        // Show Data Grid
+        this.$.DataGridContainer.classList.remove('fade-out');
+
+        $progressBarContainer.hidden = true;
+        $progressBar.value = $progressBar.min;
+        return;
+      }
+
+      requestAnimationFrame(this.startProgress.bind(this));
+    },
+
+    // Set the gridData and Filter Search boxes
+    setUpGrid: function(collectionName) {
+
+      switch (collectionName) {
+        case 'Events':
+          this.gridData = this.eventsData;
+          this.filtersToShow = this.eventsStore.filterTransform.Events.filters.value.$and;
+          this.sortingState = this.eventsStore.filterTransform.Events.sorting;
+          break;
+        case 'Places':
+          this.gridData = this.placesData;
+          this.filtersToShow = this.placesStore.filterTransform.Places.filters.value.$and;
+          this.sortingState = this.placesStore.filterTransform.Places.sorting;
+          break;
+        case 'People':
+          this.gridData = this.peopleData;
+          this.filtersToShow = this.peopleStore.filterTransform.People.filters.value.$and;
+          this.sortingState = this.peopleStore.filterTransform.People.sorting;
+          break;
+        case 'Source':
+          this.gridData = this.sourceData;
+          this.filtersToShow = this.sourceStore.filterTransform.Source.filters.value.$and;
+          this.sortingState = this.sourceStore.filterTransform.Source.sorting;
+          break;
+        default:
+          console.log('Sorry, no collectionName set for grid data');
+      }
+    },
+
+    // EPE-SEARCH-FILTER LISTENER
+    filtersChanged: function (event) {
+
+      var searchFilterObject = event.detail;
+
+      this.userFilterOccurred();
+
+      // Call fileImported action
+      this.filterStateActions.searchFilterChanged(searchFilterObject);
+    },
+
+    // EPE-SEARCH-FILTER LISTENER
+    userFilterOccurred: function() {
+
+      if (this.presentationState === 'viewing') {
+
+        // Call presentationStateChanged presentations action
+        this.presentationsActions.presentationStateChanged({
+          presentationName: this.presentationName,
+          presentationState: 'cloning'
+        });
+      }
+    },
+
+    // FIRED BY IRON-PAGES ON-IRON-SELECTED EVENT
+    // ** IS ALSO TRIGGERED BY THE EVENT CARD ANIMATION
+    createPackageViewSelected: function(event) {
+
+      var route = event.detail.item.dataset.route;
+
+      // Check for route as if this is triggered via the neon-animated-pages in event card
+      // we don't want to do anything
+      if (route) {
+
+        // Set the section title
+        this.setSectionTitle(route);
+
+        this.$.Map.resizeMap();
+      }
+    },
+
+    // Update header section title based on where we are and fire event
+    setSectionTitle: function(route) {
+
+      this.fire('package-view-changed', {
+        packageRoute: route
+      });
+    },
+
+    // Show the save presentation card.
+    savePresentation: function() {
+
+      this.savePackageCardOpen = true;
+
+      // run slide-up-animation
+      this.$.SavePackageOverlay.classList.add('save-package-overlay--showing');
+      this.$.SavePackage.classList.add('save-package--showing');
+      this.playAnimation('entry');
+    },
+
+    // Close the save package card
+    closeCard: function() {
+
+      this.savePackageCardOpen = false;
+
+      // run slide-down-animation
+      this.$.SavePackageOverlay.classList.remove('save-package-overlay--showing');
+      this.playAnimation('exit');
+    },
+
+    // Listener when animation finishes
+    onSlideAnimationFinish: function() {
+
+      if (!this.savePackageCardOpen) {
+        this.$.SavePackage.classList.remove('save-package--showing');
+      }
+    },
+
+    // Fired from epe-save-package element
+    showDialog: function(event) {
+
+      event.preventDefault();
+      this.fire('show-dialog', {
+        type: event.detail.type
+      });
+    },
+
+    // Used by template to set tab links depending on whether user is creating or editing
+    tabNavigate: function(event) {
+
+      event.preventDefault();
+
+      if (this.editState === 'creating' && this.presentationState === 'creating') {
+        page('/create-package' + event.currentTarget.pathname);
+      } else if (this.editState === 'editing' && this.presentationState !== 'creating') {
+        page('/edit-package' + event.currentTarget.pathname);
+      }
+    },
+
+    // FIRED BY EPE-SOURCE-VIEWER ELEMENT: Navigate to the relevant source viewer
+    navigateToSourceViewer: function(event) {
+
+      if (event.detail.viewingSource) {
+
+        // ToDo: Fix this weirdness caused by having two epe-create-package elements
+        if (this.editState === 'creating' && this.presentationState === 'creating') {
+          page('/create-package/source/' + event.detail.selectedSourceRoute);
+        } else if (this.editState === 'editing' && this.presentationState !== 'creating') {
+          page('/edit-package/source/' + event.detail.selectedSourceRoute);
+        }
+      }
+    },
+
+    // Navigate back
+    navigateBack: function() {
+      history.back();
+    }
+  });
+})();
+</script>

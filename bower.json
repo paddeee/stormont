@@ -3,13 +3,22 @@
   "private": true,
   "dependencies": {
     "iron-elements": "PolymerElements/iron-elements#1.0.0",
-    "paper-elements": "PolymerElements/paper-elements#1.0.1",
-    "platinum-elements": "PolymerElements/platinum-elements#1.0.1",
+    "iron-list": "PolymerElements/iron-list#~1.1.1",
+    "leaflet-map": "leaflet-extras/leaflet-map#master",
     "neon-elements": "PolymerElements/neon-elements#1.0.0",
-    "page": "visionmedia/page.js#~1.6.3"
+    "page": "visionmedia/page.js#~1.6.3",
+    "paper-card": "PolymerElements/paper-card#~1.0.4",
+    "paper-elements": "PolymerElements/paper-elements#1.0.1",
+    "paper-tooltip": "PolymerElements/paper-tooltip#~1.1.0",
+    "platinum-elements": "PolymerElements/platinum-elements#1.0.1"
   },
   "devDependencies": {
-    "web-component-tester": "*",
-    "test-fixture": "PolymerElements/test-fixture#^1.0.0"
+    "paper-date-picker": "polymer-paper-date-picker#~1.0.3",
+    "paper-time-picker": "1.0.1",
+    "test-fixture": "PolymerElements/test-fixture#^1.0.0",
+    "web-component-tester": "*"
+  },
+  "resolutions": {
+    "polymer": "^1.1.0"
   }
 }

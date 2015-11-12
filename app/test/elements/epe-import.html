@@ -1,0 +1,188 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>my-greeting-basic</title>
+
+  <script src="../../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
+  <link rel="import" href="../../../bower_components/polymer/polymer.html">
+  <script src="../../../bower_components/web-component-tester/browser.js"></script>
+  <script src="../../../bower_components/test-fixture/test-fixture-mocha.js"></script>
+  <script src="../../../bower_components/iron-test-helpers/mock-interactions.js"></script>
+  <link rel="import" href="../../../bower_components/test-fixture/test-fixture.html">
+
+  <!-- Import the dependencies -->
+  <link rel="import" href="../../../bower_components/paper-radio-group/paper-radio-group.html">
+  <link rel="import" href="../../../bower_components/paper-toast/paper-toast.html">
+
+  <!-- Import the element to test -->
+  <link rel="import" href="../../elements/epe-import/epe-import.html">
+
+</head>
+<body>
+
+  <test-fixture id="basic">
+    <template>
+      <epe-import></epe-import>
+    </template>
+  </test-fixture>
+
+  <script>
+
+    window.chai.should();
+
+    describe('Import Component', function() {
+
+      var epeImport;
+      var $radioPlaces;
+      var $dragDropEl;
+      var $messageEl;
+      var $importToast;
+      var $sectionName;
+      var spoofEventObject;
+      var $importCheck;
+
+      beforeEach(function() {
+        epeImport = fixture('basic');
+      });
+
+      context('Filetype Selected', function() {
+
+        beforeEach(function() {
+          $messageEl = epeImport.querySelector('.no-import-selected');
+          $dragDropEl = epeImport.querySelector('.parse-import');
+          $radioPlaces = epeImport.querySelector('paper-radio-button[name=Places]');
+        });
+
+        it('should show the Choose File message by default and have default values', function (done) {
+
+          $messageEl.hasAttribute('showing').should.be.true;
+          $dragDropEl.hasAttribute('showing').should.be.false;
+          epeImport.importedFileType.should.be.empty;
+          epeImport.isFileTypeSelected.should.be.false;
+          done();
+        });
+
+        it('should show the Drag Drop and update relevant text when a radio button is selected', function (done) {
+
+          // Select Places Radio button
+          MockInteractions.tap($radioPlaces);
+
+          $messageEl.hasAttribute('showing').should.be.false;
+          $dragDropEl.hasAttribute('showing').should.be.true;
+          epeImport.importedFileType.should.equal('Places');
+          epeImport.isFileTypeSelected.should.be.true;
+          done();
+        });
+      });
+
+      context('Import Successful', function() {
+
+        beforeEach(function() {
+
+          $importToast = epeImport.querySelector('#ImportToast');
+          spoofEventObject = {
+            detail: {
+              type: 'success',
+              title: 'Import Successful',
+              message: 'Places CSV has been successfully imported'
+            }
+          };
+
+          epeImport.importedFileType = 'Places';
+
+          epeImport.importFinishedHandler(spoofEventObject);
+        });
+
+        it('reset the element\'s properties', function (done) {
+
+          epeImport.importFinished.should.be.deep.equal(spoofEventObject.detail);
+
+          setTimeout(function () {
+            epeImport.importedFileType.should.be.a('string').with.length(0);
+            epeImport.isFileTypeSelected.should.be.false;
+            epeImport.lastFileTypeImported.should.be.a('string').with.length.above(0);
+            done();
+          }, 1100);
+        });
+
+        it('should show a toast notification on Import', function (done) {
+
+          $importToast.visible.should.be.false;
+
+          setTimeout(function () {
+            $importToast.visible.should.be.true;
+            done();
+          }, 1100);
+        });
+
+        it('should show the Choose File message after Import', function (done) {
+
+          var $messageEl = epeImport.querySelector('.no-import-selected');
+          var $dragDropEl = epeImport.querySelector('.parse-import');
+
+          setTimeout(function () {
+            $messageEl.hasAttribute('showing').should.be.true;
+            $dragDropEl.hasAttribute('showing').should.be.false;
+            done();
+          }, 1100);
+        });
+      });
+
+      context('Correct Title Displayed', function() {
+
+        beforeEach(function() {
+          $sectionName = epeImport.querySelector('#SectionName');
+          $radioPlaces = epeImport.querySelector('paper-radio-button[name=Places]');
+        });
+
+        it('should show the correct title when landing on import-parse', function (done) {
+
+          epeImport.importRoute = 'import-parse';
+
+          $sectionName.textContent.should.equal('Import CaseMap File');
+          done();
+        });
+
+        it('should show the correct title when selecting a file type on import-parse', function (done) {
+
+          epeImport.importRoute = 'import-parse';
+
+          // Select Places Radio button
+          MockInteractions.tap($radioPlaces);
+
+          $sectionName.textContent.should.equal('Import Places CaseMap File');
+          done();
+        });
+
+        it('should show the correct title when on import-check', function (done) {
+
+          $importCheck = epeImport.querySelector('#EpeImportCheck');
+
+          epeImport.importRoute = 'import-check';
+          $importCheck.params = {
+            name: 'Events'
+          };
+
+          // Select Places Radio button
+          MockInteractions.tap($radioPlaces);
+
+          $sectionName.textContent.should.equal('Check Events CaseMap File');
+          done();
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>

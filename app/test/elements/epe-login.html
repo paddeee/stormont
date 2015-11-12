@@ -1,0 +1,122 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>my-greeting-basic</title>
+
+  <script src="../../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
+  <link rel="import" href="../../../bower_components/polymer/polymer.html">
+  <script src="../../../bower_components/web-component-tester/browser.js"></script>
+  <script src="../../../bower_components/test-fixture/test-fixture-mocha.js"></script>
+  <script src="../../../bower_components/iron-test-helpers/mock-interactions.js"></script>
+  <link rel="import" href="../../../bower_components/test-fixture/test-fixture.html">
+
+  <!-- Import the dependencies -->
+  <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+  <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+
+  <!-- Import the element to test -->
+  <link rel="import" href="../../elements/epe-login/epe-login.html">
+
+</head>
+<body>
+
+<test-fixture id="basic">
+  <template>
+    <epe-login></epe-login>
+  </template>
+</test-fixture>
+
+<script>
+
+  var should = window.chai.should();
+
+  describe('Login Component', function() {
+
+    var epeLogin;
+    var $userName;
+    var $password;
+    var $submitButton;
+
+    beforeEach(function() {
+      epeLogin = fixture('basic');
+      epeLogin.userActions = {
+        "loginAttempted": function() {
+          return;
+        }
+      }
+    });
+
+    context('Login Attempted', function() {
+
+      beforeEach(function() {
+        $userName = epeLogin.querySelector('#UserName');
+        $password = epeLogin.querySelector('#Password');
+        $submitButton = epeLogin.querySelector('#SubmitButton');
+      });
+
+      it('should show validation if nothing entered in Username field', function (done) {
+
+        $userName.invalid.should.be.false;
+
+        // Tap Submit Button
+        MockInteractions.tap($submitButton);
+
+        $userName.invalid.should.be.true;
+        done();
+      });
+
+      it('should show validation if nothing entered in Password field', function (done) {
+
+        $password.invalid.should.be.false;
+
+        // Tap Submit Button
+        MockInteractions.tap($submitButton);
+
+        $password.invalid.should.be.true;
+        done();
+      });
+
+      it('should create a valid object when all fields are filled in and Login is attempted and call the action method', function (done) {
+
+        var userLoginObject = {
+          username: 'paddy75',
+          password: 'qwerty123'
+        };
+
+        var spyLoginAttempted = sinon.stub(epeLogin.userActions, "loginAttempted", function() {
+          return;
+        });
+
+        $userName.value = 'paddy75';
+        $password.value = 'qwerty123';
+
+        // Before Submit
+        should.not.exist(epeLogin.userLogin);
+        spyLoginAttempted.called.should.be.false;
+
+        // Tap Submit Button
+        MockInteractions.tap($submitButton);
+
+        // After Submit
+        epeLogin.userLogin.should.deep.equal(userLoginObject);
+        spyLoginAttempted.called.should.be.true;
+
+        done();
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

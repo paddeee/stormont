@@ -1,0 +1,695 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="epe-networked">
+  <style>
+
+    :host {
+      display: block;
+    }
+
+    iron-pages,
+    section,
+    epe-import {
+      height: 100%;
+    }
+
+    paper-scroll-header-panel {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+
+    /* background for toolbar when it is at its full size */
+    --paper-scroll-header-panel-full-header: {
+       background-color: var(--dark-primary-color);
+       background-image: url(../../images/header-bg.png);
+     };
+
+    /* background for toolbar when it is condensed */
+    --paper-scroll-header-panel-condensed-header: {
+       background-color: var(--default-primary-color);
+     };
+    }
+
+    paper-scroll-header-panel #mainContainer {
+    @apply(--layout-flex);
+    @apply(--layout-vertical);
+    }
+
+    paper-scroll-header-panel.hide-header {
+      top: -192px;
+    }
+
+    paper-toolbar.tall {
+      background-color: transparent;
+    }
+
+    paper-toolbar a {
+      color: var(--primary-background-color);
+    }
+
+    .bottom-title {
+      font-size: 2.5vh;
+    }
+
+    .create-package {
+      background-color: var(--primary-background-color);
+    }
+
+    .menu-button {
+      margin: 0 0 0 16px;
+    }
+
+    .package-navigation > a {
+      display: inline-flex;
+      text-decoration: none;
+    }
+
+    paper-drawer-panel {
+      --paper-drawer-panel-drawer-container: {
+        z-index: 2;
+      };
+    }
+  </style>
+  <template>
+
+    <paper-drawer-panel force-narrow id="paperDrawerPanel">
+
+      <!-- Drawer Scroll Header Panel -->
+      <paper-scroll-header-panel drawer fixed>
+
+        <!-- Drawer Toolbar -->
+        <paper-toolbar id="drawerToolbar">
+          <span class="paper-font-title">Menu</span>
+        </paper-toolbar>
+
+        <!-- Drawer Content -->
+        <paper-menu class="list" attr-for-selected="data-route" selected="[[route]]">
+          <a data-route="/import-parse"
+             href="/import-parse"
+             on-tap="toggleMenu"
+             hidden$="[[hideImport]]">
+            <iron-icon icon="file-upload"></iron-icon>
+            <span>Import CaseMap File</span>
+          </a>
+          <a data-route="/create-package/data-grid/Events"
+             href="/create-package/data-grid/Events"
+             on-tap="toggleMenu"
+             id="CreatePackageMenuNavigation">
+            <iron-icon icon="create"></iron-icon>
+            <span>Create Package</span>
+          </a>
+          <a data-route="/view-packages"
+             href="/view-packages"
+             on-tap="toggleMenu">
+            <iron-icon icon="view-list"></iron-icon>
+            <span>View/Edit Packages</span>
+          </a>
+        </paper-menu>
+
+      </paper-scroll-header-panel>
+
+      <paper-scroll-header-panel
+        id="MainScrollHeader"
+        class="source-viewer"
+        main
+        condenses
+        keep-condensed-header>
+
+        <!-- Main Toolbar -->
+        <paper-toolbar class="tall">
+          <paper-icon-button
+            id="BackArrow"
+            icon="arrow-back"
+            on-tap="navigateBack"></paper-icon-button>
+          <paper-icon-button
+            id="MenuButton"
+            class="menu-button"
+            icon="menu"
+            on-tap="toggleMenu"></paper-icon-button>
+          <div class="flex"></div>
+
+          <!-- Toolbar icons -->
+          <!-- ToDO - really crap way to do this with duplicate navs. If ever get time need to manage different views of
+          creating and editing presentations better as they are too similar for all this TomFoolery -->
+          <div hidden$="[[hideHeaderPackageNavigation]]" class="package-navigation">
+
+            <!-- Creating Navigation Toolbar -->
+            <div hidden$="[[editingPresentation]]" id="CreatingPackageViewNav" class="package-navigation">
+              <a data-route="/create-package/data-grid/Events"
+                 href="/create-package/data-grid/Events"
+                 id="DataGridButton">
+                <paper-icon-button icon="view-list"></paper-icon-button>
+              </a>
+              <a data-route="/create-package/map"
+                 href="/create-package/map"
+                 id="MapButton">
+                <paper-icon-button icon="maps:map"></paper-icon-button>
+              </a>
+              <a data-route="/create-package/profiles"
+                 href="/create-package/profiles"
+                 id="ProfilesButton">
+                <paper-icon-button icon="social:people"></paper-icon-button>
+              </a>
+              <a data-route="/create-package/data-grid/Source"
+                 href="/create-package/data-grid/Source"
+                 id="SourceButton">
+                <paper-icon-button icon="description"></paper-icon-button>
+              </a>
+            </div>
+
+            <!-- Editing Navigation Toolbar -->
+            <div hidden$="[[!editingPresentation]]" id="EditingPackageViewNav" class="package-navigation">
+              <a data-route="/edit-package/data-grid/Events"
+                 href="/edit-package/data-grid/Events"
+                 id="DataGridButton">
+                <paper-icon-button icon="view-list"></paper-icon-button>
+              </a>
+              <a data-route="/edit-package/map"
+                 href="/edit-package/map"
+                 id="MapButton">
+                <paper-icon-button icon="maps:map"></paper-icon-button>
+              </a>
+              <a data-route="/edit-package/profiles"
+                 href="/edit-package/profiles"
+                 id="ProfilesButton">
+                <paper-icon-button icon="social:people"></paper-icon-button>
+              </a>
+              <a data-route="/edit-package/data-grid/Source"
+                 href="/edit-package/data-grid/Source"
+                 id="SourceButton">
+                <paper-icon-button icon="description"></paper-icon-button>
+              </a>
+            </div>
+          </div>
+
+          <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
+          <paper-tooltip for="BackArrow" offset="0">Back</paper-tooltip>
+          <paper-tooltip for="MenuButton" offset="0">Show Menu</paper-tooltip>
+          <paper-tooltip for="DataGridButton" offset="0">Data Grid</paper-tooltip>
+          <paper-tooltip for="MapButton" offset="0">Map</paper-tooltip>
+          <paper-tooltip for="ProfilesButton" offset="0">Profiles</paper-tooltip>
+          <paper-tooltip for="SourceButton" offset="0">Source</paper-tooltip>
+
+          <!-- Application name -->
+          <div id="MiddleContainer" class="middle middle-container center horizontal layout">
+            <div id="SectionName" class="section-name"><span>{{sectionTitle}}</span></div>
+          </div>
+
+          <!-- Application sub title -->
+          <div id="BottomContainer" class="bottom bottom-container center horizontal layout">
+            <div class="bottom-title paper-font-subhead">Special Investigation Task Force</div>
+          </div>
+        </paper-toolbar>
+
+        <iron-pages attr-for-selected="data-route"
+                    selected="{{route}}"
+                    on-iron-select="routeChanged">
+
+          <!-- Login Section -->
+          <section data-route="login">
+            <epe-login
+              user-actions="[[userActions]]"
+              user-store="[[userStore]]"></epe-login>
+          </section>
+
+          <!-- Choose Option Section -->
+          <section data-route="choose-option">
+            <epe-choose-option
+              user-store="[[userStore]]"></epe-choose-option>
+          </section>
+
+          <!-- Import Section -->
+          <section data-route="import">
+            <epe-import
+              id="EpeImport"
+              import-actions="[[importActions]]"
+              import-store="[[importStore]]"
+              filter-state-actions="[[filterStateActions]]"
+              events-store="[[eventsStore]]"
+              places-store="[[placesStore]]"
+              people-store="[[peopleStore]]"
+              source-store="[[sourceStore]]"
+              packaged-app="[[packagedApp]]"
+              csv-parser="[[csvParser]]"></epe-import>
+          </section>
+
+          <!-- Create Package Section -->
+          <section data-route="create-package" class="create-package">
+            <epe-create-package
+              id="EpeCreatePackage"
+              edit-state="creating"
+              user-store="[[userStore]]"
+              data-source-actions="[[dataSourceActions]]"
+              filter-state-actions="[[filterStateActions]]"
+              events-store="[[eventsStore]]"
+              places-store="[[placesStore]]"
+              people-store="[[peopleStore]]"
+              source-actions="[[sourceActions]]"
+              source-store="[[sourceStore]]"
+              message="{{message}}"
+              presentations-actions="[[presentationsActions]]"
+              presentations-store="[[presentationsStore]]"
+              on-package-view-changed="packageViewChanged"
+              on-show-dialog="showDialog"></epe-create-package>
+          </section>
+
+          <!-- Edit Package Section -->
+          <section data-route="edit-package" class="create-package">
+            <epe-create-package
+              id="EpeEditPackage"
+              edit-state="editing"
+              user-store="[[userStore]]"
+              data-source-actions="[[dataSourceActions]]"
+              filter-state-actions="[[filterStateActions]]"
+              events-store="[[eventsStore]]"
+              places-store="[[placesStore]]"
+              people-store="[[peopleStore]]"
+              source-actions="[[sourceActions]]"
+              source-store="[[sourceStore]]"
+              message="{{message}}"
+              presentations-actions="[[presentationsActions]]"
+              presentations-store="[[presentationsStore]]"
+              on-package-view-changed="packageViewChanged"
+              on-show-dialog="showDialog"></epe-create-package>
+          </section>
+
+          <!-- View Packages Section -->
+          <section data-route="view-packages">
+            <epe-view-packages
+              id="EpeView"
+              user-store="[[userStore]]"
+              filter-state-actions="[[filterStateActions]]"
+              presentations-actions="[[presentationsActions]]"
+              presentations-store="[[presentationsStore]]"></epe-view-packages>
+          </section>
+        </iron-pages>
+
+      </paper-scroll-header-panel>
+    </paper-drawer-panel>
+
+    <!-- Dialogs -->
+    <paper-dialog id="SuccessDialog" modal>
+      <h2>Presentation successfully saved</h2>
+      <div>
+        <span>[[message]]</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus on-tap="closeCard">OK</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="WarningDialog" modal>
+      <h2>Presentation name exists</h2>
+      <div>
+        <span>[[message]]</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-toast id="UserToast" duration="3000">
+      <h2><span>User Login:</span></h2>
+      <div>
+        <span>[[user.message]]</span>
+      </div>
+    </paper-toast>
+
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+    is: 'epe-networked',
+
+    properties: {
+
+      user: {
+        type: Object,
+        value: null
+      },
+
+      route: {
+        type: Object
+      },
+
+      presentationState: {
+        type: String
+      },
+
+      hideHeaderPackageNavigation: {
+        type: Boolean,
+        computed: 'manageHeaderPackageNavigation(route)',
+        value: true
+      },
+
+      hideImport: {
+        type: Boolean,
+        computed: 'isNotAdmin(user)'
+      },
+
+      editingPresentation: {
+        type: Boolean,
+        computed: 'isEditingPresentation(presentationState)'
+      },
+
+      sectionTitle: {
+        type: String
+      }
+    },
+
+    // Set up listeners when element is ready
+    ready: function() {
+
+      addEventListener('content-scroll', function(e) {
+
+        var $header = e.detail.target;
+
+        this.deCondenseHeader($header);
+
+      }.bind(this));
+
+      addEventListener('paper-header-transform', function(e) {
+        var sectionName = this.$.SectionName;
+        var middleContainer = this.$.MiddleContainer;
+        var bottomContainer = this.$.BottomContainer;
+        var detail = e.detail;
+        var heightDiff = detail.height - detail.condensedHeight;
+        var yRatio = Math.min(1, detail.y / heightDiff);
+        var maxMiddleScale = 0.50;  // appName max size when condensed. The smaller the number the smaller the condensed size.
+        var scaleMiddle = Math.max(maxMiddleScale, (heightDiff - detail.y) / (heightDiff / (1-maxMiddleScale))  + maxMiddleScale);
+        var scaleBottom = 1 - yRatio;
+
+        // Move/translate middleContainer
+        Polymer.Base.transform('translate3d(0,' + yRatio * 100 + '%,0)', middleContainer);
+
+        // Scale bottomContainer and bottom sub title to nothing and back
+        Polymer.Base.transform('scale(' + scaleBottom + ') translateZ(0)', bottomContainer);
+
+        // Scale middleContainer appName
+        Polymer.Base.transform('scale(' + scaleMiddle + ') translateZ(0)', sectionName);
+      }.bind(this));
+
+      // Listen to User Store
+      this.userStore.listen(function(user) {
+
+        if (user.status === 'loggedin') {
+          this.user = user;
+          this.navigateToChooseOption();
+        }
+
+        this.displayUserMessage();
+
+      }.bind(this));
+
+      // Listen to Presentations Store
+      this.presentationsStore.listen(function(presentationsStore) {
+
+        this.presentationState = presentationsStore.presentationState;
+        this.presentationName = presentationsStore.presentationName;
+
+        // Need to call this if presentation state changes but not if it was just because of an approval state change
+        if (presentationsStore.lastAction !== 'approvalStateChanged') {
+          this.setSectionTitle();
+        }
+
+      }.bind(this));
+    },
+
+    // FIRED BY IRON-PAGES ON-IRON-SELECTED EVENT
+    routeChanged: function() {
+
+      this.setSectionTitle();
+
+      // See if we need to customise the header for the Source viewer
+      this.setSourceHeader();
+
+      if (this.route !== 'media') {
+        this.fire('not-media-route');
+      }
+
+      if (this.route === 'login') {
+        this.$.MainScrollHeader.classList.add('hide-header');
+        this.$.MainScrollHeader.fixed = true;
+      } else {
+        this.$.MainScrollHeader.classList.remove('hide-header');
+        this.$.MainScrollHeader.fixed = false;
+      }
+    },
+
+    // Display relevant message to user
+    displayUserMessage: function() {
+      this.$.UserToast.show();
+    },
+
+    // Navigate to the Choose Option
+    navigateToChooseOption: function() {
+      page('/choose-option');
+    },
+
+    // Toggle Menu panel
+    toggleMenu: function(event) {
+
+      // If Create Package selected than reset the presentation package to no filters
+      if (event.currentTarget.id === 'CreatePackageMenuNavigation') {
+        this.resetPackage();
+      }
+
+      this.$.paperDrawerPanel.togglePanel();
+    },
+
+    // Trigger resetting a package to no filters
+    resetPackage: function() {
+
+      // ToDo: Maybe have a dialog here if state is editing or cloning or whatever
+
+      // Call presentationStateChanged presentations action
+      this.presentationsActions.presentationStateChanged({
+        presentationState: 'creating',
+        presentationName: 'ViewingFilter'
+      });
+    },
+
+    // Fire setSectionTitle method on selected child of iron-pages
+    // ToDO: This is a bit held together by string. May need rethinking if it gets too bad.
+    setSectionTitle: function() {
+
+      if (app.route !== 'login') {
+
+        if (app.route === 'choose-option') {
+          this.sectionTitle = 'What Would You Like To Do?';
+
+        } else if (app.route === 'import') {
+          this.setImportTitle();
+
+        } else if (app.route === 'create-package') {
+
+          this.setCreatePackageTitle();
+
+        } else if (app.route === 'edit-package') {
+
+          this.setEditPackageTitle();
+
+        } else if (app.route === 'view-packages') {
+
+          this.sectionTitle = 'View/Edit Packages';
+
+          // While we're here, scroll header to top
+          this.manageScrollHeader('view-packages');
+        }
+      }
+    },
+
+    // Handle the title when in Create Package section
+    setImportTitle: function() {
+
+      if (EpeImport.importRoute === 'import-parse') {
+        this.sectionTitle = 'Import Casemap File';
+      } else if (EpeImport.importRoute === 'import-check') {
+        if (EpeImportCheck.params) {
+          this.sectionTitle = 'Check ' + EpeImportCheck.params.name + ' CaseMap File';
+        }
+      }
+    },
+
+    // Handle the title when in Create Package section
+    setCreatePackageTitle: function() {
+
+      if (EpeCreatePackage.createPackageRoute === 'data-grid') {
+
+        if (EpeCreatePackage.params) {
+          this.sectionTitle = 'Create Package - ' + EpeCreatePackage.params.name;
+        }
+
+      } else if (EpeCreatePackage.createPackageRoute === 'map') {
+        this.sectionTitle = 'Create Package - Map';
+
+      } else if (EpeCreatePackage.createPackageRoute === 'source') {
+        this.sectionTitle = 'Create Package - Supporting Evidence';
+      }
+    },
+
+    // Handle the title when in Edit Package section
+    setEditPackageTitle: function() {
+
+      if (EpeEditPackage.createPackageRoute === 'data-grid') {
+
+        if (EpeEditPackage.params) {
+
+          // While we're here, scroll header to top
+          this.manageScrollHeader('data-grid');
+
+          if (this.presentationName) {
+            this.sectionTitle = this.presentationName + ' - ' + EpeEditPackage.params.name;
+          }
+        }
+
+      } else if (EpeEditPackage.createPackageRoute === 'map') {
+        this.sectionTitle = 'Map - ' + this.presentationName;
+
+      } else if (EpeEditPackage.createPackageRoute === 'source') {
+        this.sectionTitle = 'Supporting Evidence - ' + this.presentationName;
+      }
+    },
+
+    // FIRED BY ON-PACKAGE-VIEW_CHANGED EVENT ON EPE-CREATE-PACKAGE ELEMENT
+    packageViewChanged: function(event) {
+      this.packageRoute = event.detail.packageRoute;
+      this.manageScrollHeader(this.packageRoute);
+    },
+
+    // Navigate back
+    navigateBack: function() {
+      history.back();
+    },
+
+    // Hide import based on user role
+    isNotAdmin: function(user) {
+
+      if (user && user.role === 'admin') {
+        return false;
+      }
+      return true;
+    },
+
+    // Resize scroll header for different views
+    manageScrollHeader: function(route) {
+
+      var $scrollHeader = this.$.MainScrollHeader;
+
+      switch(route) {
+        case 'view-packages':
+          $scrollHeader.scroll(0, true);
+          break;
+        case 'data-grid':
+          $scrollHeader.scroll(0, true);
+          break;
+        case 'map':
+          $scrollHeader.scroll(128, true);
+          break;
+        case 'profiles':
+          $scrollHeader.scroll(0, true);
+          break;
+        case 'source':
+          $scrollHeader.scroll(128, true);
+          break;
+        case 'pdf':
+          $scrollHeader.scroll(128, true);
+          break;
+        case 'media':
+          $scrollHeader.scroll(128, true);
+          break;
+        case 'image':
+          $scrollHeader.scroll(128, true);
+          break;
+        default:
+          $scrollHeader.scroll(0, true);
+      }
+    },
+
+    // Hide the package view navigation in the header if we are importing
+    manageHeaderPackageNavigation: function(route) {
+
+      if (route === 'create-package' || route === 'edit-package' ) {
+        return false;
+      }
+      return true;
+    },
+
+    // If Source view, customise the header
+    // ToDo: See if there is a better way to change colour and fix header to a slim bar that doesn't condense
+    setSourceHeader: function() {
+
+      var $packageElement;
+
+      if (app.route === 'create-package') {
+        $packageElement = this.$.EpeCreatePackage;
+      } else if (app.route === 'edit-package') {
+        $packageElement = this.$.EpeEditPackage;
+      }
+
+      if ((app.route === 'create-package' || app.route === 'edit-package') && $packageElement.createPackageRoute === 'source') {
+        this.$.MainScrollHeader.querySelector('#condensedHeaderBg').style.backgroundColor = '#374046';
+      } else {
+        this.$.MainScrollHeader.querySelector('#condensedHeaderBg').style.backgroundColor = '#03A9F4';
+      }
+    },
+
+    // Is a presentation being edited or created
+    isEditingPresentation: function(presentationState) {
+
+      if (presentationState === 'creating') {
+        return false;
+      }
+      return true;
+    },
+
+    // Fired from epe-create-package elements
+    showDialog: function(event) {
+      if (event.detail.type === 'presentationSaved') {
+        this.$.SuccessDialog.open();
+      } else if (event.detail.type === 'collectionExists') {
+        this.$.WarningDialog.open();
+      }
+    },
+
+    // Close the save presentation overlay on the epe-create-package elements
+    closeCard: function () {
+      this.$.EpeCreatePackage.closeCard();
+      this.$.EpeEditPackage.closeCard();
+    },
+
+    // Keep header small and fixed in certain conditions
+    deCondenseHeader: function($header) {
+
+      var $packageElement;
+
+      if (app.route === 'create-package') {
+        $packageElement = this.$.EpeCreatePackage;
+      } else if (app.route === 'edit-package') {
+        $packageElement = this.$.EpeEditPackage;
+      }
+
+      // If in Source View
+      if ((app.route === 'create-package' || app.route === 'edit-package') && $packageElement.createPackageRoute === 'source') {
+
+        if ($header.scrollTop < 128) {
+          this.$.MainScrollHeader.scroll(128, false);
+        }
+      }
+    }
+  });
+})();
+</script>
