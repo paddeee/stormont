@@ -97,12 +97,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <paper-spinner alt="Loading Media" active$="[[loadingImage]]"></paper-spinner>
           </div>
 
-          <!-- Image -->
-          <img id="Image"
-               class="image"
-               alt="[[headline]]"
-               src="[[imageSource]]"
-               hidden/>
+          <!-- Annotation Layer -->
+          <epe-annotations
+            annotation-type="image"
+            annotation-height="{{annotationHeight}}"
+            annotation-width="{{annotationWidth}}">
+
+            <!-- Image -->
+            <img id="Image" class="image" alt="[[headline]]" src="[[imageSource]]" hidden/>
+
+          </epe-annotations>
+
         </paper-material>
 
         <!-- Description -->
@@ -132,6 +137,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         type: Object,
         value: null,
         observer: 'setUpImage'
+      },
+
+      annotationHeight: {
+        type: Number,
+        value: '0'
+      },
+
+      annotationWidth: {
+        type: Number,
+        value: '0'
       }
     },
 
@@ -245,6 +260,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           this.$.ImageCard.style.height = Math.round($containerHeight) + 'px';
           this.$.ImageCard.style.width = Math.round($containerWidth) + 'px';
+
+          // Set height that can be passed up to annotation triggering a resize of the canvas
+          this.annotationHeight = $containerHeight;
+          this.annotationWidth = $containerWidth;
         }
       }
     }
