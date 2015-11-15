@@ -24,14 +24,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .content-wrapper > ::content {
       position: absolute;
-      top: 0px;
-      left: 0px;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      overflow: hidden;
     }
 
   </style>
 
   <template>
-    <div class="content-wrapper">
+    <div id="ContentWrapper" class="content-wrapper">
       <content id="AnnotationContent"></content>
     </div>
     <canvas id="Canvas"></canvas>
@@ -58,14 +60,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       annotationWidth: {
         type: Number,
         observer: 'setCanvasDimensions'
+      },
+
+      // Keep record of curent width to use for scaling canvas
+      currentAnnotationWidth: {
+        type: Number,
+        value: 0
       }
     },
 
     // Element Lifecycle
     attached: function() {
-
-      // Add resize event listener
-      //window.addEventListener('resize', this.setCanvasDimensions.bind(this));
 
       // because of shady DOM we have to assign the canvas a random ID otherwise fabric.js
       // finds only the first occurrence
@@ -79,7 +84,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.canvas.on("object:added", this._canvasObjectAdded.bind(this));
       this.canvas.on("path:created", this._canvasPathCreated.bind(this));
       this.canvas.on("mouse:down", this._canvasMouseDown.bind(this));
-
     },
 
     // Element Behavior
@@ -157,15 +161,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Set the dimensions of the canvas
     setCanvasDimensions: function() {
 
-      if (this.canvas) {
+      var scaleFactor;
+      var currentZoom;
 
-        this.canvas.setDimensions({
-          width: this.annotationWidth,
-          height: this.annotationHeight
-        });
+      if (this.canvas && this.annotationWidth) {
+
+        // Get current zoom scale for the canvas
+        currentZoom = this.canvas.getZoom();
+
+        //
+        scaleFactor = (this.annotationWidth / this.currentAnnotationWidth) * currentZoom;
+
+        if(scaleFactor != 1) {
+
+          this.canvas.setDimensions({
+            width: this.annotationWidth,
+            height: this.annotationHeight
+          });
+
+          // currentAnnotationWidth is set this is a resize so handle the zoom
+          if (this.currentAnnotationWidth) {
+            this.canvas.setZoom(scaleFactor);
+            this.canvas.calcOffset();
+            this.canvas.renderAll();
+          }
+        }
+
+        // Keep record of current width for next time
+        this.currentAnnotationWidth = this.annotationWidth;
       }
-    }
+    },
 
+    // Set canvas zoom level
+    zoom: function(scaleFactor) {
+
+      this.canvas.isDrawingMode = false;
+      this.canvas.selection = false;
+
+      this.canvas.setZoom(scaleFactor);
+    }
   });
 })();
 </script>
