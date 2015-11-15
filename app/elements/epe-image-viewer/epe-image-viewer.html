@@ -67,7 +67,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .image__footer {
       background: rgb(55, 64, 70);
       color: var(--text-primary-color);
-      padding: 8px;
+      padding: 8px 4vw;
       font-size: 2vh;
       height: 5vh;
       position: fixed;
@@ -99,12 +99,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           <!-- Annotation Layer -->
           <epe-annotations
+            id="ImageAnnotations"
             annotation-type="image"
             annotation-height="{{annotationHeight}}"
-            annotation-width="{{annotationWidth}}">
+            annotation-width="{{annotationWidth}}"
+            zoomLevel="{{zoomLevel}}">
 
             <!-- Image -->
-            <img id="Image" class="image" alt="[[headline]]" src="[[imageSource]]" hidden/>
+            <img id="Image"
+                 class="image"
+                 alt="[[headline]]"
+                 src="[[imageSource]]"
+                 hidden
+                 drag-mode$="[[dragMode]]"
+                 on-drag="imageDragged"/>
 
           </epe-annotations>
 
@@ -115,8 +123,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       </div>
 
-      <!-- Media Footer -->
-      <div class="image__footer">dfdfd</div>
+      <!-- Image Footer -->
+      <div class="image__footer relative horizontal layout center">
+        <div class="image_button-holder flex">
+          <paper-icon-button id="ZoomOut" icon="zoom-out" on-tap="zoomOut" disabled></paper-icon-button>
+          <paper-icon-button id="ZoomIn" icon="zoom-in" on-tap="zoomIn"></paper-icon-button>
+        </div>
+      </div>
 
     </div>
   </template>
@@ -141,12 +154,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       annotationHeight: {
         type: Number,
-        value: '0'
+        value: 0
       },
 
       annotationWidth: {
         type: Number,
-        value: '0'
+        value: 0
+      },
+
+      zoomLevel: {
+        type: Number,
+        value: 1
+      },
+
+      dragMode: {
+        type: Boolean,
+        value: false
       }
     },
 
@@ -266,6 +289,82 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.annotationWidth = $containerWidth;
         }
       }
+    },
+
+    // Zoom Out of Image
+    zoomOut: function() {
+
+      var $image = this.$.Image;
+
+      this.dragMode = true;
+
+      // Change canvas cursor
+      this.$.ImageAnnotations.canvas.defaultCursor = '-webkit-grab';
+
+      this.zoomLevel = parseFloat((this.zoomLevel / 1.25).toFixed(2));
+
+      if (this.zoomLevel >= 1) {
+
+        // Set CSS transform on image to scale down
+        $image.style.transformOrigin = '0 0';
+        $image.style.transform = 'scale(' + this.zoomLevel + ', ' + this.zoomLevel + ')';
+
+        // Fire event to let annotaions element know to zoom in
+        this.$.ImageAnnotations.zoom(this.zoomLevel);
+
+        // Set button states
+        this.$.ZoomIn.disabled = false;
+        this.$.ZoomOut.disabled = false;
+
+      // Zoom level has gone below 1 so reset to 1
+      } else {
+        this.zoomLevel = 1;
+      }
+
+      // Set button states
+      if (this.zoomLevel === 1) {
+        this.$.ZoomOut.disabled = true;
+      } else {
+        this.$.ZoomOut.disabled = false;
+      }
+    },
+
+    // Zoom In to Image
+    zoomIn: function() {
+
+      var $image = this.$.Image;
+
+      this.dragMode = true;
+
+      // Change canvas cursor
+      this.$.ImageAnnotations.canvas.defaultCursor = '-webkit-grab';
+
+      this.zoomLevel = parseFloat((this.zoomLevel * 1.25).toFixed(2));
+
+      if (this.zoomLevel < 10) {
+
+        // Set CSS transform on image to scale up
+        $image.style.transformOrigin = '0 0';
+        $image.style.transform = 'scale(' + this.zoomLevel + ', ' + this.zoomLevel + ')';
+
+        // Fire event to let annotaions element know to zoom in
+        this.$.ImageAnnotations.zoom(this.zoomLevel);
+
+        // Set button states
+        this.$.ZoomOut.disabled = false;
+        this.$.ZoomIn.disabled = false;
+
+      } else {
+        this.$.ZoomIn.disabled = true;
+      }
+    },
+
+    //
+    imageDragged: function(event) {
+
+      // Change canvas cursor
+      this.$.ImageAnnotations.canvas.defaultCursor = '-webkit-grabbed';
+      console.log(event);
     }
   });
 })();
