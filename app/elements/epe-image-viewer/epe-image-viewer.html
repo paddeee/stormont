@@ -75,6 +75,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       left: 0;
       width: 100%;
     }
+
+    .image_button-holder {
+      border-right: 1px solid var(--divider-color);
+      padding: 0 1vw;
+    }
+
+    .add-text {
+      font-size: 26px;
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    .highlight-text {
+      border: 1px solid var(--text-primary-color);
+      padding: 3px 8px;
+      margin: 0 8px;
+    }
   </style>
   <template>
 
@@ -123,9 +140,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <!-- Image Footer -->
       <div class="image__footer relative horizontal layout center">
-        <div class="image_button-holder flex">
+
+        <!-- Zoom -->
+        <div class="image_button-holder">
           <paper-icon-button id="ZoomOut" icon="zoom-out" on-tap="zoomOut" disabled></paper-icon-button>
           <paper-icon-button id="ZoomIn" icon="zoom-in" on-tap="zoomIn"></paper-icon-button>
+        </div>
+
+        <!-- Annotations -->
+        <div class="image_button-holder horizontal layout center">
+          <paper-icon-button id="FreeDraw" icon="image:brush" on-tap="freeDraw"></paper-icon-button>
+          <paper-icon-button id="addCircle" icon="image:panorama-fish-eye" on-tap="addCircle"></paper-icon-button>
+          <paper-icon-button id="addRect" icon="image:crop-landscape" on-tap="addRect"></paper-icon-button>
+          <div id="addText" class="add-text" on-tap="addText">T</div>
+          <div id="highlightText" class="highlight-text" on-tap="highlightText">T</div>
+          <paper-icon-button id="addLine" icon="icons:remove" on-tap="addLine"></paper-icon-button>
+          <paper-icon-button id="addPolygon" icon="image:panorama-horizontal" on-tap="addPolygon"></paper-icon-button>
         </div>
       </div>
 
@@ -209,8 +239,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Resize the paper-material element to size of the image
         this.resizeImageContainer($image.naturalWidth, $image.naturalHeight);
 
+        // Reset Image
+        this.resetImage();
+
         this.async(function() {
           this.loadingImage = false;
+
           $image.removeAttribute('hidden');
           this.$.LoadingMask.hidden = true;
         }, 500);
@@ -302,23 +336,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Zoom Out of Image
     zoomOut: function() {
 
-      var $image = this.$.Image;
-
-      this.dragMode = true;
-
-      // Change canvas cursor
-      this.$.ImageAnnotations.canvas.defaultCursor = '-webkit-grab';
-
       this.zoomLevel = parseFloat((this.zoomLevel / 1.25).toFixed(2));
 
       if (this.zoomLevel >= 1) {
 
-        // Set CSS transform on image to scale down
-        $image.style.transformOrigin = this.imageX + ' ' + this.imageY;
-        $image.style.transform = 'scale(' + this.zoomLevel + ', ' + this.zoomLevel + ')';
+        // Change canvas cursor
+        if (this.zoomLevel === 1) {
+          this.$.ImageAnnotations.canvas.defaultCursor = 'default';
+        } else {
+          this.$.ImageAnnotations.canvas.defaultCursor = '-webkit-grab';
+        }
 
-        // Fire event to let annotaions element know to zoom in
-        this.$.ImageAnnotations.zoom(this.zoomLevel);
+        this.dragMode = true;
+
+        this.zoomImage();
 
         // Set button states
         this.$.ZoomIn.disabled = false;
@@ -327,6 +358,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Zoom level has gone below 1 so reset to 1
       } else {
         this.zoomLevel = 1;
+        this.dragMode = false;
       }
 
       // Set button states
@@ -340,8 +372,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Zoom In to Image
     zoomIn: function() {
 
-      var $image = this.$.Image;
-
       this.dragMode = true;
 
       // Change canvas cursor
@@ -351,12 +381,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       if (this.zoomLevel < 10) {
 
-        // Set CSS transform on image to scale up
-        $image.style.transformOrigin = this.imageX + ' ' + this.imageY;
-        $image.style.transform = 'scale(' + this.zoomLevel + ', ' + this.zoomLevel + ')';
-
-        // Fire event to let annotaions element know to zoom in
-        this.$.ImageAnnotations.zoom(this.zoomLevel);
+        this.zoomImage();
 
         // Set button states
         this.$.ZoomOut.disabled = false;
@@ -367,14 +392,46 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
+    // Set translate and zoom levels on image element and call zoom method on annotation element
+    zoomImage: function() {
+
+      var $image = this.$.Image;
+      var canvasCoords = {
+        x: 0,
+        y: 0
+      };
+
+      // Set x and y image coordinates and scale to translate image to on
+      imageCoords = this.getImageCoords();
+
+      // Set CSS transform on image to scale up
+      $image.style.transformOrigin = this.imageX + ' ' + this.imageY;
+
+      //$image.style.transform = 'scale(' + this.zoomLevel + ', ' + this.zoomLevel + ')';
+      $image.style.transform = 'translate(' + imageCoords.x + 'px, ' + imageCoords.y + 'px) scale(' + this.zoomLevel + ', ' + this.zoomLevel + ')';
+
+      // Fire event to let annotations element know to zoom in
+      this.$.ImageAnnotations.zoom(this.zoomLevel);
+
+      // Set the negative x and y coordinates to positive for the canvas transform
+      // because Fabric.js absolutePan method will make them negative itself
+      this.imageX = canvasCoords.x = -imageCoords.x;
+      this.imageY = canvasCoords.y = -imageCoords.y;
+
+      this.$.ImageAnnotations.move(canvasCoords);
+    },
+
     // FIRED FROM PAPER-MATERIAL ELEMENT WHEN DRAG ACTION OCCURS
     imageDragged: function(event) {
 
       var $image = this.$.Image;
       var imageCoords;
-      var $canvasContainer = this.querySelector('.canvas-container');
+      var canvasCoords = {
+        x: 0,
+        y: 0
+      };
 
-      if (this.dragMode) {
+      if (this.dragMode && this.zoomLevel > 1) {
 
         switch(event.detail.state) {
 
@@ -382,29 +439,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             // Change canvas cursor
             this.$.ImageAnnotations.canvas.defaultCursor = '-webkit-grabbing';
-
             break;
 
           case 'track':
 
             // Set x and y image coordinates and scale to translate image to on
             imageCoords = this.getImageCoords();
-            $image.style.transform = 'translate(' + imageCoords.imageX + 'px, ' + imageCoords.imageY + 'px) scale(' + this.zoomLevel + ', ' + this.zoomLevel + ')';
+            $image.style.transform = 'translate(' + imageCoords.x + 'px, ' + imageCoords.y + 'px) scale(' + this.zoomLevel + ', ' + this.zoomLevel + ')';
 
-            // Set x and y coordinates on the canvas container element
-            //$canvasContainer.style.transform = 'translate(' + imageCoords.imageX + 'px, ' + imageCoords.imageY + 'px)';
+            // Set the negative x and y coordinates to positive for the canvas transform
+            // because Fabric.js absolutePan method will make them negative itself
+            canvasCoords.x = -imageCoords.x;
+            canvasCoords.y = -imageCoords.y;
+
+            this.$.ImageAnnotations.move(canvasCoords);
             break;
 
           case 'end':
 
             // Set end of drag action x and y image coordinates
             imageCoords = this.getImageCoords();
-            this.imageX = imageCoords.imageX;
-            this.imageY = imageCoords.imageY;
+            this.imageX = imageCoords.x;
+            this.imageY = imageCoords.y;
 
             // Change canvas cursor
             this.$.ImageAnnotations.canvas.defaultCursor = '-webkit-grab';
-
             break;
         }
       }
@@ -461,9 +520,49 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       return {
-        imageX: imageX,
-        imageY: imageY
+        x: imageX,
+        y: imageY
       }
+    },
+
+    // Reset Image
+    resetImage: function() {
+
+      var $image = this.$.Image;
+
+      // Reset Canvas
+      this.$.ImageAnnotations.reset();
+
+      // Reset Image
+      this.zoomLevel = 1;
+      this.dragMode = false;
+      this.imageX = 0;
+      this.imageY = 0;
+
+      // Set CSS transform on image to scale up
+      $image.style.transformOrigin = this.imageX + ' ' + this.imageY;
+      $image.style.transform = 'translate(' + 0 + 'px, ' + 0 + 'px) scale(' + this.zoomLevel + ', ' + this.zoomLevel + ')';
+
+      // Reset buttons
+      this.$.ZoomOut.disabled = true;
+    },
+
+    // Free draw annotation
+    freeDraw: function() {
+      this.dragMode = false;
+      this.$.ImageAnnotations.freeDraw();
+    },
+
+    // Add circle annotation
+    addCircle: function() {
+      this.dragMode = false;
+      this.$.ImageAnnotations.addCircle();
+    },
+
+    // Add rectangle annotation
+    addRect: function() {
+      this.dragMode = false;
+      this.$.ImageAnnotations.addRect();
     }
   });
 })();
