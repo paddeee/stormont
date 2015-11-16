@@ -66,6 +66,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       currentAnnotationWidth: {
         type: Number,
         value: 0
+      },
+
+      defaultBrushColour: {
+        type: String,
+        value: '#ff0000'
+      },
+
+      defaultStrokeColour: {
+        type: String,
+        value: '#000'
+      },
+
+      defaultFillColour: {
+        type: String,
+        value: '#f55'
       }
     },
 
@@ -78,9 +93,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       elem.id = Math.random();
       this.canvas = new fabric.Canvas(elem.id);
 
-      this.canvas.isDrawingMode = true;
-      this.canvas.freeDrawingBrush.color = "red";
-      this.canvas.freeDrawingBrush.width = 5;
+      this.canvas.selection = false;
+
       this.canvas.on("object:added", this._canvasObjectAdded.bind(this));
       this.canvas.on("path:created", this._canvasPathCreated.bind(this));
       this.canvas.on("mouse:down", this._canvasMouseDown.bind(this));
@@ -139,7 +153,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Adds a drawing object to the current drawing on the canvas.
-    addObject: function(object) {
+    /*addObject: function(object) {
 
       var canvas = this.canvas;
 
@@ -157,7 +171,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         canvas.renderAll();
       });
-    },
+    },*/
 
     // Set the dimensions of the canvas
     setCanvasDimensions: function() {
@@ -200,6 +214,67 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.canvas.selection = false;
 
       this.canvas.setZoom(scaleFactor);
+    },
+
+    // Pan the canvas to specified x and y coordinates
+    move: function(coords) {
+      this.canvas.absolutePan(coords);
+    },
+
+    // Reset the canvas to original state
+    reset: function() {
+
+      // Clear the objects
+      this.clear();
+
+      // Pan to top left
+      this.move({
+        x: 0,
+        y: 0
+      });
+
+      // Set the zoom back to 1
+       this.canvas.setZoom(1);
+    },
+
+    // Free draw annotation
+    freeDraw: function() {
+
+      this.canvas.isDrawingMode = true;
+      this.canvas.selection = true;
+      this.canvas.freeDrawingBrush.color = this.defaultBrushColour;
+      this.canvas.freeDrawingBrush.width = 5;
+    },
+
+    // Add a circle
+    addCircle: function() {
+
+      this.canvas.isDrawingMode = false;
+
+      this.canvas.add(new fabric.Circle({
+        radius: 30,
+        stroke: this.defaultStrokeColour,
+        fill: this.defaultFillColour,
+        top: 100,
+        left: 100,
+        opacity: 0.5
+      }));
+    },
+
+    // Add a rectangle
+    addRect: function() {
+
+      this.canvas.isDrawingMode = false;
+
+      this.canvas.add(new fabric.Rect({
+        width: 50,
+        height: 50,
+        stroke: this.defaultStrokeColour,
+        fill: this.defaultFillColour,
+        top: 100,
+        left: 100,
+        opacity: 0.5
+      }));
     }
   });
 })();
