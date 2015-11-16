@@ -78,9 +78,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         value: '#000'
       },
 
+      defaultTextColour: {
+        type: String,
+        value: '#fff'
+      },
+
       defaultFillColour: {
         type: String,
         value: '#f55'
+      },
+
+      defaultHighlightStrokeColour: {
+        type: String,
+        value: '#EEFF41'
+      },
+
+      defaultHighlightFillColour: {
+        type: String,
+        value: '#EEFF41'
       }
     },
 
@@ -95,45 +110,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       this.canvas.selection = false;
 
-      this.canvas.on("object:added", this._canvasObjectAdded.bind(this));
-      this.canvas.on("path:created", this._canvasPathCreated.bind(this));
-      this.canvas.on("mouse:down", this._canvasMouseDown.bind(this));
+      this.canvas.on("object:added", this.canvasObjectAdded.bind(this));
+      this.canvas.on("path:created", this.canvasPathCreated.bind(this));
+      this.canvas.on("mouse:down", this.canvasMouseDown.bind(this));
 
     },
 
-    // Element Behavior
-    /**
-     * The `drawing-overlay-object-added` event is fired whenever a new object is added to the drawing.
-     *
-     * @event drawing-overlay-object-added
-     * @detail {{object: Object}}
-     */
-
-    /**
-     * The `drawing-overlay-path-created` event is fired whenever a path is created on the canvas.
-     *
-     * @event drawing-overlay-path-created
-     * @detail {{object: Object}}
-     */
-
-    /**
-     * The `drawing-overlay-mouse-down` event is fired whenever the mouse is pressed down on the canvas.
-     *
-     * @event drawing-overlay-mouse-down
-     * @detail {{object: Object}}
-     */
-
     // Is called internally when a new drawing object has been added to the canvas.
-    _canvasObjectAdded: function(e) {
+    canvasObjectAdded: function(e) {
+      debugger;
       this.fire("drawing-overlay-object-added", {object: e.target});
     },
 
     // Is called internally when a new path has been created on the canvas.
-    _canvasPathCreated: function(e) {
+    canvasPathCreated: function(e) {
       this.fire("drawing-overlay-path-created");
     },
 
-    _canvasMouseDown: function(e) {
+    canvasMouseDown: function(e) {
       this.fire("drawing-overlay-mouse-down");
     },
 
@@ -271,6 +265,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         height: 50,
         stroke: this.defaultStrokeColour,
         fill: this.defaultFillColour,
+        top: 100,
+        left: 100,
+        opacity: 0.5
+      }));
+    },
+
+    // Add text
+    addText: function() {
+
+      var textObjext = new fabric.IText('Start typing..', {
+        left: 100,
+        top: 100,
+        fill: this.defaultTextColour,
+        fontFamily: 'Roboto, Noto'
+      });
+
+      this.canvas.isDrawingMode = false;
+
+      this.canvas.add(textObjext);
+
+      // Automatically enter editing mode and select all text so user can just start typing
+      this.canvas.setActiveObject(textObjext);
+      textObjext.enterEditing();
+      textObjext.selectAll();
+    },
+
+    // Add a rectangle with highlight colour
+    highlightText: function() {
+
+      this.canvas.isDrawingMode = false;
+
+      this.canvas.add(new fabric.Rect({
+        width: 100,
+        height: 20,
+        fill: this.defaultHighlightFillColour,
         top: 100,
         left: 100,
         opacity: 0.5
