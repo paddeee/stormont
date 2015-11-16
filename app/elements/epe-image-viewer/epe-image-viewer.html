@@ -89,6 +89,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .highlight-text {
       border: 1px solid var(--text-primary-color);
+      cursor: pointer;
       padding: 3px 8px;
       margin: 0 8px;
     }
@@ -563,6 +564,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     addRect: function() {
       this.dragMode = false;
       this.$.ImageAnnotations.addRect();
+    },
+
+    // Add text
+    addText: function() {
+      this.dragMode = false;
+      this.$.ImageAnnotations.addText();
+    },
+
+    // Highlight text
+    highlightText: function() {
+      this.dragMode = false;
+      this.$.ImageAnnotations.highlightText();
     }
   });
 })();
