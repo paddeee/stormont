@@ -90,7 +90,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div class="image-name">[[imageName]]</div>
 
         <!-- Image Card -->
-        <paper-material id="ImageCard" elevation="5">
+        <paper-material id="ImageCard" elevation="5" on-track="imageDragged">
 
           <!-- Loading Mask -->
           <div id="LoadingMask" class="loading-mask layout horizontal center center-justified">
@@ -105,15 +105,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             annotation-width="{{annotationWidth}}"
             zoomLevel="{{zoomLevel}}">
 
-            <!-- Image -->
-            <img id="Image"
-                 class="image"
-                 alt="[[headline]]"
-                 src="[[imageSource]]"
-                 hidden
-                 drag-mode$="[[dragMode]]"
-                 on-drag="imageDragged"/>
-
+              <!-- Image -->
+              <img id="Image"
+                   class="image"
+                   alt="[[headline]]"
+                   src="[[imageSource]]"
+                   hidden
+                   drag-mode$="[[dragMode]]"/>
           </epe-annotations>
 
         </paper-material>
@@ -170,6 +168,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       dragMode: {
         type: Boolean,
         value: false
+      },
+
+      imageX: {
+        type: Number,
+        value: 0
+      },
+
+      imageY: {
+        type: Number,
+        value: 0
       }
     },
 
@@ -306,7 +314,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (this.zoomLevel >= 1) {
 
         // Set CSS transform on image to scale down
-        $image.style.transformOrigin = '0 0';
+        $image.style.transformOrigin = this.imageX + ' ' + this.imageY;
         $image.style.transform = 'scale(' + this.zoomLevel + ', ' + this.zoomLevel + ')';
 
         // Fire event to let annotaions element know to zoom in
@@ -344,7 +352,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (this.zoomLevel < 10) {
 
         // Set CSS transform on image to scale up
-        $image.style.transformOrigin = '0 0';
+        $image.style.transformOrigin = this.imageX + ' ' + this.imageY;
         $image.style.transform = 'scale(' + this.zoomLevel + ', ' + this.zoomLevel + ')';
 
         // Fire event to let annotaions element know to zoom in
@@ -359,12 +367,103 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
-    //
+    // FIRED FROM PAPER-MATERIAL ELEMENT WHEN DRAG ACTION OCCURS
     imageDragged: function(event) {
 
-      // Change canvas cursor
-      this.$.ImageAnnotations.canvas.defaultCursor = '-webkit-grabbed';
-      console.log(event);
+      var $image = this.$.Image;
+      var imageCoords;
+      var $canvasContainer = this.querySelector('.canvas-container');
+
+      if (this.dragMode) {
+
+        switch(event.detail.state) {
+
+          case 'start':
+
+            // Change canvas cursor
+            this.$.ImageAnnotations.canvas.defaultCursor = '-webkit-grabbing';
+
+            break;
+
+          case 'track':
+
+            // Set x and y image coordinates and scale to translate image to on
+            imageCoords = this.getImageCoords();
+            $image.style.transform = 'translate(' + imageCoords.imageX + 'px, ' + imageCoords.imageY + 'px) scale(' + this.zoomLevel + ', ' + this.zoomLevel + ')';
+
+            // Set x and y coordinates on the canvas container element
+            //$canvasContainer.style.transform = 'translate(' + imageCoords.imageX + 'px, ' + imageCoords.imageY + 'px)';
+            break;
+
+          case 'end':
+
+            // Set end of drag action x and y image coordinates
+            imageCoords = this.getImageCoords();
+            this.imageX = imageCoords.imageX;
+            this.imageY = imageCoords.imageY;
+
+            // Change canvas cursor
+            this.$.ImageAnnotations.canvas.defaultCursor = '-webkit-grab';
+
+            break;
+        }
+      }
+    },
+
+    // Calculate the bounding edges of the image to prevent the user dragging past and return the
+    // X and Y coordinates
+    getImageCoords: function() {
+
+      var $image = this.$.Image;
+      var imageZoomedHeight = $image.height * this.zoomLevel;
+      var imageZoomedWidth = $image.width * this.zoomLevel;
+      var topBound = 0;
+      var rightBound = imageZoomedWidth - $image.width;
+      var bottomBound = imageZoomedHeight - $image.height;
+      var leftBound = 0;
+      var imageX = 0;
+      var imageY = 0;
+
+      // If image is within X coordinate bounds
+      if (this.imageX + event.detail.dx <= leftBound && this.imageX + event.detail.dx >= -rightBound) {
+        imageX = this.imageX + event.detail.dx;
+      } else {
+
+        // Dragged past leftBound
+        if (this.imageX + event.detail.dx > leftBound) {
+
+          imageX = 0;
+
+          // Dragged past rightBound
+        } else if (this.imageX + event.detail.dx < -rightBound) {
+
+          imageX = -rightBound;
+        }
+      }
+
+      // If image is within Y coordinate bounds
+      if (this.imageY + event.detail.dy <= topBound && this.imageY + event.detail.dy >= -bottomBound) {
+
+        imageY = this.imageY + event.detail.dy;
+
+      } else {
+
+        // Dragged past topBound
+        if (this.imageY + event.detail.dy > topBound) {
+
+          imageY = 0;
+
+          // Dragged past bottomBound
+        } else if (this.imageY + event.detail.dy < -bottomBound) {
+
+          imageY = -bottomBound;
+        }
+      }
+
+      return {
+        imageX: imageX,
+        imageY: imageY
+      }
     }
   });
 })();
