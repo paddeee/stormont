@@ -25,8 +25,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .editor {
       position: fixed;
       right: 0;
-      top: 64px;
-      bottom: 7vh;
+      top: 0;
+      bottom: 0;
       z-index: 1;
     }
 
@@ -41,7 +41,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
 
   <template>
-    <epe-annotions-editor class="editor"></epe-annotions-editor>
+    <epe-annotions-editor
+      id="AnnotationsEditor"
+      class="editor"
+      show-editor="{{showEditor}}"
+      hide-editor-stroke-tools="[[hideEditorStrokeTools]]"
+      hide-editor-fill-tools="[[hideEditorFillTools]]"
+      selected-annotation="{{selectedAnnotation}}"></epe-annotions-editor>
     <div id="ContentWrapper" class="content-wrapper">
       <content id="AnnotationContent"></content>
     </div>
@@ -110,6 +116,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       defaultLineColour: {
         type: String,
         value: '#FF0000'
+      },
+
+      // Whether annotations editor is shown
+      showEditor: {
+        type: Boolean
+      },
+
+      // Whether annotations editor stroke tools should be displayed
+      hideEditorStrokeTools: {
+        type: Boolean
+      },
+
+      // Whether annotations editor fill tools should be displayed
+      hideEditorFillTools: {
+        type: Boolean
+      },
+
+      // Current user selected annotation object
+      selectedAnnotation: {
+        type: Object,
+        value: null
       }
     },
 
@@ -125,24 +152,55 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.canvas.selection = false;
 
       this.canvas.on("object:added", this.canvasObjectAdded.bind(this));
+      this.canvas.on("object:selected", this.canvasObjectSelected.bind(this));
       this.canvas.on("path:created", this.canvasPathCreated.bind(this));
       this.canvas.on("mouse:down", this.canvasMouseDown.bind(this));
 
     },
 
-    // Is called internally when a new drawing object has been added to the canvas.
-    canvasObjectAdded: function(e) {
-      debugger;
-      this.fire("drawing-overlay-object-added", {object: e.target});
+    // Called when a new drawing object has been added to the canvas.
+    canvasObjectAdded: function(event) {
+
+      // Pass info through to annotations editor
+      this.showEditor = true;
+      this.hideEditorStrokeTools = !!!event.target.stroke;;
+      this.hideEditorFillTools = !!!event.target.fill;
+      this.selectedAnnotation = event.target;
+
+      this.fire("annotation-object-added", {
+        object: event.target
+      });
+    },
+
+    // Called when a new drawing object has been added to the canvas.
+    canvasObjectSelected: function(event) {
+      console.log(event);
+
+      // Pass info through to annotations editor
+      this.showEditor = true;
+      this.hideEditorStrokeTools = !!!event.target.stroke;;
+      this.hideEditorFillTools = !!!event.target.fill;
+      this.selectedAnnotation = event.target;
+
+      this.fire("annotation-object-selected", {
+        object: event.target
+      });
     },
 
     // Is called internally when a new path has been created on the canvas.
-    canvasPathCreated: function(e) {
-      this.fire("drawing-overlay-path-created");
+    canvasPathCreated: function(event) {
+
+      // Pass info through to annotations editor
+      this.showEditor = true;
+      this.hideEditorStrokeTools = false;
+      this.hideEditorFillTools = true;
+      this.selectedAnnotation = event.target;
+
+      this.fire("annotation-path-created");
     },
 
     canvasMouseDown: function(e) {
-      this.fire("drawing-overlay-mouse-down");
+      this.fire("annotation-mouse-down");
     },
 
     // Gets the JSON representation of the drawing.
@@ -192,7 +250,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Get current zoom scale for the canvas
         currentZoom = this.canvas.getZoom();
 
-        //
+        // Get the current scale factor
         scaleFactor = (this.annotationWidth / this.currentAnnotationWidth) * currentZoom;
 
         if(scaleFactor != 1) {
@@ -257,26 +315,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Add a circle
     addCircle: function() {
 
-      this.canvas.isDrawingMode = false;
-      this.canvas.selection = true;
-
-      this.canvas.add(new fabric.Circle({
+      var circle = new fabric.Circle({
         radius: 30,
         stroke: this.defaultStrokeColour,
         fill: this.defaultFillColour,
         top: 100,
         left: 100,
         opacity: 0.5
-      }));
+      });
+
+      this.canvas.isDrawingMode = false;
+      this.canvas.selection = true;
+
+      this.canvas.add(circle);
     },
 
     // Add a rectangle
     addRect: function() {
 
-      this.canvas.isDrawingMode = false;
-      this.canvas.selection = true;
-
-      this.canvas.add(new fabric.Rect({
+      var rect = new fabric.Rect({
         width: 50,
         height: 50,
         stroke: this.defaultStrokeColour,
@@ -284,7 +341,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         top: 100,
         left: 100,
         opacity: 0.5
-      }));
+      });
+
+      this.canvas.isDrawingMode = false;
+      this.canvas.selection = true;
+
+      this.canvas.add(rect);
     },
 
     // Add text
@@ -311,30 +373,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Add a rectangle with highlight colour
     highlightText: function() {
 
-      this.canvas.isDrawingMode = false;
-      this.canvas.selection = true;
-
-      this.canvas.add(new fabric.Rect({
+      var highlight = new fabric.Rect({
         width: 100,
         height: 20,
         fill: this.defaultHighlightFillColour,
         top: 100,
         left: 100,
         opacity: 0.8
-      }));
+      });
+
+      this.canvas.isDrawingMode = false;
+      this.canvas.selection = true;
+
+      this.canvas.add(highlight);
     },
 
     // Add a line
     addLine: function() {
 
-      this.canvas.isDrawingMode = false;
-      this.canvas.selection = true;
-
-      this.canvas.add(new fabric.Line([50, 150, 130, 150], {
+      var line = new fabric.Line([50, 150, 130, 150], {
         fill: this.defaultLineColour,
         stroke: this.defaultLineColour,
         strokeWidth: 5
-      }));
+      });
+
+      this.canvas.isDrawingMode = false;
+      this.canvas.selection = true;
+
+      this.canvas.add(line);
     }
   });
 })();

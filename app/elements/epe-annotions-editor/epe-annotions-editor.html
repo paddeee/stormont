@@ -17,31 +17,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       display: block;
     }
 
-    .leaflet-control-styleeditor-interior {
-      height: 20px;
-      width: 20px;
-      background-image: url('../img/icon.png');
-      background-position: 4px 4px;
-      background-repeat: no-repeat;
-      display: block;
-      padding: 3px;
-      -webkit-border-radius: 4px;
-      -moz-border-radius: 4px;
-      border-radius: 4px;
-      box-shadow: 0 1px 7px rgba(0, 0, 0, 0.65);
-      text-align: center;
-      background-color: #FFFFFF;
-    }
-    .leaflet-control-styleeditor-interior:hover {
-      background-color: #07C217;
-    }
-    .enabled {
-      background-color: #b0de5c;
-    }
-    .enabled:hover {
-      background-color: #07C217;
-    }
-    .leaflet-styleeditor {
+    .editor {
       box-shadow: 0 1px 7px rgba(0, 0, 0, 0.65);
       height: 100%;
       right: 0;
@@ -62,35 +38,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       transform: translatex(0);
       z-index: 1000;
     }
-    .editor-enabled {
+
+    .editor--enabled {
       width: 210px;
     }
-    .leaflet-styleeditor-header {
+
+    .editor-header {
       position: relative;
       height: 40px;
       background-color: #b0de5c;
-      -webkit-box-sizing: border-box;
-      -moz-box-sizing: border-box;
       box-sizing: border-box;
     }
-    .leaflet-styleeditor-interior {
-      padding: 20px;
+
+    .editor-interior {
+      padding: 20px 20px 8vh;
       overflow: auto;
       position: relative;
       right: 0px;
       height: 100%;
-      -webkit-box-sizing: border-box;
-      /* Safari/Chrome, other WebKit */
-      -moz-box-sizing: border-box;
-      /* Firefox, other Gecko */
       box-sizing: border-box;
     }
-    .leaflet-styleeditor-label {
+
+    .editor-label-container {
+      margin-bottom: 2vh;
+    }
+
+    .editor-label {
       width: 100px;
       display: block;
       font-size: medium;
     }
-    .leaflet-styleeditor-input {
+
+    .editor-input {
       height: 30px;
       margin-bottom: 5px;
       padding-left: 10px;
@@ -99,29 +78,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       outline: none;
       width: 150px;
     }
-    .leaflet-styleeditor-select {
-      height: 30px;
-      margin-bottom: 5px;
-      padding-left: 10px;
-      background: #fff;
-      border: 1px solid rgba(0, 0, 0, 0.1);
-      outline: none;
-      width: 150px;
-    }
-    .leaflet-styleeditor-option {
-      height: 30px;
-    }
-    .leaflet-styleeditor-button {
+
+    .editor-button {
       border: 0px;
       display: inline-block;
       padding: 10px 20px;
       background: #b0de5c;
       height: 40px;
       margin-left: 0px;
-      -moz-transition: background-color .25s ease-in-out;
-      -webkit-transition: background-color .25s ease-in-out;
-      -o-transition: background-color .25s ease-in-out;
-      -ms-transition: background-color .25s ease-in-out;
       transition: background-color .25s ease-in-out;
       letter-spacing: 2px;
       text-decoration: none;
@@ -131,33 +95,79 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       color: #FFFFFF;
       cursor: pointer;
     }
-    .styleeditor-nextBtn {
+
+    .editor-button--next {
       float: right;
       margin-right: 0px;
-      background-image: url('../img/icon.png');
+      background-image: url('../../images/annotation-editor-sprite.png');
       background-position: 10px -31px;
     }
-    .leaflet-styleeditor-button:hover {
+
+    .editor-button:hover {
       background-color: #00ad87;
     }
-    .leaflet-styleeditor-button:active {
+
+    .editor-button:active {
       background-color: #20e1b6;
     }
-    .leaflet-styleeditor-colorpicker {
+
+    .editor-colour-picker {
+      margin-bottom: 2vh;
       width: 160px;
       display: inline-block;
     }
-    .leaflet-styleeditor-color {
+
+    .editor-colour {
       height: 35px;
       width: 30px;
       float: left;
       border: 1px solid white;
       cursor: pointer;
     }
-    .leaflet-styleeditor-color:hover {
+
+    .editor-colour:hover {
       border:1px solid black;
     }
-    .leaflet-styleeditor-sizeicon {
+
+    .editor-line-stroke-container {
+      margin-bottom: 2vh;
+    }
+
+    .editor-stroke {
+      height: 20px;
+      width: 150px;
+      background-repeat: no-repeat;
+      border: 1px solid white;
+      background-image: url('../../images/annotation-editor-sprite.png');
+      cursor: pointer;
+    }
+
+    .editor-stroke:hover {
+      border: 1px solid black;
+    }
+
+    paper-input {
+      --paper-input-container-color: var(--secondary-text-color);
+      --paper-input-container-focus-color: var(--dark-primary-color);
+      --paper-input-container-input-color: var(--secondary-text-color);
+    }
+
+    /* ToDo: Delete if not going to use these classes
+    .editor-select {
+      height: 30px;
+      margin-bottom: 5px;
+      padding-left: 10px;
+      background: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      outline: none;
+      width: 150px;
+    }
+
+    .editor-option {
+      height: 30px;
+    }
+
+    .editor-sizeicon {
       background-image: url('http://cdn.leafletjs.com/leaflet-0.7.2/images/marker-icon.png');
       background-repeat: no-repeat;
       float: left;
@@ -165,31 +175,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       border: 1px solid white;
       cursor: pointer;
     }
-    .leaflet-styleeditor-sizeicon:hover {
+
+    .editor-sizeicon:hover {
       border: 1px solid black;
     }
+
     .sizeicon-small {
       background-size: 20px 33px;
       width: 20px;
       height: 33px;
     }
+
     .sizeicon-medium {
       background-size: 25px 41px;
       width:25px;
       height:41px;
     }
+
     .sizeicon-large {
       background-size: 30px 49px;
       width:30px;
       height: 49px;
     }
-    .leaflet-styleeditor-tooltip-wrapper {
+
+    .editor-tooltip-wrapper {
       position: absolute;
       text-align: center;
       top: 90%;
       width: 100%;
     }
-    .leaflet-styleeditor-tooltip {
+
+    .editor-tooltip {
       background-color: rgba(68, 68, 68, 0.2);
       border: 3px solid rgba(68, 68, 68, 0.7);
       border-radius: 5px;
@@ -199,59 +215,85 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       position: relative;
       whitespace: no-wrap;
     }
-    .leaflet-styleeditor-stroke {
-      height: 20px;
-      width: 150px;
-      background-repeat: no-repeat;
-      border: 1px solid white;
-      background-image: url('../img/icon.png');
-      cursor: pointer;
-    }
-    .leaflet-styleeditor-stroke:hover {
-      border: 1px solid black;
-    }
+    */
+
   </style>
   <template>
 
-    <div class="leaflet-styleeditor editor-enabled">
-      <div class="leaflet-styleeditor-header">
-        <button class="leaflet-styleeditor-button styleeditor-nextBtn" title="Choose another element you want to style"></button>
+    <div id="Editor" class="editor">
+      <div class="editor-header">
+        <button class="editor-button editor-button--next"
+                title="Choose a different annotation to style"
+                on-tap="hideEditor"></button>
       </div>
-      <div class="leaflet-styleeditor-interior">
-        <label class="leaflet-styleeditor-label">Color:</label>
-        <div class="leaflet-styleeditor-colorpicker">
-          <div class="leaflet-styleeditor-color" style="background-color: rgb(26, 188, 156);"></div>
-          <div class="leaflet-styleeditor-color" style="background-color: rgb(46, 204, 113);"></div>
-          <div class="leaflet-styleeditor-color" style="background-color: rgb(52, 152, 219);"></div>
-          <div class="leaflet-styleeditor-color" style="background-color: rgb(155, 89, 182);"></div>
-          <div class="leaflet-styleeditor-color" style="background-color: rgb(52, 73, 94);"></div>
-          <div class="leaflet-styleeditor-color" style="background-color: rgb(22, 160, 133);"></div>
-          <div class="leaflet-styleeditor-color" style="background-color: rgb(39, 174, 96);"></div>
-          <div class="leaflet-styleeditor-color" style="background-color: rgb(41, 128, 185);"></div>
-          <div class="leaflet-styleeditor-color" style="background-color: rgb(142, 68, 173);"></div>
-          <div class="leaflet-styleeditor-color" style="background-color: rgb(44, 62, 80);"></div>
-          <div class="leaflet-styleeditor-color" style="background-color: rgb(241, 196, 15);"></div>
-          <div class="leaflet-styleeditor-color" style="background-color: rgb(230, 126, 34);"></div>
-          <div class="leaflet-styleeditor-color" style="background-color: rgb(231, 76, 60);"></div>
-          <div class="leaflet-styleeditor-color" style="background-color: rgb(236, 240, 241);"></div>
-          <div class="leaflet-styleeditor-color" style="background-color: rgb(149, 165, 166);"></div>
-          <div class="leaflet-styleeditor-color" style="background-color: rgb(243, 156, 18);"></div>
-          <div class="leaflet-styleeditor-color" style="background-color: rgb(211, 84, 0);"></div>
-          <div class="leaflet-styleeditor-color" style="background-color: rgb(192, 57, 43);"></div>
-          <div class="leaflet-styleeditor-color" style="background-color: rgb(189, 195, 199);"></div>
-          <div class="leaflet-styleeditor-color" style="background-color: rgb(127, 140, 141);"></div>
+      <div class="editor-interior">
+        <label class="editor-label">Color:</label>
+        <div class="editor-colour-picker" on-tap="editStrokeColour">
+          <div class="editor-colour" style="background-color: rgb(26, 188, 156);"></div>
+          <div class="editor-colour" style="background-color: rgb(46, 204, 113);"></div>
+          <div class="editor-colour" style="background-color: rgb(52, 152, 219);"></div>
+          <div class="editor-colour" style="background-color: rgb(155, 89, 182);"></div>
+          <div class="editor-colour" style="background-color: rgb(52, 73, 94);"></div>
+          <div class="editor-colour" style="background-color: rgb(22, 160, 133);"></div>
+          <div class="editor-colour" style="background-color: rgb(39, 174, 96);"></div>
+          <div class="editor-colour" style="background-color: rgb(41, 128, 185);"></div>
+          <div class="editor-colour" style="background-color: rgb(142, 68, 173);"></div>
+          <div class="editor-colour" style="background-color: rgb(44, 62, 80);"></div>
+          <div class="editor-colour" style="background-color: rgb(241, 196, 15);"></div>
+          <div class="editor-colour" style="background-color: rgb(230, 126, 34);"></div>
+          <div class="editor-colour" style="background-color: rgb(231, 76, 60);"></div>
+          <div class="editor-colour" style="background-color: rgb(236, 240, 241);"></div>
+          <div class="editor-colour" style="background-color: rgb(149, 165, 166);"></div>
+          <div class="editor-colour" style="background-color: rgb(243, 156, 18);"></div>
+          <div class="editor-colour" style="background-color: rgb(211, 84, 0);"></div>
+          <div class="editor-colour" style="background-color: rgb(192, 57, 43);"></div>
+          <div class="editor-colour" style="background-color: rgb(189, 195, 199);"></div>
+          <div class="editor-colour" style="background-color: rgb(127, 140, 141);"></div>
         </div>
-        <br class="">
-        <br class="">
-        <label class="leaflet-styleeditor-label">Opacity:</label>
-        <input class="leaflet-styleeditor-input" type="number" value="0.5" min="0" max="1" step="0.1">
-        <br class="">
-        <br class="">
-        <label class="leaflet-styleeditor-label">Line Stroke:</label>
-        <div class="leaflet-styleeditor-stroke" style="background-position: 0px -75px;"></div>
-        <div class="leaflet-styleeditor-stroke" style="background-position: 0px -95px;"></div>
-        <div class="leaflet-styleeditor-stroke" style="background-position: 0px -115px;"></div
-          ><br class="bla">
+
+        <div class="editor-label-container">
+          <label class="editor-label">Opacity:</label>
+          <paper-slider max="1.0" step="0.01" value="0.5" on-immediate-value-change="editOpacity" editable></paper-slider>
+        </div>
+
+        <div class="editor-line-stroke-container"
+             on-tap="editStrokeDash"
+             hidden$="[[hideEditorStrokeTools]]">
+          <label class="editor-label">Line Stroke:</label>
+          <div class="editor-stroke" stroke="full" style="background-position: 0px -75px;"></div>
+          <div class="editor-stroke" stroke="dashed" style="background-position: 0px -95px;"></div>
+          <div class="editor-stroke" stroke="dotted" style="background-position: 0px -115px;"></div>
+        </div>
+
+        <div class="editor-fill-tools-container" hidden$="[[hideEditorFillTools]]">
+          <label class="editor-label">Fill Color:</label>
+          <div class="editor-colour-picker" on-tap="editFillColour">
+            <div class="editor-colour" style="background-color: rgb(26, 188, 156);"></div>
+            <div class="editor-colour" style="background-color: rgb(46, 204, 113);"></div>
+            <div class="editor-colour" style="background-color: rgb(52, 152, 219);"></div>
+            <div class="editor-colour" style="background-color: rgb(155, 89, 182);"></div>
+            <div class="editor-colour" style="background-color: rgb(52, 73, 94);"></div>
+            <div class="editor-colour" style="background-color: rgb(22, 160, 133);"></div>
+            <div class="editor-colour" style="background-color: rgb(39, 174, 96);"></div>
+            <div class="editor-colour" style="background-color: rgb(41, 128, 185);"></div>
+            <div class="editor-colour" style="background-color: rgb(142, 68, 173);"></div>
+            <div class="editor-colour" style="background-color: rgb(44, 62, 80);"></div>
+            <div class="editor-colour" style="background-color: rgb(241, 196, 15);"></div>
+            <div class="editor-colour" style="background-color: rgb(230, 126, 34);"></div>
+            <div class="editor-colour" style="background-color: rgb(231, 76, 60);"></div>
+            <div class="editor-colour" style="background-color: rgb(236, 240, 241);"></div>
+            <div class="editor-colour" style="background-color: rgb(149, 165, 166);"></div>
+            <div class="editor-colour" style="background-color: rgb(243, 156, 18);"></div>
+            <div class="editor-colour" style="background-color: rgb(211, 84, 0);"></div>
+            <div class="editor-colour" style="background-color: rgb(192, 57, 43);"></div>
+            <div class="editor-colour" style="background-color: rgb(189, 195, 199);"></div>
+            <div class="editor-colour" style="background-color: rgb(127, 140, 141);"></div>
+          </div>
+        </div>
+        <!-- ToDo Remove if no need for fill opacity
+        <label class="editor-label">Fill Opacity:</label>
+        <input class="editor-input" type="number" value="0.2" min="0" max="1" step="0.1">
+        -->
       </div>
     </div>
 
@@ -263,11 +305,106 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     is: 'epe-annotions-editor',
 
     properties: {
-      foo: {
-        type: String,
-        value: 'bar',
-        notify: true
+
+      // Whether annotations editor is shown
+      showEditor: {
+        type: Boolean,
+        value: false,
+        notify: true,
+        observer: 'toggleEditor'
+      },
+
+      // Whether annotations editor stroke tools should be displayed
+      hideEditorStrokeTools: {
+        type: Boolean,
+        value: false
+      },
+
+      // Whether annotations editor fill tools should be displayed
+      hideEditorFillTools: {
+        type: Boolean,
+        value: true
+      },
+
+      // Current user selected annotation object
+      selectedAnnotation: {
+        type: Object
       }
+    },
+
+    // Hide annotations editor
+    hideEditor: function() {
+      this.showEditor = false;
+    },
+
+    // Show/Hide annotations editor
+    toggleEditor: function() {
+
+      var $editor = this.$.Editor;
+
+      if (this.showEditor) {
+        $editor.classList.add('editor--enabled');
+      } else {
+        $editor.classList.remove('editor--enabled');
+      }
+    },
+
+    // Edit stroke colour of annotation object
+    editStrokeColour: function(event) {
+
+      var newColour = event.target.style.backgroundColor;
+
+      this.selectedAnnotation.set({
+        stroke:newColour
+      }).canvas.renderAll();
+    },
+
+    // Edit fill colour of annotation object
+    editFillColour: function(event) {
+
+      var newColour = event.target.style.backgroundColor;
+
+      this.selectedAnnotation.set({
+        fill:newColour
+      }).canvas.renderAll();
+    },
+
+    // Edit opacity of annotation object
+    editOpacity: function(event) {
+
+      var opacity = event.target.immediateValue;
+
+      if (this.selectedAnnotation) {
+
+        this.selectedAnnotation.set({
+          opacity:opacity
+        }).canvas.renderAll();
+      }
+    },
+
+    // Edit stroke dash of annotation object
+    editStrokeDash: function(event) {
+
+      var strokeDash = event.target.getAttribute('stroke');
+      var strokeDashArray;
+
+      switch(strokeDash) {
+        case 'full':
+          strokeDashArray = [1];
+          break;
+        case 'dashed':
+          strokeDashArray = [5, 3];
+          break;
+        case 'dotted':
+          strokeDashArray = [2, 2, 2, 2, 4, 2];
+          break;
+        default:
+          strokeDashArray = [1];
+      }
+
+      this.selectedAnnotation.set({
+        strokeDashArray: strokeDashArray
+      }).canvas.renderAll();
     }
   });
 })();
