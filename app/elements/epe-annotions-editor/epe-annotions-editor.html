@@ -1,0 +1,274 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="epe-annotions-editor">
+  <style>
+
+    :host {
+      display: block;
+    }
+
+    .leaflet-control-styleeditor-interior {
+      height: 20px;
+      width: 20px;
+      background-image: url('../img/icon.png');
+      background-position: 4px 4px;
+      background-repeat: no-repeat;
+      display: block;
+      padding: 3px;
+      -webkit-border-radius: 4px;
+      -moz-border-radius: 4px;
+      border-radius: 4px;
+      box-shadow: 0 1px 7px rgba(0, 0, 0, 0.65);
+      text-align: center;
+      background-color: #FFFFFF;
+    }
+    .leaflet-control-styleeditor-interior:hover {
+      background-color: #07C217;
+    }
+    .enabled {
+      background-color: #b0de5c;
+    }
+    .enabled:hover {
+      background-color: #07C217;
+    }
+    .leaflet-styleeditor {
+      box-shadow: 0 1px 7px rgba(0, 0, 0, 0.65);
+      height: 100%;
+      right: 0;
+      min-height: 300px;
+      background-color: white;
+      width: 0;
+      position: absolute;
+      margin: 0px;
+      overflow: hidden;
+      -webkit-transition-property: -webkit-transform, width;
+      transition-property: transform, width;
+      -webkit-transition-duration: 100ms;
+      transition-duration: 100ms;
+      -webkit-transition-timing-function: ease-in;
+      transition-timing-function: ease-in;
+      -ms-transform: translatex(0);
+      -webkit-transform: translatex(0);
+      transform: translatex(0);
+      z-index: 1000;
+    }
+    .editor-enabled {
+      width: 210px;
+    }
+    .leaflet-styleeditor-header {
+      position: relative;
+      height: 40px;
+      background-color: #b0de5c;
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+    }
+    .leaflet-styleeditor-interior {
+      padding: 20px;
+      overflow: auto;
+      position: relative;
+      right: 0px;
+      height: 100%;
+      -webkit-box-sizing: border-box;
+      /* Safari/Chrome, other WebKit */
+      -moz-box-sizing: border-box;
+      /* Firefox, other Gecko */
+      box-sizing: border-box;
+    }
+    .leaflet-styleeditor-label {
+      width: 100px;
+      display: block;
+      font-size: medium;
+    }
+    .leaflet-styleeditor-input {
+      height: 30px;
+      margin-bottom: 5px;
+      padding-left: 10px;
+      background: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      outline: none;
+      width: 150px;
+    }
+    .leaflet-styleeditor-select {
+      height: 30px;
+      margin-bottom: 5px;
+      padding-left: 10px;
+      background: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      outline: none;
+      width: 150px;
+    }
+    .leaflet-styleeditor-option {
+      height: 30px;
+    }
+    .leaflet-styleeditor-button {
+      border: 0px;
+      display: inline-block;
+      padding: 10px 20px;
+      background: #b0de5c;
+      height: 40px;
+      margin-left: 0px;
+      -moz-transition: background-color .25s ease-in-out;
+      -webkit-transition: background-color .25s ease-in-out;
+      -o-transition: background-color .25s ease-in-out;
+      -ms-transition: background-color .25s ease-in-out;
+      transition: background-color .25s ease-in-out;
+      letter-spacing: 2px;
+      text-decoration: none;
+      text-transform: uppercase;
+      font-size: 15px;
+      font-weight: 600;
+      color: #FFFFFF;
+      cursor: pointer;
+    }
+    .styleeditor-nextBtn {
+      float: right;
+      margin-right: 0px;
+      background-image: url('../img/icon.png');
+      background-position: 10px -31px;
+    }
+    .leaflet-styleeditor-button:hover {
+      background-color: #00ad87;
+    }
+    .leaflet-styleeditor-button:active {
+      background-color: #20e1b6;
+    }
+    .leaflet-styleeditor-colorpicker {
+      width: 160px;
+      display: inline-block;
+    }
+    .leaflet-styleeditor-color {
+      height: 35px;
+      width: 30px;
+      float: left;
+      border: 1px solid white;
+      cursor: pointer;
+    }
+    .leaflet-styleeditor-color:hover {
+      border:1px solid black;
+    }
+    .leaflet-styleeditor-sizeicon {
+      background-image: url('http://cdn.leafletjs.com/leaflet-0.7.2/images/marker-icon.png');
+      background-repeat: no-repeat;
+      float: left;
+      margin-right: 15px;
+      border: 1px solid white;
+      cursor: pointer;
+    }
+    .leaflet-styleeditor-sizeicon:hover {
+      border: 1px solid black;
+    }
+    .sizeicon-small {
+      background-size: 20px 33px;
+      width: 20px;
+      height: 33px;
+    }
+    .sizeicon-medium {
+      background-size: 25px 41px;
+      width:25px;
+      height:41px;
+    }
+    .sizeicon-large {
+      background-size: 30px 49px;
+      width:30px;
+      height: 49px;
+    }
+    .leaflet-styleeditor-tooltip-wrapper {
+      position: absolute;
+      text-align: center;
+      top: 90%;
+      width: 100%;
+    }
+    .leaflet-styleeditor-tooltip {
+      background-color: rgba(68, 68, 68, 0.2);
+      border: 3px solid rgba(68, 68, 68, 0.7);
+      border-radius: 5px;
+      display: inline-block;
+      font: 20px/1"Helvetica Neue", Arial, Helvetica, sans-serif;
+      padding: 10px;
+      position: relative;
+      whitespace: no-wrap;
+    }
+    .leaflet-styleeditor-stroke {
+      height: 20px;
+      width: 150px;
+      background-repeat: no-repeat;
+      border: 1px solid white;
+      background-image: url('../img/icon.png');
+      cursor: pointer;
+    }
+    .leaflet-styleeditor-stroke:hover {
+      border: 1px solid black;
+    }
+  </style>
+  <template>
+
+    <div class="leaflet-styleeditor editor-enabled">
+      <div class="leaflet-styleeditor-header">
+        <button class="leaflet-styleeditor-button styleeditor-nextBtn" title="Choose another element you want to style"></button>
+      </div>
+      <div class="leaflet-styleeditor-interior">
+        <label class="leaflet-styleeditor-label">Color:</label>
+        <div class="leaflet-styleeditor-colorpicker">
+          <div class="leaflet-styleeditor-color" style="background-color: rgb(26, 188, 156);"></div>
+          <div class="leaflet-styleeditor-color" style="background-color: rgb(46, 204, 113);"></div>
+          <div class="leaflet-styleeditor-color" style="background-color: rgb(52, 152, 219);"></div>
+          <div class="leaflet-styleeditor-color" style="background-color: rgb(155, 89, 182);"></div>
+          <div class="leaflet-styleeditor-color" style="background-color: rgb(52, 73, 94);"></div>
+          <div class="leaflet-styleeditor-color" style="background-color: rgb(22, 160, 133);"></div>
+          <div class="leaflet-styleeditor-color" style="background-color: rgb(39, 174, 96);"></div>
+          <div class="leaflet-styleeditor-color" style="background-color: rgb(41, 128, 185);"></div>
+          <div class="leaflet-styleeditor-color" style="background-color: rgb(142, 68, 173);"></div>
+          <div class="leaflet-styleeditor-color" style="background-color: rgb(44, 62, 80);"></div>
+          <div class="leaflet-styleeditor-color" style="background-color: rgb(241, 196, 15);"></div>
+          <div class="leaflet-styleeditor-color" style="background-color: rgb(230, 126, 34);"></div>
+          <div class="leaflet-styleeditor-color" style="background-color: rgb(231, 76, 60);"></div>
+          <div class="leaflet-styleeditor-color" style="background-color: rgb(236, 240, 241);"></div>
+          <div class="leaflet-styleeditor-color" style="background-color: rgb(149, 165, 166);"></div>
+          <div class="leaflet-styleeditor-color" style="background-color: rgb(243, 156, 18);"></div>
+          <div class="leaflet-styleeditor-color" style="background-color: rgb(211, 84, 0);"></div>
+          <div class="leaflet-styleeditor-color" style="background-color: rgb(192, 57, 43);"></div>
+          <div class="leaflet-styleeditor-color" style="background-color: rgb(189, 195, 199);"></div>
+          <div class="leaflet-styleeditor-color" style="background-color: rgb(127, 140, 141);"></div>
+        </div>
+        <br class="">
+        <br class="">
+        <label class="leaflet-styleeditor-label">Opacity:</label>
+        <input class="leaflet-styleeditor-input" type="number" value="0.5" min="0" max="1" step="0.1">
+        <br class="">
+        <br class="">
+        <label class="leaflet-styleeditor-label">Line Stroke:</label>
+        <div class="leaflet-styleeditor-stroke" style="background-position: 0px -75px;"></div>
+        <div class="leaflet-styleeditor-stroke" style="background-position: 0px -95px;"></div>
+        <div class="leaflet-styleeditor-stroke" style="background-position: 0px -115px;"></div
+          ><br class="bla">
+      </div>
+    </div>
+
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+    is: 'epe-annotions-editor',
+
+    properties: {
+      foo: {
+        type: String,
+        value: 'bar',
+        notify: true
+      }
+    }
+  });
+})();
+</script>

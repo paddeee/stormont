@@ -22,6 +22,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       box-sizing: border-box;
     }
 
+    .editor {
+      position: fixed;
+      right: 0;
+      top: 64px;
+      bottom: 7vh;
+      z-index: 1;
+    }
+
     .content-wrapper > ::content {
       position: absolute;
       top: 0;
@@ -33,6 +41,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
 
   <template>
+    <epe-annotions-editor class="editor"></epe-annotions-editor>
     <div id="ContentWrapper" class="content-wrapper">
       <content id="AnnotationContent"></content>
     </div>
@@ -70,7 +79,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       defaultBrushColour: {
         type: String,
-        value: '#ff0000'
+        value: '#FF0000'
       },
 
       defaultStrokeColour: {
@@ -80,12 +89,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       defaultTextColour: {
         type: String,
-        value: '#fff'
+        value: '#FFF'
       },
 
       defaultFillColour: {
         type: String,
-        value: '#f55'
+        value: '#F55'
       },
 
       defaultHighlightStrokeColour: {
@@ -95,7 +104,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       defaultHighlightFillColour: {
         type: String,
-        value: '#EEFF41'
+        value: '#FFFF00'
+      },
+
+      defaultLineColour: {
+        type: String,
+        value: '#FF0000'
       }
     },
 
@@ -244,6 +258,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     addCircle: function() {
 
       this.canvas.isDrawingMode = false;
+      this.canvas.selection = true;
 
       this.canvas.add(new fabric.Circle({
         radius: 30,
@@ -259,6 +274,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     addRect: function() {
 
       this.canvas.isDrawingMode = false;
+      this.canvas.selection = true;
 
       this.canvas.add(new fabric.Rect({
         width: 50,
@@ -282,6 +298,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
 
       this.canvas.isDrawingMode = false;
+      this.canvas.selection = true;
 
       this.canvas.add(textObjext);
 
@@ -295,6 +312,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     highlightText: function() {
 
       this.canvas.isDrawingMode = false;
+      this.canvas.selection = true;
 
       this.canvas.add(new fabric.Rect({
         width: 100,
@@ -302,7 +320,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         fill: this.defaultHighlightFillColour,
         top: 100,
         left: 100,
-        opacity: 0.5
+        opacity: 0.8
+      }));
+    },
+
+    // Add a line
+    addLine: function() {
+
+      this.canvas.isDrawingMode = false;
+      this.canvas.selection = true;
+
+      this.canvas.add(new fabric.Line([50, 150, 130, 150], {
+        fill: this.defaultLineColour,
+        stroke: this.defaultLineColour,
+        strokeWidth: 5
       }));
     }
   });
