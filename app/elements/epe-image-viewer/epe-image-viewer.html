@@ -178,9 +178,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-tooltip for="HighlightText" position="top" offset="0">Highlight Text</paper-tooltip>
         <paper-tooltip for="AddLine" position="top" offset="0">Add Line</paper-tooltip>
         <paper-tooltip for="AddPolygon" position="top" offset="0">Add Polygon</paper-tooltip>
+
+        <!-- Delete -->
+        <div class="image_button-holder horizontal layout center">
+          <paper-icon-button id="DeleteAnnotation" icon="delete" on-tap="deleteAnnotation"></paper-icon-button>
+        </div>
+
+        <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
+        <paper-tooltip for="DeleteAnnotation" position="top" offset="0">Delete Selected Annotations</paper-tooltip>
       </div>
 
-    </div>
+      </div>
   </template>
 </dom-module>
 <script>
@@ -239,6 +247,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       $epeNetworked.addEventListener('not-image-route', function() {
         this.$.ImageAnnotations.showEditor = false;
+        this.resetImage();
       }.bind(this));
 
       window.addEventListener('resize', this.resizeImageContainer.bind(this));
@@ -616,6 +625,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     addLine: function() {
       this.dragMode = false;
       this.$.ImageAnnotations.addLine();
+    },
+
+    // Deleste selected annotation
+    deleteAnnotation: function() {
+      this.dragMode = false;
+      this.$.ImageAnnotations.deleteAnnotation();
     }
   });
 })();
