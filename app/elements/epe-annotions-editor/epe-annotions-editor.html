@@ -152,6 +152,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       --paper-input-container-input-color: var(--secondary-text-color);
     }
 
+    paper-slider {
+      cursor: pointer;
+      width: 160px;
+    }
+
     /* ToDo: Delete if not going to use these classes
     .editor-select {
       height: 30px;
@@ -251,9 +256,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <div class="editor-colour" style="background-color: rgb(127, 140, 141);"></div>
         </div>
 
+        <div id="StrokeWidthContainer"
+             class="editor-label-container"
+             hidden$="[[hideEditorStrokeWidth]]">
+          <label class="editor-label">Stroke Width:</label>
+          <paper-slider max="10"
+                        step="1"
+                        value="[[selectedAnnotation.strokeWidth]]"
+                        on-immediate-value-change="editStrokeWidth"
+                        pin></paper-slider>
+        </div>
+
         <div class="editor-label-container">
           <label class="editor-label">Opacity:</label>
-          <paper-slider max="1.0" step="0.01" value="0.5" on-immediate-value-change="editOpacity" editable></paper-slider>
+          <paper-slider max="1.0"
+                        step="0.01"
+                        value="[[selectedAnnotation.opacity]]"
+                        on-immediate-value-change="editOpacity"
+                        pin></paper-slider>
         </div>
 
         <div class="editor-line-stroke-container"
@@ -314,6 +334,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         observer: 'toggleEditor'
       },
 
+      // Whether annotations editor fill tools should be displayed
+      hideEditorStrokeWidth: {
+        type: Boolean,
+        value: true
+      },
+
       // Whether annotations editor stroke tools should be displayed
       hideEditorStrokeTools: {
         type: Boolean,
@@ -369,6 +395,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }).canvas.renderAll();
     },
 
+    // Edit stroke width of annotation object
+    editStrokeWidth: function(event) {
+
+      var strokeWidth = event.target.immediateValue;
+
+      if (this.selectedAnnotation) {
+
+        this.selectedAnnotation.set({
+          strokeWidth: strokeWidth
+        }).canvas.renderAll();
+      }
+    },
+
     // Edit opacity of annotation object
     editOpacity: function(event) {
 
@@ -377,7 +416,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (this.selectedAnnotation) {
 
         this.selectedAnnotation.set({
-          opacity:opacity
+          opacity: opacity
         }).canvas.renderAll();
       }
     },
@@ -390,13 +429,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       switch(strokeDash) {
         case 'full':
-          strokeDashArray = [1];
+          strokeDashArray = [];
           break;
         case 'dashed':
           strokeDashArray = [5, 3];
           break;
         case 'dotted':
-          strokeDashArray = [2, 2, 2, 2, 4, 2];
+          strokeDashArray = [2, 4, 2, 4, 8, 4];
           break;
         default:
           strokeDashArray = [1];
