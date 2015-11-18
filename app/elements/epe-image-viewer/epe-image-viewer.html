@@ -93,6 +93,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       padding: 3px 8px;
       margin: 0 8px;
     }
+
+    paper-tooltip {
+      --paper-tooltip-background: var(--primary-background-color);
+      --paper-tooltip-text-color: var(--primary-text-color);
+    }
   </style>
   <template>
 
@@ -148,16 +153,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-icon-button id="ZoomIn" icon="zoom-in" on-tap="zoomIn"></paper-icon-button>
         </div>
 
+        <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
+        <paper-tooltip for="ZoomOut" position="top" offset="0">Zoom Out</paper-tooltip>
+        <paper-tooltip for="ZoomIn" position="top" offset="0">Zoom In</paper-tooltip>
+
         <!-- Annotations -->
         <div class="image_button-holder horizontal layout center">
-          <paper-icon-button id="FreeDraw" icon="image:brush" on-tap="freeDraw"></paper-icon-button>
-          <paper-icon-button id="addCircle" icon="image:panorama-fish-eye" on-tap="addCircle"></paper-icon-button>
-          <paper-icon-button id="addRect" icon="image:crop-landscape" on-tap="addRect"></paper-icon-button>
-          <div id="addText" class="add-text" on-tap="addText">T</div>
-          <div id="highlightText" class="highlight-text" on-tap="highlightText">T</div>
-          <paper-icon-button id="addLine" icon="icons:remove" on-tap="addLine"></paper-icon-button>
-          <paper-icon-button id="addPolygon" icon="image:panorama-horizontal" on-tap="addPolygon"></paper-icon-button>
+          <paper-icon-button id="SelectAnnotations" icon="open-with" on-tap="selectAnnotations"></paper-icon-button>
+          <paper-icon-button id="FreeDraw" icon="gesture" on-tap="freeDraw"></paper-icon-button>
+          <paper-icon-button id="AddCircle" icon="image:panorama-fish-eye" on-tap="addCircle"></paper-icon-button>
+          <paper-icon-button id="AddRect" icon="image:crop-landscape" on-tap="addRect"></paper-icon-button>
+          <div id="AddText" class="add-text" on-tap="addText">T</div>
+          <div id="HighlightText" class="highlight-text" on-tap="highlightText">T</div>
+          <paper-icon-button id="AddLine" icon="icons:remove" on-tap="addLine"></paper-icon-button>
+          <paper-icon-button id="AddPolygon" icon="image:panorama-horizontal" on-tap="addPolygon"></paper-icon-button>
         </div>
+
+        <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
+        <paper-tooltip for="SelectAnnotations" position="top" offset="0">Select Annotations</paper-tooltip>
+        <paper-tooltip for="FreeDraw" position="top" offset="0">Free Draw</paper-tooltip>
+        <paper-tooltip for="AddCircle" position="top" offset="0">Add Circle</paper-tooltip>
+        <paper-tooltip for="AddRect" position="top" offset="0">Add Rectangle</paper-tooltip>
+        <paper-tooltip for="AddText" position="top" offset="0">Add Text</paper-tooltip>
+        <paper-tooltip for="HighlightText" position="top" offset="0">Highlight Text</paper-tooltip>
+        <paper-tooltip for="AddLine" position="top" offset="0">Add Line</paper-tooltip>
+        <paper-tooltip for="AddPolygon" position="top" offset="0">Add Polygon</paper-tooltip>
       </div>
 
     </div>
@@ -213,6 +233,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     ready: function() {
+
+      // Get element this way as parent element isn't yet available through document.querySelector
+      var $epeNetworked = app.$.epeNetworked;
+
+      $epeNetworked.addEventListener('not-image-route', function() {
+        this.$.ImageAnnotations.showEditor = false;
+      }.bind(this));
+
       window.addEventListener('resize', this.resizeImageContainer.bind(this));
     },
 
@@ -552,6 +580,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     freeDraw: function() {
       this.dragMode = false;
       this.$.ImageAnnotations.freeDraw();
+    },
+
+    // Go into canvas selection mode
+    selectAnnotations: function() {
+      this.dragMode = false;
+      this.$.ImageAnnotations.selectAnnotations();
     },
 
     // Add circle annotation

@@ -440,6 +440,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.fire('not-media-route');
       }
 
+      if (this.route !== 'image') {
+        this.fire('not-image-route');
+      }
+
       if (this.route === 'login') {
         this.$.MainScrollHeader.classList.add('hide-header');
         this.$.MainScrollHeader.fixed = true;

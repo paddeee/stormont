@@ -45,6 +45,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       id="AnnotationsEditor"
       class="editor"
       show-editor="{{showEditor}}"
+      hide-editor-stroke-width="[[hideEditorStrokeWidth]]"
       hide-editor-stroke-tools="[[hideEditorStrokeTools]]"
       hide-editor-fill-tools="[[hideEditorFillTools]]"
       selected-annotation="{{selectedAnnotation}}"></epe-annotions-editor>
@@ -85,7 +86,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       defaultBrushColour: {
         type: String,
-        value: '#FF0000'
+        value: 'rgb(231, 76, 60)'
       },
 
       defaultStrokeColour: {
@@ -95,7 +96,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       defaultTextColour: {
         type: String,
-        value: '#FFF'
+        value: '#000'
       },
 
       defaultFillColour: {
@@ -115,7 +116,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       defaultLineColour: {
         type: String,
-        value: '#FF0000'
+        value: 'rgb(231, 76, 60)'
       },
 
       // Whether annotations editor is shown
@@ -161,10 +162,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Called when a new drawing object has been added to the canvas.
     canvasObjectAdded: function(event) {
 
-      // Pass info through to annotations editor
+      var showEditorStrokeWidth = event.target.hasOwnProperty('stroke') || event.target.hasOwnProperty('txt');
+
+      // If this has a path it is an object created by Text
       this.showEditor = true;
-      this.hideEditorStrokeTools = !!!event.target.stroke;;
-      this.hideEditorFillTools = !!!event.target.fill;
+      this.hideEditorStrokeWidth = !showEditorStrokeWidth;
+      this.hideEditorStrokeTools = !showEditorStrokeWidth;
+      this.hideEditorFillTools = !!!event.target.hasOwnProperty('fill');
       this.selectedAnnotation = event.target;
 
       this.fire("annotation-object-added", {
@@ -174,13 +178,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Called when a new drawing object has been added to the canvas.
     canvasObjectSelected: function(event) {
-      console.log(event);
 
-      // Pass info through to annotations editor
+      var showEditorStrokeWidth = event.target.hasOwnProperty('stroke') || event.target.hasOwnProperty('text');
+
       this.showEditor = true;
-      this.hideEditorStrokeTools = !!!event.target.stroke;;
-      this.hideEditorFillTools = !!!event.target.fill;
-      this.selectedAnnotation = event.target;
+
+      // If this has a path it is an object created by Free Draw
+      if (event.target.path) {
+        this.showEditor = true;
+        this.hideEditorStrokeWidth = false;
+        this.hideEditorStrokeTools = false;
+        this.hideEditorFillTools = false;
+        this.selectedAnnotation = event.target;
+        this.selectedAnnotation.opacity = 1;
+
+      } else {
+        this.showEditor = true;
+        this.hideEditorStrokeWidth = !showEditorStrokeWidth;
+        this.hideEditorStrokeTools = !showEditorStrokeWidth;
+        this.hideEditorFillTools = !!!event.target.hasOwnProperty('fill');
+        this.selectedAnnotation = event.target;
+      }
 
       this.fire("annotation-object-selected", {
         object: event.target
@@ -192,9 +210,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Pass info through to annotations editor
       this.showEditor = true;
-      this.hideEditorStrokeTools = false;
-      this.hideEditorFillTools = true;
-      this.selectedAnnotation = event.target;
+      this.hideEditorStrokeTools = true;
+      this.hideEditorStrokeWidth = false;
+      this.hideEditorFillTools = false;
+      this.selectedAnnotation = event.path;
+      this.selectedAnnotation.opacity = 1;
 
       this.fire("annotation-path-created");
     },
@@ -312,6 +332,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.canvas.freeDrawingBrush.width = 5;
     },
 
+    // Go into canvas selection mode
+    selectAnnotations: function() {
+      this.canvas.isDrawingMode = false;
+      this.canvas.selection = true;
+    },
+
     // Add a circle
     addCircle: function() {
 
@@ -321,7 +347,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         fill: this.defaultFillColour,
         top: 100,
         left: 100,
-        opacity: 0.5
+        opacity: 0.8
       });
 
       this.canvas.isDrawingMode = false;
@@ -340,7 +366,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         fill: this.defaultFillColour,
         top: 100,
         left: 100,
-        opacity: 0.5
+        opacity: 0.8
       });
 
       this.canvas.isDrawingMode = false;
@@ -379,7 +405,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         fill: this.defaultHighlightFillColour,
         top: 100,
         left: 100,
-        opacity: 0.8
+        opacity: 0.6
       });
 
       this.canvas.isDrawingMode = false;
@@ -391,10 +417,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Add a line
     addLine: function() {
 
-      var line = new fabric.Line([50, 150, 130, 150], {
-        fill: this.defaultLineColour,
+      var line = new fabric.Line([50, 150, 200, 150], {
         stroke: this.defaultLineColour,
-        strokeWidth: 5
+        strokeWidth: 2
       });
 
       this.canvas.isDrawingMode = false;
