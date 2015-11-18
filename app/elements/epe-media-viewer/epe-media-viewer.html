@@ -30,6 +30,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       left: 0;
     }
 
+    .media-annotations {
+      height: 100%;
+      width: 100%;
+    }
+
     .media__content {
       box-sizing: border-box;
       height: 80vh;
@@ -63,13 +68,39 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .media__footer {
       background: rgb(55, 64, 70);
       color: var(--text-primary-color);
-      padding: 8px;
+      padding: 8px 4vw;
       font-size: 2vh;
       height: 5vh;
       position: fixed;
       bottom: 0;
       left: 0;
-      width: 100%;
+      right: 0;
+    }
+
+    .image_button-holder {
+      padding: 0 1vw;
+    }
+
+    .border-right {
+      border-right: 1px solid var(--divider-color);
+    }
+
+    .add-text {
+      font-size: 20px;
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    .highlight-text {
+      border: 1px solid var(--text-primary-color);
+      cursor: pointer;
+      padding: 3px 8px;
+      margin: 0 8px;
+    }
+
+    paper-tooltip {
+      --paper-tooltip-background: var(--primary-background-color);
+      --paper-tooltip-text-color: var(--primary-text-color);
     }
 
   </style>
@@ -94,15 +125,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <!-- Headline -->
           <div class="media-name">[[mediaName]]</div>
 
-          <!-- Create instance -->
-          <video id="Video"
-                 class="video-js vjs-default-skin vjs-big-play-centered"
-                 controls
-                 preload="[[preload]]"
-                 poster="[[poster]]"
-                 hidden>
-            <source src="[[videoSource]]" type='video/mp4'/>
-          </video>
+          <!-- Annotation Layer -->
+          <epe-annotations
+            id="MediaAnnotations"
+            class="media-annotations"
+            annotation-type="video"
+            annotation-height="{{annotationHeight}}"
+            annotation-width="{{annotationWidth}}"
+            pointer-events="[[pointerEvents]]"
+            hidden>
+
+            <!-- Create instance -->
+            <video id="Video"
+                   class="video-js vjs-default-skin vjs-big-play-centered"
+                   controls
+                   preload="[[preload]]"
+                   poster="[[poster]]">
+              <source src="[[videoSource]]" type='video/mp4'/>
+            </video>
+
+          </epe-annotations>
 
           <audio id="Audio"
                  class="audio-player video-js vjs-default-skin"
@@ -115,7 +157,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
 
         <!-- Media Footer -->
-        <div class="media__footer">dfdfd</div>
+        <div class="media__footer relative horizontal layout center">
+
+          <!-- Annotations -->
+          <div class="media_button-holder border-right horizontal layout center flex" hidden$="[[hideAnnotations]]">
+            <paper-icon-button id="SelectAnnotations" icon="open-with" on-tap="selectAnnotations"></paper-icon-button>
+            <paper-icon-button id="FreeDraw" icon="gesture" on-tap="freeDraw"></paper-icon-button>
+            <paper-icon-button id="AddCircle" icon="image:panorama-fish-eye" on-tap="addCircle"></paper-icon-button>
+            <paper-icon-button id="AddRect" icon="image:crop-landscape" on-tap="addRect"></paper-icon-button>
+            <div id="AddText" class="add-text" on-tap="addText">T</div>
+            <div id="HighlightText" class="highlight-text" on-tap="highlightText">T</div>
+            <paper-icon-button id="AddLine" icon="icons:remove" on-tap="addLine"></paper-icon-button>
+            <paper-icon-button id="AddPolygon" icon="image:panorama-horizontal" on-tap="addPolygon"></paper-icon-button>
+          </div>
+
+          <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
+          <paper-tooltip for="SelectAnnotations" position="top" offset="0">Select Annotations</paper-tooltip>
+          <paper-tooltip for="FreeDraw" position="top" offset="0">Free Draw</paper-tooltip>
+          <paper-tooltip for="AddCircle" position="top" offset="0">Add Circle</paper-tooltip>
+          <paper-tooltip for="AddRect" position="top" offset="0">Add Rectangle</paper-tooltip>
+          <paper-tooltip for="AddText" position="top" offset="0">Add Text</paper-tooltip>
+          <paper-tooltip for="HighlightText" position="top" offset="0">Highlight Text</paper-tooltip>
+          <paper-tooltip for="AddLine" position="top" offset="0">Add Line</paper-tooltip>
+          <paper-tooltip for="AddPolygon" position="top" offset="0">Add Polygon</paper-tooltip>
+
+          <!-- Delete -->
+          <div class="media_button-holder horizontal layout center end-justified" hidden$="[[hideAnnotations]]">
+            <paper-icon-button id="DeleteAnnotation" icon="delete" on-tap="deleteAnnotation"></paper-icon-button>
+          </div>
+
+          <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
+          <paper-tooltip for="DeleteAnnotation" position="top" offset="0">Delete Selected Annotations</paper-tooltip>
+        </div>
       </div>
   </template>
 </dom-module>
@@ -129,6 +202,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         loadingMedia: {
           type: Boolean,
           value: true
+        },
+
+        annotationHeight: {
+          type: Number,
+          value: 0
+        },
+
+        annotationWidth: {
+          type: Number,
+          value: 0
         },
 
         fluid: {
@@ -156,6 +239,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           type: String,
           value: '',
           observer: 'setUpMedia'
+        },
+
+        hideAnnotations: {
+          type: Boolean,
+          value: true
         }
       },
 
@@ -177,8 +265,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.mediaDescription = this.mediaObject.Description;
 
           if (this.mediaType === 'video') {
+            this.hideAnnotations = false;
             this.createVideoJS();
           } else if (this.mediaType === 'audio') {
+            this.hideAnnotations = true;
             this.createAudioJS();
           }
         }
@@ -192,7 +282,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         this.$.Audio.setAttribute('hidden','');
         $audioContainer && $audioContainer.setAttribute('hidden','');
-        this.$.Video.removeAttribute('hidden');
+        this.$.MediaAnnotations.removeAttribute('hidden');
         $videoContainer && $videoContainer.removeAttribute('hidden');
 
         this.videoSource = this.mediaObject.Src;
@@ -204,6 +294,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // Show video
           this.async(this.showMedia, 700);
 
+        }.bind(this));
+
+        // Remove annotation canvas layer pointer events when video is playing
+        this.videoPlayer.on("play", function() {
+          this.pointerEvents = false;
         }.bind(this));
 
         this.addControlListeners('video');
@@ -219,7 +314,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var $mediaDescription = this.$.MediaDescription;
 
         // Hide Video element and show audio element
-        this.$.Video.setAttribute('hidden','');
+        this.$.MediaAnnotations.setAttribute('hidden','');
         $videoContainer && $videoContainer.setAttribute('hidden','');
         this.$.Audio.removeAttribute('hidden');
         $audioContainer && $audioContainer.removeAttribute('hidden');
@@ -338,6 +433,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.loadingMedia = false;
         this.$.MediaContent.classList.remove('media__content--hidden');
         this.$.LoadingMask.hidden = true;
+
+        // Set height that can be passed up to annotation triggering a resize of the canvas
+        this.pointerEvents = false;
+        this.annotationHeight = this.$.Video.clientHeight - 30; // Less height of controls bar
+        this.annotationWidth = this.$.Video.clientWidth;
       },
 
       // Add loading spinner and show loading mask
@@ -345,6 +445,54 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.loadingMedia = true;
         this.$.MediaContent.classList.add('media__content--hidden');
         this.$.LoadingMask.hidden = false;
+      },
+
+      // Free draw annotation
+      freeDraw: function() {
+        this.pointerEvents = true;
+        this.$.MediaAnnotations.freeDraw();
+      },
+
+      // Go into canvas selection mode
+      selectAnnotations: function() {
+        this.pointerEvents = true;
+        this.$.MediaAnnotations.selectAnnotations();
+      },
+
+      // Add circle annotation
+      addCircle: function() {
+        this.pointerEvents = true;
+        this.$.MediaAnnotations.addCircle();
+      },
+
+      // Add rectangle annotation
+      addRect: function() {
+        this.pointerEvents = true;
+        this.$.MediaAnnotations.addRect();
+      },
+
+      // Add text
+      addText: function() {
+        this.pointerEvents = true;
+        this.$.MediaAnnotations.addText();
+      },
+
+      // Highlight text
+      highlightText: function() {
+        this.pointerEvents = true;
+        this.$.MediaAnnotations.highlightText();
+      },
+
+      // Add a line
+      addLine: function() {
+        this.pointerEvents = true;
+        this.$.MediaAnnotations.addLine();
+      },
+
+      // Deleste selected annotation
+      deleteAnnotation: function() {
+        this.pointerEvents = true;
+        this.$.MediaAnnotations.deleteAnnotation();
       }
     });
   })();

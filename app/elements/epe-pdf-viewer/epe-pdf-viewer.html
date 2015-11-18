@@ -20,13 +20,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .pdf__footer {
       background: rgb(55, 64, 70);
       color: var(--text-primary-color);
-      padding: 8px;
+      padding: 8px 0;
       font-size: 2vh;
       height: 5vh;
       position: fixed;
       bottom: 0;
       left: 0;
-      width: 100%;
+      right: 0;
+    }
+
+    .pdf_button-holder {
+      padding: 0 1vw;
+    }
+
+    .border-left {
+      border-left: 1px solid var(--divider-color);
+    }
+
+    .border-right {
+      border-right: 1px solid var(--divider-color);
     }
 
     .pdf_name {
@@ -167,10 +179,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <!-- Footer -->
         <div class="pdf__footer relative horizontal layout center">
-          <div class="pdf_name">
-            <span>[[pdfName]]</span>
+
+          <!-- General -->
+          <div class="pdf_button-holder border-right horizontal layout center">
+            <paper-icon-button id="ShowInfo" icon="info" on-tap="showInfo"></paper-icon-button>
           </div>
-          <div class="pdf_button-holder flex">
+
+            <!-- Annotations -->
+          <div class="pdf_button-holder border-right horizontal layout center">
+            <paper-icon-button id="SelectAnnotations" icon="open-with" on-tap="selectAnnotations"></paper-icon-button>
+            <paper-icon-button id="FreeDraw" icon="gesture" on-tap="freeDraw"></paper-icon-button>
+            <paper-icon-button id="AddCircle" icon="image:panorama-fish-eye" on-tap="addCircle"></paper-icon-button>
+            <paper-icon-button id="AddRect" icon="image:crop-landscape" on-tap="addRect"></paper-icon-button>
+            <div id="AddText" class="add-text" on-tap="addText">T</div>
+            <div id="HighlightText" class="highlight-text" on-tap="highlightText">T</div>
+            <paper-icon-button id="AddLine" icon="icons:remove" on-tap="addLine"></paper-icon-button>
+            <paper-icon-button id="AddPolygon" icon="image:panorama-horizontal" on-tap="addPolygon"></paper-icon-button>
+          </div>
+
+          <div class="pdf_page-info layout horizontal center center-justified flex">
+            <span id="pageNumber" class="pdf_current-page">[[page]]</span>
+            <span id="numPages" class="pdf_total-pages">[[numPages]]</span>
+          </div>
+
+          <div class="pdf_button-holder border-left border-right horizontal layout center">
             <paper-icon-button id="sidebarToggle" tabindex="11" icon="toggle" hidden></paper-icon-button>
             <paper-icon-button id="Previous" icon="arrow-back" on-tap="showPreviousPage"></paper-icon-button>
             <paper-icon-button id="Next" icon="arrow-forward" on-tap="showNextPage"></paper-icon-button>
@@ -178,6 +210,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <paper-icon-button id="ZoomIn" icon="zoom-in" on-tap="zoomIn"></paper-icon-button>
             <paper-icon-button icon="device:developer-mode" on-tap="fitToPage"></paper-icon-button>
             <paper-icon-button icon="device:developer-mode" on-tap="fitToWidth" class="rotate"></paper-icon-button>
+            <paper-icon-button icon="image:rotate-left" on-tap="rotateAntiClockWise"></paper-icon-button>
+            <paper-icon-button icon="image:rotate-right" on-tap="rotateClockWise"></paper-icon-button>
 
             <!-- ToDo: Can remove hide when ready to work on this -->
             <span id="scaleSelectContainer" class="dropdownToolbarButton" hidden>
@@ -198,13 +232,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               </select>
             </span>
           </div>
-          <div class="pdf_page-info layout horizontal center">
-            <span id="pageNumber" class="pdf_current-page">[[page]]</span>/
-            <span id="numPages" class="pdf_total-pages">[[numPages]]</span>
-          </div>
-          <div class="pdf_secondary-button-holder flex layout horizontal center end-justified">
-            <paper-icon-button icon="image:rotate-left" on-tap="rotateAntiClockWise"></paper-icon-button>
-            <paper-icon-button icon="image:rotate-right" on-tap="rotateClockWise"></paper-icon-button>
+          <div class="pdf_button-holder layout horizontal center end-justified">
             <paper-icon-button id="viewFind" icon="search"></paper-icon-button>
           </div>
 
@@ -264,6 +292,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </div>
 
     </div>
+
+    <!-- Dialog -->
+    <paper-dialog id="InfoDialog" modal>
+      <h2>[[pdfName]]</h2>
+      <div>
+        <span>ToDO: PDF Description</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
   </template>
 </dom-module>
 <script>
@@ -431,6 +470,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var $highlightCheck = this.$.findHighlightAll;
 
       PDFViewerApplication.findBar.dispatchEvent('again', false, $queryInput, $caseCheckbox, $highlightCheck);
+    },
+
+    // Show associated source information
+    showInfo: function() {
+      this.$.InfoDialog.open();
     }
 
   });
