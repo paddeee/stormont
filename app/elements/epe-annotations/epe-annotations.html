@@ -138,6 +138,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       selectedAnnotation: {
         type: Object,
         value: null
+      },
+
+      // Delete mode
+      deleteMode: {
+        type: Boolean,
+        value: false
       }
     },
 
@@ -152,7 +158,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       this.canvas.selection = false;
 
-      this.canvas.on("object:added", this.canvasObjectAdded.bind(this));
+      this.canvas.on("object:added", this.canvasObjectSelected.bind(this));
       this.canvas.on("object:selected", this.canvasObjectSelected.bind(this));
       this.canvas.on("path:created", this.canvasPathCreated.bind(this));
       this.canvas.on("mouse:down", this.canvasMouseDown.bind(this));
@@ -160,39 +166,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Called when a new drawing object has been added to the canvas.
-    canvasObjectAdded: function(event) {
-
-      var showEditorStrokeWidth = event.target.hasOwnProperty('stroke') || event.target.hasOwnProperty('text');
-
-      this.showEditor = !event.target.hideEditor;
-      this.hideEditorStrokeWidth = !showEditorStrokeWidth;
-      this.hideEditorStrokeTools = !showEditorStrokeWidth;
-      this.hideEditorFillTools = !!!event.target.hasOwnProperty('fill');
-      this.selectedAnnotation = event.target;
-
-      this.fire("annotation-object-added", {
-        object: event.target
-      });
-    },
-
-    // Called when a new drawing object has been added to the canvas.
     canvasObjectSelected: function(event) {
 
       var showEditorStrokeWidth = event.target.hasOwnProperty('stroke') || event.target.hasOwnProperty('text');
+      var showEditorStrokeTools = event.target.hasOwnProperty('stroke') && !event.target.hasOwnProperty('text');
+
+      if (this.deleteMode) {
+        this.deleteObject();
+        return;
+      }
 
       this.showEditor = !event.target.hideEditor;
 
       // If this has a path it is an object created by Free Draw
       if (event.target.path) {
         this.hideEditorStrokeWidth = false;
-        this.hideEditorStrokeTools = false;
-        this.hideEditorFillTools = false;
+        this.hideEditorStrokeTools = true;
+        this.hideEditorFillTools = true;
         this.selectedAnnotation = event.target;
         this.selectedAnnotation.opacity = 1;
 
       } else {
         this.hideEditorStrokeWidth = !showEditorStrokeWidth;
-        this.hideEditorStrokeTools = !showEditorStrokeWidth;
+        this.hideEditorStrokeTools = !showEditorStrokeTools;
         this.hideEditorFillTools = !!!event.target.hasOwnProperty('fill');
         this.selectedAnnotation = event.target;
       }
@@ -204,15 +200,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Is called internally when a new path has been created on the canvas.
     canvasPathCreated: function(event) {
-
-      // Pass info through to annotations editor
-      this.showEditor = true;
-      this.hideEditorStrokeTools = true;
-      this.hideEditorStrokeWidth = false;
-      this.hideEditorFillTools = false;
-      this.selectedAnnotation = event.path;
-      this.selectedAnnotation.opacity = 1;
-
       this.fire("annotation-path-created");
     },
 
@@ -293,6 +280,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Set canvas zoom level
     zoom: function(scaleFactor) {
 
+      // Set all objects unselectable
+      this.setAllObjectsSelectable(false);
+
       this.canvas.isDrawingMode = false;
       this.canvas.selection = false;
 
@@ -327,12 +317,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.canvas.selection = true;
       this.canvas.freeDrawingBrush.color = this.defaultBrushColour;
       this.canvas.freeDrawingBrush.width = 5;
+      this.deleteMode = false;
+
+      // Set all objects unselectable
+      this.setAllObjectsSelectable(true);
     },
 
     // Go into canvas selection mode
     selectAnnotations: function() {
       this.canvas.isDrawingMode = false;
       this.canvas.selection = true;
+      this.deleteMode = false;
+
+      // Set all objects unselectable
+      this.setAllObjectsSelectable(true);
     },
 
     // Add a circle
@@ -349,6 +347,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       this.canvas.isDrawingMode = false;
       this.canvas.selection = true;
+      this.deleteMode = false;
+
+      // Set all objects unselectable
+      this.setAllObjectsSelectable(true);
 
       this.canvas.add(circle);
     },
@@ -368,6 +370,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       this.canvas.isDrawingMode = false;
       this.canvas.selection = true;
+      this.deleteMode = false;
+
+      // Set all objects unselectable
+      this.setAllObjectsSelectable(true);
 
       this.canvas.add(rect);
     },
@@ -384,6 +390,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       this.canvas.isDrawingMode = false;
       this.canvas.selection = true;
+      this.deleteMode = false;
+
+      // Set all objects unselectable
+      this.setAllObjectsSelectable(true);
 
       this.canvas.add(textObjext);
 
@@ -408,6 +418,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       this.canvas.isDrawingMode = false;
       this.canvas.selection = true;
+      this.deleteMode = false;
+
+      // Set all objects unselectable
+      this.setAllObjectsSelectable(true);
 
       this.canvas.add(highlight);
     },
@@ -422,8 +436,60 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       this.canvas.isDrawingMode = false;
       this.canvas.selection = true;
+      this.deleteMode = false;
+
+      // Set all objects unselectable
+      this.setAllObjectsSelectable(true);
 
       this.canvas.add(line);
+    },
+
+    // Set delete mode
+    deleteAnnotation: function() {
+
+      this.canvas.isDrawingMode = false;
+      this.canvas.selection = true;
+      this.deleteMode = true;
+      this.showEditor = false;
+
+      // Set all objects unselectable
+      this.setAllObjectsSelectable(true);
+
+      // Call deleteObject directly which will delete any currently selected objects
+      this.deleteObject();
+    },
+
+    // Delete Active Objects
+    // ToDo: Add confirmation dialog
+    deleteObject: function() {
+
+      var selectedObject = this.canvas.getActiveObject();
+      var selectedGroup = this.canvas.getActiveGroup();
+
+      // If one object is selected
+      if (selectedObject) {
+        this.canvas.remove(selectedObject);
+      } else if (selectedGroup) {
+
+        selectedGroup.forEachObject(function(selectedObject) {
+          this.canvas.remove(selectedObject);
+        }.bind(this));
+
+        this.canvas.discardActiveGroup().renderAll();
+      }
+    },
+
+    // Make all objects selectable/unselectable, e.g for zoom
+    setAllObjectsSelectable: function(selectable) {
+
+      var canvasObjects = this.canvas.getObjects();
+
+      if (canvasObjects.length > 0) {
+
+        canvasObjects.forEach(function(canvasObject) {
+          canvasObject.selectable = selectable;
+        }.bind(this));
+      }
     }
   });
 })();
