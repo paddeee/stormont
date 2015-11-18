@@ -162,10 +162,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Called when a new drawing object has been added to the canvas.
     canvasObjectAdded: function(event) {
 
-      var showEditorStrokeWidth = event.target.hasOwnProperty('stroke') || event.target.hasOwnProperty('txt');
+      var showEditorStrokeWidth = event.target.hasOwnProperty('stroke') || event.target.hasOwnProperty('text');
 
-      // If this has a path it is an object created by Text
-      this.showEditor = true;
+      this.showEditor = !event.target.hideEditor;
       this.hideEditorStrokeWidth = !showEditorStrokeWidth;
       this.hideEditorStrokeTools = !showEditorStrokeWidth;
       this.hideEditorFillTools = !!!event.target.hasOwnProperty('fill');
@@ -181,11 +180,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var showEditorStrokeWidth = event.target.hasOwnProperty('stroke') || event.target.hasOwnProperty('text');
 
-      this.showEditor = true;
+      this.showEditor = !event.target.hideEditor;
 
       // If this has a path it is an object created by Free Draw
       if (event.target.path) {
-        this.showEditor = true;
         this.hideEditorStrokeWidth = false;
         this.hideEditorStrokeTools = false;
         this.hideEditorFillTools = false;
@@ -193,7 +191,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.selectedAnnotation.opacity = 1;
 
       } else {
-        this.showEditor = true;
         this.hideEditorStrokeWidth = !showEditorStrokeWidth;
         this.hideEditorStrokeTools = !showEditorStrokeWidth;
         this.hideEditorFillTools = !!!event.target.hasOwnProperty('fill');
@@ -405,7 +402,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         fill: this.defaultHighlightFillColour,
         top: 100,
         left: 100,
-        opacity: 0.6
+        opacity: 0.6,
+        hideEditor: true
       });
 
       this.canvas.isDrawingMode = false;
