@@ -73,16 +73,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       position: fixed;
       bottom: 0;
       left: 0;
-      width: 100%;
+      right: 0;
     }
 
     .image_button-holder {
-      border-right: 1px solid var(--divider-color);
       padding: 0 1vw;
     }
 
+    .border-right {
+      border-right: 1px solid var(--divider-color);
+    }
+
     .add-text {
-      font-size: 26px;
+      font-size: 20px;
       padding: 8px;
       cursor: pointer;
     }
@@ -148,7 +151,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <div class="image__footer relative horizontal layout center">
 
         <!-- Zoom -->
-        <div class="image_button-holder">
+        <div class="image_button-holder  border-right">
           <paper-icon-button id="ZoomOut" icon="zoom-out" on-tap="zoomOut" disabled></paper-icon-button>
           <paper-icon-button id="ZoomIn" icon="zoom-in" on-tap="zoomIn"></paper-icon-button>
         </div>
@@ -158,7 +161,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-tooltip for="ZoomIn" position="top" offset="0">Zoom In</paper-tooltip>
 
         <!-- Annotations -->
-        <div class="image_button-holder horizontal layout center">
+        <div class="image_button-holder border-right horizontal layout center flex">
           <paper-icon-button id="SelectAnnotations" icon="open-with" on-tap="selectAnnotations"></paper-icon-button>
           <paper-icon-button id="FreeDraw" icon="gesture" on-tap="freeDraw"></paper-icon-button>
           <paper-icon-button id="AddCircle" icon="image:panorama-fish-eye" on-tap="addCircle"></paper-icon-button>
@@ -180,7 +183,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-tooltip for="AddPolygon" position="top" offset="0">Add Polygon</paper-tooltip>
 
         <!-- Delete -->
-        <div class="image_button-holder horizontal layout center">
+        <div class="image_button-holder horizontal layout center end-justified">
           <paper-icon-button id="DeleteAnnotation" icon="delete" on-tap="deleteAnnotation"></paper-icon-button>
         </div>
 
@@ -188,7 +191,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-tooltip for="DeleteAnnotation" position="top" offset="0">Delete Selected Annotations</paper-tooltip>
       </div>
 
-      </div>
+    </div>
   </template>
 </dom-module>
 <script>

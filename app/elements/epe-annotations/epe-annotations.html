@@ -35,7 +35,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       top: 0;
       left: 0;
       bottom: 0;
+      right: 0;
       overflow: hidden;
+    }
+
+    .pointer-events {
+      pointer-events: none;
     }
 
   </style>
@@ -144,6 +149,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       deleteMode: {
         type: Boolean,
         value: false
+      },
+
+      // Delete mode
+      pointerEvents: {
+        type: Boolean,
+        value: true,
+        observer: 'setPointerClass'
+      },
+
+      pointerClass: {
+        type: String,
+        value: ''
       }
     },
 
@@ -182,7 +199,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (event.target.path) {
         this.hideEditorStrokeWidth = false;
         this.hideEditorStrokeTools = true;
-        this.hideEditorFillTools = true;
+        this.hideEditorFillTools = false;
         this.selectedAnnotation = event.target;
         this.selectedAnnotation.opacity = 1;
 
@@ -489,6 +506,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         canvasObjects.forEach(function(canvasObject) {
           canvasObject.selectable = selectable;
         }.bind(this));
+      }
+    },
+
+    // pointerClass is used to let the user click through the annotation canvas layer when necessary
+    setPointerClass: function() {
+
+      var $canvasContainer = this.querySelector('.canvas-container');
+
+      if ($canvasContainer) {
+
+        if (this.pointerEvents) {
+          $canvasContainer.style.pointerEvents = 'auto';
+        } else {
+          $canvasContainer.style.pointerEvents = 'none';
+        }
       }
     }
   });
