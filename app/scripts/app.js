@@ -36,6 +36,7 @@ var importStore = require('./stores/import.js');
 
   // Set required modules as attributes on app
   app.reflux = reflux;
+  app.videoJS = videoJS;
   app.CSVParser = CSVParser;
   app.dataSourceActions = dataSourceActions;
   app.userActions = userActions;

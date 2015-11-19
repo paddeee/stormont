@@ -41,8 +41,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       border-right: 1px solid var(--divider-color);
     }
 
-    .pdf_name {
-      margin: 0 2vw;
+    .add-text {
+      font-size: 20px;
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    .highlight-text {
+      border: 1px solid var(--text-primary-color);
+      cursor: pointer;
+      padding: 3px 8px;
+      margin: 0 8px;
     }
 
     .pdf_current-page {
@@ -185,7 +194,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <paper-icon-button id="ShowInfo" icon="info" on-tap="showInfo"></paper-icon-button>
           </div>
 
-            <!-- Annotations -->
+          <paper-tooltip for="ShowInfo" position="top" offset="0">Show PDF Info</paper-tooltip>
+
+          <!-- Annotations -->
           <div class="pdf_button-holder border-right horizontal layout center">
             <paper-icon-button id="SelectAnnotations" icon="open-with" on-tap="selectAnnotations"></paper-icon-button>
             <paper-icon-button id="FreeDraw" icon="gesture" on-tap="freeDraw"></paper-icon-button>
@@ -196,6 +207,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <paper-icon-button id="AddLine" icon="icons:remove" on-tap="addLine"></paper-icon-button>
             <paper-icon-button id="AddPolygon" icon="image:panorama-horizontal" on-tap="addPolygon"></paper-icon-button>
           </div>
+
+          <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
+          <paper-tooltip for="SelectAnnotations" position="top" offset="0">Select Annotations</paper-tooltip>
+          <paper-tooltip for="FreeDraw" position="top" offset="0">Free Draw</paper-tooltip>
+          <paper-tooltip for="AddCircle" position="top" offset="0">Add Circle</paper-tooltip>
+          <paper-tooltip for="AddRect" position="top" offset="0">Add Rectangle</paper-tooltip>
+          <paper-tooltip for="AddText" position="top" offset="0">Add Text</paper-tooltip>
+          <paper-tooltip for="HighlightText" position="top" offset="0">Highlight Text</paper-tooltip>
+          <paper-tooltip for="AddLine" position="top" offset="0">Add Line</paper-tooltip>
+          <paper-tooltip for="AddPolygon" position="top" offset="0">Add Polygon</paper-tooltip>
 
           <div class="pdf_page-info layout horizontal center center-justified flex">
             <span id="pageNumber" class="pdf_current-page">[[page]]</span>
@@ -208,10 +229,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <paper-icon-button id="Next" icon="arrow-forward" on-tap="showNextPage"></paper-icon-button>
             <paper-icon-button id="ZoomOut" icon="zoom-out" on-tap="zoomOut"></paper-icon-button>
             <paper-icon-button id="ZoomIn" icon="zoom-in" on-tap="zoomIn"></paper-icon-button>
-            <paper-icon-button icon="device:developer-mode" on-tap="fitToPage"></paper-icon-button>
-            <paper-icon-button icon="device:developer-mode" on-tap="fitToWidth" class="rotate"></paper-icon-button>
-            <paper-icon-button icon="image:rotate-left" on-tap="rotateAntiClockWise"></paper-icon-button>
-            <paper-icon-button icon="image:rotate-right" on-tap="rotateClockWise"></paper-icon-button>
+            <paper-icon-button id="FitToPage" icon="device:developer-mode" on-tap="fitToPage"></paper-icon-button>
+            <paper-icon-button id ="FitToWidth" icon="device:developer-mode" on-tap="fitToWidth" class="rotate"></paper-icon-button>
+            <paper-icon-button id="RotateAntiClockwise" icon="image:rotate-left" on-tap="rotateAntiClockWise"></paper-icon-button>
+            <paper-icon-button id="RotateClockwise" icon="image:rotate-right" on-tap="rotateClockWise"></paper-icon-button>
 
             <!-- ToDo: Can remove hide when ready to work on this -->
             <span id="scaleSelectContainer" class="dropdownToolbarButton" hidden>
@@ -232,9 +253,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               </select>
             </span>
           </div>
+
+          <paper-tooltip for="sidebarToggle" position="top" offset="0">SideBar Toggle</paper-tooltip>
+          <paper-tooltip for="Previous" position="top" offset="0">Previous Page</paper-tooltip>
+          <paper-tooltip for="Next" position="top" offset="0">Next Page</paper-tooltip>
+          <paper-tooltip for="ZoomOut" position="top" offset="0">Zoom Out</paper-tooltip>
+          <paper-tooltip for="ZoomIn" position="top" offset="0">Zoom In</paper-tooltip>
+          <paper-tooltip for="FitToPage" position="top" offset="0">Fit To Height</paper-tooltip>
+          <paper-tooltip for="FitToWidth" position="top" offset="0">Fit To Width</paper-tooltip>
+          <paper-tooltip for="RotateAntiClockwise" position="top" offset="0">Rotate Anti-Clockwise</paper-tooltip>
+          <paper-tooltip for="RotateClockwise" position="top" offset="0">Rotate Clockwise</paper-tooltip>
+
+          <!-- Search -->
           <div class="pdf_button-holder layout horizontal center end-justified">
             <paper-icon-button id="viewFind" icon="search"></paper-icon-button>
           </div>
+
+          <paper-tooltip for="viewFind" position="top" offset="0">Find in PDF</paper-tooltip>
 
           <!-- Findbar -->
             <div id="findbar" class="findbar hidden layout vertical">
@@ -348,7 +383,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     ready: function() {
 
       // Add listener to make sure page is updated when a new one is rendered
-      window.addEventListener('pagechange', function pagechange(evt) {
+      window.addEventListener('pagechange', function () {
 
         this.page = PDFViewerApplication.page;
         this.numPages = PDFViewerApplication.pagesCount;
@@ -358,9 +393,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }.bind(this), true);
 
       // Add listener to make sure can't scale beyond certain sizes
-      window.addEventListener('scalechange', function scalechange(evt) {
-        this.$.ZoomOut.disabled = (evt.scale === this.minScale);
-        this.$.ZoomIn.disabled = (evt.scale === this.maxScale);
+      window.addEventListener('scalechange', function (event) {
+        this.$.ZoomOut.disabled = (event.scale === this.minScale);
+        this.$.ZoomIn.disabled = (event.scale === this.maxScale);
+      }.bind(this), true);
+
+      // Add listener so we can add epe-annotations element to each page
+      window.addEventListener('pagerendered', function (event) {
+
+        this.addAnnnotationsLayerToPage(event.target);
+
       }.bind(this), true);
     },
 
@@ -410,6 +452,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Zoom in to PDF
     zoomIn: function() {
+      console.log(this.$$('.pdf'));
       PDFViewerApplication.zoomIn();
     },
 
@@ -475,6 +518,71 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Show associated source information
     showInfo: function() {
       this.$.InfoDialog.open();
+    },
+
+    // Free draw annotation
+    freeDraw: function() {
+      this.$$('#PDFAnnotations' + this.page).freeDraw();
+    },
+
+    // Go into canvas selection mode
+    selectAnnotations: function() {
+      this.$$('#PDFAnnotations' + this.page).selectAnnotations();
+    },
+
+    // Add circle annotation
+    addCircle: function() {
+      this.$$('#PDFAnnotations' + this.page).addCircle();
+    },
+
+    // Add rectangle annotation
+    addRect: function() {
+      this.$$('#PDFAnnotations' + this.page).addRect();
+    },
+
+    // Add text
+    addText: function() {
+      this.$$('#PDFAnnotations' + this.page).addText();
+    },
+
+    // Highlight text
+    highlightText: function() {
+      this.$$('#PDFAnnotations' + this.page).highlightText();
+    },
+
+    // Add a line
+    addLine: function() {
+      this.$$('#PDFAnnotations' + this.page).addLine();
+    },
+
+    // Deleste selected annotation
+    deleteAnnotation: function() {
+      this.$$('#PDFAnnotations' + this.page).deleteAnnotation();
+    },
+
+    // Add an epe-annnotations element  ot each page of the PDF
+    addAnnnotationsLayerToPage: function($pageElement) {
+
+      var pageNumber = $pageElement.dataset.pageNumber;
+      var $pageCanvasContainer = $pageElement.querySelector('.canvasWrapper');
+      var $epeAnnotations = document.createElement('epe-annotations');
+
+      // Prevent two annotation elements being inserted into each page
+      if (this.editState === this.presentationState) {
+        $epeAnnotations.id = 'PDFAnnotations' + pageNumber;
+        $epeAnnotations.classList.add('pdf');
+
+        // Set size of canvas based off size of PDF page
+        $epeAnnotations.annotationHeight = $pageElement.clientHeight;
+        $epeAnnotations.annotationWidth = $pageElement.clientWidth;
+
+        $pageElement.appendChild($epeAnnotations);
+
+        // Need to manually call setCanvasDimensions method of epe-annotations element as not sure
+        // observers work with dynamically created elements.
+        // Call after element has been added to the DOM so the 'attached' method will have been called.
+        $epeAnnotations.setCanvasDimensions();
+      }
     }
 
   });
