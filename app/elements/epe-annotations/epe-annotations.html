@@ -314,20 +314,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Set canvas zoom level
     rotate: function(degrees) {
-debugger;
-      var radians = 1.5708; // 90 degrees in radians
-      var canvasCenter = new fabric.Point(this.canvas.getCenter().left, this.canvas.getCenter().top);
 
-      this.canvas.getObjects().forEach(function (obj) {
+      var zoom = this.canvas.getZoom();
+      var canvasActualWidth = this.canvas.width / zoom; // Need to take zoom level into account to get actual width
+      var left;
+      var top;
 
-        var objectOrigin = new fabric.Point(obj.left, obj.top);
-        var newLocation = fabric.util.rotatePoint(objectOrigin, canvasCenter, radians);
+      if (degrees === 90) {
+        left = canvasActualWidth - object.left;
+        top = object.left;
+      } else if (degrees === 180) {
 
-        obj.left = newLocation.x;
-        obj.top = newLocation.y;
-        obj.angle += 90; //rotate each object by the same angle
+      }
+
+      this.canvas.getObjects().forEach(function (object) {
+
+        object.set({
+          angle: 90,
+          left: left,
+          top: top
+        });
+
         this.canvas.renderAll();
-        console.log(newLocation, radians);
+
       }.bind(this));
     },
 
@@ -384,9 +393,7 @@ debugger;
         fill: this.defaultFillColour,
         top: this.canvas.getCenter().top / 2,
         left: this.canvas.getCenter().left / 2,
-        opacity: 0.8,
-        originX: 'center',
-        originY: 'center'
+        opacity: 0.8
       });
 
       this.canvas.isDrawingMode = false;
@@ -410,9 +417,7 @@ debugger;
         fill: this.defaultFillColour,
         top: this.canvas.getCenter().top / 2,
         left: this.canvas.getCenter().left / 2,
-        opacity: 0.8,
-        originX: 'center',
-        originY: 'center'
+        opacity: 0.8
       });
 
       this.canvas.isDrawingMode = false;

@@ -522,6 +522,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Rotate Page clockwise
     rotateClockWise: function() {
 
+      // Keep reference to canvas dimensions as this will be needed to calculate new object
+      // coordinates after rotation
+      //this.setRotationData();
+
       // Save all annotation objects as PDF.js zoom will destroy the current canvas element
       this.saveCanvasAnnotationObjects();
 
@@ -671,9 +675,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Set page number as a data attribute so it's easy to retrieve
         $epeAnnotations.dataset.pageNumber = pageNumber;
 
-        // Set default state of pointer events on annotation layer
-        //$epeAnnotations.pointerEvents = false;
-
         // Set size of canvas based off size of PDF page
         $epeAnnotations.annotationHeight = $pageElement.clientHeight;
         $epeAnnotations.annotationWidth = $pageElement.clientWidth;
@@ -681,7 +682,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Append epe-annotation element to the PDF page in the DOM
         $pageElement.appendChild($epeAnnotations);
 
-        //
+        // Set state of pointer events on annotation layer
         this.setAnnotationsPointerEvents();
 
         // Re-attach the canvas properties of the element
@@ -696,7 +697,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         $epeAnnotations.zoom(PDFViewerApplication.pdfViewer.currentScale);
 
         // Set canvas rotation to same as current rotation
-        //$epeAnnotations.rotate(PDFViewerApplication.pdfViewer.pagesRotation);
+        $epeAnnotations.rotate(PDFViewerApplication.pdfViewer.pagesRotation);
       }
     },
 
@@ -727,6 +728,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Set pointerEvents state on epe-annotations element
         $epeAnnotation.pointerEvents = this.pointerEvents;
 
+      }.bind(this));
+    },
+
+    // Keep reference to canvas dimensions as this will be needed to calculate new object
+    // coordinates after rotation
+    setRotationData: function() {
+
+      var temporaryAnnotationsCollection = this.querySelectorAll('.pdfannotations');
+
+      // Store canvas properties in temporary array as PDF.js will wipe out
+      // existing elements on Zoom
+      temporaryAnnotationsCollection.forEach(function($epeAnnotation) {
+
+        // Set pointerEvents state on epe-annotations element
+        $epeAnnotation.rotationWidth = $epeAnnotation.canvas.height;
+debugger;
       }.bind(this));
     }
 
