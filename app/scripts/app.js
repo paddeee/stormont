@@ -36,7 +36,6 @@ var importStore = require('./stores/import.js');
 
   // Set required modules as attributes on app
   app.reflux = reflux;
-  app.videoJS = videoJS;
   app.CSVParser = CSVParser;
   app.dataSourceActions = dataSourceActions;
   app.userActions = userActions;
@@ -78,5 +77,9 @@ var importStore = require('./stores/import.js');
       drawerPanel.closeDrawer();
     }
   };
+
+  // Helper to let us use forEach on DOM collections
+  // Maybe dangerous but can change for different approach if needed
+  NodeList.prototype.forEach = Array.prototype.forEach;
 
 })(document, reflux, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore);

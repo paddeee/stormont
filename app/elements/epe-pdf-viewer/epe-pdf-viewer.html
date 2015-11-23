@@ -41,7 +41,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       border-right: 1px solid var(--divider-color);
     }
 
-    .add-text {
+    .add-text,
+    .select-text {
+      font-family: "Times New Roman";
       font-size: 20px;
       padding: 8px;
       cursor: pointer;
@@ -50,12 +52,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .highlight-text {
       border: 1px solid var(--text-primary-color);
       cursor: pointer;
+      font-family: "Times New Roman";
       padding: 3px 8px;
       margin: 0 8px;
-    }
-
-    .pdf_current-page {
-      margin-right: 4px;
     }
 
     .pdf_total-pages {
@@ -206,6 +205,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div id="HighlightText" class="highlight-text" on-tap="highlightText">T</div>
             <paper-icon-button id="AddLine" icon="icons:remove" on-tap="addLine"></paper-icon-button>
             <paper-icon-button id="AddPolygon" icon="image:panorama-horizontal" on-tap="addPolygon"></paper-icon-button>
+            <paper-icon-button id="DeleteAnnotation" icon="delete" on-tap="deleteAnnotation"></paper-icon-button>
           </div>
 
           <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
@@ -217,6 +217,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-tooltip for="HighlightText" position="top" offset="0">Highlight Text</paper-tooltip>
           <paper-tooltip for="AddLine" position="top" offset="0">Add Line</paper-tooltip>
           <paper-tooltip for="AddPolygon" position="top" offset="0">Add Polygon</paper-tooltip>
+          <paper-tooltip for="DeleteAnnotation" position="top" offset="0">Delete Selected Annotations</paper-tooltip>
 
           <div class="pdf_page-info layout horizontal center center-justified flex">
             <span id="pageNumber" class="pdf_current-page">[[page]]</span>
@@ -225,6 +226,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           <div class="pdf_button-holder border-left border-right horizontal layout center">
             <paper-icon-button id="sidebarToggle" tabindex="11" icon="toggle" hidden></paper-icon-button>
+            <div id="SelectText" class="select-text" on-tap="selectText">I</div>
             <paper-icon-button id="Previous" icon="arrow-back" on-tap="showPreviousPage"></paper-icon-button>
             <paper-icon-button id="Next" icon="arrow-forward" on-tap="showNextPage"></paper-icon-button>
             <paper-icon-button id="ZoomOut" icon="zoom-out" on-tap="zoomOut"></paper-icon-button>
@@ -255,6 +257,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </div>
 
           <paper-tooltip for="sidebarToggle" position="top" offset="0">SideBar Toggle</paper-tooltip>
+          <paper-tooltip for="SelectText" position="top" offset="0">Select Text</paper-tooltip>
           <paper-tooltip for="Previous" position="top" offset="0">Previous Page</paper-tooltip>
           <paper-tooltip for="Next" position="top" offset="0">Next Page</paper-tooltip>
           <paper-tooltip for="ZoomOut" position="top" offset="0">Zoom Out</paper-tooltip>
@@ -377,6 +380,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         type: Object,
         value: null,
         observer: 'pdfObjectChanged'
+      },
+
+      temporaryCanvasObjects: {
+        type: Array,
+        value: []
+      },
+
+      pointerEvents: {
+        type: Boolean,
+        value: true,
+        observer: 'setAnnotationsPointerEvents'
       }
     },
 
@@ -440,6 +454,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
+    // Let user select text on PDF
+    selectText: function() {
+      this.pointerEvents = false;
+    },
+
     // Show previous page of PDF
     showPreviousPage: function() {
       PDFViewerApplication.page--;
@@ -452,37 +471,71 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Zoom in to PDF
     zoomIn: function() {
-      console.log(this.$$('.pdf'));
+
+      // Save all annotation objects as PDF.js zoom will destroy the current canvas element
+      this.saveCanvasAnnotationObjects();
+
+      // Zoom into PDF
       PDFViewerApplication.zoomIn();
     },
 
     // Zoom out of PDF
     zoomOut: function() {
+
+      // Save all annotation objects as PDF.js zoom will destroy the current canvas element
+      this.saveCanvasAnnotationObjects();
+
+      // Zoom out of PDF
       PDFViewerApplication.zoomOut();
     },
 
     // Set PDF Scale to actual size
     scaleToAuto: function() {
+
+      // Save all annotation objects as PDF.js zoom will destroy the current canvas element
+      this.saveCanvasAnnotationObjects();
+
+      // Set PDF Scale to actual size
       PDFViewerApplication.pdfViewer.currentScaleValue = 'auto';
     },
 
     // Fit PDF Scale to width
     fitToWidth: function() {
+
+      // Save all annotation objects as PDF.js zoom will destroy the current canvas element
+      this.saveCanvasAnnotationObjects();
+
+      // Fit PDF Scale to width
       PDFViewerApplication.pdfViewer.currentScaleValue = 'page-width';
     },
 
     // Fit PDF Scale to page
     fitToPage: function() {
+
+      // Save all annotation objects as PDF.js zoom will destroy the current canvas element
+      this.saveCanvasAnnotationObjects();
+
+      // Fit PDF Scale to page
       PDFViewerApplication.pdfViewer.currentScaleValue = 'page-fit';
     },
 
     // Rotate Page clockwise
     rotateClockWise: function() {
+
+      // Save all annotation objects as PDF.js zoom will destroy the current canvas element
+      this.saveCanvasAnnotationObjects();
+
+      // Rotate Page clockwise
       PDFViewerApplication.rotatePages(90);
     },
 
     // Rotate Page anti-clockwise
     rotateAntiClockWise: function() {
+
+      // Save all annotation objects as PDF.js zoom will destroy the current canvas element
+      this.saveCanvasAnnotationObjects();
+
+      // Rotate Page anti-clockwise
       PDFViewerApplication.rotatePages(-90);
     },
 
@@ -522,67 +575,159 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Free draw annotation
     freeDraw: function() {
+
+      // Make annotation layer pick up pointer events
+      this.pointerEvents = true;
+
       this.$$('#PDFAnnotations' + this.page).freeDraw();
     },
 
     // Go into canvas selection mode
     selectAnnotations: function() {
+
+      // Make annotation layer pick up pointer events
+      this.pointerEvents = true;
+
       this.$$('#PDFAnnotations' + this.page).selectAnnotations();
     },
 
     // Add circle annotation
     addCircle: function() {
+
+      // Make annotation layer pick up pointer events
+      this.pointerEvents = true;
+
       this.$$('#PDFAnnotations' + this.page).addCircle();
     },
 
     // Add rectangle annotation
     addRect: function() {
+
+      // Make annotation layer pick up pointer events
+      this.pointerEvents = true;
+
       this.$$('#PDFAnnotations' + this.page).addRect();
     },
 
     // Add text
     addText: function() {
+
+      // Make annotation layer pick up pointer events
+      this.pointerEvents = true;
+
       this.$$('#PDFAnnotations' + this.page).addText();
     },
 
     // Highlight text
     highlightText: function() {
+
+      // Make annotation layer pick up pointer events
+      this.pointerEvents = true;
+
       this.$$('#PDFAnnotations' + this.page).highlightText();
     },
 
     // Add a line
     addLine: function() {
+
+      // Make annotation layer pick up pointer events
+      this.pointerEvents = true;
+
       this.$$('#PDFAnnotations' + this.page).addLine();
     },
 
-    // Deleste selected annotation
+    // Delete selected annotation
     deleteAnnotation: function() {
+
+      // Make annotation layer pick up pointer events
+      this.pointerEvents = true;
+
       this.$$('#PDFAnnotations' + this.page).deleteAnnotation();
     },
 
-    // Add an epe-annnotations element  ot each page of the PDF
+    // Add an epe-annnotations element to each page of the PDF
     addAnnnotationsLayerToPage: function($pageElement) {
 
       var pageNumber = $pageElement.dataset.pageNumber;
-      var $pageCanvasContainer = $pageElement.querySelector('.canvasWrapper');
-      var $epeAnnotations = document.createElement('epe-annotations');
+      var $epeAnnotations;
 
       // Prevent two annotation elements being inserted into each page
       if (this.editState === this.presentationState) {
+
+        // Save all annotation objects as PDF.js scrolling, rotating or zooming can/will
+        // destroy the current canvas elements
+        this.saveCanvasAnnotationObjects();
+
+        // Create new epe-annotations element
+        $epeAnnotations = document.createElement('epe-annotations');
+
+        // Set id to match page number that has just rendered
         $epeAnnotations.id = 'PDFAnnotations' + pageNumber;
-        $epeAnnotations.classList.add('pdf');
+
+        // Don't change class name to pdf-annotations instead of pdfannotations. No idea why but anything with annotations in class
+        // name doesn't pick up the styles. Maybe a Polymer thing?
+        $epeAnnotations.classList.add('pdfannotations');
+
+        // Set page number as a data attribute so it's easy to retrieve
+        $epeAnnotations.dataset.pageNumber = pageNumber;
+
+        // Set default state of pointer events on annotation layer
+        //$epeAnnotations.pointerEvents = false;
 
         // Set size of canvas based off size of PDF page
         $epeAnnotations.annotationHeight = $pageElement.clientHeight;
         $epeAnnotations.annotationWidth = $pageElement.clientWidth;
 
+        // Append epe-annotation element to the PDF page in the DOM
         $pageElement.appendChild($epeAnnotations);
+
+        //
+        this.setAnnotationsPointerEvents();
+
+        // Re-attach the canvas properties of the element
+        $epeAnnotations.canvas.loadFromJSON(this.temporaryCanvasObjects[pageNumber - 1]);
 
         // Need to manually call setCanvasDimensions method of epe-annotations element as not sure
         // observers work with dynamically created elements.
         // Call after element has been added to the DOM so the 'attached' method will have been called.
         $epeAnnotations.setCanvasDimensions();
+
+        // Set canvas zoom to same as current scale
+        $epeAnnotations.zoom(PDFViewerApplication.pdfViewer.currentScale);
+
+        // Set canvas rotation to same as current rotation
+        //$epeAnnotations.rotate(PDFViewerApplication.pdfViewer.pagesRotation);
       }
+    },
+
+    // Save canvas annotation objects in temporary array so they can be re-added when PDF.js kills
+    // off a canvas element on zoom or rotate
+    saveCanvasAnnotationObjects: function() {
+
+      var temporaryAnnotationsCollection = this.querySelectorAll('.pdfannotations');
+
+      // Store canvas properties in temporary array as PDF.js will wipe out
+      // existing elements on Zoom
+      temporaryAnnotationsCollection.forEach(function($epeAnnotation) {
+
+        this.temporaryCanvasObjects[$epeAnnotation.dataset.pageNumber - 1] = JSON.stringify($epeAnnotation.canvas);
+      }.bind(this));
+    },
+
+    // Save canvas annotation objects in temporary array so they can be re-added when PDF.js kills
+    // off a canvas element on zoom or rotate
+    setAnnotationsPointerEvents: function() {
+
+      var temporaryAnnotationsCollection = this.querySelectorAll('.pdfannotations');
+
+      // Store canvas properties in temporary array as PDF.js will wipe out
+      // existing elements on Zoom
+      temporaryAnnotationsCollection.forEach(function($epeAnnotation) {
+
+        // Set pointerEvents state on epe-annotations element
+        $epeAnnotation.pointerEvents = this.pointerEvents;
+
+      }.bind(this));
     }
 
   });
