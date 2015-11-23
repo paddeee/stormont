@@ -228,6 +228,10 @@ var importStore = require('./stores/import.js');
     }
   };
 
+  // Helper to let us use forEach on DOM collections
+  // Maybe dangerous but can change for different approach if needed
+  NodeList.prototype.forEach = Array.prototype.forEach;
+
 })(document, reflux, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})

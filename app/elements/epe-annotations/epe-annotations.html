@@ -22,13 +22,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       box-sizing: border-box;
     }
 
-    :host.pdf {
+    :host.pdfannotations {
       position: absolute;
       top: 0;
       right: 0;
       bottom: 0;
       left: 0;
-      z-index: 1;
     }
 
     .editor {
@@ -184,7 +183,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       this.canvas.selection = false;
 
-      this.canvas.on("object:added", this.canvasObjectSelected.bind(this));
       this.canvas.on("object:selected", this.canvasObjectSelected.bind(this));
       this.canvas.on("path:created", this.canvasPathCreated.bind(this));
       this.canvas.on("mouse:down", this.canvasMouseDown.bind(this));
@@ -314,6 +312,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.canvas.setZoom(scaleFactor);
     },
 
+    // Set canvas zoom level
+    rotate: function(degrees) {
+debugger;
+      var radians = 1.5708; // 90 degrees in radians
+      var canvasCenter = new fabric.Point(this.canvas.getCenter().left, this.canvas.getCenter().top);
+
+      this.canvas.getObjects().forEach(function (obj) {
+
+        var objectOrigin = new fabric.Point(obj.left, obj.top);
+        var newLocation = fabric.util.rotatePoint(objectOrigin, canvasCenter, radians);
+
+        obj.left = newLocation.x;
+        obj.top = newLocation.y;
+        obj.angle += 90; //rotate each object by the same angle
+        this.canvas.renderAll();
+        console.log(newLocation, radians);
+      }.bind(this));
+    },
+
     // Pan the canvas to specified x and y coordinates
     move: function(coords) {
       this.canvas.absolutePan(coords);
@@ -344,7 +361,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.canvas.freeDrawingBrush.width = 5;
       this.deleteMode = false;
 
-      // Set all objects unselectable
+      // Set all objects selectable
       this.setAllObjectsSelectable(true);
     },
 
@@ -354,7 +371,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.canvas.selection = true;
       this.deleteMode = false;
 
-      // Set all objects unselectable
+      // Set all objects selectable
       this.setAllObjectsSelectable(true);
     },
 
@@ -362,42 +379,47 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     addCircle: function() {
 
       var circle = new fabric.Circle({
-        radius: 30,
+        radius: 50,
         stroke: this.defaultStrokeColour,
         fill: this.defaultFillColour,
-        top: 100,
-        left: 100,
-        opacity: 0.8
+        top: this.canvas.getCenter().top / 2,
+        left: this.canvas.getCenter().left / 2,
+        opacity: 0.8,
+        originX: 'center',
+        originY: 'center'
       });
 
       this.canvas.isDrawingMode = false;
       this.canvas.selection = true;
       this.deleteMode = false;
 
-      // Set all objects unselectable
+      // Set all objects selectable
       this.setAllObjectsSelectable(true);
 
       this.canvas.add(circle);
+
     },
 
     // Add a rectangle
     addRect: function() {
 
       var rect = new fabric.Rect({
-        width: 50,
-        height: 50,
+        width: 100,
+        height: 100,
         stroke: this.defaultStrokeColour,
         fill: this.defaultFillColour,
-        top: 100,
-        left: 100,
-        opacity: 0.8
+        top: this.canvas.getCenter().top / 2,
+        left: this.canvas.getCenter().left / 2,
+        opacity: 0.8,
+        originX: 'center',
+        originY: 'center'
       });
 
       this.canvas.isDrawingMode = false;
       this.canvas.selection = true;
       this.deleteMode = false;
 
-      // Set all objects unselectable
+      // Set all objects selectable
       this.setAllObjectsSelectable(true);
 
       this.canvas.add(rect);
@@ -407,8 +429,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     addText: function() {
 
       var textObjext = new fabric.IText('Start typing..', {
-        left: 100,
-        top: 100,
+        top: this.canvas.getCenter().top / 2,
+        left: this.canvas.getCenter().left / 2,
         fill: this.defaultTextColour,
         fontFamily: 'Roboto, Noto'
       });
@@ -417,7 +439,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.canvas.selection = true;
       this.deleteMode = false;
 
-      // Set all objects unselectable
+      // Set all objects selectable
       this.setAllObjectsSelectable(true);
 
       this.canvas.add(textObjext);
@@ -435,8 +457,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         width: 100,
         height: 20,
         fill: this.defaultHighlightFillColour,
-        top: 100,
-        left: 100,
+        top: this.canvas.getCenter().top / 2,
+        left: this.canvas.getCenter().left / 2,
         opacity: 0.6,
         hideEditor: true
       });
@@ -445,7 +467,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.canvas.selection = true;
       this.deleteMode = false;
 
-      // Set all objects unselectable
+      // Set all objects selectable
       this.setAllObjectsSelectable(true);
 
       this.canvas.add(highlight);
@@ -456,14 +478,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var line = new fabric.Line([50, 150, 200, 150], {
         stroke: this.defaultLineColour,
-        strokeWidth: 2
+        strokeWidth: 2,
+        top: this.canvas.getCenter().top / 2,
+        left: this.canvas.getCenter().left / 2,
       });
 
       this.canvas.isDrawingMode = false;
       this.canvas.selection = true;
       this.deleteMode = false;
 
-      // Set all objects unselectable
+      // Set all objects selectable
       this.setAllObjectsSelectable(true);
 
       this.canvas.add(line);
@@ -477,7 +501,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.deleteMode = true;
       this.showEditor = false;
 
-      // Set all objects unselectable
+      // Set all objects selectable
       this.setAllObjectsSelectable(true);
 
       // Call deleteObject directly which will delete any currently selected objects
@@ -526,8 +550,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         if (this.pointerEvents) {
           $canvasContainer.style.pointerEvents = 'auto';
+          this.style.pointerEvents = 'auto';
         } else {
           $canvasContainer.style.pointerEvents = 'none';
+          this.style.pointerEvents = 'none';
         }
       }
     }
