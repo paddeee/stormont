@@ -181,8 +181,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       elem.id = Math.random();
       this.canvas = new fabric.Canvas(elem.id);
 
-      this.canvas.selection = false;
-
       this.canvas.on("object:selected", this.canvasObjectSelected.bind(this));
       this.canvas.on("path:created", this.canvasPathCreated.bind(this));
       this.canvas.on("mouse:down", this.canvasMouseDown.bind(this));
@@ -313,27 +311,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Set canvas zoom level
-    rotate: function(degrees) {
+    rotate: function(degrees, clockwise) {
 
-      var zoom = this.canvas.getZoom();
-      var canvasActualWidth = this.canvas.width / zoom; // Need to take zoom level into account to get actual width
+      var zoomLevel = this.canvas.getZoom();
+      var canvasActualHeight = this.canvas.height / zoomLevel; // Need to take zoom level into account to get actual width
+      var canvasActualWidth = this.canvas.width / zoomLevel; // Need to take zoom level into account to get actual width
       var left;
       var top;
 
-      if (degrees === 90) {
-        left = canvasActualWidth - object.left;
-        top = object.left;
-      } else if (degrees === 180) {
-
-      }
-
       this.canvas.getObjects().forEach(function (object) {
 
+        left = object.left;
+        top = object.top;
+        angle = degrees;
+
+        // Rotate could be called just by a page scroll or as the result of a Zoom, in which case, do nothing
+        if (degrees === object.angle) {
+          return;
+        }
+
+        // Rotating clockwise
+        if (clockwise) {
+
+          top = object.left;
+          left = canvasActualWidth - object.top;
+
+        // Rotating anti-clockwise
+        } else {
+
+          left = object.top;
+          top = canvasActualHeight - object.left;
+        }
+
         object.set({
-          angle: 90,
+          angle: angle,
           left: left,
           top: top
         });
+
+        object.setCoords();
 
         this.canvas.renderAll();
 
