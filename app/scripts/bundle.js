@@ -217,7 +217,7 @@ var importStore = require('./stores/import.js');
   window.addEventListener('WebComponentsReady', function() {
 
     // Set the correct path for leaflet images due to it breking with the build
-    L.Icon.Default.imagePath = './images/leaflet/'
+    window.L.Icon.Default.imagePath = './images/leaflet/';
   });
 
   // Close drawer after menu item is selected if drawerPanel is narrow
@@ -467,13 +467,11 @@ module.exports = Reflux.createStore({
   // presentation name
   manageCollectionTransformNames: function(presentationObject) {
 
-    var state = presentationObject.presentationState;
-
     this.dataSource.collections.forEach(function (collection) {
 
       if (collection.transforms.hasOwnProperty('ViewingFilter')) {
-        collection.transforms[presentationObject.presentationName] = collection.transforms['ViewingFilter'];
-        delete collection.transforms['ViewingFilter'];
+        collection.transforms[presentationObject.presentationName] = collection.transforms.ViewingFilter;
+        delete collection.transforms.ViewingFilter;
 
       // Could hit this condition if user is editing but haven't changed filters before saving.
       // If so, just use the transform from the package that's being created from.
@@ -1639,40 +1637,40 @@ module.exports = Reflux.createStore({
     var fileExtension = filePath.substr(filePath.lastIndexOf('.') + 1);
 
     switch (fileExtension) {
-      case "pdf":
+      case 'pdf':
         this.selectedSourceRoute = 'pdf';
         this.selectedSourceFileType = 'pdf';
         break;
-      case "jpg":
+      case 'jpg':
         this.selectedSourceRoute = 'image';
         this.selectedSourceFileType = 'image';
         break;
-      case "jpeg":
+      case 'jpeg':
         this.selectedSourceRoute = 'image';
         this.selectedSourceFileType = 'image';
         break;
-      case "mp3":
+      case 'mp3':
         this.selectedSourceRoute = 'media';
         this.selectedSourceFileType = 'audio';
         break;
-      case "wav":
+      case 'wav':
         this.selectedSourceRoute = 'media';
         this.selectedSourceFileType = 'audio';
         break;
-      case "avi":
+      case 'avi':
         this.selectedSourceRoute = 'media';
         this.selectedSourceFileType = 'audio';
         break;
-      case "mp4":
+      case 'mp4':
         this.selectedSourceRoute = 'media';
         this.selectedSourceFileType = 'video';
         break;
-      case "mov":
+      case 'mov':
         this.selectedSourceRoute = 'media';
         this.selectedSourceFileType = 'video';
         break;
       default:
-        console.warn(fileExtension + "not a supported type");
+        console.warn(fileExtension + 'not a supported type');
     }
   }
 });

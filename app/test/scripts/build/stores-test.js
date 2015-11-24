@@ -4,10 +4,13 @@
 var Reflux = require('reflux');
 
 module.exports = Reflux.createActions([
-  'checkForLDAP'
+  'checkForLDAP',
+  'collectionImported',
+  'savePresentation',
+  'updatePresentation'
 ]);
 
-},{"reflux":48}],2:[function(require,module,exports){
+},{"reflux":49}],2:[function(require,module,exports){
 'use strict';
 
 var Reflux = require('reflux');
@@ -16,7 +19,7 @@ module.exports = Reflux.createActions([
   'fileImported'     // called by successful spreadsheet import
 ]);
 
-},{"reflux":48}],3:[function(require,module,exports){
+},{"reflux":49}],3:[function(require,module,exports){
 (function (global){
 /**
  * @file lokiFileAdapter.js
@@ -93,8 +96,8 @@ lokiFileAdapter.prototype.saveDatabase = function saveDatabase(dbname, dbstring,
   fs.mkdir(path + '/FarrellLoki/', function() {
     fs.writeFile(path + '/FarrellLoki/' + dbname, dbstring, function() {
       fs.readFile(path + '/FarrellLoki/' + dbname, 'utf-8', function(err, data) {
-        console.log(err);
-        console.log(data);
+        var dataStore = err || data;
+        callback(dataStore);
       });
     });
   });
@@ -120,7 +123,7 @@ module.exports = Reflux.createStore({
   // The Loki db object
   dataSource: null,
 
-  // When a user has attempted login
+  // Set the dataSource Object based on the availability of LDAP
   checkForLDAP: function () {
 
     if (this.LDAPExists()) {
@@ -132,10 +135,9 @@ module.exports = Reflux.createStore({
       this.dataSource.loadDatabase({}, function() {
 
         // Send object out to all listeners when database loaded
-        this.trigger(this.dataSource);
+        this.trigger(this);
 
       }.bind(this));
-
     }
   },
 
@@ -143,20 +145,135 @@ module.exports = Reflux.createStore({
   // ToDo: Need to manage LDAP connectivity checks from here. For now, just return true
   LDAPExists: function() {
     return true;
+  },
+
+  // Update and broadcast dataSource when a collection is imported
+  collectionImported: function (dataSource) {
+
+    this.dataSource = dataSource;
+
+    // Send object out to all listeners when database loaded
+    this.trigger(this);
+  },
+
+  // Add meta information, transform information and save loki db
+  savePresentation: function (presentationObject) {
+
+    var presentationName = presentationObject.presentationName;
+    var createdDate = new Date();
+
+    // Broadcast message if collection exists
+    if (this.collectionExists(presentationName)) {
+
+     this.message = 'collectionExists';
+     this.trigger(this);
+
+    // Try to save database
+    } else {
+
+      this.manageCollectionTransformNames(presentationObject, presentationName);
+
+      // Create Presentation meta info such as user and date created
+      this.savePresentationMetaData(presentationObject, createdDate, 'save');
+
+      // Save database
+      this.dataSource.saveDatabase(function() {
+        this.message = 'presentationSaved';
+        this.trigger(this);
+      }.bind(this));
+    }
+  },
+
+  // Add meta information, transform information and update loki db
+  updatePresentation: function (presentationObject) {
+
+    var presentationName = presentationObject.presentationName;
+    var createdDate = new Date();
+
+    this.manageCollectionTransformNames(presentationObject, presentationName);
+
+    // Create Presentation meta info such as user and date created
+    this.savePresentationMetaData(presentationObject, createdDate, 'update');
+
+    // Save database
+    this.dataSource.saveDatabase(function() {
+      this.message = 'presentationSaved';
+      this.trigger(this);
+    }.bind(this));
+  },
+
+  // Return true if presentationName exists in collection
+  collectionExists: function(presentationName) {
+
+    var presentationCollection = this.dataSource.getCollection('Presentations');
+
+    if (presentationCollection) {
+      if (presentationCollection.find({'presentationName' : presentationName}).length) {
+        return true;
+      }
+    }
+    return false;
+  },
+
+  // Iterate through all collections and set the transform names to the user created
+  // presentation name
+  manageCollectionTransformNames: function(presentationObject) {
+
+    var state = presentationObject.presentationState;
+
+    this.dataSource.collections.forEach(function (collection) {
+
+      if (collection.transforms.hasOwnProperty('ViewingFilter')) {
+        collection.transforms[presentationObject.presentationName] = collection.transforms['ViewingFilter'];
+        delete collection.transforms['ViewingFilter'];
+
+      // Could hit this condition if user is editing but haven't changed filters before saving.
+      // If so, just use the transform from the package that's being created from.
+      } else {
+        collection.transforms[presentationObject.presentationName] = collection.transforms[presentationObject.originalName];
+      }
+    });
+  },
+
+  // Create a meta object and add to presentations collection of loki db
+  savePresentationMetaData: function (presentationObject, createdDate, action) {
+
+    var presentationInfo = {};
+    var presentationsCollection = this.dataSource.getCollection('Presentations');
+
+    if (!presentationsCollection) {
+      presentationsCollection = this.dataSource.addCollection('Presentations');
+    }
+
+    if (action === 'save') {
+
+      presentationInfo.presentationName = presentationObject.presentationName;
+      presentationInfo.userName = presentationObject.userName;
+      presentationInfo.notes = presentationObject.notes;
+      presentationInfo.gateKeeperState = presentationObject.gateKeeperState;
+      presentationInfo.authoriserState = presentationObject.authoriserState;
+      presentationInfo.createdDate = createdDate;
+
+      presentationsCollection.insert(presentationInfo);
+    } else if (action === 'update') {
+      presentationsCollection.update(presentationObject);
+    }
   }
+
 });
 
-},{"../actions/dataSource.js":1,"../adapters/loki-file-adapter.js":3,"lokijs":47,"reflux":48}],5:[function(require,module,exports){
+},{"../actions/dataSource.js":1,"../adapters/loki-file-adapter.js":3,"lokijs":48,"reflux":49}],5:[function(require,module,exports){
 'use strict';
 
 var Reflux = require('reflux');
 var ImportActions = require('../actions/import.js');
+var DataSourceActions = require('../actions/dataSource.js');
 var dataSourceStore = require('../stores/dataSource.js');
 
 module.exports = Reflux.createStore({
 
   // this will set up listeners to all publishers in ImportActions, using onKeyname (or keyname) as callbacks
-  listenables: [ImportActions],
+  listenables: [ImportActions, DataSourceActions],
 
   // When a CSV file has been selected by an Administrator
   onFileImported: function (fileObject) {
@@ -169,7 +286,6 @@ module.exports = Reflux.createStore({
     collectionArray = this.parseCSV(fileObject.CSV);
 
     // Create/Update a collection in the database
-    //if (this.collectionExists(dataSource, fileObject.collectionName)) {
     if (dataCollection) {
       dataCollection.clear();
     } else {
@@ -180,7 +296,10 @@ module.exports = Reflux.createStore({
     this.populateCollection(collectionArray, dataCollection, fileObject.collectionName);
 
     // Save database
-    dataSource.saveDatabase();
+    dataSource.saveDatabase(function() {
+      DataSourceActions.collectionImported(dataSource);
+    });
+
   },
 
   // Create an array of cellObjects which can be iterated through to return a dataCollection
@@ -227,27 +346,15 @@ module.exports = Reflux.createStore({
         // headings
         dataRecord = dataCollection[cellRow - 2];
         dataRecord[headingsHash[cellLetterIdentifier]] = cellObject[cellIdentifier].v;
+
+        // Set all record's 'showRecord' property to false by default
+        dataRecord.showRecord = false;
       }
 
     }, this);
 
     return dataCollection;
   },
-
-  // Return true if a collection of this name already exists in the dataSource
-  /*collectionExists: function (dataSource, collectionName) {
-
-    var collections = dataSource.listCollections();
-    var collectionExists = false;
-
-    collections.forEach(function(collection) {
-      if (collection.name === collectionName) {
-        collectionExists = true;
-      }
-    });
-
-    return collectionExists;
-  },*/
 
   // Create an array of cellObjects which can be iterated through to generate our dataCollection
   createCellArray: function (sheet) {
@@ -310,18 +417,6 @@ module.exports = Reflux.createStore({
 
     dataCollection.insert(collectionArray);
 
-    /* Example Usage
-
-    dataCollection
-     .chain()
-     .find({'age':{'$gt': 25}})
-     .where(function(obj){ return obj.name.indexOf("in") != -1 })
-     .simplesort("age")
-     .offset(50)
-     .limit(10)
-     .data();
-     */
-
     // Pass on to listeners
     this.trigger({
       type: 'success',
@@ -331,7 +426,7 @@ module.exports = Reflux.createStore({
   }
 });
 
-},{"../actions/import.js":2,"../stores/dataSource.js":4,"reflux":48}],6:[function(require,module,exports){
+},{"../actions/dataSource.js":1,"../actions/import.js":2,"../stores/dataSource.js":4,"reflux":49}],6:[function(require,module,exports){
 var should = require('chai').should();
 var ImportActions = require('../../../scripts/stores/import.js');
 
@@ -7801,6 +7896,583 @@ Library.prototype.test = function(obj, type) {
 };
 
 },{}],47:[function(require,module,exports){
+/*
+  Loki IndexedDb Adapter (need to include this script to use it)
+  
+  Indexeddb is highly async, but this adapter has been made 'console-friendly' as well.
+  Anywhere a callback is omitted, it should return results (if applicable) to console.
+
+  IndexedDb storage is provided per-domain, so we implement app/key/value database to allow separate contexts
+  for separate apps within a domain.
+  
+  Examples :
+
+  // SAVE : will save App/Key/Val as 'finance'/'test'/{serializedDb}
+  // if appContect ('finance' in this example) is omitted, 'loki' will be used
+  var idbAdapter = new LokiIndexedAdapter('finance');
+  var db = new loki('test', { adapter: idbAdapter });
+  var coll = db.addCollection('testColl');
+  coll.insert({test: 'val'});
+  db.saveDatabase();  // could pass callback if needed for async complete
+
+  // LOAD
+  var db = new loki('test', { adapter: idbAdapter });
+  db.loadDatabase(function(result) {
+    console.log('done');
+  });
+
+  // GET DATABASE LIST
+  idbAdapter.getDatabaseList(function(result) {
+    // result is array of string names for that appcontext ('finance')
+    result.forEach(function(str) {
+      console.log(str);
+    });
+  });
+  
+  // DELETE DATABASE
+  idbAdapter.deleteDatabase('test'); // delete 'finance'/'test' value from catalog
+  
+  // CONSOLE USAGE : if using from console for management/diagnostic, here are a few examples :
+  adapter.getDatabaseList(); // with no callback passed, this method will log results to console
+  adapter.saveDatabase('UserDatabase', JSON.stringify(myDb));
+  adapter.loadDatabase('UserDatabase'); // will log the serialized db to console
+  adapter.deleteDatabase('UserDatabase');
+*/
+
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD
+        define([], factory);
+    } else if (typeof exports === 'object') {
+        // Node, CommonJS-like
+        module.exports = factory();
+    } else {
+        // Browser globals (root is window)
+        root.LokiIndexedAdapter = factory();
+    }
+}(this, function () {
+  return (function() {
+
+    /**
+     * IndexedAdapter - Loki persistence adapter class for indexedDb.
+     *     This class fulfills abstract adapter interface which can be applied to other storage methods
+     *     Utilizes the included LokiCatalog app/key/value database for actual database persistence.
+     *
+     * @param {string} appname - Application name context can be used to distinguish subdomains or just 'loki'
+     */
+    function IndexedAdapter(appname)
+    {
+      this.app = 'loki';
+      
+      if (typeof (appname) !== 'undefined') 
+      {
+        this.app = appname;
+      }
+
+      // keep reference to catalog class for base AKV operations
+      this.catalog = null;
+      
+      if (!this.checkAvailability()) {
+        console.error('indexedDB does not seem to be supported for your environment');
+      }
+    }
+
+    /**
+     * checkAvailability - used to check if adapter is available
+     *
+     * @returns {boolean} true if indexeddb is available, false if not.
+     */
+    IndexedAdapter.prototype.checkAvailability = function()
+    {
+      if (window && window.indexedDB) return true;
+
+      return false;
+    };
+
+    /**
+     * loadDatabase() - Retrieves a serialized db string from the catalog.
+     *
+     * @param {string} dbname - the name of the database to retrieve.
+     * @param {function} callback - callback should accept string param containing serialized db string.
+     */
+    IndexedAdapter.prototype.loadDatabase = function(dbname, callback)
+    {
+      var appName = this.app;
+      var adapter = this;
+      
+      // lazy open/create db reference so dont -need- callback in constructor
+      if (this.catalog === null || this.catalog.db === null) {
+        this.catalog = new LokiCatalog(function(cat) {
+          adapter.catalog = cat;
+        
+          adapter.loadDatabase(dbname, callback);
+        });
+        
+        return;
+      }
+      
+      // lookup up db string in AKV db
+      this.catalog.getAppKey(appName, dbname, function(result) {
+        if (typeof (callback) === 'function') {
+          if (result.id === 0) {
+            console.warn("loki indexeddb adapter could not find database");
+            callback(null);
+            return;
+          }
+          callback(result.val);
+        }
+        else {
+          // support console use of api
+          console.log(result.val);
+        }
+      });
+    };
+
+    // alias
+    IndexedAdapter.prototype.loadKey = IndexedAdapter.prototype.loadDatabase;
+
+    /**
+     * saveDatabase() - Saves a serialized db to the catalog.
+     *
+     * @param {string} dbname - the name to give the serialized database within the catalog.
+     * @param {string} dbstring - the serialized db string to save.
+     * @param {function} callback - (Optional) callback passed obj.success with true or false
+     */
+    IndexedAdapter.prototype.saveDatabase = function(dbname, dbstring, callback)
+    {
+      var appName = this.app;
+      var adapter = this;
+      
+      // lazy open/create db reference so dont -need- callback in constructor
+      if (this.catalog === null || this.catalog.db === null) {
+        this.catalog = new LokiCatalog(function(cat) {
+          adapter.catalog = cat;
+          
+          // now that catalog has been initialized, set (add/update) the AKV entry
+          cat.setAppKey(appName, dbname, dbstring, callback);
+        });
+        
+        return;
+      }
+      
+      // set (add/update) entry to AKV database
+      this.catalog.setAppKey(appName, dbname, dbstring, callback);
+    };
+
+    // alias
+    IndexedAdapter.prototype.saveKey = IndexedAdapter.prototype.saveDatabase;
+
+    /**
+     * deleteDatabase() - Deletes a serialized db from the catalog.
+     *
+     * @param {string} dbname - the name of the database to delete from the catalog.
+     */
+    IndexedAdapter.prototype.deleteDatabase = function(dbname)
+    {
+      var appName = this.app;
+      var adapter = this;
+      
+      // lazy open/create db reference so dont -need- callback in constructor
+      if (this.catalog === null || this.catalog.db === null) {
+        this.catalog = new LokiCatalog(function(cat) {
+          adapter.catalog = cat;
+          
+          adapter.deleteDatabase(dbname);
+        });
+        
+        return;
+      }
+      
+      // catalog was already initialized, so just lookup object and delete by id
+      this.catalog.getAppKey(appName, dbname, function(result) {
+        var id = result.id;
+        
+        if (id !== 0) {
+          adapter.catalog.deleteAppKey(id);
+        }
+      });
+    };
+
+    // alias
+    IndexedAdapter.prototype.deleteKey = IndexedAdapter.prototype.deleteDatabase;
+
+    /**
+     * getDatabaseList() - Retrieves object array of catalog entries for current app.
+     *
+     * @param {function} callback - should accept array of database names in the catalog for current app.
+     */
+    IndexedAdapter.prototype.getDatabaseList = function(callback)
+    {
+      var appName = this.app;
+      var adapter = this;
+      
+      // lazy open/create db reference so dont -need- callback in constructor
+      if (this.catalog === null || this.catalog.db === null) {
+        this.catalog = new LokiCatalog(function(cat) {
+          adapter.catalog = cat;
+          
+          adapter.getDatabaseList(callback);
+        });
+        
+        return;
+      }
+      
+      // catalog already initialized
+      // get all keys for current appName, and transpose results so just string array
+      this.catalog.getAppKeys(appName, function(results) {
+        var names = [];
+        
+        for(var idx = 0; idx < results.length; idx++) {
+          names.push(results[idx].key);
+        }
+        
+        if (typeof (callback) === 'function') {
+          callback(names);
+        }
+        else {
+          names.forEach(function(obj) {
+            console.log(obj);
+          });
+        }
+      });
+    };
+
+    // alias
+    IndexedAdapter.prototype.getKeyList = IndexedAdapter.prototype.getDatabaseList;
+
+    /**
+     * getCatalogSummary - allows retrieval of list of all keys in catalog along with size
+     *
+     * @param {function} callback - (Optional) callback to accept result array.
+     */
+    IndexedAdapter.prototype.getCatalogSummary = function(callback)
+    {
+      var appName = this.app;
+      var adapter = this;
+      
+      // lazy open/create db reference
+      if (this.catalog === null || this.catalog.db === null) {
+        this.catalog = new LokiCatalog(function(cat) {
+          adapter.catalog = cat;
+          
+          adapter.getCatalogSummary(callback);
+        });
+        
+        return;
+      }
+      
+      // catalog already initialized
+      // get all keys for current appName, and transpose results so just string array
+      this.catalog.getAllKeys(function(results) {
+        var entries = [];
+        var obj,
+          size,
+          oapp,
+          okey,
+          oval;
+        
+        for(var idx = 0; idx < results.length; idx++) {
+          obj = results[idx];
+          oapp = obj.app || '';
+          okey = obj.key || '';
+          oval = obj.val || '';
+          
+          // app and key are composited into an appkey column so we will mult by 2
+          size = oapp.length * 2 + okey.length * 2 + oval.length + 1;
+          
+          entries.push({ "app": obj.app, "key": obj.key, "size": size });
+        }
+        
+        if (typeof (callback) === 'function') {
+          callback(entries);
+        }
+        else {
+          entries.forEach(function(obj) {
+            console.log(obj);
+          });
+        }
+      });
+    };
+
+    /**
+     * LokiCatalog - underlying App/Key/Value catalog persistence
+     *    This non-interface class implements the actual persistence.
+     *    Used by the IndexedAdapter class.
+     */
+    function LokiCatalog(callback) 
+    {
+      this.db = null;
+      this.initializeLokiCatalog(callback);
+    }
+
+    LokiCatalog.prototype.initializeLokiCatalog = function(callback) {
+      var openRequest = indexedDB.open('LokiCatalog', 1);
+      var cat = this;
+      
+      // If database doesn't exist yet or its version is lower than our version specified above (2nd param in line above)
+      openRequest.onupgradeneeded = function(e) {
+        var thisDB = e.target.result;
+        if (thisDB.objectStoreNames.contains('LokiAKV')) {
+          thisDB.deleteObjectStore('LokiAKV');
+        }
+
+        if(!thisDB.objectStoreNames.contains('LokiAKV')) {
+          var objectStore = thisDB.createObjectStore('LokiAKV', { keyPath: 'id', autoIncrement:true });
+          objectStore.createIndex('app', 'app', {unique:false});
+          objectStore.createIndex('key', 'key', {unique:false});
+          // hack to simulate composite key since overhead is low (main size should be in val field)
+          // user (me) required to duplicate the app and key into comma delimited appkey field off object
+          // This will allow retrieving single record with that composite key as well as 
+          // still supporting opening cursors on app or key alone
+          objectStore.createIndex('appkey', 'appkey', {unique:true});
+        }
+      };
+
+      openRequest.onsuccess = function(e) {
+        cat.db = e.target.result;
+
+        if (typeof (callback) === 'function') callback(cat);
+      };
+
+      openRequest.onerror = function(e) {
+        throw e;
+      };
+    };
+
+    LokiCatalog.prototype.getAppKey = function(app, key, callback) {
+      var transaction = this.db.transaction(['LokiAKV'], 'readonly');
+      var store = transaction.objectStore('LokiAKV');
+      var index = store.index('appkey');
+      var appkey = app + "," + key;
+      var request = index.get(appkey);
+
+      request.onsuccess = (function(usercallback) {
+        return function(e) {
+          var lres = e.target.result;
+
+          if (lres === null || typeof(lres) === 'undefined') {
+            lres = { 
+              id: 0, 
+              success: false 
+            };
+          }
+
+          if (typeof(usercallback) === 'function') {
+            usercallback(lres);
+          }
+          else {
+            console.log(lres);
+          }
+        };
+      })(callback);
+      
+      request.onerror = (function(usercallback) {
+        return function(e) {
+          if (typeof(usercallback) === 'function') {
+            usercallback({ id: 0, success: false });
+          }
+          else {
+            throw e;
+          }
+        };
+      })(callback);
+    };
+
+    LokiCatalog.prototype.getAppKeyById = function (id, callback, data) {
+      var transaction = this.db.transaction(['LokiAKV'], 'readonly');
+      var store = transaction.objectStore('LokiAKV');
+      var request = store.get(id);
+
+      request.onsuccess = (function(data, usercallback){
+        return function(e) { 
+          if (typeof(usercallback) === 'function') {
+            usercallback(e.target.result, data);
+          }
+          else {
+            console.log(e.target.result);
+          }
+        };
+      })(data, callback);   
+    };
+
+    LokiCatalog.prototype.setAppKey = function (app, key, val, callback) {
+      var transaction = this.db.transaction(['LokiAKV'], 'readwrite');
+      var store = transaction.objectStore('LokiAKV');
+      var index = store.index('appkey');
+      var appkey = app + "," + key;
+      var request = index.get(appkey);
+
+      // first try to retrieve an existing object by that key
+      // need to do this because to update an object you need to have id in object, otherwise it will append id with new autocounter and clash the unique index appkey
+      request.onsuccess = function(e) {
+        var res = e.target.result;
+
+        if (res === null || res === undefined) {
+          res = {
+            app:app,
+            key:key,
+            appkey: app + ',' + key,
+            val:val
+          };
+        }
+        else {
+          res.val = val;
+        }
+        
+        var requestPut = store.put(res);
+
+        requestPut.onerror = (function(usercallback) {
+          return function(e) {
+            if (typeof(usercallback) === 'function') {
+              usercallback({ success: false });
+            }
+            else {
+              console.error('LokiCatalog.setAppKey (set) onerror');
+              console.error(request.error);
+            }
+          };
+
+        })(callback);
+
+        requestPut.onsuccess = (function(usercallback) {
+          return function(e) {
+            if (typeof(usercallback) === 'function') {
+              usercallback({ success: true });
+            }
+          };
+        })(callback);
+      };
+
+      request.onerror = (function(usercallback) {
+        return function(e) {
+          if (typeof(usercallback) === 'function') {
+            usercallback({ success: false });
+          }
+          else {
+            console.error('LokiCatalog.setAppKey (get) onerror');
+            console.error(request.error);
+          }
+        };
+      })(callback);
+    };
+
+    LokiCatalog.prototype.deleteAppKey = function (id, callback) {	
+      var transaction = this.db.transaction(['LokiAKV'], 'readwrite');
+      var store = transaction.objectStore('LokiAKV');
+      var request = store.delete(id);
+
+      request.onsuccess = (function(usercallback) {
+        return function(evt) {
+          if (typeof(usercallback) === 'function') usercallback({ success: true });
+        };
+      })(callback);
+
+      request.onerror = (function(usercallback) {
+        return function(evt) {
+          if (typeof(usercallback) === 'function') {
+            usercallback(false);
+          }
+          else {
+            console.error('LokiCatalog.deleteAppKey raised onerror');
+            console.error(request.error);
+          }
+        };
+      })(callback);
+    };
+
+    LokiCatalog.prototype.getAppKeys = function(app, callback) {
+      var transaction = this.db.transaction(['LokiAKV'], 'readonly');
+      var store = transaction.objectStore('LokiAKV');
+      var index = store.index('app');
+
+      // We want cursor to all values matching our (single) app param
+      var singleKeyRange = IDBKeyRange.only(app);
+
+      // To use one of the key ranges, pass it in as the first argument of openCursor()/openKeyCursor()
+      var cursor = index.openCursor(singleKeyRange);
+
+      // cursor internally, pushing results into this.data[] and return 
+      // this.data[] when done (similar to service)
+      var localdata = [];
+
+      cursor.onsuccess = (function(data, callback) {
+        return function(e) {
+          var cursor = e.target.result;
+          if (cursor) {
+            var currObject = cursor.value;
+
+            data.push(currObject);
+
+            cursor.continue();
+          }
+          else {
+            if (typeof(callback) === 'function') {
+              callback(data);
+            }
+            else {
+              console.log(data);
+            }
+          }
+        };
+      })(localdata, callback);
+
+      cursor.onerror = (function(usercallback) {
+        return function(e) {
+          if (typeof(usercallback) === 'function') {
+            usercallback(null);
+          }
+          else {
+            console.error('LokiCatalog.getAppKeys raised onerror');
+            console.error(e);
+          }
+        };
+      })(callback);
+      
+    };
+
+    // Hide 'cursoring' and return array of { id: id, key: key }
+    LokiCatalog.prototype.getAllKeys = function (callback) {
+      var transaction = this.db.transaction(['LokiAKV'], 'readonly');
+      var store = transaction.objectStore('LokiAKV');
+      var cursor = store.openCursor();
+
+      var localdata = [];
+
+      cursor.onsuccess = (function(data, callback) {
+        return function(e) {
+          var cursor = e.target.result;
+          if (cursor) {
+            var currObject = cursor.value;
+
+            data.push(currObject);
+
+            cursor.continue();
+          }
+          else {
+            if (typeof(callback) === 'function') {
+              callback(data);
+            }
+            else {
+              console.log(data);
+            }
+          }
+        };
+      })(localdata, callback);
+
+      cursor.onerror = (function(usercallback) {
+        return function(e) {
+          if (typeof(usercallback) === 'function') usercallback(null);
+        };
+      })(callback);
+
+    };
+
+    return IndexedAdapter;
+
+  }());
+}));
+
+},{}],48:[function(require,module,exports){
 (function (global){
 /**
  * LokiJS
@@ -7830,6 +8502,48 @@ Library.prototype.test = function(obj, type) {
         for (prop in src) {
           dest[prop] = src[prop];
         }
+      },
+      // used to recursively scan hierarchical transform step object for param substitution
+      resolveTransformObject: function (subObj, params, depth) {
+        var prop,
+          pname;
+
+        if (typeof depth !== 'number') {
+          depth = 0;
+        }
+
+        if (++depth >= 10) return subObj;
+
+        for (prop in subObj) {
+          if (typeof subObj[prop] === 'string' && subObj[prop].indexOf("[%lktxp]") === 0) {
+            pname = subObj[prop].substring(8);
+            if (params.hasOwnProperty(pname)) {
+              subObj[prop] = params[pname];
+            }
+          } else if (typeof subObj[prop] === "object") {
+            subObj[prop] = Utils.resolveTransformObject(subObj[prop], params, depth);
+          }
+        }
+
+        return subObj;
+      },
+      // top level utility to resolve an entire (single) transform (array of steps) for parameter substitution
+      resolveTransformParams: function (transform, params) {
+        var idx,
+          prop,
+          clonedStep,
+          resolvedTransform = [];
+
+        if (typeof params === 'undefined') return transform;
+
+        // iterate all steps in the transform array
+        for (idx = 0; idx < transform.length; idx++) {
+          // clone transform so our scan and replace can operate directly on cloned transform
+          clonedStep = JSON.parse(JSON.stringify(transform[idx]));
+          resolvedTransform.push(Utils.resolveTransformObject(clonedStep, params));
+        }
+
+        return resolvedTransform;
       }
     };
 
@@ -7906,7 +8620,7 @@ Library.prototype.test = function(obj, type) {
         return function (curr) {
           return a.indexOf(curr) !== -1;
         };
-      } else if (typeof a === 'string') {
+      } else if (a && typeof a === 'string') {
         return function (curr) {
           return a.indexOf(curr) !== -1;
         };
@@ -7919,6 +8633,8 @@ Library.prototype.test = function(obj, type) {
 
     var LokiOps = {
       // comparison operators
+      // a is the value in the collection
+      // b is the query value
       $eq: function (a, b) {
         return a === b;
       },
@@ -7978,8 +8694,9 @@ Library.prototype.test = function(obj, type) {
           b = [b];
         }
 
+        // return false on check if no check fn is found
         checkFn = containsCheckFn(a, b) || function () {
-          return true;
+          return false;
         };
 
         return b.reduce(function (prev, curr) {
@@ -8004,6 +8721,9 @@ Library.prototype.test = function(obj, type) {
       '$contains': LokiOps.$contains,
       '$containsAny': LokiOps.$containsAny
     };
+
+    // making indexing opt-in... our range function knows how to deal with these ops :
+    var indexedOpsList = ['$eq', '$gt', '$gte', '$lt', '$lte'];
 
     function clone(data, method) {
       var cloneMethod = method || 'parse-stringify',
@@ -8131,6 +8851,7 @@ Library.prototype.test = function(obj, type) {
 
       this.events = {
         'init': [],
+        'loaded': [],
         'flushChanges': [],
         'close': [],
         'changes': [],
@@ -8180,6 +8901,19 @@ Library.prototype.test = function(obj, type) {
 
     // db class is an EventEmitter
     Loki.prototype = new LokiEventEmitter();
+
+    // experimental support for browserify's abstract syntax scan to pick up dependency of indexed adapter.
+    // Hopefully, once this hits npm a browserify require of lokijs should scan the main file and detect this indexed adapter reference.
+    Loki.prototype.getIndexedAdapter = function () {
+      var adapter;
+
+      if (typeof require === 'function') {
+        adapter = require("./loki-indexed-adapter.js");
+      }
+
+      return adapter;
+    };
+
 
     /**
      * configureOptions - allows reconfiguring database options
@@ -8243,7 +8977,12 @@ Library.prototype.test = function(obj, type) {
         if (this.options.hasOwnProperty('autosave') && this.options.autosave) {
           this.autosaveDisable();
           this.autosave = true;
-          this.autosaveEnable();
+
+          if (this.options.hasOwnProperty('autosaveCallback')) {
+            this.autosaveEnable(options, options.autosaveCallback);
+          } else {
+            this.autosaveEnable();
+          }
         }
       } // end of options processing
 
@@ -8363,6 +9102,7 @@ Library.prototype.test = function(obj, type) {
      */
     Loki.prototype.loadJSON = function (serializedDb, options) {
 
+      if (serializedDb.length === 0) serializedDb = JSON.stringify({});
       var obj = JSON.parse(serializedDb),
         i = 0,
         len = obj.collections ? obj.collections.length : 0,
@@ -8412,16 +9152,23 @@ Library.prototype.test = function(obj, type) {
 
         copyColl.maxId = (coll.data.length === 0) ? 0 : coll.maxId;
         copyColl.idIndex = coll.idIndex;
-        // if saved in previous format recover id index out of it
-        if (typeof (coll.indices) !== 'undefined') {
-          copyColl.idIndex = coll.indices.id;
-        }
         if (typeof (coll.binaryIndices) !== 'undefined') {
           copyColl.binaryIndices = coll.binaryIndices;
         }
-
+        if (typeof coll.transforms !== 'undefined') {
+          copyColl.transforms = coll.transforms;
+        }
 
         copyColl.ensureId();
+
+        // regenerate unique indexes
+        copyColl.uniqueNames = [];
+        if (coll.hasOwnProperty("uniqueNames")) {
+          copyColl.uniqueNames = coll.uniqueNames;
+          for (j = 0; j < copyColl.uniqueNames.length; j++) {
+            copyColl.ensureUniqueIndex(copyColl.uniqueNames[j]);
+          }
+        }
 
         // in case they are loading a database created before we added dynamic views, handle undefined
         if (typeof (coll.DynamicViews) === 'undefined') continue;
@@ -8430,7 +9177,7 @@ Library.prototype.test = function(obj, type) {
         for (var idx = 0; idx < coll.DynamicViews.length; idx++) {
           var colldv = coll.DynamicViews[idx];
 
-          var dv = copyColl.addDynamicView(colldv.name, colldv.persistent);
+          var dv = copyColl.addDynamicView(colldv.name, colldv.options);
           dv.resultdata = colldv.resultdata;
           dv.resultsdirty = colldv.resultsdirty;
           dv.filterPipeline = colldv.filterPipeline;
@@ -8625,6 +9372,7 @@ Library.prototype.test = function(obj, type) {
           if (typeof (dbString) === 'string') {
             self.loadJSON(dbString, options || {});
             cFun(null);
+            self.emit('loaded', 'database ' + self.filename + ' loaded');
           } else {
             console.warn('lokijs loadDatabase : Database not found');
             if (typeof (dbString) === "object") {
@@ -8703,8 +9451,10 @@ Library.prototype.test = function(obj, type) {
     /**
      * autosaveEnable - begin a javascript interval to periodically save the database.
      *
+     * @param {object} options - not currently used (remove or allow overrides?)
+     * @param {function} callback - (Optional) user supplied async callback
      */
-    Loki.prototype.autosaveEnable = function () {
+    Loki.prototype.autosaveEnable = function (options, callback) {
       this.autosave = true;
 
       var delay = 5000,
@@ -8720,7 +9470,7 @@ Library.prototype.test = function(obj, type) {
         // along with loki level isdirty() function which iterates all collections to see if any are dirty
 
         if (self.autosaveDirty()) {
-          self.saveDatabase();
+          self.saveDatabase(callback);
         }
       }, delay);
     };
@@ -8839,6 +9589,72 @@ Library.prototype.test = function(obj, type) {
 
     // add branch() as alias of copy()
     Resultset.prototype.branch = Resultset.prototype.copy;
+
+    /**
+     * transform() - executes a raw array of transform steps against the resultset.
+     *
+     * @param {array} : (Optional) array of transform steps to execute against this resultset.
+     * @param {object} : (Optional) object property hash of parameters, if the transform requires them.
+     * @returns {Resultset} : either (this) resultset or a clone of of this resultset (depending on steps)
+     */
+    Resultset.prototype.transform = function (transform, parameters) {
+      var idx,
+        step,
+        rs = this;
+
+      if (typeof parameters !== 'undefined') {
+        transform = Utils.resolveTransformParams(transform, parameters);
+      }
+
+      for (idx = 0; idx < transform.length; idx++) {
+        step = transform[idx];
+
+        switch (step.type) {
+        case "find":
+          rs.find(step.value);
+          break;
+        case "where":
+          rs.where(step.value);
+          break;
+        case "simplesort":
+          rs.simplesort(step.property, step.desc);
+          break;
+        case "compoundsort":
+          rs.compoundsort(step.value);
+          break;
+        case "sort":
+          rs.sort(step.value);
+          break;
+        case "limit":
+          rs = rs.limit(step.value);
+          break; // limit makes copy so update reference
+        case "offset":
+          rs = rs.offset(step.value);
+          break; // offset makes copy so update reference
+        case "map":
+          rs = rs.map(step.value);
+          break;
+        case "eqJoin":
+          rs = rs.eqJoin(step.joinData, step.leftJoinKey, step.rightJoinKey, step.mapFun);
+          break;
+          // following cases break chain by returning array data so make any of these last in transform steps
+        case "mapReduce":
+          rs = rs.mapReduce(step.mapFunction, step.reduceFunction);
+          break;
+          // following cases update documents in current filtered resultset (use carefully)
+        case "update":
+          rs.update(step.value);
+          break;
+        case "remove":
+          rs.remove();
+          break;
+        default:
+          break;
+        }
+      }
+
+      return rs;
+    };
 
     /**
      * sort() - User supplied compare function is provided two documents to compare. (chainable)
@@ -9021,7 +9837,7 @@ Library.prototype.test = function(obj, type) {
           return [0, -1];
         }
         if (ltHelper(maxVal, val)) {
-          return [0, rcd.length-1];
+          return [0, rcd.length - 1];
         }
         break;
       case '$lte':
@@ -9029,7 +9845,7 @@ Library.prototype.test = function(obj, type) {
           return [0, -1];
         }
         if (ltHelper(maxVal, val, true)) {
-          return [0, rcd.length-1];
+          return [0, rcd.length - 1];
         }
         break;
       }
@@ -9370,7 +10186,13 @@ Library.prototype.test = function(obj, type) {
       }
 
       // for regex ops, precompile
-      if (operator === '$regex') value = new RegExp(value);
+      if (operator === '$regex') {
+        if (typeof(value) === 'object' && Array.isArray(value)) {
+          value = new RegExp(value[0], value[1]);
+        } else {
+          value = new RegExp(value);
+        }
+      }
 
       if (this.collection.data === null) {
         throw new TypeError();
@@ -9380,7 +10202,7 @@ Library.prototype.test = function(obj, type) {
       // for now only enabling for non-chained query (who's set of docs matches index)
       // or chained queries where it is the first filter applied and prop is indexed
       if ((!this.searchIsChained || (this.searchIsChained && !this.filterInitialized)) &&
-        operator !== '$ne' && operator !== '$regex' && operator !== '$contains' && operator !== '$containsAny' && operator !== '$in' && this.collection.binaryIndices.hasOwnProperty(property)) {
+        indexedOpsList.indexOf(operator) !== -1 && this.collection.binaryIndices.hasOwnProperty(property)) {
         // this is where our lazy index rebuilding will take place
         // basically we will leave all indexes dirty until we need them
         // so here we will rebuild only the index tied to this property
@@ -9408,9 +10230,17 @@ Library.prototype.test = function(obj, type) {
           i = t.length;
 
           if (firstOnly) {
-            while (i--) {
-              if (fun(t[i][property], value)) {
-                return (t[i]);
+            if (usingDotNotation) {
+              while (i--) {
+                if (this.dotSubScan(t[i], property, fun, value)) {
+                  return (t[i]);
+                }
+              }
+            } else {
+              while (i--) {
+                if (fun(t[i][property], value)) {
+                  return (t[i]);
+                }
               }
             }
 
@@ -9808,7 +10638,7 @@ Library.prototype.test = function(obj, type) {
         this.options.persistent = false;
       }
 
-      // 'persistentSortPriority': 
+      // 'persistentSortPriority':
       // 'passive' will defer the sort phase until they call data(). (most efficient overall)
       // 'active' will sort async whenever next idle. (prioritizes read speeds)
       if (!this.options.hasOwnProperty('sortPriority')) {
@@ -9905,10 +10735,31 @@ Library.prototype.test = function(obj, type) {
      *    Unlike this dynamic view, the branched resultset will not be 'live' updated,
      *    so your branched query should be immediately resolved and not held for future evaluation.
      *
+     * @param {string, array} : Optional name of collection transform, or an array of transform steps
+     * @param {object} : optional parameters (if optional transform requires them)
      * @returns {Resultset} A copy of the internal resultset for branched queries.
      */
-    DynamicView.prototype.branchResultset = function () {
-      return this.resultset.copy();
+    DynamicView.prototype.branchResultset = function (transform, parameters) {
+      var rs = this.resultset.copy();
+
+      if (typeof transform === 'undefined') {
+        return rs;
+      }
+
+      // if transform is name, then do lookup first
+      if (typeof transform === 'string') {
+        if (this.collection.transforms.hasOwnProperty(transform)) {
+          transform = this.collection.transforms[transform];
+        }
+      }
+
+      // either they passed in raw transform array or we looked it up, so process
+      if (typeof transform === 'object' && Array.isArray(transform)) {
+        // if parameters were passed, apply them
+        return rs.transform(transform, parameters);
+      }
+
+      return rs;
     };
 
     /**
@@ -10105,7 +10956,7 @@ Library.prototype.test = function(obj, type) {
      * queueRebuildEvent() - When the view is not sorted we may still wish to be notified of rebuild events.
      *     This event will throttle and queue a single rebuild event when batches of updates affect the view.
      */
-    DynamicView.prototype.queueRebuildEvent = function() {
+    DynamicView.prototype.queueRebuildEvent = function () {
       var self = this;
 
       if (this.rebuildPending) {
@@ -10114,12 +10965,12 @@ Library.prototype.test = function(obj, type) {
 
       this.rebuildPending = true;
 
-      setTimeout(function() {
+      setTimeout(function () {
         self.rebuildPending = false;
         self.emit('rebuild', this);
       }, 1);
     };
-    
+
     /**
      * queueSortPhase : If the view is sorted we will throttle sorting to either :
      *    (1) passive - when the user calls data(), or
@@ -10140,9 +10991,8 @@ Library.prototype.test = function(obj, type) {
         setTimeout(function () {
           self.performSortPhase();
         }, 1);
-      }
-      else {
-        // must be passive sorting... since not calling performSortPhase (until data call), lets use queueRebuildEvent to 
+      } else {
+        // must be passive sorting... since not calling performSortPhase (until data call), lets use queueRebuildEvent to
         // potentially notify user that data has changed.
         this.queueRebuildEvent();
       }
@@ -10223,8 +11073,7 @@ Library.prototype.test = function(obj, type) {
         // need to re-sort to sort new document
         if (this.sortFunction || this.sortCriteria) {
           this.queueSortPhase();
-        }
-        else {
+        } else {
           this.queueRebuildEvent();
         }
 
@@ -10253,8 +11102,7 @@ Library.prototype.test = function(obj, type) {
         // in case changes to data altered a sort column
         if (this.sortFunction || this.sortCriteria) {
           this.queueSortPhase();
-        }
-        else {
+        } else {
           this.queueRebuildEvent();
         }
 
@@ -10271,8 +11119,7 @@ Library.prototype.test = function(obj, type) {
         // in case changes to data altered a sort column
         if (this.sortFunction || this.sortCriteria) {
           this.queueSortPhase();
-        }
-        else {
+        } else {
           this.queueRebuildEvent();
         }
 
@@ -10321,7 +11168,7 @@ Library.prototype.test = function(obj, type) {
       oldlen = ofr.length;
       for (idx = 0; idx < oldlen; idx++) {
         if (ofr[idx] > objIndex) {
-          ofr[idx] --;
+          ofr[idx]--;
         }
       }
     };
@@ -10362,6 +11209,14 @@ Library.prototype.test = function(obj, type) {
         exact: {}
       };
 
+      // unique contraints contain duplicate object references, so they are not persisted.
+      // we will keep track of properties which have unique contraint applied here, and regenerate on load
+      this.uniqueNames = [];
+
+      // transforms will be used to store frequently used query chains as a series of steps
+      // which itself can be stored along with the database.
+      this.transforms = {};
+
       // the object type of the collection
       this.objType = name;
 
@@ -10385,6 +11240,7 @@ Library.prototype.test = function(obj, type) {
           options.unique = [options.unique];
         }
         options.unique.forEach(function (prop) {
+          self.uniqueNames.push(prop); // used to regenerate on subsequent database loads
           self.constraints.unique[prop] = new UniqueIndex(prop);
         });
       }
@@ -10551,7 +11407,23 @@ Library.prototype.test = function(obj, type) {
 
     Collection.prototype = new LokiEventEmitter();
 
-    Collection.prototype.byExample = function(template) {
+    Collection.prototype.addTransform = function (name, transform) {
+      if (this.transforms.hasOwnProperty(name)) {
+        throw new Error("a transform by that name already exists");
+      }
+
+      this.transforms[name] = transform;
+    };
+
+    Collection.prototype.setTransform = function (name, transform) {
+      this.transforms[name] = transform;
+    };
+
+    Collection.prototype.removeTransform = function (name) {
+      delete transforms[name];
+    };
+
+    Collection.prototype.byExample = function (template) {
       var k, obj, query;
       query = [];
       for (k in template) {
@@ -10562,12 +11434,18 @@ Library.prototype.test = function(obj, type) {
           obj
         ));
       }
-      return { '$and': query };
+      return {
+        '$and': query
+      };
     };
 
-    Collection.prototype.findObject = function(template) { return this.findOne(this.byExample(template)); };
+    Collection.prototype.findObject = function (template) {
+      return this.findOne(this.byExample(template));
+    };
 
-    Collection.prototype.findObjects = function(template) { return this.find(this.byExample(template)); };
+    Collection.prototype.findObjects = function (template) {
+      return this.find(this.byExample(template));
+    };
 
     /*----------------------------+
     | INDEXING                    |
@@ -10628,6 +11506,10 @@ Library.prototype.test = function(obj, type) {
 
       var index = this.constraints.unique[field];
       if (!index) {
+        // keep track of new unique index for regenerate after database (re)load.
+        if (this.uniqueNames.indexOf(field) == -1) {
+          this.uniqueNames.push(field);
+        }
         this.constraints.unique[field] = index = new UniqueIndex(field);
       }
       var self = this;
@@ -10689,8 +11571,8 @@ Library.prototype.test = function(obj, type) {
      * Each collection maintains a list of DynamicViews associated with it
      **/
 
-    Collection.prototype.addDynamicView = function (name, persistent) {
-      var dv = new DynamicView(this, name, persistent);
+    Collection.prototype.addDynamicView = function (name, options) {
+      var dv = new DynamicView(this, name, options);
       this.DynamicViews.push(dv);
 
       return dv;
@@ -10842,7 +11724,7 @@ Library.prototype.test = function(obj, type) {
         this.commit();
         this.dirty = true; // for autosave scenarios
         this.emit('update', doc);
-
+        return doc;
       } catch (err) {
         this.rollback();
         console.error(err.message);
@@ -10887,13 +11769,14 @@ Library.prototype.test = function(obj, type) {
         obj.$loki = this.maxId;
         obj.meta.version = 0;
 
-        // add the object
-        this.data.push(obj);
-
         var self = this;
         Object.keys(this.constraints.unique).forEach(function (key) {
+          // Function set will throw error when unique constraint is not honoured
           self.constraints.unique[key].set(obj);
         });
+
+        // add the object
+        this.data.push(obj);
 
         // now that we can efficiently determine the data[] position of newly added document,
         // submit it for all registered DynamicViews to evaluate for inclusion/exclusion
@@ -10973,7 +11856,7 @@ Library.prototype.test = function(obj, type) {
           position = arr[1];
         var self = this;
         Object.keys(this.constraints.unique).forEach(function (key) {
-          if( doc[key] !== null && typeof doc[key] !== 'undefined' ) {
+          if (doc[key] !== null && typeof doc[key] !== 'undefined') {
             self.constraints.unique[key].remove(doc[key]);
           }
         });
@@ -11073,9 +11956,32 @@ Library.prototype.test = function(obj, type) {
     /**
      * Chain method, used for beginning a series of chained find() and/or view() operations
      * on a collection.
+     *
+     * @param {array} transform : Ordered array of transform step objects similar to chain
+     * @param {object} parameters: Object containing properties representing parameters to substitute
+     * @returns {Resultset} : (or data array if any map or join functions where called)
      */
-    Collection.prototype.chain = function () {
-      return new Resultset(this, null, null);
+    Collection.prototype.chain = function (transform, parameters) {
+      var rs = new Resultset(this, null, null);
+
+      if (typeof transform === 'undefined') {
+        return rs;
+      }
+
+      // if transform is name, then do lookup first
+      if (typeof transform === 'string') {
+        if (this.transforms.hasOwnProperty(transform)) {
+          transform = this.transforms[transform];
+        }
+      }
+
+      // either they passed in raw transform array or we looked it up, so process
+      if (typeof transform === 'object' && Array.isArray(transform)) {
+        // if parameters were passed, apply them
+        return rs.transform(transform, parameters);
+      }
+
+      return null;
     };
 
     /**
@@ -11497,7 +12403,7 @@ Library.prototype.test = function(obj, type) {
     UniqueIndex.prototype.keyMap = {};
     UniqueIndex.prototype.lokiMap = {};
     UniqueIndex.prototype.set = function (obj) {
-      if (obj[this.field] !== null && typeof(obj[this.field]) !== 'undefined') {
+      if (obj[this.field] !== null && typeof (obj[this.field]) !== 'undefined') {
         if (this.keyMap[obj[this.field]]) {
           throw new Error('Duplicate key for property ' + this.field + ': ' + obj[this.field]);
         } else {
@@ -11525,7 +12431,7 @@ Library.prototype.test = function(obj, type) {
     };
     UniqueIndex.prototype.remove = function (key) {
       var obj = this.keyMap[key];
-      if( obj !== null && typeof obj !== 'undefined') {
+      if (obj !== null && typeof obj !== 'undefined') {
         this.keyMap[key] = undefined;
         this.lokiMap[obj.$loki] = undefined;
       } else {
@@ -11542,7 +12448,7 @@ Library.prototype.test = function(obj, type) {
       this.field = exactField;
     }
 
-    // add the value you want returned to the key in the index 
+    // add the value you want returned to the key in the index
     ExactIndex.prototype = {
       set: function add(key, val) {
         if (this.index[key]) {
@@ -11594,7 +12500,7 @@ Library.prototype.test = function(obj, type) {
       setSort: function (fun) {
         this.bs = new BSonSort(fun);
       },
-      // add the value you want returned  to the key in the index  
+      // add the value you want returned  to the key in the index
       set: function (key, value) {
         var pos = binarySearch(this.keys, key, this.sort);
         if (pos.found) {
@@ -11653,7 +12559,7 @@ Library.prototype.test = function(obj, type) {
         }
       },
       // clear will zap the index
-      clear: function (key) {
+      clear: function () {
         this.keys = [];
         this.values = [];
       }
@@ -11668,10 +12574,10 @@ Library.prototype.test = function(obj, type) {
 }));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"fs":7}],48:[function(require,module,exports){
+},{"./loki-indexed-adapter.js":47,"fs":7}],49:[function(require,module,exports){
 module.exports = require('./src');
 
-},{"./src":61}],49:[function(require,module,exports){
+},{"./src":62}],50:[function(require,module,exports){
 'use strict';
 
 //
@@ -11935,7 +12841,7 @@ if ('undefined' !== typeof module) {
   module.exports = EventEmitter;
 }
 
-},{}],50:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 /**
  * A module of methods that you want to include in all actions.
  * This module is consumed by `createAction`.
@@ -11943,7 +12849,7 @@ if ('undefined' !== typeof module) {
 module.exports = {
 };
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 exports.createdStores = [];
 
 exports.createdActions = [];
@@ -11957,7 +12863,7 @@ exports.reset = function() {
     }
 };
 
-},{}],52:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 var _ = require('./utils'),
     maker = require('./joins').instanceJoinCreator;
 
@@ -12179,7 +13085,7 @@ module.exports = {
     joinStrict: maker("strict")
 };
 
-},{"./joins":62,"./utils":66}],53:[function(require,module,exports){
+},{"./joins":63,"./utils":67}],54:[function(require,module,exports){
 var _ = require('./utils'),
     ListenerMethods = require('./ListenerMethods');
 
@@ -12198,7 +13104,7 @@ module.exports = _.extend({
 
 }, ListenerMethods);
 
-},{"./ListenerMethods":52,"./utils":66}],54:[function(require,module,exports){
+},{"./ListenerMethods":53,"./utils":67}],55:[function(require,module,exports){
 var _ = require('./utils');
 
 /**
@@ -12381,7 +13287,7 @@ module.exports = {
     }
 };
 
-},{"./utils":66}],55:[function(require,module,exports){
+},{"./utils":67}],56:[function(require,module,exports){
 /**
  * A module of methods that you want to include in all stores.
  * This module is consumed by `createStore`.
@@ -12389,7 +13295,7 @@ module.exports = {
 module.exports = {
 };
 
-},{}],56:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 module.exports = function(store, definition) {
   for (var name in definition) {
     if (Object.getOwnPropertyDescriptor && Object.defineProperty) {
@@ -12414,7 +13320,7 @@ module.exports = function(store, definition) {
   return store;
 };
 
-},{}],57:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 var ListenerMethods = require('./ListenerMethods'),
     ListenerMixin = require('./ListenerMixin'),
     _ = require('./utils');
@@ -12443,7 +13349,7 @@ module.exports = function(listenable,key){
     };
 };
 
-},{"./ListenerMethods":52,"./ListenerMixin":53,"./utils":66}],58:[function(require,module,exports){
+},{"./ListenerMethods":53,"./ListenerMixin":54,"./utils":67}],59:[function(require,module,exports){
 var ListenerMethods = require('./ListenerMethods'),
     ListenerMixin = require('./ListenerMixin'),
     _ = require('./utils');
@@ -12485,7 +13391,7 @@ module.exports = function(listenable, key, filterFunc) {
 };
 
 
-},{"./ListenerMethods":52,"./ListenerMixin":53,"./utils":66}],59:[function(require,module,exports){
+},{"./ListenerMethods":53,"./ListenerMixin":54,"./utils":67}],60:[function(require,module,exports){
 var _ = require('./utils'),
     ActionMethods = require('./ActionMethods'),
     PublisherMethods = require('./PublisherMethods'),
@@ -12555,7 +13461,7 @@ var createAction = function(definition) {
 
 module.exports = createAction;
 
-},{"./ActionMethods":50,"./Keep":51,"./PublisherMethods":54,"./utils":66}],60:[function(require,module,exports){
+},{"./ActionMethods":51,"./Keep":52,"./PublisherMethods":55,"./utils":67}],61:[function(require,module,exports){
 var _ = require('./utils'),
     Keep = require('./Keep'),
     mixer = require('./mixer'),
@@ -12621,7 +13527,7 @@ module.exports = function(definition) {
     return store;
 };
 
-},{"./Keep":51,"./ListenerMethods":52,"./PublisherMethods":54,"./StoreMethods":55,"./bindMethods":56,"./mixer":65,"./utils":66}],61:[function(require,module,exports){
+},{"./Keep":52,"./ListenerMethods":53,"./PublisherMethods":55,"./StoreMethods":56,"./bindMethods":57,"./mixer":66,"./utils":67}],62:[function(require,module,exports){
 exports.ActionMethods = require('./ActionMethods');
 
 exports.ListenerMethods = require('./ListenerMethods');
@@ -12728,7 +13634,7 @@ if (!Function.prototype.bind) {
   );
 }
 
-},{"./ActionMethods":50,"./Keep":51,"./ListenerMethods":52,"./ListenerMixin":53,"./PublisherMethods":54,"./StoreMethods":55,"./connect":57,"./connectFilter":58,"./createAction":59,"./createStore":60,"./joins":62,"./listenTo":63,"./listenToMany":64,"./utils":66}],62:[function(require,module,exports){
+},{"./ActionMethods":51,"./Keep":52,"./ListenerMethods":53,"./ListenerMixin":54,"./PublisherMethods":55,"./StoreMethods":56,"./connect":58,"./connectFilter":59,"./createAction":60,"./createStore":61,"./joins":63,"./listenTo":64,"./listenToMany":65,"./utils":67}],63:[function(require,module,exports){
 /**
  * Internal module used to create static and instance join methods
  */
@@ -12836,7 +13742,7 @@ function emitIfAllListenablesEmitted(join) {
     reset(join);
 }
 
-},{"./createStore":60,"./utils":66}],63:[function(require,module,exports){
+},{"./createStore":61,"./utils":67}],64:[function(require,module,exports){
 var ListenerMethods = require('./ListenerMethods');
 
 /**
@@ -12873,7 +13779,7 @@ module.exports = function(listenable,callback,initial){
     };
 };
 
-},{"./ListenerMethods":52}],64:[function(require,module,exports){
+},{"./ListenerMethods":53}],65:[function(require,module,exports){
 var ListenerMethods = require('./ListenerMethods');
 
 /**
@@ -12908,7 +13814,7 @@ module.exports = function(listenables){
     };
 };
 
-},{"./ListenerMethods":52}],65:[function(require,module,exports){
+},{"./ListenerMethods":53}],66:[function(require,module,exports){
 var _ = require('./utils');
 
 module.exports = function mix(def) {
@@ -12967,7 +13873,7 @@ module.exports = function mix(def) {
     return updated;
 };
 
-},{"./utils":66}],66:[function(require,module,exports){
+},{"./utils":67}],67:[function(require,module,exports){
 exports.environment = {};
 
 /*
@@ -13046,4 +13952,4 @@ exports.throwIf = function(val,msg){
     }
 };
 
-},{"eventemitter3":49}]},{},[6]);
+},{"eventemitter3":50}]},{},[6]);

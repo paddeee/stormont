@@ -303,7 +303,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               transformFrom: 'translateY(0)',
               transformTo: 'translateY(100%)'
             }
-          }
+          };
         }
       }
     },
@@ -383,8 +383,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // When the presentations data is updated, set this view's presentationsData
         this.presentationsStore.listen(function(presentationsStore) {
-          this.presentationName = presentationsStore.presentationName
-          this.presentationState = presentationsStore.presentationState
+          this.presentationName = presentationsStore.presentationName;
+          this.presentationState = presentationsStore.presentationState;
         }.bind(this));
       }
     },

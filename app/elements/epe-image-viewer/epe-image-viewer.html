@@ -326,13 +326,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           imageRatio = $containerWidth / $containerHeight;
 
           // Take footer into account
-          bottom = parseInt(getComputedStyle(this.$.ImageContainer).getPropertyValue("bottom"), 10);
+          bottom = parseInt(getComputedStyle(this.$.ImageContainer).getPropertyValue('bottom'), 10);
 
           // Container values
-          containerPaddingTop = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue("padding-top"), 10);
-          containerPaddingRight = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue("padding-right"), 10);
-          containerPaddingBottom = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue("padding-bottom"), 10);
-          containerPaddingLeft = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue("padding-left"), 10);
+          containerPaddingTop = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue('padding-top'), 10);
+          containerPaddingRight = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue('padding-right'), 10);
+          containerPaddingBottom = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue('padding-bottom'), 10);
+          containerPaddingLeft = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue('padding-left'), 10);
           actualContainerWidth = this.$.ImageContent.clientWidth - containerPaddingLeft - containerPaddingRight;
           actualContainerHeight = this.$.ImageContent.clientHeight - containerPaddingTop - containerPaddingBottom - bottom;
 
@@ -437,6 +437,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     zoomImage: function() {
 
       var $image = this.$.Image;
+      var imageCoords;
+
       var canvasCoords = {
         x: 0,
         y: 0
@@ -563,7 +565,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       return {
         x: imageX,
         y: imageY
-      }
+      };
     },
 
     // Reset Image

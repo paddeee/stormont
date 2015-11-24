@@ -215,40 +215,40 @@ module.exports = Reflux.createStore({
     var fileExtension = filePath.substr(filePath.lastIndexOf('.') + 1);
 
     switch (fileExtension) {
-      case "pdf":
+      case 'pdf':
         this.selectedSourceRoute = 'pdf';
         this.selectedSourceFileType = 'pdf';
         break;
-      case "jpg":
+      case 'jpg':
         this.selectedSourceRoute = 'image';
         this.selectedSourceFileType = 'image';
         break;
-      case "jpeg":
+      case 'jpeg':
         this.selectedSourceRoute = 'image';
         this.selectedSourceFileType = 'image';
         break;
-      case "mp3":
+      case 'mp3':
         this.selectedSourceRoute = 'media';
         this.selectedSourceFileType = 'audio';
         break;
-      case "wav":
+      case 'wav':
         this.selectedSourceRoute = 'media';
         this.selectedSourceFileType = 'audio';
         break;
-      case "avi":
+      case 'avi':
         this.selectedSourceRoute = 'media';
         this.selectedSourceFileType = 'audio';
         break;
-      case "mp4":
+      case 'mp4':
         this.selectedSourceRoute = 'media';
         this.selectedSourceFileType = 'video';
         break;
-      case "mov":
+      case 'mov':
         this.selectedSourceRoute = 'media';
         this.selectedSourceFileType = 'video';
         break;
       default:
-        console.warn(fileExtension + "not a supported type");
+        console.warn(fileExtension + 'not a supported type');
     }
   }
 });
