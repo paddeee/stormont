@@ -529,8 +529,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Rotate Page clockwise
     rotateClockWise: function() {
 
-      this.clockwise = true;
-
       // Save all annotation objects as PDF.js zoom will destroy the current canvas element
       this.saveCanvasAnnotationObjects();
 
@@ -540,8 +538,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Rotate Page anti-clockwise
     rotateAntiClockWise: function() {
-
-      this.clockwise = false;
 
       // Save all annotation objects as PDF.js zoom will destroy the current canvas element
       this.saveCanvasAnnotationObjects();
@@ -704,11 +700,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         $epeAnnotations.zoom(PDFViewerApplication.pdfViewer.currentScale);
 
         // Set canvas rotation to same as current rotation
-        $epeAnnotations.rotate(PDFViewerApplication.pdfViewer.pagesRotation, this.clockwise);
-
-        // Set clockwise property to undefined as this can be used by annotations element to only
-        // perform rotation functionality if rotation has been actively called by the user
-        //this.clockwise = undefined;
+        $epeAnnotations.rotate(PDFViewerApplication.pdfViewer.pagesRotation);
       }
     },
 
