@@ -313,40 +313,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Set canvas zoom level
     rotate: function(degrees, clockwise) {
 
-      var zoomLevel = this.canvas.getZoom();
-      var canvasActualHeight = this.canvas.height / zoomLevel; // Need to take zoom level into account to get actual width
-      var canvasActualWidth = this.canvas.width / zoomLevel; // Need to take zoom level into account to get actual width
-      var left;
-      var top;
+      var angle = degrees;
 
       this.canvas.getObjects().forEach(function (object) {
 
-        left = object.left;
-        top = object.top;
-        angle = degrees;
+        var rotationAmount;
+        var coords;
 
         // Rotate could be called just by a page scroll or as the result of a Zoom, in which case, do nothing
         if (degrees === object.angle) {
           return;
         }
 
-        // Rotating clockwise
+        // Pages could be rotated 180 or 270 degrees while canvas is off screen.
+        // Need to calculate how many times to rotate based off difference
+        rotationAmount = Math.abs(degrees - object.angle) / 90;
+        console.log(rotationAmount);
+
         if (clockwise) {
-
-          top = object.left;
-          left = canvasActualWidth - object.top;
-
-        // Rotating anti-clockwise
+          coords = this.rotateObjectClockwise(object, rotationAmount);
         } else {
-
-          left = object.top;
-          top = canvasActualHeight - object.left;
+          coords = this.rotateObjectAntiClockwise(object, rotationAmount);
         }
 
         object.set({
           angle: angle,
-          left: left,
-          top: top
+          left: coords.left,
+          top: coords.top
         });
 
         object.setCoords();
@@ -354,6 +347,51 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.canvas.renderAll();
 
       }.bind(this));
+    },
+
+    // Set x and y coordinates of an object rotated clockwise
+    rotateObjectClockwise: function(object, rotationAmount) {
+
+      var left;
+      var top;
+      var zoomLevel = this.canvas.getZoom();
+      var canvasActualWidth = this.canvas.width / zoomLevel; // Need to take zoom level into account to get actual width
+      var canvasActualHeight = this.canvas.height / zoomLevel; // Need to take zoom level into account to get actual width
+
+      // PDF can be rotated several times with annotations out of view
+      if (rotationAmount === 1) {
+        top = object.left;
+        left = canvasActualWidth - object.top;
+      } else if (rotationAmount === 2) {
+
+      } else if (rotationAmount === 3) {
+        top = object.top;
+        left = canvasActualHeight - object.left;
+      }
+
+      return {
+        left: left,
+        top: top
+      }
+    },
+
+    // Set x and y coordinates of an object rotated anti-clockwise
+    rotateObjectAntiClockwise: function(object, rotationAmount) {
+
+      var left;
+      var top;
+      var zoomLevel = this.canvas.getZoom();
+      var canvasActualHeight = this.canvas.height / zoomLevel; // Need to take zoom level into account to get actual width
+
+      if (rotationAmount === 3) {
+        top = object.top;
+        left = canvasActualHeight - object.left;
+      }
+
+      return {
+        left: left,
+        top: top
+      }
     },
 
     // Pan the canvas to specified x and y coordinates
