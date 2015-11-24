@@ -181,9 +181,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       elem.id = Math.random();
       this.canvas = new fabric.Canvas(elem.id);
 
+      this.canvas.on("object:added", this.canvasObjectAdded.bind(this));
       this.canvas.on("object:selected", this.canvasObjectSelected.bind(this));
       this.canvas.on("path:created", this.canvasPathCreated.bind(this));
       this.canvas.on("mouse:down", this.canvasMouseDown.bind(this));
+    },
+
+    // Is called internally when a new path has been created on the canvas.
+    canvasObjectAdded: function(event) {
+
+      // Lock rotation for PDF
+      // ToDo: Use another property than angle of object when rotating PDF to calculate position. Until then, lock down
+      if (this.annotationType === 'pdf') {
+        event.target.lockRotation = true;
+      }
+      this.fire("annotation-object-added");
     },
 
     // Called when a new drawing object has been added to the canvas.

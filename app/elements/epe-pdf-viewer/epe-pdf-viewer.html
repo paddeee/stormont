@@ -675,6 +675,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // name doesn't pick up the styles. Maybe a Polymer thing?
         $epeAnnotations.classList.add('pdfannotations');
 
+        // Pass in annotation type as PDF
+        $epeAnnotations.annotationType = 'pdf';
+
         // Set page number as a data attribute so it's easy to retrieve
         $epeAnnotations.dataset.pageNumber = pageNumber;
 
