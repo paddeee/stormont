@@ -522,9 +522,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Rotate Page clockwise
     rotateClockWise: function() {
 
-      // Keep reference to canvas dimensions as this will be needed to calculate new object
-      // coordinates after rotation
-      //this.setRotationData();
+      this.clockwise = true;
 
       // Save all annotation objects as PDF.js zoom will destroy the current canvas element
       this.saveCanvasAnnotationObjects();
@@ -535,6 +533,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Rotate Page anti-clockwise
     rotateAntiClockWise: function() {
+
+      this.clockwise = false;
 
       // Save all annotation objects as PDF.js zoom will destroy the current canvas element
       this.saveCanvasAnnotationObjects();
@@ -697,7 +697,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         $epeAnnotations.zoom(PDFViewerApplication.pdfViewer.currentScale);
 
         // Set canvas rotation to same as current rotation
-        $epeAnnotations.rotate(PDFViewerApplication.pdfViewer.pagesRotation);
+        $epeAnnotations.rotate(PDFViewerApplication.pdfViewer.pagesRotation, this.clockwise);
+
+        // Set clockwise property to undefined as this can be used by annotations element to only
+        // perform rotation functionality if rotation has been actively called by the user
+        //this.clockwise = undefined;
       }
     },
 
@@ -728,22 +732,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Set pointerEvents state on epe-annotations element
         $epeAnnotation.pointerEvents = this.pointerEvents;
 
-      }.bind(this));
-    },
-
-    // Keep reference to canvas dimensions as this will be needed to calculate new object
-    // coordinates after rotation
-    setRotationData: function() {
-
-      var temporaryAnnotationsCollection = this.querySelectorAll('.pdfannotations');
-
-      // Store canvas properties in temporary array as PDF.js will wipe out
-      // existing elements on Zoom
-      temporaryAnnotationsCollection.forEach(function($epeAnnotation) {
-
-        // Set pointerEvents state on epe-annotations element
-        $epeAnnotation.rotationWidth = $epeAnnotation.canvas.height;
-debugger;
       }.bind(this));
     }
 
