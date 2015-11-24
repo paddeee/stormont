@@ -204,7 +204,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div id="AddText" class="add-text" on-tap="addText">T</div>
             <div id="HighlightText" class="highlight-text" on-tap="highlightText">T</div>
             <paper-icon-button id="AddLine" icon="icons:remove" on-tap="addLine"></paper-icon-button>
-            <paper-icon-button id="AddPolygon" icon="image:panorama-horizontal" on-tap="addPolygon"></paper-icon-button>
+            <paper-icon-button id="AddPolygon" icon="image:panorama-horizontal" on-tap="addPolygon" hidden></paper-icon-button>
             <paper-icon-button id="DeleteAnnotation" icon="delete" on-tap="deleteAnnotation"></paper-icon-button>
           </div>
 
@@ -396,6 +396,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     ready: function() {
 
+      // Get element this way as parent element isn't yet available through document.querySelector
+      var $epeNetworked = app.$.epeNetworked;
+
       // Add listener to make sure page is updated when a new one is rendered
       window.addEventListener('pagechange', function () {
 
@@ -418,6 +421,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.addAnnnotationsLayerToPage(event.target);
 
       }.bind(this), true);
+
+      $epeNetworked.addEventListener('not-pdf-route', function() {
+        this.resetPDFAnnotations();
+      }.bind(this));
     },
 
     // CALLED FROM OBSERVER ON PDFOBJECT
@@ -731,6 +738,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Set pointerEvents state on epe-annotations element
         $epeAnnotation.pointerEvents = this.pointerEvents;
+
+      }.bind(this));
+    },
+
+    // Kill off all annotations
+    resetPDFAnnotations: function() {
+
+      var temporaryAnnotationsCollection = this.querySelectorAll('.pdfannotations');
+
+      // Store canvas properties in temporary array as PDF.js will wipe out
+      // existing elements on Zoom
+      temporaryAnnotationsCollection.forEach(function($epeAnnotation) {
+
+        // Set pointerEvents state on epe-annotations element
+        $epeAnnotation.showEditor = false;
+        $epeAnnotation.reset();
 
       }.bind(this));
     }
