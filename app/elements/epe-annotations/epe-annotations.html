@@ -177,14 +177,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // because of shady DOM we have to assign the canvas a random ID otherwise fabric.js
       // finds only the first occurrence
-      var elem = this.querySelector("canvas");
+      var elem = this.querySelector('canvas');
       elem.id = Math.random();
-      this.canvas = new fabric.Canvas(elem.id);
 
-      this.canvas.on("object:added", this.canvasObjectAdded.bind(this));
-      this.canvas.on("object:selected", this.canvasObjectSelected.bind(this));
-      this.canvas.on("path:created", this.canvasPathCreated.bind(this));
-      this.canvas.on("mouse:down", this.canvasMouseDown.bind(this));
+      this.canvas = new window.fabric.Canvas(elem.id);
+
+      this.canvas.on('object:added', this.canvasObjectAdded.bind(this));
+      this.canvas.on('object:selected', this.canvasObjectSelected.bind(this));
+      this.canvas.on('path:created', this.canvasPathCreated.bind(this));
+      this.canvas.on('mouse:down', this.canvasMouseDown.bind(this));
     },
 
     // Is called internally when a new path has been created on the canvas.
@@ -195,7 +196,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (this.annotationType === 'pdf') {
         event.target.lockRotation = true;
       }
-      this.fire("annotation-object-added");
+      this.fire('annotation-object-added');
     },
 
     // Called when a new drawing object has been added to the canvas.
@@ -226,18 +227,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.selectedAnnotation = event.target;
       }
 
-      this.fire("annotation-object-selected", {
-        object: event.target
+      this.fire('annotation-object-selected', {
+        //object: event.target
       });
     },
 
     // Is called internally when a new path has been created on the canvas.
-    canvasPathCreated: function(event) {
-      this.fire("annotation-path-created");
+    canvasPathCreated: function() {
+      this.fire('annotation-path-created');
     },
 
-    canvasMouseDown: function(e) {
-      this.fire("annotation-mouse-down");
+    canvasMouseDown: function() {
+      this.fire('annotation-mouse-down');
     },
 
     // Gets the JSON representation of the drawing.
@@ -290,7 +291,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Get the current scale factor
         scaleFactor = (this.annotationWidth / this.currentAnnotationWidth) * currentZoom;
 
-        if(scaleFactor != 1) {
+        if(scaleFactor !== 1) {
 
           this.canvas.setDimensions({
             width: this.annotationWidth,
@@ -379,7 +380,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       return {
         left: left,
         top: top
-      }
+      };
     },
 
     // Set x and y coordinates of an object rotated anti-clockwise
@@ -398,7 +399,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       return {
         left: left,
         top: top
-      }
+      };
     },
 
     // Pan the canvas to specified x and y coordinates
@@ -448,7 +449,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Add a circle
     addCircle: function() {
 
-      var circle = new fabric.Circle({
+      var circle = new window.fabric.Circle({
         radius: 50,
         stroke: this.defaultStrokeColour,
         fill: this.defaultFillColour,
@@ -471,7 +472,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Add a rectangle
     addRect: function() {
 
-      var rect = new fabric.Rect({
+      var rect = new window.fabric.Rect({
         width: 100,
         height: 100,
         stroke: this.defaultStrokeColour,
@@ -494,7 +495,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Add text
     addText: function() {
 
-      var textObjext = new fabric.IText('Start typing..', {
+      var textObjext = new window.fabric.IText('Start typing..', {
         top: this.canvas.getCenter().top / 2,
         left: this.canvas.getCenter().left / 2,
         fill: this.defaultTextColour,
@@ -519,7 +520,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Add a rectangle with highlight colour
     highlightText: function() {
 
-      var highlight = new fabric.Rect({
+      var highlight = new window.fabric.Rect({
         width: 100,
         height: 20,
         fill: this.defaultHighlightFillColour,
@@ -542,7 +543,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Add a line
     addLine: function() {
 
-      var line = new fabric.Line([50, 150, 200, 150], {
+      var line = new window.fabric.Line([50, 150, 200, 150], {
         stroke: this.defaultLineColour,
         strokeWidth: 2,
         top: this.canvas.getCenter().top / 2,
@@ -616,10 +617,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         if (this.pointerEvents) {
           $canvasContainer.style.pointerEvents = 'auto';
-          this.style.pointerEvents = 'auto';
+
+          if (this.annotationType === 'pdf') {
+            this.style.pointerEvents = 'auto';
+          }
         } else {
           $canvasContainer.style.pointerEvents = 'none';
-          this.style.pointerEvents = 'none';
+
+          if (this.annotationType === 'pdf') {
+            this.style.pointerEvents = 'none';
+          }
         }
       }
     }

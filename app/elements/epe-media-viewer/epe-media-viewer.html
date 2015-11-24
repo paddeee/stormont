@@ -281,9 +281,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var $audioContainer = this.$$('#Audio').closest('.video-js');
 
         this.$.Audio.setAttribute('hidden','');
-        $audioContainer && $audioContainer.setAttribute('hidden','');
+
+        if ($audioContainer) {
+          $audioContainer.setAttribute('hidden','');
+        }
+
         this.$.MediaAnnotations.removeAttribute('hidden');
-        $videoContainer && $videoContainer.removeAttribute('hidden');
+
+        if ($videoContainer) {
+          $videoContainer.removeAttribute('hidden');
+        }
 
         this.videoSource = this.mediaObject.Src;
 
@@ -297,7 +304,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }.bind(this));
 
         // Remove annotation canvas layer pointer events when video is playing
-        this.videoPlayer.on("play", function() {
+        this.videoPlayer.on('play', function() {
           this.pointerEvents = false;
         }.bind(this));
 
@@ -315,9 +322,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Hide Video element and show audio element
         this.$.MediaAnnotations.setAttribute('hidden','');
-        $videoContainer && $videoContainer.setAttribute('hidden','');
+
+        if ($videoContainer) {
+          $videoContainer.setAttribute('hidden','');
+        }
+
         this.$.Audio.removeAttribute('hidden');
-        $audioContainer && $audioContainer.removeAttribute('hidden');
+
+        if ($audioContainer) {
+          $audioContainer.removeAttribute('hidden');
+        }
 
         // If audio already exists, kill it and create a new audio element
         if (this.audioPlayer) {

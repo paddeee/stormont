@@ -67,7 +67,7 @@ var importStore = require('./stores/import.js');
   window.addEventListener('WebComponentsReady', function() {
 
     // Set the correct path for leaflet images due to it breking with the build
-    L.Icon.Default.imagePath = './images/leaflet/'
+    window.L.Icon.Default.imagePath = './images/leaflet/';
   });
 
   // Close drawer after menu item is selected if drawerPanel is narrow

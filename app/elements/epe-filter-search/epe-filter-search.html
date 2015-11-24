@@ -184,13 +184,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Computed function to set text input filters if using $regex
     getTextInputFilters: function(filtersShow) {
 
-      var textInputFiltersArray =[];
+      var textInputFiltersArray = [];
 
       filtersShow.forEach(function(filter) {
 
-        _.findKey(filter, function(filterName) {
+        window._.findKey(filter, function(filterName) {
 
-          if (filterName['$regex']) {
+          if (filterName.$regex) {
             textInputFiltersArray.push(filter);
           }
         });
@@ -206,9 +206,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       filtersShow.forEach(function(filter) {
 
-        _.findKey(filter, function(filterName) {
+        window._.findKey(filter, function(filterName) {
 
-          if (filterName['$lte'] || filterName['$gte']) {
+          if (filterName.$lte || filterName.$gte) {
             dateTimeFiltersArray.push(filter);
           }
         });
