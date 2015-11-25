@@ -523,11 +523,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Handle the title when in Create Package section
     setImportTitle: function() {
 
-      if (EpeImport.importRoute === 'import-parse') {
+      if (window.EpeImport.importRoute === 'import-parse') {
         this.sectionTitle = 'Import Casemap File';
-      } else if (EpeImport.importRoute === 'import-check') {
-        if (EpeImportCheck.params) {
-          this.sectionTitle = 'Check ' + EpeImportCheck.params.name + ' CaseMap File';
+      } else if (window.EpeImport.importRoute === 'import-check') {
+        if (window.EpeImportCheck.params) {
+          this.sectionTitle = 'Check ' + window.EpeImportCheck.params.name + ' CaseMap File';
         }
       }
     },
@@ -535,16 +535,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Handle the title when in Create Package section
     setCreatePackageTitle: function() {
 
-      if (EpeCreatePackage.createPackageRoute === 'data-grid') {
+      if (window.EpeCreatePackage.createPackageRoute === 'data-grid') {
 
-        if (EpeCreatePackage.params) {
-          this.sectionTitle = 'Create Package - ' + EpeCreatePackage.params.name;
+        if (window.EpeCreatePackage.params) {
+          this.sectionTitle = 'Create Package - ' + window.EpeCreatePackage.params.name;
         }
 
-      } else if (EpeCreatePackage.createPackageRoute === 'map') {
+      } else if (window.EpeCreatePackage.createPackageRoute === 'map') {
         this.sectionTitle = 'Create Package - Map';
 
-      } else if (EpeCreatePackage.createPackageRoute === 'source') {
+      } else if (window.EpeCreatePackage.createPackageRoute === 'source') {
         this.sectionTitle = 'Create Package - Supporting Evidence';
       }
     },
@@ -552,22 +552,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Handle the title when in Edit Package section
     setEditPackageTitle: function() {
 
-      if (EpeEditPackage.createPackageRoute === 'data-grid') {
+      if (window.EpeEditPackage.createPackageRoute === 'data-grid') {
 
-        if (EpeEditPackage.params) {
+        if (window.EpeEditPackage.params) {
 
           // While we're here, scroll header to top
           this.manageScrollHeader('data-grid');
 
           if (this.presentationName) {
-            this.sectionTitle = this.presentationName + ' - ' + EpeEditPackage.params.name;
+            this.sectionTitle = this.presentationName + ' - ' + window.EpeEditPackage.params.name;
           }
         }
 
-      } else if (EpeEditPackage.createPackageRoute === 'map') {
+      } else if (window.EpeEditPackage.createPackageRoute === 'map') {
         this.sectionTitle = 'Map - ' + this.presentationName;
 
-      } else if (EpeEditPackage.createPackageRoute === 'source') {
+      } else if (window.EpeEditPackage.createPackageRoute === 'source') {
         this.sectionTitle = 'Supporting Evidence - ' + this.presentationName;
       }
     },

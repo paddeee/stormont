@@ -402,8 +402,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Add listener to make sure page is updated when a new one is rendered
       window.addEventListener('pagechange', function () {
 
-        this.page = PDFViewerApplication.page;
-        this.numPages = PDFViewerApplication.pagesCount;
+        this.page = window.PDFViewerApplication.page;
+        this.numPages = window.PDFViewerApplication.pagesCount;
 
         this.$.Previous.disabled = (this.page <= 1);
         this.$.Next.disabled = (this.page >= this.numPages);
@@ -434,30 +434,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         this.pdfName = this.pdfObject.Headline;
 
-        //if (!PDFViewerApplication.initialized) {
+        if (window.PDFViewerApplication.page) {
+          this.page = window.PDFViewerApplication.page;
+          this.scaleToAuto();
+        }
 
-          if (PDFViewerApplication.page) {
-            this.page = PDFViewerApplication.page;
-            this.scaleToAuto();
+        // Kickstart loading PDF using this window.created from pdf-viewer.js
+        // but only for one instance of this element
+        if (this.editState === this.presentationState) {
+
+          // Close findBar if it was left open
+          if (window.PDFViewerApplication.findBar) {
+            window.PDFViewerApplication.findBar.updateResultsCount();
+            this.closeFindBar();
+            this.$.findResultsCount.classList.add('hidden');
+            this.$.findInput.value = '';
+            this.$.findMsg.textContent = 'Search document';
           }
 
-          // Kickstart loading PDF using this global created from pdf-viewer.js
-          // but only for one instance of this element
-          if (this.editState === this.presentationState) {
-
-            // Close findBar if it was left open
-            if (PDFViewerApplication.findBar) {
-              PDFViewerApplication.findBar.updateResultsCount();
-              this.closeFindBar();
-              this.$.findResultsCount.classList.add('hidden');
-              this.$.findInput.value = '';
-              this.$.findMsg.textContent = 'Search document';
-            }
-
-            // Instantiate PDF Viewer
-            webViewerLoad(this);
-          }
-        //}
+          // Instantiate PDF Viewer
+          window.webViewerLoad(this);
+        }
       }
     },
 
@@ -468,12 +465,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Show previous page of PDF
     showPreviousPage: function() {
-      PDFViewerApplication.page--;
+      window.PDFViewerApplication.page--;
     },
 
     // Show next page of PDF
     showNextPage: function() {
-      PDFViewerApplication.page++;
+      window.PDFViewerApplication.page++;
     },
 
     // Zoom in to PDF
@@ -483,7 +480,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.saveCanvasAnnotationObjects();
 
       // Zoom into PDF
-      PDFViewerApplication.zoomIn();
+      window.PDFViewerApplication.zoomIn();
     },
 
     // Zoom out of PDF
@@ -493,7 +490,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.saveCanvasAnnotationObjects();
 
       // Zoom out of PDF
-      PDFViewerApplication.zoomOut();
+      window.PDFViewerApplication.zoomOut();
     },
 
     // Set PDF Scale to actual size
@@ -503,7 +500,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.saveCanvasAnnotationObjects();
 
       // Set PDF Scale to actual size
-      PDFViewerApplication.pdfViewer.currentScaleValue = 'auto';
+      window.PDFViewerApplication.pdfViewer.currentScaleValue = 'auto';
     },
 
     // Fit PDF Scale to width
@@ -513,7 +510,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.saveCanvasAnnotationObjects();
 
       // Fit PDF Scale to width
-      PDFViewerApplication.pdfViewer.currentScaleValue = 'page-width';
+      window.PDFViewerApplication.pdfViewer.currentScaleValue = 'page-width';
     },
 
     // Fit PDF Scale to page
@@ -523,7 +520,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.saveCanvasAnnotationObjects();
 
       // Fit PDF Scale to page
-      PDFViewerApplication.pdfViewer.currentScaleValue = 'page-fit';
+      window.PDFViewerApplication.pdfViewer.currentScaleValue = 'page-fit';
     },
 
     // Rotate Page clockwise
@@ -533,7 +530,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.saveCanvasAnnotationObjects();
 
       // Rotate Page clockwise
-      PDFViewerApplication.rotatePages(90);
+      window.PDFViewerApplication.rotatePages(90);
     },
 
     // Rotate Page anti-clockwise
@@ -543,15 +540,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.saveCanvasAnnotationObjects();
 
       // Rotate Page anti-clockwise
-      PDFViewerApplication.rotatePages(-90);
+      window.PDFViewerApplication.rotatePages(-90);
     },
 
     // Close the find bar
     closeFindBar: function() {
 
-      if (PDFViewerApplication.findBar) {
-        PDFViewerApplication.findBar.opened = true;
-        PDFViewerApplication.findBar.close();
+      if (window.PDFViewerApplication.findBar) {
+        window.PDFViewerApplication.findBar.opened = true;
+        window.PDFViewerApplication.findBar.close();
       }
     },
 
@@ -562,7 +559,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var $caseCheckbox = this.$.findMatchCase;
       var $highlightCheck = this.$.findHighlightAll;
 
-      PDFViewerApplication.findBar.dispatchEvent('again', true, $queryInput, $caseCheckbox, $highlightCheck);
+      window.PDFViewerApplication.findBar.dispatchEvent('again', true, $queryInput, $caseCheckbox, $highlightCheck);
     },
 
     // Find next result in PDF
@@ -572,7 +569,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var $caseCheckbox = this.$.findMatchCase;
       var $highlightCheck = this.$.findHighlightAll;
 
-      PDFViewerApplication.findBar.dispatchEvent('again', false, $queryInput, $caseCheckbox, $highlightCheck);
+      window.PDFViewerApplication.findBar.dispatchEvent('again', false, $queryInput, $caseCheckbox, $highlightCheck);
     },
 
     // Show associated source information
@@ -700,10 +697,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         $epeAnnotations.setCanvasDimensions();
 
         // Set canvas zoom to same as current scale
-        $epeAnnotations.zoom(PDFViewerApplication.pdfViewer.currentScale);
+        $epeAnnotations.zoom(window.PDFViewerApplication.pdfViewer.currentScale);
 
         // Set canvas rotation to same as current rotation
-        $epeAnnotations.rotate(PDFViewerApplication.pdfViewer.pagesRotation);
+        $epeAnnotations.rotate(window.PDFViewerApplication.pdfViewer.pagesRotation);
       }
     },
 

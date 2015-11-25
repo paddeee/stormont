@@ -236,7 +236,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Return a friendly date
     formatCreatedDate: function(timeStamp) {
-      return window.moment(timeStamp).calendar();
+      return global.moment(timeStamp).calendar();
     },
 
     // Handle expanded content for a list item
@@ -251,7 +251,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Return expanded class for an item
-    getClassForItem: function($item, expanded) {
+    getClassForItem: function($item) {
       if ($item.classList.contains('expanded')) {
         $item.classList.remove('expanded');
       } else {

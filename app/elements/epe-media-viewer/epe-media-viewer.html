@@ -294,7 +294,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         this.videoSource = this.mediaObject.Src;
 
-        this.videoPlayer = videojs(this.$.Video, {
+        this.videoPlayer = global.videojs(this.$.Video, {
           fluid: this.fluid
         }).ready(function() {
 
@@ -349,23 +349,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.setAudioPlayerDimensions();
 
         // Create an audio player instance
-        this.audioPlayer = videojs($audioElement, {
+        this.audioPlayer = global.videojs($audioElement, {
           width: this.audioPlayerWidth,
           height: this.audioPlayerHeight,
           plugins: {
             wavesurfer: {
               src: this.mediaObject.Src,
               msDisplayMax: 10,
-              waveColor: "white",
-              progressColor: "yellow",
-              cursorColor: "white",
+              waveColor: 'white',
+              progressColor: 'yellow',
+              cursorColor: 'white',
               scrollParent: false
             }
           }
         }).ready(function() {
 
           // change player background color
-          this.audioPlayer.el().style.backgroundColor = "#212121";
+          this.audioPlayer.el().style.backgroundColor = '#212121';
 
           // Show audio
           this.async(this.showMedia, 700);
@@ -380,9 +380,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       setAudioPlayerDimensions: function() {
 
         // Container values
-        var containerPaddingRight = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue("padding-right"), 10);
-        var containerPaddingLeft = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue("padding-left"), 10);
-        var containerWidth = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue("width"), 10);
+        var containerPaddingRight = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue('padding-right'), 10);
+        var containerPaddingLeft = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue('padding-left'), 10);
+        var containerWidth = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue('width'), 10);
 
         this.audioPlayerWidth = containerWidth - containerPaddingLeft - containerPaddingRight;
         this.audioPlayerHeight = Math.round(this.audioPlayerWidth / 2);
@@ -410,10 +410,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         if (player === 'video') {
           fullScreenToggle = this.videoPlayer.controlBar.fullscreenToggle.el();
-          videojs.on(fullScreenToggle, 'tap', self.fullScreenToggleTapped);
+          global.videojs.on(fullScreenToggle, 'tap', self.fullScreenToggleTapped);
         } else if (player === 'audio') {
           fullScreenAudioToggle = this.audioPlayer.controlBar.fullscreenToggle.el();
-          videojs.on(fullScreenAudioToggle, 'tap', self.fullScreenToggleTapped);
+          global.videojs.on(fullScreenAudioToggle, 'tap', self.fullScreenToggleTapped);
         }
       },
 
@@ -432,13 +432,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (player === 'video') {
           playToggleButton = this.videoPlayer.controlBar.playToggle.el();
           fullScreenToggle = this.videoPlayer.controlBar.fullscreenToggle.el();
-          videojs.off(playToggleButton, 'click');
-          videojs.off(fullScreenToggle, 'click');
+          global.videojs.off(playToggleButton, 'click');
+          global.videojs.off(fullScreenToggle, 'click');
         } else if (player === 'audio') {
           playToggleAudioButton = this.audioPlayer.controlBar.playToggle.el();
           fullScreenAudioToggle = this.audioPlayer.controlBar.fullscreenToggle.el();
-          videojs.off(playToggleAudioButton, 'click');
-          videojs.off(fullScreenAudioToggle, 'click');
+          global.videojs.off(playToggleAudioButton, 'click');
+          global.videojs.off(fullScreenAudioToggle, 'click');
         }
       },
 
