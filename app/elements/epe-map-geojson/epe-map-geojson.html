@@ -23,277 +23,278 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 </dom-module>
 
 <script>
-  "use strict";
 
-  Polymer({
+  (function() {
+    Polymer({
 
-    is: 'epe-map-geojson',
+      is: 'epe-map-geojson',
 
-    behaviors: [leafletMap.LeafletILayer],
+      behaviors: [window.leafletMap.LeafletILayer],
 
-    properties: {
-      /**
-       * data as geojson object
-       *
-       * @property data
-       * @type Object
-       */
-      data: {
-        type: Object,
-        observer: "_dataChanged"
+      properties: {
+        /**
+         * data as geojson object
+         *
+         * @property data
+         * @type Object
+         */
+        data: {
+          type: Object,
+          observer: '_dataChanged'
+        },
+
+        container: {
+          type: Object,
+          observer: '_containerChanged'
+        },
+        /**
+
+         /**
+         * The attribute `color` sets the stroke color.
+         *
+         * @attribute color
+         * @type string
+         */
+        color: {
+          type: String,
+          value: '#03f'
+        },
+
+        /**
+         * The attribute `weight` sets the stroke width in pixels.
+         *
+         * @attribute weight
+         * @type number
+         */
+        weight: {
+          type: Number,
+          value: 2
+        },
+
+        /**
+         * The attribute `opacity` sets the stroke opacity.
+         *
+         * @attribute opacity
+         * @type number
+         */
+        opacity: {
+          type: Number,
+          value: 0.5
+        },
+
+        /**
+         * The attribute `fill` sets the whether to fill the path with color. Set it to false to disable filling on polygons or circles.
+         *
+         * @attribute fill
+         * @type boolean
+         */
+        fill: {
+          type: Boolean,
+          value: null
+        },
+
+        /**
+         * The attribute `fill-color` sets the fill color.
+         *
+         * @attribute fill-color
+         * @type string
+         */
+        fillColor: {
+          type: String,
+          value: null
+        },
+
+        /**
+         * The attribute `fill-opacity` sets the fill opacity.
+         *
+         * @attribute fill-opacity
+         * @type number
+         */
+        fillOpacity: {
+          type: Number,
+          value: 0.2
+        },
+
+        /**
+         * The attribute `dash-array` sets a string that defines the stroke dash pattern. Doesn't work on canvas-powered layers (e.g. Android 2).
+         *
+         * @attribute dash-array
+         * @type string
+         */
+        dashArray: {
+          type: String,
+          value: null
+        },
+
+        /**
+         * The attribute `line-cap` defines the shape to be used at the end of the stroke.
+         *
+         * @attribute line-cap
+         * @type string
+         */
+        lineCap: {
+          type: String,
+          value: null
+        },
+
+        /**
+         * The attribute `line-join` sets the string that defines shape to be used at the corners of the stroke.
+         *
+         * @attribute line-join
+         * @type string
+         */
+        lineJoin: {
+          type: String,
+          value: null
+        },
+
+        // Options to use for the Leaflet GeoJSON Layer
+        geoJsonLayerOptions: {
+          type: Object,
+          value: null
+        }
       },
 
-      container: {
-        type: Object,
-        observer: '_containerChanged'
-      },
-      /**
+      ready: function() {
 
-       /**
-       * The attribute `color` sets the stroke color.
-       *
-       * @attribute color
-       * @type string
-       */
-      color: {
-        type: String,
-        value: "#03f"
+        // Assign functions to the geoJsonLayerOptions Object
+        this.geoJsonLayerOptions = {
+          pointToLayer: this._pointToLayer,
+          onEachFeature: this._onEachFeature,
+          filter: this._filterFeature,
+          style: this._setFeatureStyle.bind(this)
+        };
       },
 
-      /**
-       * The attribute `weight` sets the stroke width in pixels.
-       *
-       * @attribute weight
-       * @type number
-       */
-      weight: {
-        type: Number,
-        value: 2
-      },
+      // Function to pass to Leaflet to handle display of single point features on the map
+      _pointToLayer: function(feature, latlng) {
 
-      /**
-       * The attribute `opacity` sets the stroke opacity.
-       *
-       * @attribute opacity
-       * @type number
-       */
-      opacity: {
-        type: Number,
-        value: 0.5
-      },
+        var marker = new window.L.Marker(latlng);
 
-      /**
-       * The attribute `fill` sets the whether to fill the path with color. Set it to false to disable filling on polygons or circles.
-       *
-       * @attribute fill
-       * @type boolean
-       */
-      fill: {
-        type: Boolean,
-        value: null
-      },
+        // Need to pass an object into leaflet popup so will stringify and parse inside element on the
+        // other side.
+        var eventData = JSON.stringify(feature.properties);
 
-      /**
-       * The attribute `fill-color` sets the fill color.
-       *
-       * @attribute fill-color
-       * @type string
-       */
-      fillColor: {
-        type: String,
-        value: null
-      },
-
-      /**
-       * The attribute `fill-opacity` sets the fill opacity.
-       *
-       * @attribute fill-opacity
-       * @type number
-       */
-      fillOpacity: {
-        type: Number,
-        value: 0.2
-      },
-
-      /**
-       * The attribute `dash-array` sets a string that defines the stroke dash pattern. Doesn't work on canvas-powered layers (e.g. Android 2).
-       *
-       * @attribute dash-array
-       * @type string
-       */
-      dashArray: {
-        type: String,
-        value: null
-      },
-
-      /**
-       * The attribute `line-cap` defines the shape to be used at the end of the stroke.
-       *
-       * @attribute line-cap
-       * @type string
-       */
-      lineCap: {
-        type: String,
-        value: null
-      },
-
-      /**
-       * The attribute `line-join` sets the string that defines shape to be used at the corners of the stroke.
-       *
-       * @attribute line-join
-       * @type string
-       */
-      lineJoin: {
-        type: String,
-        value: null
-      },
-
-      // Options to use for the Leaflet GeoJSON Layer
-      geoJsonLayerOptions: {
-        type: Object,
-        value: null
-      }
-    },
-
-    ready: function() {
-
-      // Assign functions to the geoJsonLayerOptions Object
-      this.geoJsonLayerOptions = {
-        pointToLayer: this._pointToLayer,
-        onEachFeature: this._onEachFeature,
-        filter: this._filterFeature,
-        style: this._setFeatureStyle.bind(this)
-      }
-    },
-
-    // Function to pass to Leaflet to handle display of single point features on the map
-    _pointToLayer: function(feature, latlng) {
-
-      var marker = new L.Marker(latlng);
-
-      // Need to pass an object into leaflet popup so will stringify and parse inside element on the
-      // other side.
-      var eventData = JSON.stringify(feature.properties);
-
-      // ToDo: Set custom icons
-      /*if (recordAttr.icon !== undefined) {
-        var eventIcon = L.icon({
-          iconUrl: recordAttr.icon,
-          iconSize:     [100, 20], // size of the icon
-          iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
-          shadowAnchor: [4, 62],  // the same for the shadow
-          popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
-        });
-        marker.setIcon(eventIcon);
-      }
-
-      // When a marker is clicked, update the fragment id, which will in turn update the timeline
-      marker.on("click", function (e) {
-        var i = _.indexOf(record.collection.models, record);
-        window.location.hash = "#" + i.toString();
-      });*/
-
-      // Using new ECMAScript templates. Note ` character enclosing the value not '.
-      // eventData is a stringified object that can be parsed into a JS Object inside epe-event-card.
-      marker.bindPopup(`<epe-event-card event-data='${eventData}'></epe-event-card>`, {
-        autoPan: false,
-        keepInView: true,
-        minWidth: 400,
-        maxWidth: 400,
-        offset: new L.point(230, -4),
-        autoPanPadding: new L.point(230, 28)
-      });
-
-      return marker;
-    },
-
-    // Function to pass to Leaflet to handle display of all features on the map
-    _onEachFeature: function(feature, layer) {
-      //layer.bindPopup(feature.properties.name);
-    },
-
-    // Function that will be used to decide whether to show a feature or not.
-    filterFeature: function(feature, layer) {
-
-      // ToDo: Decide if we will use Leaflets filtering to hide features on map
-      // ToDo: For now, just return all with a properties object
-      return feature.properties;
-    },
-
-    // Set the style dynamically for a feature
-    _setFeatureStyle: function(feature) {
-
-      var stylesObject = {};
-
-      // Set Style Depending on Geometry Category
-      switch (feature.properties.type) {
-
-        case 'Murder':
-          stylesObject.color = this.color;
-          stylesObject.weight = this.weight;
-          stylesObject.opacity = this.opacity;
-          stylesObject.fill = this.fill;
-          stylesObject.fillColor = this.fillColor;
-          stylesObject.fillOpacity = this.fillOpacity;
-          stylesObject.dashArray = this.dashArray;
-          stylesObject.lineCap = this.lineCap;
-          stylesObject.lineJoin = this.lineJoin;
-          break;
-
-        case 'Arson':
-          stylesObject.color = this.color;
-          stylesObject.weight = this.weight;
-          stylesObject.opacity = this.opacity;
-          stylesObject.fill = this.fill;
-          stylesObject.fillColor = this.fillColor;
-          stylesObject.fillOpacity = this.fillOpacity;
-          stylesObject.dashArray = this.dashArray;
-          stylesObject.lineCap = this.lineCap;
-          stylesObject.lineJoin = this.lineJoin;
-          break;
-      }
-
-      // Set Style Depending on Geometry Category
-      switch (feature.geometry.type) {
-
-        case 'LineString':
-          stylesObject.fill = false;
-          break;
-
-        case 'Polygon':
-          stylesObject.fill = true;
-          break;
-      }
-
-      return stylesObject;
-    },
-
-    // Fired by Leaflet
-    _containerChanged: function() {
-      if (this.container && this.data) {
-        this._dataChanged();
-      }
-    },
-
-    // Update marker info
-    _dataChanged: function() {
-
-      if (this.container && this.data) {
-
-        if (this.eventsLayer) {
-          this.container.removeLayer(this.eventsLayer);
+        // ToDo: Set custom icons
+        /*if (recordAttr.icon !== undefined) {
+          var eventIcon = L.icon({
+            iconUrl: recordAttr.icon,
+            iconSize:     [100, 20], // size of the icon
+            iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+            shadowAnchor: [4, 62],  // the same for the shadow
+            popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+          });
+          marker.setIcon(eventIcon);
         }
 
-        this.eventsLayer = L.geoJson(this.data, this.geoJsonLayerOptions);
+        // When a marker is clicked, update the fragment id, which will in turn update the timeline
+        marker.on("click", function (e) {
+          var i = _.indexOf(record.collection.models, record);
+          window.location.hash = "#" + i.toString();
+        });*/
 
-        this.eventsLayer.addTo(this.container);
-      }
-    },
+        // Using new ECMAScript templates. Note ` character enclosing the value not '.
+        // eventData is a stringified object that can be parsed into a JS Object inside epe-event-card.
+        marker.bindPopup(`<epe-event-card event-data='${eventData}'></epe-event-card>`, {
+          autoPan: false,
+          keepInView: true,
+          minWidth: 400,
+          maxWidth: 400,
+          offset: new window.L.point(230, -4),
+          autoPanPadding: new window.L.point(230, 28)
+        });
 
-    detached: function() {
-      if (this.container && this.eventsLayer) {
-        this.container.removeLayer(this.eventsLayer);
+        return marker;
+      },
+
+      /* Function to pass to Leaflet to handle display of all features on the map
+      _onEachFeature: function(feature, layer) {
+        //layer.bindPopup(feature.properties.name);
+      },*/
+
+      // Function that will be used to decide whether to show a feature or not.
+      filterFeature: function(feature/*, layer*/) {
+
+        // ToDo: Decide if we will use Leaflets filtering to hide features on map
+        // ToDo: For now, just return all with a properties object
+        return feature.properties;
+      },
+
+      // Set the style dynamically for a feature
+      _setFeatureStyle: function(feature) {
+
+        var stylesObject = {};
+
+        // Set Style Depending on Geometry Category
+        switch (feature.properties.type) {
+
+          case 'Murder':
+            stylesObject.color = this.color;
+            stylesObject.weight = this.weight;
+            stylesObject.opacity = this.opacity;
+            stylesObject.fill = this.fill;
+            stylesObject.fillColor = this.fillColor;
+            stylesObject.fillOpacity = this.fillOpacity;
+            stylesObject.dashArray = this.dashArray;
+            stylesObject.lineCap = this.lineCap;
+            stylesObject.lineJoin = this.lineJoin;
+            break;
+
+          case 'Arson':
+            stylesObject.color = this.color;
+            stylesObject.weight = this.weight;
+            stylesObject.opacity = this.opacity;
+            stylesObject.fill = this.fill;
+            stylesObject.fillColor = this.fillColor;
+            stylesObject.fillOpacity = this.fillOpacity;
+            stylesObject.dashArray = this.dashArray;
+            stylesObject.lineCap = this.lineCap;
+            stylesObject.lineJoin = this.lineJoin;
+            break;
+        }
+
+        // Set Style Depending on Geometry Category
+        switch (feature.geometry.type) {
+
+          case 'LineString':
+            stylesObject.fill = false;
+            break;
+
+          case 'Polygon':
+            stylesObject.fill = true;
+            break;
+        }
+
+        return stylesObject;
+      },
+
+      // Fired by Leaflet
+      _containerChanged: function() {
+        if (this.container && this.data) {
+          this._dataChanged();
+        }
+      },
+
+      // Update marker info
+      _dataChanged: function() {
+
+        if (this.container && this.data) {
+
+          if (this.eventsLayer) {
+            this.container.removeLayer(this.eventsLayer);
+          }
+
+          this.eventsLayer = window.L.geoJson(this.data, this.geoJsonLayerOptions);
+
+          this.eventsLayer.addTo(this.container);
+        }
+      },
+
+      detached: function() {
+        if (this.container && this.eventsLayer) {
+          this.container.removeLayer(this.eventsLayer);
+        }
       }
-    }
-  });
+    });
+  })();
 </script>

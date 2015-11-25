@@ -219,13 +219,11 @@ module.exports = Reflux.createStore({
   // presentation name
   manageCollectionTransformNames: function(presentationObject) {
 
-    var state = presentationObject.presentationState;
-
     this.dataSource.collections.forEach(function (collection) {
 
       if (collection.transforms.hasOwnProperty('ViewingFilter')) {
-        collection.transforms[presentationObject.presentationName] = collection.transforms['ViewingFilter'];
-        delete collection.transforms['ViewingFilter'];
+        collection.transforms[presentationObject.presentationName] = collection.transforms.ViewingFilter;
+        delete collection.transforms.ViewingFilter;
 
       // Could hit this condition if user is editing but haven't changed filters before saving.
       // If so, just use the transform from the package that's being created from.

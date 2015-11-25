@@ -125,9 +125,15 @@ gulp.task('copy', function () {
   var swToolbox = gulp.src(['bower_components/sw-toolbox/*.js'])
     .pipe(gulp.dest('dist/sw-toolbox'));
 
+  var vendor = gulp.src(['app/scripts/vendor/**/*'])
+    .pipe(gulp.dest('dist/scripts/vendor'));
+
   var vulcanized = gulp.src(['app/elements/elements.html'])
     .pipe($.rename('elements.vulcanized.html'))
     .pipe(gulp.dest('dist/elements'));
+
+  var testMedia = gulp.src(['app/testmedia/**/*'])
+    .pipe(gulp.dest('dist/testmedia'));
 
   return merge(app, bower, elements, vulcanized, swBootstrap, swToolbox)
     .pipe($.size({title: 'copy'}));
@@ -314,8 +320,8 @@ gulp.task('default', ['clean'], function (cb) {
     'browserify',
     ['copy', 'styles'],
     'elements',
-    ['jshint', 'images', 'fonts', 'html', 'unit-tests'],
-    'vulcanize',
+    ['jshint', 'images', 'fonts', 'html'/*, 'unit-tests'*/],
+    //'vulcanize',
     cb);
     // Note: add , 'precache' , after 'vulcanize', if your are going to use Service Worker
 });

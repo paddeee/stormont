@@ -15,9 +15,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta charset="utf-8">
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="generator" content="Evidential Presentation System" />
+  <meta name="generator" content="SITF Electronic Presentation of Evidence" />
   <meta name="robots" content="noindex" />
-  <title>Evidential Presentation System</title>
+  <title>SITF Electronic Presentation of Evidence</title>
   <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
 
   <!-- Chrome for Android theme color -->
@@ -31,7 +31,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <!-- Add to homescreen for Chrome on Android -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="application-name" content="Electronic Presentation of Evidence">
+  <meta name="application-name" content="SITF Electronic Presentation of Evidence">
   <link rel="icon" sizes="192x192" href="images/touch/chrome-touch-icon-192x192.png">
 
   <!-- Add to homescreen for Safari on iOS -->
@@ -61,6 +61,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     if (typeof global === 'object') {
       global.packagedApp = true;
       global.fs = require('fs');
+    } else {
+      global = window;
     }
   </script>
 
