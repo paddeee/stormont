@@ -138,7 +138,7 @@
   overflow: visible;
   border: 9px solid transparent;
   background-clip: content-box;
-  border-image: url(/images/pdf/shadow.png) 9 9 repeat;
+  border-image: url(../../../images/pdf/shadow.png) 9 9 repeat;
   background-color: #fff;
 }
 
@@ -159,7 +159,7 @@
   top: 0;
   right: 0;
   bottom: 0;
-  background: url('/images/pdf/loading-icon.gif') center no-repeat;
+  background: url('../../../images/pdf/loading-icon.gif') center no-repeat;
 }
 
 .pdf .pdfPresentationMode:-webkit-full-screen .pdfViewer .page {
@@ -1029,7 +1029,7 @@ html[dir='rtl'] .pdf #documentPropertiesOverlay .row > * {
 
   .pdf .toolbarField.pageNumber.visiblePageIsLoading,
   .pdf #findInput[data-status="pending"] {
-    background-image: url(/images/pdf/loading-small@2x.png);
+    background-image: url(../../../images/pdf/loading-small@2x.png);
     background-size: 16px 17px;
   }
 
