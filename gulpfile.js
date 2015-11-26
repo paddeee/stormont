@@ -125,7 +125,10 @@ gulp.task('copy', function () {
   var swToolbox = gulp.src(['bower_components/sw-toolbox/*.js'])
     .pipe(gulp.dest('dist/sw-toolbox'));
 
-  var vendor = gulp.src(['app/scripts/vendor/**/*'])
+  var vendorScripts = gulp.src(['app/scripts/vendor/**/*'])
+    .pipe(gulp.dest('dist/scripts/vendor'));
+
+  var vendorStyles = gulp.src(['app/styles/vendor/**/*'])
     .pipe(gulp.dest('dist/scripts/vendor'));
 
   var vulcanized = gulp.src(['app/elements/elements.html'])
@@ -135,7 +138,7 @@ gulp.task('copy', function () {
   var testMedia = gulp.src(['app/testmedia/**/*'])
     .pipe(gulp.dest('dist/testmedia/'));
 
-  return merge(app, bower, elements, vulcanized, swBootstrap, swToolbox, testMedia)
+  return merge(app, bower, elements, vulcanized, swBootstrap, swToolbox, testMedia, vendorScripts, vendorStyles)
     .pipe($.size({title: 'copy'}));
 });
 

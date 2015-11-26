@@ -3,3 +3,5 @@ dist
 bower_components
 .tmp
 .idea
+
+dist/output
