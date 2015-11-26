@@ -292,9 +292,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           $videoContainer.removeAttribute('hidden');
         }
 
-        this.videoSource = this.mediaObject.Src;
+        this.videoSource = window.app.appConfig.getSourcePath() + this.mediaObject.Src;
 
-        this.videoPlayer = global.videojs(this.$.Video, {
+        this.videoPlayer = window.videojs(this.$.Video, {
           fluid: this.fluid
         }).ready(function() {
 
@@ -349,12 +349,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.setAudioPlayerDimensions();
 
         // Create an audio player instance
-        this.audioPlayer = global.videojs($audioElement, {
+        this.audioPlayer = window.videojs($audioElement, {
           width: this.audioPlayerWidth,
           height: this.audioPlayerHeight,
           plugins: {
             wavesurfer: {
-              src: this.mediaObject.Src,
+              src: window.app.appConfig.getSourcePath() + this.mediaObject.Src,
               msDisplayMax: 10,
               waveColor: 'white',
               progressColor: 'yellow',
@@ -410,10 +410,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         if (player === 'video') {
           fullScreenToggle = this.videoPlayer.controlBar.fullscreenToggle.el();
-          global.videojs.on(fullScreenToggle, 'tap', self.fullScreenToggleTapped);
+          window.videojs.on(fullScreenToggle, 'tap', self.fullScreenToggleTapped);
         } else if (player === 'audio') {
           fullScreenAudioToggle = this.audioPlayer.controlBar.fullscreenToggle.el();
-          global.videojs.on(fullScreenAudioToggle, 'tap', self.fullScreenToggleTapped);
+          window.videojs.on(fullScreenAudioToggle, 'tap', self.fullScreenToggleTapped);
         }
       },
 
@@ -432,13 +432,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (player === 'video') {
           playToggleButton = this.videoPlayer.controlBar.playToggle.el();
           fullScreenToggle = this.videoPlayer.controlBar.fullscreenToggle.el();
-          global.videojs.off(playToggleButton, 'click');
-          global.videojs.off(fullScreenToggle, 'click');
+          window.videojs.off(playToggleButton, 'click');
+          window.videojs.off(fullScreenToggle, 'click');
         } else if (player === 'audio') {
           playToggleAudioButton = this.audioPlayer.controlBar.playToggle.el();
           fullScreenAudioToggle = this.audioPlayer.controlBar.fullscreenToggle.el();
-          global.videojs.off(playToggleAudioButton, 'click');
-          global.videojs.off(fullScreenAudioToggle, 'click');
+          window.videojs.off(playToggleAudioButton, 'click');
+          window.videojs.off(fullScreenAudioToggle, 'click');
         }
       },
 

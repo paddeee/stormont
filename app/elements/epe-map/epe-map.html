@@ -59,6 +59,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
   </style>
+  <link rel="stylesheet" href="../../styles/vendor/leaflet/leaflet-draw.css" />
+  <script src="../../scripts/vendor/leaflet/leaflet-draw.js"></script>
   <template>
 
     <leaflet-map id="LeafletMap"
@@ -85,6 +87,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     is: 'epe-map',
 
     properties: {
+
+      // Remember state so draw controls are only added once
+      drawFunctionalityAdded: {
+        type: Boolean,
+        value: false
+      },
 
       geoJSONFeature:  {
         type: Object,
@@ -174,6 +182,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // CALLED FROM LEAFLET MAP LOAD EVENT FIRING
     mapReady: function() {
+
+      // Set up Leaflet Draw
+      this.setUpLeafletDraw();
+
+      // Set the max bounds
       this.setMaxBounds();
     },
 
@@ -203,6 +216,64 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Leaflet seems to need a kick to resize tiles when navigating to and from a map view
     resizeMap: function() {
       this.$.LeafletMap.fire('resize');
+    },
+
+    // Set up the annotation functionality
+    setUpLeafletDraw: function() {
+
+      var drawnItems;
+
+      if (this.drawFunctionalityAdded) {
+        return;
+      }
+
+      drawnItems = new window.L.FeatureGroup();
+
+      this.$.LeafletMap.map.addLayer(drawnItems);
+
+      var drawControl = new window.L.Control.Draw({
+        draw: {
+          position: 'topleft',
+          polygon: {
+            title: 'Draw a sexy polygon!',
+            allowIntersection: false,
+            drawError: {
+              color: '#b00b00',
+              timeout: 1000
+            },
+            shapeOptions: {
+              color: '#bada55'
+            },
+            showArea: true
+          },
+          polyline: {
+            metric: false
+          },
+          circle: {
+            shapeOptions: {
+              color: '#662d91'
+            }
+          }
+        },
+        edit: {
+          featureGroup: drawnItems
+        }
+      });
+
+      this.$.LeafletMap.map.addControl(drawControl);
+
+      this.$.LeafletMap.map.on('draw:created', function(e) {
+        var type = e.layerType,
+          layer = e.layer;
+
+        if (type === 'marker') {
+          layer.bindPopup('A popup!');
+        }
+
+        drawnItems.addLayer(layer);
+      });
+
+      this.drawFunctionalityAdded = true;
     }
   });
 })();
