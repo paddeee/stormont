@@ -60,7 +60,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   </style>
   <link rel="stylesheet" href="../../styles/vendor/leaflet/leaflet-draw.css" />
+  <link rel="stylesheet" href="../../styles/vendor/leaflet/leaflet-style-editor.css" />
   <script src="../../scripts/vendor/leaflet/leaflet-draw.js"></script>
+  <script src="../../scripts/vendor/leaflet/leaflet-style-forms.js"></script>
+  <script src="../../scripts/vendor/leaflet/leaflet-style-editor.js"></script>
   <template>
 
     <leaflet-map id="LeafletMap"
@@ -200,7 +203,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return;
       }
 
-      var map = this.$.LeafletMap.map;
       var southWest = {
         lat: 36.66841891894786,
         lng: 16.226806640625
@@ -210,7 +212,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         lng: 26.531982421874996
       };
 
-      map.setMaxBounds(window.L.latLngBounds(southWest, northEast));
+      this.$.LeafletMap.map.setMaxBounds(window.L.latLngBounds(southWest, northEast));
     },
 
     // Leaflet seems to need a kick to resize tiles when navigating to and from a map view
@@ -222,10 +224,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     setUpLeafletDraw: function() {
 
       var drawnItems;
+      var styleEditor;
 
       if (this.drawFunctionalityAdded) {
         return;
       }
+
+      //Initialize the StyleEditor
+      styleEditor = window.L.control.styleEditor({
+        position: "topleft",
+        useGrouping: false
+      });
+
+      this.$.LeafletMap.map.addControl(styleEditor);
 
       drawnItems = new window.L.FeatureGroup();
 
@@ -235,7 +246,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         draw: {
           position: 'topleft',
           polygon: {
-            title: 'Draw a sexy polygon!',
+            title: 'Draw a polygon',
             allowIntersection: false,
             drawError: {
               color: '#b00b00',
@@ -263,14 +274,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.$.LeafletMap.map.addControl(drawControl);
 
       this.$.LeafletMap.map.on('draw:created', function(e) {
-        var type = e.layerType,
-          layer = e.layer;
+        //var type = e.layerType;
+        var layer = e.layer;
 
-        if (type === 'marker') {
+        /*if (type === 'marker') {
           layer.bindPopup('A popup!');
-        }
+        }*/
 
         drawnItems.addLayer(layer);
+      });
+
+      this.$.LeafletMap.map.on('styleeditor:changed', function(element) {
+        console.log(element);
       });
 
       this.drawFunctionalityAdded = true;
