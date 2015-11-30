@@ -19,10 +19,11 @@
   background-color: rgb(244, 244, 244);
 }
 
-/*
 .enabled {
   background-color: #b0de5c;
 }
+
+/*
 .enabled:hover {
   background-color: #07C217;
 }
