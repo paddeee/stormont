@@ -247,6 +247,10 @@ module.exports = Reflux.createStore({
         this.selectedSourceRoute = 'media';
         this.selectedSourceFileType = 'video';
         break;
+      case 'webm':
+        this.selectedSourceRoute = 'media';
+        this.selectedSourceFileType = 'video';
+        break;
       default:
         console.warn(fileExtension + 'not a supported type');
     }
