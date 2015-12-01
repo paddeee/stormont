@@ -460,6 +460,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.loadingMedia = true;
         this.$.MediaContent.classList.add('media__content--hidden');
         this.$.LoadingMask.hidden = false;
+
+        // Stop players
+        this.audioPlayer && this.audioPlayer.pause();
+        this.videoPlayer && this.videoPlayer.pause();
       },
 
       // Free draw annotation
