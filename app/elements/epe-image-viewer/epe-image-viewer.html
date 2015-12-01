@@ -270,6 +270,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.imageName = this.imageObject.Headline;
         this.imageDescription = this.imageObject.Description;
 
+        // Set overflow on content wrapper to fix a bug when zooming images
+        this.$.ImageAnnotations.querySelector('.content-wrapper').style.overflow = 'hidden';
+
         // Render the image and hide spinner
         this.renderImage();
       }

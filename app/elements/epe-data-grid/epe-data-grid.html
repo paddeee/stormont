@@ -39,7 +39,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       border-bottom: 1px var(--divider-color) solid;
       border-top: 1px var(--divider-color) solid;
       color: var(--secondary-text-color);
-      line-height: 4;
+      line-height: 3;
       padding: 0 0 0 16px;
       text-transform: capitalize;
     }
@@ -47,7 +47,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .list-item {
       background-color: var(--text-primary-color);
       border-bottom: 1px var(--divider-color) solid;
-      line-height: 4;
+      line-height: 3;
       padding: 0 0 0 16px;
     }
 
@@ -108,9 +108,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     paper-button > iron-icon {
-      height: 2vw;
-      width: 2vw;
-      margin: 0 0 0 1vw;
+      height: 1.5vw;
+      width: 1.5vw;
+      margin: 0 0 0 0.8vw;
+    }
+
+    @media (min-width: 1020px) {
+
+      paper-button > iron-icon {
+        height: 15px;
+        width: 15px;
+        margin: 0 0 0 8px;
+      }
     }
 
     .fab-container {
@@ -136,9 +145,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .field__button {
-      font-size: 1vw;
+      font-size: 0.8vw;
       line-height: 3;
       padding: 0 0.5vw;
+    }
+
+    @media (min-width: 1020px) {
+
+      .field__button {
+        font-size: 8px;
+      }
     }
 
   </style>
