@@ -134,6 +134,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       padding-bottom: 2vh;
     }
 
+    .selected-icon {
+      border-color: var(--default-primary-color);
+      color: var(--default-primary-color);
+    }
+
   </style>
   <link rel="stylesheet" href="../../styles/vendor/pdf/pdf.css">
   <script src="../../scripts/vendor/pdf/l10n.js"></script>
@@ -459,22 +464,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Let user select text on PDF
-    selectText: function() {
+    selectText: function(event) {
+
       this.pointerEvents = false;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
     },
 
     // Show previous page of PDF
-    showPreviousPage: function() {
+    showPreviousPage: function(event) {
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
+
       window.PDFViewerApplication.page--;
     },
 
     // Show next page of PDF
-    showNextPage: function() {
+    showNextPage: function(event) {
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
+
       window.PDFViewerApplication.page++;
     },
 
     // Zoom in to PDF
-    zoomIn: function() {
+    zoomIn: function(event) {
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
 
       // Save all annotation objects as PDF.js zoom will destroy the current canvas element
       this.saveCanvasAnnotationObjects();
@@ -484,7 +504,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Zoom out of PDF
-    zoomOut: function() {
+    zoomOut: function(event) {
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
 
       // Save all annotation objects as PDF.js zoom will destroy the current canvas element
       this.saveCanvasAnnotationObjects();
@@ -504,7 +527,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Fit PDF Scale to width
-    fitToWidth: function() {
+    fitToWidth: function(event) {
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
 
       // Save all annotation objects as PDF.js zoom will destroy the current canvas element
       this.saveCanvasAnnotationObjects();
@@ -514,7 +540,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Fit PDF Scale to page
-    fitToPage: function() {
+    fitToPage: function(event) {
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
 
       // Save all annotation objects as PDF.js zoom will destroy the current canvas element
       this.saveCanvasAnnotationObjects();
@@ -524,7 +553,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Rotate Page clockwise
-    rotateClockWise: function() {
+    rotateClockWise: function(event) {
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
 
       // Save all annotation objects as PDF.js zoom will destroy the current canvas element
       this.saveCanvasAnnotationObjects();
@@ -534,7 +566,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Rotate Page anti-clockwise
-    rotateAntiClockWise: function() {
+    rotateAntiClockWise: function(event) {
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
 
       // Save all annotation objects as PDF.js zoom will destroy the current canvas element
       this.saveCanvasAnnotationObjects();
@@ -578,73 +613,97 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Free draw annotation
-    freeDraw: function() {
+    freeDraw: function(event) {
 
       // Make annotation layer pick up pointer events
       this.pointerEvents = true;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
 
       this.$$('#PDFAnnotations' + this.page).freeDraw();
     },
 
     // Go into canvas selection mode
-    selectAnnotations: function() {
+    selectAnnotations: function(event) {
 
       // Make annotation layer pick up pointer events
       this.pointerEvents = true;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
 
       this.$$('#PDFAnnotations' + this.page).selectAnnotations();
     },
 
     // Add circle annotation
-    addCircle: function() {
+    addCircle: function(event) {
 
       // Make annotation layer pick up pointer events
       this.pointerEvents = true;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
 
       this.$$('#PDFAnnotations' + this.page).addCircle();
     },
 
     // Add rectangle annotation
-    addRect: function() {
+    addRect: function(event) {
 
       // Make annotation layer pick up pointer events
       this.pointerEvents = true;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
 
       this.$$('#PDFAnnotations' + this.page).addRect();
     },
 
     // Add text
-    addText: function() {
+    addText: function(event) {
 
       // Make annotation layer pick up pointer events
       this.pointerEvents = true;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
 
       this.$$('#PDFAnnotations' + this.page).addText();
     },
 
     // Highlight text
-    highlightText: function() {
+    highlightText: function(event) {
 
       // Make annotation layer pick up pointer events
       this.pointerEvents = true;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
 
       this.$$('#PDFAnnotations' + this.page).highlightText();
     },
 
     // Add a line
-    addLine: function() {
+    addLine: function(event) {
 
       // Make annotation layer pick up pointer events
       this.pointerEvents = true;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
 
       this.$$('#PDFAnnotations' + this.page).addLine();
     },
 
     // Delete selected annotation
-    deleteAnnotation: function() {
+    deleteAnnotation: function(event) {
 
       // Make annotation layer pick up pointer events
       this.pointerEvents = true;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
 
       this.$$('#PDFAnnotations' + this.page).deleteAnnotation();
     },
@@ -751,6 +810,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Reset annotation object information
       this.temporaryCanvasObjects = [];
+    },
+
+    // Manage the 'selected' class on buttons
+    manageSelectedButtonClass: function($button) {
+
+      // Remove 'selected-icon' class from everywhere
+      this.querySelectorAll('.selected-icon').forEach(function($selectedButton) {
+        $selectedButton.classList.remove('selected-icon');
+      });
+
+      // Add it to this button
+      $button.classList.add('selected-icon');
     }
 
   });
