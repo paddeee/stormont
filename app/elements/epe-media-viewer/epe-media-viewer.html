@@ -31,6 +31,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .media-annotations {
+      height: 100%;
       width: 100%;
     }
 
@@ -54,7 +55,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .media-description {
-      padding: 6vh 2vw 6vh;
+      padding: 0 2vw 2vh;
       font-size: 1.8vh;
       color: var(--text-primary-color);
     }
@@ -74,10 +75,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       bottom: 0;
       left: 0;
       right: 0;
-    }
-
-    .image_button-holder {
-      padding: 0 1vw;
     }
 
     .border-right {
@@ -102,6 +99,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       --paper-tooltip-text-color: var(--primary-text-color);
     }
 
+    .selected-icon {
+      border-color: var(--default-primary-color);
+      color: var(--default-primary-color);
+    }
+
   </style>
   <script src="../../scripts/vendor/videoJS/video.js"></script>
   <script src="../../scripts/vendor/videoJS/wavesurfer/wavesurfer.js"></script>
@@ -123,6 +125,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           <!-- Headline -->
           <div class="media-name">[[mediaName]]</div>
+
+          <!-- Description -->
+          <div id="MediaDescription" class="media-description">[[mediaDescription]]</div>
 
           <!-- Annotation Layer -->
           <epe-annotations
@@ -151,9 +156,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                  controls
                  preload="auto"
                  hidden></audio>
-
-          <!-- Description -->
-          <div id="MediaDescription" class="media-description">[[mediaDescription]]</div>
         </div>
 
         <!-- Media Footer -->
@@ -166,7 +168,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <paper-icon-button id="AddCircle" icon="image:panorama-fish-eye" on-tap="addCircle"></paper-icon-button>
             <paper-icon-button id="AddRect" icon="image:crop-landscape" on-tap="addRect"></paper-icon-button>
             <div id="AddText" class="add-text" on-tap="addText">T</div>
-            <div id="HighlightText" class="highlight-text" on-tap="highlightText">T</div>
             <paper-icon-button id="AddLine" icon="icons:remove" on-tap="addLine"></paper-icon-button>
             <paper-icon-button id="AddPolygon" icon="image:panorama-horizontal" on-tap="addPolygon" hidden></paper-icon-button>
           </div>
@@ -177,7 +178,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-tooltip for="AddCircle" position="top" offset="0">Add Circle</paper-tooltip>
           <paper-tooltip for="AddRect" position="top" offset="0">Add Rectangle</paper-tooltip>
           <paper-tooltip for="AddText" position="top" offset="0">Add Text</paper-tooltip>
-          <paper-tooltip for="HighlightText" position="top" offset="0">Highlight Text</paper-tooltip>
           <paper-tooltip for="AddLine" position="top" offset="0">Add Line</paper-tooltip>
           <paper-tooltip for="AddPolygon" position="top" offset="0">Add Polygon</paper-tooltip>
 
@@ -450,7 +450,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Set height that can be passed up to annotation triggering a resize of the canvas
         this.pointerEvents = false;
-        this.annotationHeight = this.$.Video.clientHeight - 30; // Less height of controls bar
+        this.annotationHeight = this.$.Video.clientHeight;
         this.annotationWidth = this.$.Video.clientWidth;
       },
 
@@ -463,50 +463,91 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Free draw annotation
       freeDraw: function() {
+
         this.pointerEvents = true;
+
+        // Add selected class to button
+        this.manageSelectedButtonClass(event.currentTarget);
+
         this.$.MediaAnnotations.freeDraw();
       },
 
       // Go into canvas selection mode
-      selectAnnotations: function() {
+      selectAnnotations: function(event) {
+
         this.pointerEvents = true;
+
+        // Add selected class to button
+        this.manageSelectedButtonClass(event.currentTarget);
+
         this.$.MediaAnnotations.selectAnnotations();
       },
 
       // Add circle annotation
       addCircle: function() {
+
         this.pointerEvents = true;
+
+        // Add selected class to button
+        this.manageSelectedButtonClass(event.currentTarget);
+
         this.$.MediaAnnotations.addCircle();
       },
 
       // Add rectangle annotation
       addRect: function() {
+
         this.pointerEvents = true;
+
+        // Add selected class to button
+        this.manageSelectedButtonClass(event.currentTarget);
+
         this.$.MediaAnnotations.addRect();
       },
 
       // Add text
       addText: function() {
-        this.pointerEvents = true;
-        this.$.MediaAnnotations.addText();
-      },
 
-      // Highlight text
-      highlightText: function() {
         this.pointerEvents = true;
-        this.$.MediaAnnotations.highlightText();
+
+        // Add selected class to button
+        this.manageSelectedButtonClass(event.currentTarget);
+
+        this.$.MediaAnnotations.addText();
       },
 
       // Add a line
       addLine: function() {
+
         this.pointerEvents = true;
+
+        // Add selected class to button
+        this.manageSelectedButtonClass(event.currentTarget);
+
         this.$.MediaAnnotations.addLine();
       },
 
       // Deleste selected annotation
       deleteAnnotation: function() {
+
         this.pointerEvents = true;
+
+        // Add selected class to button
+        this.manageSelectedButtonClass(event.currentTarget);
+
         this.$.MediaAnnotations.deleteAnnotation();
+      },
+
+      // Manage the 'selected' class on buttons
+      manageSelectedButtonClass: function($button) {
+
+        // Remove 'selected-icon' class from everywhere
+        this.querySelectorAll('.selected-icon').forEach(function($selectedButton) {
+          $selectedButton.classList.remove('selected-icon');
+        });
+
+        // Add it to this button
+        $button.classList.add('selected-icon');
       }
     });
   })();

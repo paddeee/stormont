@@ -101,6 +101,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       --paper-tooltip-background: var(--primary-background-color);
       --paper-tooltip-text-color: var(--primary-text-color);
     }
+
+    .selected-icon {
+      border-color: var(--default-primary-color);
+      color: var(--default-primary-color);
+    }
   </style>
   <template>
 
@@ -408,6 +413,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       } else {
         this.$.ZoomOut.disabled = false;
       }
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
     },
 
     // Zoom In to Image
@@ -462,6 +470,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.imageY = canvasCoords.y = -imageCoords.y;
 
       this.$.ImageAnnotations.move(canvasCoords);
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
     },
 
     // FIRED FROM PAPER-MATERIAL ELEMENT WHEN DRAG ACTION OCCURS
@@ -591,51 +602,103 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Free draw annotation
-    freeDraw: function() {
+    freeDraw: function(event) {
+
       this.dragMode = false;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
+
       this.$.ImageAnnotations.freeDraw();
     },
 
     // Go into canvas selection mode
-    selectAnnotations: function() {
+    selectAnnotations: function(event) {
+
       this.dragMode = false;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
+
       this.$.ImageAnnotations.selectAnnotations();
     },
 
     // Add circle annotation
-    addCircle: function() {
+    addCircle: function(event) {
+
       this.dragMode = false;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
+
       this.$.ImageAnnotations.addCircle();
     },
 
     // Add rectangle annotation
-    addRect: function() {
+    addRect: function(event) {
+
       this.dragMode = false;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
+
       this.$.ImageAnnotations.addRect();
     },
 
     // Add text
-    addText: function() {
+    addText: function(event) {
+
       this.dragMode = false;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
+
       this.$.ImageAnnotations.addText();
     },
 
     // Highlight text
-    highlightText: function() {
+    highlightText: function(event) {
+
       this.dragMode = false;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
+
       this.$.ImageAnnotations.highlightText();
     },
 
     // Add a line
-    addLine: function() {
+    addLine: function(event) {
+
       this.dragMode = false;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
+
       this.$.ImageAnnotations.addLine();
     },
 
     // Deleste selected annotation
-    deleteAnnotation: function() {
+    deleteAnnotation: function(event) {
+
       this.dragMode = false;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
+
       this.$.ImageAnnotations.deleteAnnotation();
+    },
+
+    // Manage the 'selected' class on buttons
+    manageSelectedButtonClass: function($button) {
+
+      // Remove 'selected-icon' class from everywhere
+      this.querySelectorAll('.selected-icon').forEach(function($selectedButton) {
+        $selectedButton.classList.remove('selected-icon');
+      });
+
+      // Add it to this button
+      $button.classList.add('selected-icon');
     }
   });
 })();

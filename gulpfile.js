@@ -141,6 +141,9 @@ gulp.task('copy', function () {
   var testMedia = gulp.src(['app/testmedia/**/*'])
     .pipe(gulp.dest('dist/testmedia'));
 
+  var testMedia = gulp.src(['app/fonts/**/*'])
+    .pipe(gulp.dest('dist/testmedia'));
+
   return merge(app, bower, elements, vulcanized, swBootstrap, swToolbox, testMedia, vendorScripts, vendorStyles)
     .pipe($.size({title: 'copy'}));
 });
