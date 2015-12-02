@@ -98,7 +98,7 @@ function lokiFileAdapter() {}
 lokiFileAdapter.prototype.loadDatabase = function loadDatabase(dbname, callback) {
 
   // ToDo: Make configurable by user or admin
-  var path = global.packagedApp ? '/Users/ODonnell/Documents' : '';
+  var path = global.packagedApp ? app.appConfig.dbPath : '';
 
   fs.readFile(path + '/FarrellLoki/' + dbname, 'utf-8', function(err, data) {
 
@@ -127,7 +127,7 @@ lokiFileAdapter.prototype.loadDatabase = function loadDatabase(dbname, callback)
 lokiFileAdapter.prototype.saveDatabase = function saveDatabase(dbname, dbstring, callback) {
 
   // This can be set from nw.js input file directory picker value
-  var path = global.packagedApp ? '/Users/ODonnell/Documents' : '';
+  var path = global.packagedApp ? app.appConfig.dbPath : '';
 
   //var callbackFunction = callback || function (){};
   //fs.writeFile(dbname, dbstring, 'utf8',callbackFunction);
@@ -245,7 +245,11 @@ var importStore = require('./stores/import.js');
 
 var appConfig = {
 
-  sourcePath: '/Users/ODonnell/Documents/FarrellLoki/source',
+  dbPath: '/Users/ODonnell/SITF/SITFLoki',
+
+  sourcePath: '/Users/ODonnell/SITF/SITFSource',
+
+  exportPath: '/Users/ODonnell/SITF/SITFExports',
 
   getSourcePath: function() {
 
@@ -401,7 +405,7 @@ module.exports = Reflux.createStore({
 
     if (this.LDAPExists()) {
 
-      this.dataSource = new loki('farrell.json', {
+      this.dataSource = new loki('SITF.json', {
         adapter: fileAdapter
       });
 

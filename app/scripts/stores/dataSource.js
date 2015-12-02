@@ -18,7 +18,7 @@ module.exports = Reflux.createStore({
 
     if (this.LDAPExists()) {
 
-      this.dataSource = new loki('farrell.json', {
+      this.dataSource = new loki('SITF.json', {
         adapter: fileAdapter
       });
 

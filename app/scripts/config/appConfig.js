@@ -2,7 +2,11 @@
 
 var appConfig = {
 
-  sourcePath: '/Users/ODonnell/Documents/FarrellLoki/source',
+  dbPath: '/Users/ODonnell/SITF/SITFLoki',
+
+  sourcePath: '/Users/ODonnell/SITF/SITFSource',
+
+  exportPath: '/Users/ODonnell/SITF/SITFExports',
 
   getSourcePath: function() {
 

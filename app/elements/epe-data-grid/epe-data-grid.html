@@ -299,7 +299,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       noRecords: {
         type: Boolean,
-        computed: 'areThereAnyRecords(gridData)'
+        computed: 'areThereAnyRecords(gridData)',
+        value: false
       },
 
       hideViewSourceButton: {
@@ -349,7 +350,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       return true;
     },
 
-    // Return wheteher there are any records
+    // Return whether there are any records
     areThereAnyRecords: function(gridData) {
 
       if (gridData) {
