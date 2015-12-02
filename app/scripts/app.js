@@ -9,6 +9,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 var appConfig = require('./config/appConfig.js');
 var reflux = require('reflux');
+var moment = require('moment');
 var CSVParser = require('./vendor/harb-customised.js');
 var dataSourceActions = require('./actions/dataSource.js');
 var filterStateActions = require('./actions/filterState.js');
@@ -24,7 +25,7 @@ var presentationsStore = require('./stores/presentations.js');
 var importActions = require('./actions/import.js');
 var importStore = require('./stores/import.js');
 
-(function(document, appConfig, reflux, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore) {
+(function(document, appConfig, reflux, moment, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore) {
   'use strict';
 
   // Call checkForLDAP action
@@ -38,6 +39,7 @@ var importStore = require('./stores/import.js');
   // Set required modules as attributes on app
   app.appConfig = appConfig;
   app.reflux = reflux;
+  app.moment = moment;
   app.CSVParser = CSVParser;
   app.dataSourceActions = dataSourceActions;
   app.userActions = userActions;
@@ -84,4 +86,4 @@ var importStore = require('./stores/import.js');
   // Maybe dangerous but can change for different approach if needed
   NodeList.prototype.forEach = Array.prototype.forEach;
 
-})(document, appConfig, reflux, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore);
+})(document, appConfig, reflux, moment, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore);
