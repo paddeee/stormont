@@ -1723,8 +1723,8 @@ module.exports = Reflux.createStore({
 
     this.user = {
       status: 'loggedin',
-      userName: 'Paddy',
-      role: 'user'
+      userName: 'Sean',
+      role: 'gatekeeper'
     };
 
     this.trigger(this.user);
@@ -1752,7 +1752,7 @@ module.exports = Reflux.createStore({
 
     if (status === 'loggedin') {
       userObject.userName = userLoginObject.username;
-      userObject.role = 'admin';
+      userObject.role = 'gatekeeper';
       userObject.message = userObject.userName + ' has logged in as ' + userObject.role;
       return userObject;
 

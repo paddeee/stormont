@@ -239,7 +239,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
 
         <div class="fab-container" hidden$="[[hideSaveButton]]">
-          <paper-fab icon="save" on-tap="savePresentationSelected"></paper-fab>
+          <paper-fab id="SavePackageButton" icon="save" on-tap="savePresentationSelected"></paper-fab>
+          <paper-tooltip for="SavePackageButton" position="top" offset="0">
+            Save Package
+          </paper-tooltip>
         </div>
 
         <div class="no-save-message" hidden$="[[hideNoSaveMessage]]">

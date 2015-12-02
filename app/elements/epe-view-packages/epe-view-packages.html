@@ -52,7 +52,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     paper-button {
       font-size: 2vh;
-      margin: 0 1vw 0 0;
+      margin: 0;
     }
 
     .user-name {
@@ -136,6 +136,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       height: 2.5vh;
       width: 2.5vh;
     }
+
+    paper-fab {
+      background-color: var(--default-primary-color);
+    }
   </style>
   <template>
 
@@ -186,14 +190,40 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     checked$="[[isMarkedApproved(item)]]"
                     on-change="approvalStateChanged">Mark for Registry Approval</paper-checkbox>
                 </div>
+                <div class="submit-package"
+                     hidden$="[[!isGateKeeperAndNotOwnPackage(item.gateKeeperState, item.authoriserState, item.userName)]]">
+                  <paper-checkbox
+                    id="GateKeeperApproval"
+                    class="submit-package__approval"
+                    checked$="[[isMarkedGateKeeperApproved(item)]]"
+                    on-change="gateKeeperStateChanged">Mark for Authoriser Approval</paper-checkbox>
+                </div>
+                <div class="submit-package"
+                     hidden$="[[!isAuthoriser(item.authoriserState, item.userName)]]">
+                  <paper-checkbox
+                    id="AuthoriserApproval"
+                    class="submit-package__approval"
+                    checked$="[[isMarkedAuthoriserApproved(item)]]"
+                    on-change="authoriserStateChanged">Mark as approved for Export</paper-checkbox>
+                </div>
               </div>
             </div>
-            <div class="card-actions">
-              <paper-button id="ViewPackageButton"
-                            raised
-                            on-tap="viewPackageSelected">
-                View Package<iron-icon icon="visibility"></iron-icon>
-              </paper-button>
+            <div class="card-actions layout horizontal center">
+              <div class="flex">
+                <paper-button id="ViewPackageButton"
+                              raised
+                              on-tap="viewPackageSelected">
+                  View Package<iron-icon icon="visibility"></iron-icon>
+                </paper-button>
+              </div>
+              <div hidden$="[[hideExportButton(item.authoriserState)]]">
+                <paper-fab on-tap="exportPackageSelected"
+                           icon="file-upload">
+                </paper-fab>
+                <paper-tooltip position="top" offset="0">
+                  Export Package
+                </paper-tooltip>
+              </div>
             </div>
           </paper-card>
         </div>
@@ -264,15 +294,62 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var $item = event.currentTarget.closest('.item');
       var $gateKeeperTrafficLight = $item.querySelector('.gatekeeper-state iron-icon');
+      var $authoriserTrafficLight = $item.querySelector('.authoriser-state iron-icon');
 
       if (event.target.checked) {
         event.model.item.gateKeeperState = 'amber';
+        event.model.item.authoriserState = 'red';
       } else {
         event.model.item.gateKeeperState = 'red';
+        event.model.item.authoriserState = 'red';
       }
 
       // Set the change to the DOM due to template not auto updating
-      this.updateGateKeeperTrafficLight($gateKeeperTrafficLight, event.model.item.gateKeeperState);
+      this.updateTrafficLights($gateKeeperTrafficLight, event.model.item.gateKeeperState, $authoriserTrafficLight, event.model.item.authoriserState);
+
+      // Call approvalStateChanged action
+      this.presentationsActions.approvalStateChanged(event.model.item);
+    },
+
+    // Checkbox has been changed by GateKeeper.
+    gateKeeperStateChanged: function(event) {
+
+      var $item = event.currentTarget.closest('.item');
+      var $gateKeeperTrafficLight = $item.querySelector('.gatekeeper-state iron-icon');
+      var $authoriserTrafficLight = $item.querySelector('.authoriser-state iron-icon');
+
+      if (event.target.checked) {
+        event.model.item.gateKeeperState = 'green';
+        event.model.item.authoriserState = 'amber';
+      } else {
+        event.model.item.gateKeeperState = 'amber';
+        event.model.item.authoriserState = 'red';
+      }
+
+      // Set the change to the DOM due to template not auto updating
+      this.updateTrafficLights($gateKeeperTrafficLight, event.model.item.gateKeeperState, $authoriserTrafficLight, event.model.item.authoriserState);
+
+      // Call approvalStateChanged action
+      this.presentationsActions.approvalStateChanged(event.model.item);
+    },
+
+    // Checkbox has been changed by Authoriser.
+    authoriserStateChanged: function(event) {
+
+      var $item = event.currentTarget.closest('.item');
+      var $gateKeeperTrafficLight = $item.querySelector('.gatekeeper-state iron-icon');
+      var $authoriserTrafficLight = $item.querySelector('.authoriser-state iron-icon');
+
+      if (event.target.checked) {
+        event.model.item.gateKeeperState = 'green';
+        event.model.item.authoriserState = 'green';
+      } else {
+        event.model.item.gateKeeperState = 'green';
+        event.model.item.authoriserState = 'amber';
+      }
+
+      // Set the change to the DOM due to template not auto updating
+      this.updateTrafficLights($gateKeeperTrafficLight, event.model.item.gateKeeperState, $authoriserTrafficLight, event.model.item.authoriserState);
 
       // Call approvalStateChanged action
       this.presentationsActions.approvalStateChanged(event.model.item);
@@ -281,9 +358,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Have to do this manually as the functions inside the template don't get called
     // when the presentationsData is updated.
     // ToDo: Find a better way to let the iron-list manage this if its possible
-    updateGateKeeperTrafficLight: function($gateKeeperTrafficLight, state) {
-      $gateKeeperTrafficLight.classList.remove('amber','red');
-      $gateKeeperTrafficLight.classList.add(state);
+    updateTrafficLights: function($gateKeeperTrafficLight, gateKeeperState, $authoriserTrafficLight, authoriserState) {
+      $gateKeeperTrafficLight.classList.remove('green','amber','red');
+      $gateKeeperTrafficLight.classList.add(gateKeeperState);
+      $authoriserTrafficLight.classList.remove('green','amber','red');
+      $authoriserTrafficLight.classList.add(authoriserState);
     },
 
     // Used to set the checked state on the checkbox
@@ -296,10 +375,55 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
+    // Used to set the checked state on the checkbox
+    isMarkedGateKeeperApproved: function(item) {
+
+      if (item.authoriserState === 'red') {
+        return false;
+      } else {
+        return true;
+      }
+    },
+
+    // Used to set the checked state on the checkbox
+    isMarkedAuthoriserApproved: function(item) {
+
+      if (item.authoriserState === 'amber') {
+        return false;
+      } else {
+        return true;
+      }
+    },
+
     // If the package created by the user is the same as the logged in user
     isUserCreatedPackage: function(userName) {
 
       if (this.userStore.user.userName === userName) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+
+    // Is the state waiting for gatekeeper approval or
+    // Is the state waiting for authoriser approval and
+    // The state is not authoriser approved and
+    // is the user a GateKeeper and
+    // is the package not the GateKeeper's own
+    isGateKeeperAndNotOwnPackage: function(gateKeeperState, authoriserState, userName) {
+
+      if ((gateKeeperState === 'amber' || gateKeeperState === 'green') && authoriserState !== 'green' && this.userStore.user.role === 'gatekeeper' && !this.isUserCreatedPackage(userName)) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+
+    // Is the state waiting for authoriser approval or
+    // is the user an Authoriser
+    isAuthoriser: function(authoriserState, userName) {
+
+      if ((authoriserState === 'amber' || authoriserState === 'green') && this.userStore.user.role === 'authoriser' && !this.isUserCreatedPackage(userName)) {
         return true;
       } else {
         return false;
@@ -337,6 +461,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Navigate to Data Grid Events tab
       page('/edit-package/data-grid/Events');
+    },
+
+    // Export Package action button pressed
+    exportPackageSelected: function(event) {
+
+      var presentationName = event.model.item.presentationName;
+      console.log('Export ' + presentationName);
+    },
+
+    // Export Package action button pressed
+    hideExportButton: function(authoriserState) {
+
+      if ((this.userStore.user.role === 'gatekeeper' || this.userStore.user.role === 'admin') && authoriserState === 'green') {
+        return false;
+      } else {
+        return true;
+      }
     }
   });
 })();

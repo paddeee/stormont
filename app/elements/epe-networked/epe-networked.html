@@ -43,8 +43,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     paper-scroll-header-panel #mainContainer {
-    @apply(--layout-flex);
-    @apply(--layout-vertical);
+      @apply(--layout-flex);
+      @apply(--layout-vertical);
     }
 
     paper-scroll-header-panel.hide-header {
@@ -357,7 +357,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       hideImport: {
         type: Boolean,
-        computed: 'isNotAdmin(user)'
+        computed: 'shouldHideImport(user)'
       },
 
       editingPresentation: {
@@ -584,9 +584,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Hide import based on user role
-    isNotAdmin: function(user) {
+    shouldHideImport: function(user) {
 
-      if (user && user.role === 'admin') {
+      if (user && (user.role === 'admin' || user.role === 'gatekeeper')) {
         return false;
       }
       return true;
