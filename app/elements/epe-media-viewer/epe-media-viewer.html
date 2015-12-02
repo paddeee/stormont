@@ -269,12 +269,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.mediaName = this.mediaObject.Headline;
           this.mediaDescription = this.mediaObject.Description;
 
-          if (this.mediaType === 'video') {
-            this.hideAnnotations = false;
-            this.createVideoJS();
-          } else if (this.mediaType === 'audio') {
-            this.hideAnnotations = true;
-            this.createAudioJS();
+          if (this.editState === this.presentationState) {
+            if (this.mediaType === 'video') {
+              this.hideAnnotations = false;
+              this.createVideoJS();
+            } else if (this.mediaType === 'audio') {
+              this.hideAnnotations = true;
+              this.createAudioJS();
+            }
           }
         }
       },
