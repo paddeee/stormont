@@ -253,6 +253,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Get element this way as parent element isn't yet available through document.querySelector
         var $epeNetworked = app.$.epeNetworked;
 
+        if (typeof global === 'object') {
+          this.fs = window.electronRequire('fs');
+        }
+
         $epeNetworked.addEventListener('not-media-route', this.hideMedia.bind(this));
       },
 
@@ -320,6 +324,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var $videoContainer = this.$.Video.closest('.video-js');
         var $audioContainer = this.$$('#Audio').closest('.video-js');
         var $mediaDescription = this.$.MediaDescription;
+        var src;
 
         // Hide Video element and show audio element
         this.$.MediaAnnotations.setAttribute('hidden','');
@@ -349,13 +354,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Set the sizes to be used for the Audio Player
         this.setAudioPlayerDimensions();
 
+        // Set the src file which needs to be done using a Blob if within packaged app as wavesurfer
+        // XHR won't work
+        if (this.fs) {
+          this.fs.readFile(window.app.appConfig.getSourcePath() + this.mediaObject.Src, 'utf-8', function(err, data) {
+            src = new Blob([data], {type : 'audio/mp3'});
+          });
+        } else {
+          src = window.app.appConfig.getSourcePath() + this.mediaObject.Src;
+        }
+
         // Create an audio player instance
         this.audioPlayer = window.videojs($audioElement, {
           width: this.audioPlayerWidth,
           height: this.audioPlayerHeight,
           plugins: {
             wavesurfer: {
-              src: window.app.appConfig.getSourcePath() + this.mediaObject.Src,
+              src: src,
               msDisplayMax: 10,
               waveColor: 'white',
               progressColor: 'yellow',
@@ -462,8 +477,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.LoadingMask.hidden = false;
 
         // Stop players
-        this.audioPlayer && this.audioPlayer.pause();
-        this.videoPlayer && this.videoPlayer.pause();
+        if (this.audioPlayer) {
+          this.audioPlayer.pause();
+        }
+
+        if (this.videoPlayer) {
+          this.videoPlayer.pause();
+        }
       },
 
       // Free draw annotation

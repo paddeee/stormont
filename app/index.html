@@ -57,12 +57,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <script>
 
-    // Test and set property if inside packaged app
+    var electronRequire;
+
     if (typeof global === 'object') {
+
+      // Use for non browserify requires
+      electronRequire = require;
+
+      // Set property if inside packaged app
       global.packagedApp = true;
-      global.fs = require('fs');
-    } else {
-      global = window;
     }
   </script>
 

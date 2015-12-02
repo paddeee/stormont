@@ -11,7 +11,7 @@
  * require libs
  * @ignore
  */
-var fs = global.packagedApp ? global.fs : require('browserify-fs');
+var fs = global.packagedApp ? electronRequire('fs') : require('browserify-fs');
 
 /**
  * The constructor is automatically called on `require` , see examples below
@@ -35,7 +35,7 @@ function lokiFileAdapter() {}
  */
 lokiFileAdapter.prototype.loadDatabase = function loadDatabase(dbname, callback) {
 
-  // This can be set from nw.js input file directory picker value
+  // ToDo: Make configurable by user or admin
   var path = global.packagedApp ? '/Users/ODonnell/Documents' : '';
 
   fs.readFile(path + '/FarrellLoki/' + dbname, 'utf-8', function(err, data) {
