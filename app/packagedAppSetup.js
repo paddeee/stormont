@@ -27,7 +27,6 @@ if (typeof global === 'object') {
     if (data) {
       remoteConfig = JSON.parse(data);
       appConfig.paths = remoteConfig.paths;
-      console.log(appConfig);
       window.app.dataSourceActions.checkForLDAP();
     } else if (err) {
       console.error(err);
