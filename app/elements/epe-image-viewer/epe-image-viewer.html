@@ -264,7 +264,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Set source on image element
     setUpImage: function() {
 
-      if (this.imageObject && window.app.appConfig.getSourcePath() + this.imageObject.Src) {
+      if (this.imageObject && window.appConfig.getSourcePath() + this.imageObject.Src) {
 
         // Set image titles
         this.imageName = this.imageObject.Headline;
@@ -300,7 +300,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }.bind(this));
 
       // Set the src of the image
-      this.imageSource = window.app.appConfig.getSourcePath() + this.imageObject.Src;
+      this.imageSource = window.appConfig.getSourcePath() + this.imageObject.Src;
     },
 
     // Resize the image container to the size of the image
