@@ -55,19 +55,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="elements/elements.html">
   <!-- endreplace-->
 
-  <script>
-
-    var electronRequire;
-
-    if (typeof global === 'object') {
-
-      // Use for non browserify requires
-      electronRequire = require;
-
-      // Set property if inside packaged app
-      global.packagedApp = true;
-    }
-  </script>
+  <!-- Set up config for packagedApp -->
+  <script src="packagedAppSetup.js"></script>
 
 </head>
 

@@ -299,7 +299,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           $videoContainer.removeAttribute('hidden');
         }
 
-        this.videoSource = window.app.appConfig.getSourcePath() + this.mediaObject.Src;
+        this.videoSource = window.appConfig.getSourcePath() + this.mediaObject.Src;
 
         this.videoPlayer = window.videojs(this.$.Video, {
           fluid: this.fluid
@@ -359,11 +359,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Set the src file which needs to be done using a Blob if within packaged app as wavesurfer
         // XHR won't work
         if (this.fs) {
-          this.fs.readFile(window.app.appConfig.getSourcePath() + this.mediaObject.Src, 'utf-8', function(err, data) {
+          this.fs.readFile(window.appConfig.getSourcePath() + this.mediaObject.Src, 'utf-8', function(err, data) {
             src = new Blob([data], {type : 'audio/mp3'});
           });
         } else {
-          src = window.app.appConfig.getSourcePath() + this.mediaObject.Src;
+          src = window.appConfig.getSourcePath() + this.mediaObject.Src;
         }
 
         // Create an audio player instance

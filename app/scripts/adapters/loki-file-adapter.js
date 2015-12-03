@@ -36,7 +36,7 @@ function lokiFileAdapter() {}
 lokiFileAdapter.prototype.loadDatabase = function loadDatabase(dbname, callback) {
 
   // ToDo: Make configurable by user or admin
-  var path = global.packagedApp ? app.appConfig.dbPath : '';
+  var path = global.packagedApp ? window.appConfig.paths.dbPath : '';
 
   fs.readFile(path + '/FarrellLoki/' + dbname, 'utf-8', function(err, data) {
 
@@ -65,7 +65,7 @@ lokiFileAdapter.prototype.loadDatabase = function loadDatabase(dbname, callback)
 lokiFileAdapter.prototype.saveDatabase = function saveDatabase(dbname, dbstring, callback) {
 
   // This can be set from nw.js input file directory picker value
-  var path = global.packagedApp ? app.appConfig.dbPath : '';
+  var path = global.packagedApp ? window.appConfig.paths.dbPath : '';
 
   //var callbackFunction = callback || function (){};
   //fs.writeFile(dbname, dbstring, 'utf8',callbackFunction);

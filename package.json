@@ -2,6 +2,7 @@
   "private": true,
   "devDependencies": {
     "babyparse": "^0.4.3",
+    "bluebird": "^3.0.6",
     "browser-sync": "^2.7.7",
     "browserify": "^11.0.0",
     "browserify-fs": "^1.0.0",
