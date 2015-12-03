@@ -137,8 +137,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       width: 2.5vh;
     }
 
-    paper-fab {
+    .export-button {
       background-color: var(--default-primary-color);
+      color: var(--text-primary-color);
+    }
+
+    .export-dialog {
+      width: 50vw;
+    }
+
+    paper-input {
+      --paper-input-container-color: var(--secondary-text-color);
+      --paper-input-container-focus-color: var(--dark-primary-color);
+      --paper-input-container-input-color: var(--secondary-text-color);
+      --paper-input-container-invalid-color: var(--google-red-500);
+      margin: 2vh 0;
     }
   </style>
   <template>
@@ -217,18 +230,46 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </paper-button>
               </div>
               <div hidden$="[[hideExportButton(item.authoriserState)]]">
-                <paper-fab on-tap="exportPackageSelected"
-                           icon="file-upload">
-                </paper-fab>
-                <paper-tooltip position="top" offset="0">
-                  Export Package
-                </paper-tooltip>
+                <paper-button raised
+                              class="export-button"
+                              on-tap="exportPackageSelected">
+                  Export Package<iron-icon icon="file-upload"></iron-icon>
+                </paper-button>
               </div>
             </div>
           </paper-card>
         </div>
+
       </template>
       </iron-list>
+
+    <paper-dialog id="NoYubiKeyDialog" modal>
+      <h2>YubiKey not Inserted</h2>
+      <div>
+        <span>[[yubiKeyMessage]]</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="ExportDialog"
+                  class="export-dialog"
+                  modal>
+      <h2>Export Package</h2>
+      <div>
+        <paper-input
+          id="ExportPassword"
+          class="export-package"
+          label="Enter Package Password, Then Hold Down YubiKey Button"
+          type="password"
+          autofocus
+          on-keypress="yubiKeyPressed"></paper-input>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>Cancel</paper-button>
+      </div>
+    </paper-dialog>
 
   </template>
 </dom-module>
@@ -241,6 +282,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       presentationsData: {
         type: Array
+      },
+
+      yubiKeyMessage: {
+        type: String
       }
     },
 
@@ -261,6 +306,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.$.List.items = this.presentationsData;
 
         }.bind(this));
+      }
+
+      if (this.exportStore) {
+
+        // When the events data is updated, update our grid data
+        this.exportStore.listen(function (exportStore) {
+
+          if (exportStore.message) {
+            this.handleExportStoreBroadcast(exportStore.message);
+          }
+        }.bind(this));
+      }
+    },
+
+    // Handle the broadcast from the export Store
+    handleExportStoreBroadcast: function(messageType) {
+
+      // If no yubi key is inserted
+      if (messageType === 'noYubiKey') {
+        this.message = 'Please insert your YubiKey to export this package.';
+        this.$.NoYubiKeyDialog.open();
+
+      // If a YubiKey is inserted
+      } else if (messageType === 'yubiKeyInserted') {
+        this.$.ExportDialog.open();
       }
     },
 
@@ -466,8 +536,39 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Export Package action button pressed
     exportPackageSelected: function(event) {
 
-      var presentationName = event.model.item.presentationName;
-      console.log('Export ' + presentationName);
+      this.presentationForExport = event.model.item.presentationName;
+
+      // Perform export if in packaged app. Otherwise log so we know it won't work in browser
+      if (typeof global === 'object') {
+
+        // Check YubiKey is inserted
+        this.exportActions.yubiKeyCheck();
+      } else {
+        console.warn('Export not required in browser mode');
+      }
+    },
+
+    // When the Yubikey Password has been entered
+    yubiKeyPressed: function(event) {
+
+      var packagePassword;
+
+      // YubiKey will press enter after entering its password
+      if (event.keyCode === 13) {
+
+        packagePassword = event.target.value;
+
+        // Close the Export Dialog and reset the password field
+        this.$.ExportPassword.value = null;
+        this.$.ExportDialog.close();
+
+        // Call presentationStateChanged presentations action
+        this.exportActions.exportPresentation({
+          packageName: this.presentationForExport,
+          packagePassword: packagePassword
+        });
+      }
+
     },
 
     // Export Package action button pressed

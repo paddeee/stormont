@@ -3,7 +3,6 @@
 var Reflux = require('reflux');
 
 module.exports = Reflux.createActions([
-  'presentationStateChanged',
-  'approvalStateChanged',
-  'exportPresentation'
+  'yubiKeyCheck',
+  'exportPresentation'     // called by user hitting export button
 ]);

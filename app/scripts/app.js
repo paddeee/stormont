@@ -23,8 +23,10 @@ var presentationsActions = require('./actions/presentations.js');
 var presentationsStore = require('./stores/presentations.js');
 var importActions = require('./actions/import.js');
 var importStore = require('./stores/import.js');
+var exportActions = require('./actions/export.js');
+var exportStore = require('./stores/export.js');
 
-(function(document, reflux, moment, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore) {
+(function(document, reflux, moment, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore) {
   'use strict';
 
   // Call checkForLDAP action
@@ -46,6 +48,8 @@ var importStore = require('./stores/import.js');
   app.presentationsStore = presentationsStore;
   app.importActions = importActions;
   app.importStore = importStore;
+  app.exportActions = exportActions;
+  app.exportStore = exportStore;
   app.filterStateActions = filterStateActions;
   app.eventsStore = eventsStore;
   app.placesStore = placesStore;
@@ -84,4 +88,4 @@ var importStore = require('./stores/import.js');
   // Maybe dangerous but can change for different approach if needed
   NodeList.prototype.forEach = Array.prototype.forEach;
 
-})(document, reflux, moment, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore);
+})(document, reflux, moment, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore);
