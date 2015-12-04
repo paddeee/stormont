@@ -38,7 +38,7 @@ lokiFileAdapter.prototype.loadDatabase = function loadDatabase(dbname, callback)
   // ToDo: Make configurable by user or admin
   var path = global.packagedApp ? window.appConfig.paths.dbPath : '';
 
-  fs.readFile(path + '/FarrellLoki/' + dbname, 'utf-8', function(err, data) {
+  fs.readFile(path + '/' + dbname, 'utf-8', function(err, data) {
 
     var dataStore = err || data;
     callback(dataStore);
@@ -70,9 +70,9 @@ lokiFileAdapter.prototype.saveDatabase = function saveDatabase(dbname, dbstring,
   //var callbackFunction = callback || function (){};
   //fs.writeFile(dbname, dbstring, 'utf8',callbackFunction);
 
-  fs.mkdir(path + '/FarrellLoki/', function() {
-    fs.writeFile(path + '/FarrellLoki/' + dbname, dbstring, function() {
-      fs.readFile(path + '/FarrellLoki/' + dbname, 'utf-8', function(err, data) {
+  fs.mkdir(path, function() {
+    fs.writeFile(path + '/' + dbname, dbstring, function() {
+      fs.readFile(path + '/' + dbname, 'utf-8', function(err, data) {
         var dataStore = err || data;
         callback(dataStore);
       });

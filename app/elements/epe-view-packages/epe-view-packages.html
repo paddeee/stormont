@@ -552,10 +552,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     yubiKeyPressed: function(event) {
 
       var packagePassword;
+      var packageLocation;
 
       // YubiKey will press enter after entering its password
       if (event.keyCode === 13) {
 
+        // ToDo: Let User select a location from file explorer
+        // For now just hardcode a location
+        packageLocation = '/Users/ODonnell/SITF/SITFExports/';
         packagePassword = event.target.value;
 
         // Close the Export Dialog and reset the password field
@@ -565,6 +569,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Call presentationStateChanged presentations action
         this.exportActions.exportPresentation({
           packageName: this.presentationForExport,
+          packageLocation: packageLocation,
           packagePassword: packagePassword
         });
       }
