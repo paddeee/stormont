@@ -4,6 +4,8 @@ var Reflux = require('reflux');
 var ExportActions = require('../actions/export.js');
 var dataSourceStore = require('../stores/dataSource.js');
 var fs = window.electronRequire('fs-extra');
+var zipFolder = window.electronRequire('zip-folder');
+var crypto = window.electronRequire('crypto');
 
 module.exports = Reflux.createStore({
 
@@ -30,9 +32,10 @@ module.exports = Reflux.createStore({
   // Export a presentation to the filesystem
   onExportPresentation: function (presentationObject) {
 
-    var tempExportDirectory = presentationObject.packageLocation + 'ExportTemp';
+    var tempExportDirectory = presentationObject.packageLocation + presentationObject.packageName;
     var dbName = '/SITF.json';
     var dbFilePath = window.appConfig.paths.dbPath + dbName;
+
 
     // Set the package password
     this.packagePassword = presentationObject.packagePassword;
@@ -57,7 +60,40 @@ module.exports = Reflux.createStore({
     });
 
     // Iterate through each Source Object and copy the file from its Source Path into the temp directory
-    this.copySourceFiles(this.getLokiSourceObjects(presentationObject.presentationName), presentationObject);
+    this.copySourceFiles(this.getLokiSourceObjects(presentationObject.packageName), presentationObject, tempExportDirectory);
+
+    // Zip temp directory
+    zipFolder(tempExportDirectory, tempExportDirectory + '.zip', function(err) {
+
+      if (err) {
+        console.error('Zip of package failed');
+      }
+    });
+
+    // Encrypt zip file
+    this.encryptPackage(tempExportDirectory + '.zip');
+
+    // Delete temp directory
+    /*fs.remove(tempExportDirectory, function(err) {
+
+      if (err) {
+        return console.error(err);
+      }
+    });*/
+
+  },
+
+  // Encrypt a zip file using aes-256-ctr and the package password
+  encryptPackage: function (zipPath) {
+
+    var algorithm = 'aes-256-ctr';
+    var zipStream = fs.createReadStream(zipPath);
+    var encrypt = crypto.createCipher(algorithm, this.packagePassword);
+
+    zipStream.pipe(encrypt).on('finish', function () {
+
+
+    }.bind(this));
   },
 
   // Get an array of loki Source objects that we can use to copy files across
@@ -86,10 +122,9 @@ module.exports = Reflux.createStore({
   },
 
   // Iterate through each Source Object and copy the file from its Source Path into the temp directory
-  copySourceFiles: function(sourceFilesArray, presentationObject) {
+  copySourceFiles: function(sourceFilesArray, presentationObject, tempExportDirectory) {
 
     var sourceFilePath = window.appConfig.paths.sourcePath;
-    var tempExportDirectory = presentationObject.packageLocation + 'ExportTemp';
 
     sourceFilesArray.forEach(function(sourceFile) {
 

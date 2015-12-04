@@ -8,6 +8,7 @@
     "browserify-fs": "^1.0.0",
     "chai": "^3.2.0",
     "connect-history-api-fallback": "^1.1.0",
+    "crypto": "0.0.3",
     "del": "^1.1.1",
     "glob": "^5.0.6",
     "globby": "^2.1.0",
@@ -53,7 +54,8 @@
     "vinyl-source-stream": "^1.1.0",
     "vulcanize": ">= 1.4.2",
     "wavesurfer.js": "^1.0.47",
-    "web-component-tester": "^3.1.3"
+    "web-component-tester": "^3.1.3",
+    "zip-folder": "^1.0.0"
   },
   "scripts": {
     "test": "gulp test:local"
