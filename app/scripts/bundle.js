@@ -185,13 +185,16 @@ var presentationsStore = require('./stores/presentations.js');
 var importActions = require('./actions/import.js');
 var importStore = require('./stores/import.js');
 var exportActions = require('./actions/export.js');
-var exportStore = require('./stores/export.js');
+var exportStore = global.packagedApp ? require('./stores/export.js') : null;
 
 (function(document, reflux, moment, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore) {
   'use strict';
 
-  // Call checkForLDAP action
-  dataSourceActions.checkForLDAP();
+  // Call checkForLDAP action when in browser
+  if (!global.packagedApp) {
+    console.log('not packaged app');
+    dataSourceActions.checkForLDAP();
+  }
 
   // Grab a reference to our auto-binding template
   // and give it some initial binding values
@@ -699,9 +702,13 @@ module.exports = Reflux.createStore({
 var Reflux = require('reflux');
 var ExportActions = require('../actions/export.js');
 var dataSourceStore = require('../stores/dataSource.js');
-var fs = window.electronRequire('fs-extra');
-var zipFolder = window.electronRequire('zip-folder');
 var crypto = window.electronRequire('crypto');
+//var fsExtra = window.electronRequire('fs-extra');
+var fs= window.electronRequire('fs');
+var zipFolder = window.electronRequire('zip-folder');
+//var usbDetect = window.electronRequire('usb-detection');
+console.log(crypto);
+console.log(fsExtra);
 
 module.exports = Reflux.createStore({
 
@@ -715,6 +722,15 @@ module.exports = Reflux.createStore({
   onYubiKeyCheck: function() {
 
     var isYubiKeyInserted = true;
+
+    /*usbDetect.
+      find().
+      then(function(devices) {
+        console.log(devices);
+      }).
+      catch(function(err) {
+        console.log(err);
+      });*/
 
     if (isYubiKeyInserted) {
       this.message = 'yubiKeyInserted';
@@ -737,7 +753,7 @@ module.exports = Reflux.createStore({
     this.packagePassword = presentationObject.packagePassword;
 
     // Create a temporary directory for database file and related source files
-    fs.mkdirs(tempExportDirectory, function(err) {
+    fsExtra.mkdirs(tempExportDirectory, function(err) {
 
       if (err) {
         return console.error(err);
@@ -748,7 +764,7 @@ module.exports = Reflux.createStore({
     this.removeOtherTransformFilters();
 
     // Copy the database file into the temp directory
-    fs.copy(dbFilePath, tempExportDirectory + dbName, function(err) {
+    fsExtra.copy(dbFilePath, tempExportDirectory + dbName, function(err) {
 
       if (err) {
         return console.error(err);
@@ -767,27 +783,26 @@ module.exports = Reflux.createStore({
     });
 
     // Encrypt zip file
-    this.encryptPackage(tempExportDirectory);
+    this.encryptPackage(tempExportDirectory + '.zip');
+
+    // Delete temp directory
+    /*fsExtra.remove(tempExportDirectory, function(err) {
+
+      if (err) {
+        return console.error(err);
+      }
+    });*/
 
   },
 
   // Encrypt a zip file using aes-256-ctr and the package password
-  encryptPackage: function (tempExportDirectory) {
+  encryptPackage: function (zipPath) {
 
     var algorithm = 'aes-256-ctr';
-    var zipStream = fs.createReadStream(tempExportDirectory + '.zip');
+    var zipStream = fsExtra.createReadStream(zipPath);
     var encrypt = crypto.createCipher(algorithm, this.packagePassword);
 
-    zipStream.pipe(encrypt).on('finish', function () {
-
-      // Delete temp directory
-      fs.remove(tempExportDirectory, function(err) {
-
-         if (err) {
-          return console.error(err);
-         }
-       });
-    });
+    zipStream.pipe(encrypt);
   },
 
   // Get an array of loki Source objects that we can use to copy files across
@@ -823,7 +838,7 @@ module.exports = Reflux.createStore({
     sourceFilesArray.forEach(function(sourceFile) {
 
       // Copy each source file to the temp directory
-      fs.copy(sourceFilePath + '/' + sourceFile.Src, tempExportDirectory + '/' + sourceFile.Src, function(err) {
+      fsExtra.copy(sourceFilePath + '/' + sourceFile.Src, tempExportDirectory + '/' + sourceFile.Src, function(err) {
 
         if (err) {
           return console.error(err);
