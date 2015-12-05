@@ -24,13 +24,16 @@ var presentationsStore = require('./stores/presentations.js');
 var importActions = require('./actions/import.js');
 var importStore = require('./stores/import.js');
 var exportActions = require('./actions/export.js');
-var exportStore = require('./stores/export.js');
+var exportStore = global.packagedApp ? require('./stores/export.js') : null;
 
 (function(document, reflux, moment, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore) {
   'use strict';
 
-  // Call checkForLDAP action
-  dataSourceActions.checkForLDAP();
+  // Call checkForLDAP action when in browser
+  if (!global.packagedApp) {
+    console.log('not packaged app');
+    dataSourceActions.checkForLDAP();
+  }
 
   // Grab a reference to our auto-binding template
   // and give it some initial binding values

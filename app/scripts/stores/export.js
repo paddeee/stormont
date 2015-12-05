@@ -3,9 +3,13 @@
 var Reflux = require('reflux');
 var ExportActions = require('../actions/export.js');
 var dataSourceStore = require('../stores/dataSource.js');
-var fs = window.electronRequire('fs-extra');
-var zipFolder = window.electronRequire('zip-folder');
 var crypto = window.electronRequire('crypto');
+//var fsExtra = window.electronRequire('fs-extra');
+var fs= window.electronRequire('fs');
+var zipFolder = window.electronRequire('zip-folder');
+//var usbDetect = window.electronRequire('usb-detection');
+console.log(crypto);
+console.log(fsExtra);
 
 module.exports = Reflux.createStore({
 
@@ -19,6 +23,15 @@ module.exports = Reflux.createStore({
   onYubiKeyCheck: function() {
 
     var isYubiKeyInserted = true;
+
+    /*usbDetect.
+      find().
+      then(function(devices) {
+        console.log(devices);
+      }).
+      catch(function(err) {
+        console.log(err);
+      });*/
 
     if (isYubiKeyInserted) {
       this.message = 'yubiKeyInserted';
@@ -41,7 +54,7 @@ module.exports = Reflux.createStore({
     this.packagePassword = presentationObject.packagePassword;
 
     // Create a temporary directory for database file and related source files
-    fs.mkdirs(tempExportDirectory, function(err) {
+    fsExtra.mkdirs(tempExportDirectory, function(err) {
 
       if (err) {
         return console.error(err);
@@ -52,7 +65,7 @@ module.exports = Reflux.createStore({
     this.removeOtherTransformFilters();
 
     // Copy the database file into the temp directory
-    fs.copy(dbFilePath, tempExportDirectory + dbName, function(err) {
+    fsExtra.copy(dbFilePath, tempExportDirectory + dbName, function(err) {
 
       if (err) {
         return console.error(err);
@@ -74,7 +87,7 @@ module.exports = Reflux.createStore({
     this.encryptPackage(tempExportDirectory + '.zip');
 
     // Delete temp directory
-    /*fs.remove(tempExportDirectory, function(err) {
+    /*fsExtra.remove(tempExportDirectory, function(err) {
 
       if (err) {
         return console.error(err);
@@ -87,13 +100,10 @@ module.exports = Reflux.createStore({
   encryptPackage: function (zipPath) {
 
     var algorithm = 'aes-256-ctr';
-    var zipStream = fs.createReadStream(zipPath);
+    var zipStream = fsExtra.createReadStream(zipPath);
     var encrypt = crypto.createCipher(algorithm, this.packagePassword);
 
-    zipStream.pipe(encrypt).on('finish', function () {
-
-
-    }.bind(this));
+    zipStream.pipe(encrypt);
   },
 
   // Get an array of loki Source objects that we can use to copy files across
@@ -129,7 +139,7 @@ module.exports = Reflux.createStore({
     sourceFilesArray.forEach(function(sourceFile) {
 
       // Copy each source file to the temp directory
-      fs.copy(sourceFilePath + '/' + sourceFile.Src, tempExportDirectory + '/' + sourceFile.Src, function(err) {
+      fsExtra.copy(sourceFilePath + '/' + sourceFile.Src, tempExportDirectory + '/' + sourceFile.Src, function(err) {
 
         if (err) {
           return console.error(err);
