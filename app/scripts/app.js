@@ -69,6 +69,7 @@ var exportStore = global.packagedApp ? require('./stores/export.js') : null;
   // have resolved and content has been stamped to the page
   app.addEventListener('dom-change', function() {
     console.log('Operation Farrell content all added to page!');
+    console.log('dom-change');
     app.route = 'login';
   });
 
@@ -77,6 +78,7 @@ var exportStore = global.packagedApp ? require('./stores/export.js') : null;
 
     // Set the correct path for leaflet images due to it breking with the build
     window.L.Icon.Default.imagePath = './images/leaflet/';
+    console.log('components ready');
   });
 
   // Close drawer after menu item is selected if drawerPanel is narrow
