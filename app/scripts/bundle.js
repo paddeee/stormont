@@ -230,6 +230,7 @@ var exportStore = global.packagedApp ? require('./stores/export.js') : null;
   // have resolved and content has been stamped to the page
   app.addEventListener('dom-change', function() {
     console.log('Operation Farrell content all added to page!');
+    console.log('dom-change');
     app.route = 'login';
   });
 
@@ -238,6 +239,7 @@ var exportStore = global.packagedApp ? require('./stores/export.js') : null;
 
     // Set the correct path for leaflet images due to it breking with the build
     window.L.Icon.Default.imagePath = './images/leaflet/';
+    console.log('components ready');
   });
 
   // Close drawer after menu item is selected if drawerPanel is narrow
@@ -702,13 +704,10 @@ module.exports = Reflux.createStore({
 var Reflux = require('reflux');
 var ExportActions = require('../actions/export.js');
 var dataSourceStore = require('../stores/dataSource.js');
-var crypto = window.electronRequire('crypto');
-//var fsExtra = window.electronRequire('fs-extra');
-var fs= window.electronRequire('fs');
+var fs = window.electronRequire('fs-extra');
 var zipFolder = window.electronRequire('zip-folder');
+var crypto = window.electronRequire('crypto');
 //var usbDetect = window.electronRequire('usb-detection');
-console.log(crypto);
-console.log(fsExtra);
 
 module.exports = Reflux.createStore({
 
@@ -753,7 +752,7 @@ module.exports = Reflux.createStore({
     this.packagePassword = presentationObject.packagePassword;
 
     // Create a temporary directory for database file and related source files
-    fsExtra.mkdirs(tempExportDirectory, function(err) {
+    fs.mkdirs(tempExportDirectory, function(err) {
 
       if (err) {
         return console.error(err);
@@ -764,7 +763,7 @@ module.exports = Reflux.createStore({
     this.removeOtherTransformFilters();
 
     // Copy the database file into the temp directory
-    fsExtra.copy(dbFilePath, tempExportDirectory + dbName, function(err) {
+    fs.copy(dbFilePath, tempExportDirectory + dbName, function(err) {
 
       if (err) {
         return console.error(err);
@@ -786,12 +785,16 @@ module.exports = Reflux.createStore({
     this.encryptPackage(tempExportDirectory + '.zip');
 
     // Delete temp directory
-    /*fsExtra.remove(tempExportDirectory, function(err) {
+    // ToDo: Do this properly and remove setTimeout which is being used just for demo
+    setTimeout(function() {
 
-      if (err) {
-        return console.error(err);
-      }
-    });*/
+      fs.remove(tempExportDirectory, function(err) {
+
+        if (err) {
+          return console.error(err);
+        }
+      });
+    }, 5000);
 
   },
 
@@ -799,7 +802,7 @@ module.exports = Reflux.createStore({
   encryptPackage: function (zipPath) {
 
     var algorithm = 'aes-256-ctr';
-    var zipStream = fsExtra.createReadStream(zipPath);
+    var zipStream = fs.createReadStream(zipPath);
     var encrypt = crypto.createCipher(algorithm, this.packagePassword);
 
     zipStream.pipe(encrypt);
@@ -838,7 +841,7 @@ module.exports = Reflux.createStore({
     sourceFilesArray.forEach(function(sourceFile) {
 
       // Copy each source file to the temp directory
-      fsExtra.copy(sourceFilePath + '/' + sourceFile.Src, tempExportDirectory + '/' + sourceFile.Src, function(err) {
+      fs.copy(sourceFilePath + '/' + sourceFile.Src, tempExportDirectory + '/' + sourceFile.Src, function(err) {
 
         if (err) {
           return console.error(err);

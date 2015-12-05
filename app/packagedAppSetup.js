@@ -1,3 +1,11 @@
+
+var appConfig = {
+
+  getSourcePath: function() {
+    return '';
+  }
+};
+
 if (typeof global === 'object') {
 
   // Use for non browserify requires
@@ -10,15 +18,10 @@ if (typeof global === 'object') {
   var configDirectory = electronApp.remote.app.getPath('desktop');
   var remoteConfig;
 
-  var appConfig = {
+  appConfig = {
 
     getSourcePath: function() {
-
-      if (global.packagedApp) {
-        return this.paths.sourcePath;
-      } else {
-        return '';
-      }
+      return this.paths.sourcePath;
     }
   };
 
