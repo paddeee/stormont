@@ -163,6 +163,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <div class="media__footer relative horizontal layout center center-justified">
 
         <!-- Annotations -->
+        <div class="media_button-holder border-right horizontal layout center end-justified" hidden$="[[hideAnnotations]]">
+          <paper-icon-button id="ControlMedia" icon="av:movie" on-tap="controlMedia"></paper-icon-button>
+        </div>
+
         <div class="media_button-holder border-right horizontal layout center" hidden$="[[hideAnnotations]]">
           <paper-icon-button id="SelectAnnotations" icon="open-with" on-tap="selectAnnotations"></paper-icon-button>
           <paper-icon-button id="FreeDraw" icon="gesture" on-tap="freeDraw"></paper-icon-button>
@@ -174,6 +178,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
 
         <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
+        <paper-tooltip for="ControlMedia" position="top" offset="0">Control Video</paper-tooltip>
         <paper-tooltip for="SelectAnnotations" position="top" offset="0">Select Annotations</paper-tooltip>
         <paper-tooltip for="FreeDraw" position="top" offset="0">Free Draw</paper-tooltip>
         <paper-tooltip for="AddCircle" position="top" offset="0">Add Circle</paper-tooltip>
@@ -483,7 +488,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.MediaAnnotations.showEditor = false;
 
         // Add selected class to selection button as default
-        this.manageSelectedButtonClass(this.$.SelectAnnotations);
+        this.manageSelectedButtonClass(this.$.ControlMedia);
 
         // Stop players
         if (this.audioPlayer) {
@@ -493,6 +498,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (this.videoPlayer) {
           this.videoPlayer.pause();
         }
+      },
+
+      // Return users control from annotations to video
+      controlMedia: function() {
+
+        this.pointerEvents = false;
+
+        // Add selected class to button
+        this.manageSelectedButtonClass(event.currentTarget);
       },
 
       // Free draw annotation
