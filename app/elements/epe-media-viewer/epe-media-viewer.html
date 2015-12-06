@@ -478,6 +478,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.MediaContent.classList.add('media__content--hidden');
         this.$.LoadingMask.hidden = false;
 
+        // Reset Canvas
+        this.$.MediaAnnotations.reset();
+        this.$.MediaAnnotations.showEditor = false;
+
+        // Add selected class to selection button as default
+        this.manageSelectedButtonClass(this.$.SelectAnnotations);
+
         // Stop players
         if (this.audioPlayer) {
           this.audioPlayer.pause();

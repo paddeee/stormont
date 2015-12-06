@@ -254,7 +254,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var $epeNetworked = app.$.epeNetworked;
 
       $epeNetworked.addEventListener('not-image-route', function() {
-        this.$.ImageAnnotations.showEditor = false;
         this.resetImage();
       }.bind(this));
 
@@ -589,6 +588,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Reset Canvas
       this.$.ImageAnnotations.reset();
+      this.$.ImageAnnotations.showEditor = false;
+
+      // Add selected class to selection button as default
+      this.manageSelectedButtonClass(this.$.SelectAnnotations);
 
       // Reset Image
       this.zoomLevel = 1;
