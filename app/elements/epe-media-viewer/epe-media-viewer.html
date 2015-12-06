@@ -111,86 +111,86 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script src="../../scripts/vendor/videoJS/wavesurfer/videojs-wavesurfer.js"></script>
   <template>
 
-      <!-- Loading Mask -->
-      <div id="LoadingMask" class="fit loading-mask layout horizontal center center-justified">
-        <paper-spinner alt="Loading Media" active$="[[loadingMedia]]"></paper-spinner>
-      </div>
+    <!-- Loading Mask -->
+    <div id="LoadingMask" class="fit loading-mask layout horizontal center center-justified">
+      <paper-spinner alt="Loading Media" active$="[[loadingMedia]]"></paper-spinner>
+    </div>
 
-      <!-- Media Container -->
-      <div id="MediaContainer"
-           class="media__container layout vertical">
+    <!-- Media Container -->
+    <div id="MediaContainer"
+         class="media__container layout vertical">
 
-        <!-- Media Content -->
-        <div id="MediaContent"
-             class="media__content  media__content--hidden  layout vertical center flex">
+      <!-- Media Content -->
+      <div id="MediaContent"
+           class="media__content  media__content--hidden  layout vertical center flex">
 
-          <!-- Headline -->
-          <div class="media-name">[[mediaName]]</div>
+        <!-- Headline -->
+        <div class="media-name">[[mediaName]]</div>
 
-          <!-- Description -->
-          <div id="MediaDescription" class="media-description">[[mediaDescription]]</div>
+        <!-- Description -->
+        <div id="MediaDescription" class="media-description">[[mediaDescription]]</div>
 
-          <!-- Annotation Layer -->
-          <epe-annotations
-            id="MediaAnnotations"
-            class="media-annotations"
-            annotation-type="video"
-            annotation-height="{{annotationHeight}}"
-            annotation-width="{{annotationWidth}}"
-            pointer-events="[[pointerEvents]]"
-            hidden>
+        <!-- Annotation Layer -->
+        <epe-annotations
+          id="MediaAnnotations"
+          class="media-annotations"
+          annotation-type="video"
+          annotation-height="{{annotationHeight}}"
+          annotation-width="{{annotationWidth}}"
+          pointer-events="[[pointerEvents]]"
+          hidden>
 
-            <!-- Create instance -->
-            <video id="Video"
-                   class="video-js vjs-default-skin vjs-big-play-centered"
-                   controls
-                   preload="[[preload]]"
-                   poster="[[poster]]">
-              <source src="[[videoSource]]" type='video/mp4'/>
-              <source src="[[videoSource]]" type='video/webm'/>
-            </video>
-
-          </epe-annotations>
-
-          <audio id="Audio"
-                 class="audio-player video-js vjs-default-skin"
+          <!-- Create instance -->
+          <video id="Video"
+                 class="video-js vjs-default-skin vjs-big-play-centered"
                  controls
-                 preload="auto"
-                 hidden></audio>
-        </div>
+                 preload="[[preload]]"
+                 poster="[[poster]]">
+            <source src="[[videoSource]]" type='video/mp4'/>
+            <source src="[[videoSource]]" type='video/webm'/>
+          </video>
 
-        <!-- Media Footer -->
-        <div class="media__footer relative horizontal layout center center-justified">
+        </epe-annotations>
 
-          <!-- Annotations -->
-          <div class="media_button-holder border-right horizontal layout center" hidden$="[[hideAnnotations]]">
-            <paper-icon-button id="SelectAnnotations" icon="open-with" on-tap="selectAnnotations"></paper-icon-button>
-            <paper-icon-button id="FreeDraw" icon="gesture" on-tap="freeDraw"></paper-icon-button>
-            <paper-icon-button id="AddCircle" icon="image:panorama-fish-eye" on-tap="addCircle"></paper-icon-button>
-            <paper-icon-button id="AddRect" icon="image:crop-landscape" on-tap="addRect"></paper-icon-button>
-            <div id="AddText" class="add-text" on-tap="addText">T</div>
-            <paper-icon-button id="AddLine" icon="icons:remove" on-tap="addLine"></paper-icon-button>
-            <paper-icon-button id="AddPolygon" icon="image:panorama-horizontal" on-tap="addPolygon" hidden></paper-icon-button>
-          </div>
-
-          <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
-          <paper-tooltip for="SelectAnnotations" position="top" offset="0">Select Annotations</paper-tooltip>
-          <paper-tooltip for="FreeDraw" position="top" offset="0">Free Draw</paper-tooltip>
-          <paper-tooltip for="AddCircle" position="top" offset="0">Add Circle</paper-tooltip>
-          <paper-tooltip for="AddRect" position="top" offset="0">Add Rectangle</paper-tooltip>
-          <paper-tooltip for="AddText" position="top" offset="0">Add Text</paper-tooltip>
-          <paper-tooltip for="AddLine" position="top" offset="0">Add Line</paper-tooltip>
-          <paper-tooltip for="AddPolygon" position="top" offset="0">Add Polygon</paper-tooltip>
-
-          <!-- Delete -->
-          <div class="media_button-holder horizontal layout center end-justified" hidden$="[[hideAnnotations]]">
-            <paper-icon-button id="DeleteAnnotation" icon="delete" on-tap="deleteAnnotation"></paper-icon-button>
-          </div>
-
-          <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
-          <paper-tooltip for="DeleteAnnotation" position="top" offset="0">Delete Selected Annotations</paper-tooltip>
-        </div>
+        <audio id="Audio"
+               class="audio-player video-js vjs-default-skin"
+               controls
+               preload="auto"
+               hidden></audio>
       </div>
+
+      <!-- Media Footer -->
+      <div class="media__footer relative horizontal layout center center-justified">
+
+        <!-- Annotations -->
+        <div class="media_button-holder border-right horizontal layout center" hidden$="[[hideAnnotations]]">
+          <paper-icon-button id="SelectAnnotations" icon="open-with" on-tap="selectAnnotations"></paper-icon-button>
+          <paper-icon-button id="FreeDraw" icon="gesture" on-tap="freeDraw"></paper-icon-button>
+          <paper-icon-button id="AddCircle" icon="image:panorama-fish-eye" on-tap="addCircle"></paper-icon-button>
+          <paper-icon-button id="AddRect" icon="image:crop-landscape" on-tap="addRect"></paper-icon-button>
+          <div id="AddText" class="add-text" on-tap="addText">T</div>
+          <paper-icon-button id="AddLine" icon="icons:remove" on-tap="addLine"></paper-icon-button>
+          <paper-icon-button id="AddPolygon" icon="image:panorama-horizontal" on-tap="addPolygon" hidden></paper-icon-button>
+        </div>
+
+        <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
+        <paper-tooltip for="SelectAnnotations" position="top" offset="0">Select Annotations</paper-tooltip>
+        <paper-tooltip for="FreeDraw" position="top" offset="0">Free Draw</paper-tooltip>
+        <paper-tooltip for="AddCircle" position="top" offset="0">Add Circle</paper-tooltip>
+        <paper-tooltip for="AddRect" position="top" offset="0">Add Rectangle</paper-tooltip>
+        <paper-tooltip for="AddText" position="top" offset="0">Add Text</paper-tooltip>
+        <paper-tooltip for="AddLine" position="top" offset="0">Add Line</paper-tooltip>
+        <paper-tooltip for="AddPolygon" position="top" offset="0">Add Polygon</paper-tooltip>
+
+        <!-- Delete -->
+        <div class="media_button-holder horizontal layout center end-justified" hidden$="[[hideAnnotations]]">
+          <paper-icon-button id="DeleteAnnotation" icon="delete" on-tap="deleteAnnotation"></paper-icon-button>
+        </div>
+
+        <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
+        <paper-tooltip for="DeleteAnnotation" position="top" offset="0">Delete Selected Annotations</paper-tooltip>
+      </div>
+    </div>
   </template>
 </dom-module>
 <script>

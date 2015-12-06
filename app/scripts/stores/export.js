@@ -93,7 +93,7 @@ module.exports = Reflux.createStore({
           return console.error(err);
         }
       });
-    }, 5000);
+    }, 1000);
 
   },
 
