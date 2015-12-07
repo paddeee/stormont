@@ -11,6 +11,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
 <dom-module id="epe-map">
+  <link rel="stylesheet" href="../../styles/vendor/leaflet/leaflet-draw.css" />
+  <link rel="stylesheet" href="../../styles/vendor/leaflet/leaflet-style-editor.css" />
   <style>
 
     :host {
@@ -59,8 +61,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
   </style>
-  <link rel="stylesheet" href="../../styles/vendor/leaflet/leaflet-draw.css" />
-  <link rel="stylesheet" href="../../styles/vendor/leaflet/leaflet-style-editor.css" />
   <script src="../../scripts/vendor/leaflet/leaflet-draw.js"></script>
   <script src="../../scripts/vendor/leaflet/leaflet-style-forms.js"></script>
   <script src="../../scripts/vendor/leaflet/leaflet-style-editor.js"></script>
@@ -71,14 +71,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                  longitude="21.37939453125"
                  zoom="7"
                  min-zoom="7"
+                 max-zoom="19"
                  maxBounds="[[maxBounds]]"
                  fitToMarkers
                  on-load="mapReady">
 
-      <leaflet-tilelayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" max-zoom="19">
+      <leaflet-tilelayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png">
       </leaflet-tilelayer>
 
-      <epe-map-geojson data="[[geoJSONFeature]]">
+      <epe-map-geojson id="MapGeoJSON"
+                       data="[[geoJSONFeature]]">
       </epe-map-geojson>
     </leaflet-map>
 
@@ -109,16 +111,58 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 'coordinates': [21.37939453125, 40.20824570152502]
               },
               'properties': {
-                'eventName': 'Arson at the old vicarage',
+                'eventName': 'Kidnapping in Petrol Station',
                 'eventDescription': 'Senserit repudiandae ex sea. An quod porro tamquam pro, usu at habemus efficiendi necessitatibus. Id audiam detraxit vim, detracto dissentias ne pri. Eius dissentias ad vim.',
-                'placeName': 'Old Vicarage',
+                'placeName': 'Petrol Station',
+                'type': 'Kidnapping',
+                'relatedPeople': [
+                  {
+                    name: 'Person A'
+                  },
+                  {
+                    name: 'Person B'
+                  }
+                ]
+              }
+            },
+            {
+              'type': 'Feature',
+              'geometry': {
+                'type': 'Point',
+                'coordinates': [21.37939453125, 40.20824570152502]
+              },
+              'properties': {
+                'eventName': 'Arson at the factory',
+                'eventDescription': 'Senserit repudiandae ex sea. An quod porro tamquam pro, usu at habemus efficiendi necessitatibus. Id audiam detraxit vim, detracto dissentias ne pri. Eius dissentias ad vim.',
+                'placeName': 'Factory',
                 'type': 'Arson',
                 'relatedPeople': [
                   {
-                    name: 'Barry Fadge'
+                    name: 'Person A'
                   },
                   {
-                    name: 'Kevin Mintballs'
+                    name: 'Person B'
+                  }
+                ]
+              }
+            },
+            {
+              'type': 'Feature',
+              'geometry': {
+                'type': 'Point',
+                'coordinates': [21.47939453129, 40.20824570152402]
+              },
+              'properties': {
+                'eventName': 'Murder at the Nightclub',
+                'eventDescription': 'Senserit repudiandae ex sea. An quod porro tamquam pro, usu at habemus efficiendi necessitatibus. Id audiam detraxit vim, detracto dissentias ne pri. Eius dissentias ad vim.',
+                'placeName': 'Nightclub',
+                'type': 'Murder',
+                'relatedPeople': [
+                  {
+                    name: 'Person B'
+                  },
+                  {
+                    name: 'Person C'
                   }
                 ]
               }
@@ -141,10 +185,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 'type': 'Murder',
                 'relatedPeople': [
                   {
-                    name: 'Arthur Ribchest'
+                    name: 'Person B'
                   },
                   {
-                    name: 'Kevin Mintballs'
+                    name: 'Person D'
                   }
                 ]
               }
@@ -164,16 +208,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 ]
               },
               'properties': {
-                'eventName': 'Murder at the Bob Shop',
+                'eventName': 'Murder at the Shop',
                 'eventDescription': 'Lorem ipsum dolor sit amet, vim no nemore vidisse, in nec putent mentitum, in eos eros signiferumque. Ea vel quodsi alterum fastidii. Autem quando nostro ut eos, ubique eligendi at cum. Enim autem has ex. Sea nominavi dissentias ad, facilis accumsan in his, sed option indoctum ad.Argumentum interpretaris est no, ei quo suas suscipit contentiones, duo et assum conceptam. Qui natum referrentur cu. Vix an veniam tibique referrentur. His cu mollis explicari, no libris vivendo sensibus vim, nec et animal delenit. Duo no tractatos consetetur voluptatum, cu eos deserunt accusata hendrerit. Quo eu clita qualisque voluptaria, mel ex dolore petentium. Qui te vulputate voluptatum suscipiantur, ex simul argumentum mel, vim docendi salutandi dissentiunt id.',
-                'placeName': 'The Bob Shop',
+                'placeName': 'The Shop',
                 'type': 'Murder',
                 'relatedPeople': [
                   {
-                    name: 'Alan Pumptruck'
+                    name: 'Person E'
                   },
                   {
-                    name: 'Kevin Mintballs'
+                    name: 'Person F'
                   }
                 ]
               }
@@ -181,6 +225,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           ]
         }
       }
+    },
+
+    ready: function() {
+
     },
 
     // CALLED FROM LEAFLET MAP LOAD EVENT FIRING
