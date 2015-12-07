@@ -153,6 +153,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           value: null
         },
 
+        clusterLayer: {
+          type: Object
+        },
+
+        markers: {
+          type: Array,
+          value: []
+        },
+
         // Options to use for the Leaflet GeoJSON Layer
         geoJsonLayerOptions: {
           type: Object,
@@ -162,7 +171,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       ready: function() {
 
-        // Create clusters
+        // Initialise a ClusterLayer
         this.clusterLayer = new window.L.MarkerClusterGroup({
           showCoverageOnHover: false,
           spiderfyOnMaxZoom: true
@@ -216,6 +225,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         });
 
         this.clusterLayer.addLayer(marker);
+
+        // Add marker to markers array so we can remove these from GeoJSON layer when clustering
+        this.markers.push(marker);
 
         return marker;
       },
@@ -293,42 +305,47 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         if (this.container && this.data) {
 
-          //this.container.removeLayer(this.eventsLayer);
-          this.container.removeLayer(this.clusterLayer);
+          this.setUpLeafletCluster();
 
-          this.clusterLayer = new window.L.MarkerClusterGroup();
-          this.eventsLayer = window.L.geoJson(this.data, this.geoJsonLayerOptions);
+          this.setUpFeaturesLayer();
 
-          //this.eventsLayer.addTo(this.container);
+          // Add cluster and feature layers
           this.clusterLayer.addTo(this.container);
+          this.geoJSONLayer.addTo(this.container);
         }
       },
 
       // Set up Clustering on Markers
       setUpLeafletCluster: function() {
 
-        var clusters = window.L.markerClusterGroup();
+        this.clusterLayer && this.container.removeLayer(this.clusterLayer);
 
-        /*this.$.MapGeoJSON.eventsLayer.eachLayer(function (layer) {
-         clusters.addLayer(layer);
-         });
-
-         this.$.LeafletMap.map.addLayer(clusters);*/
-
-        this.fire('data-changed');
-      },
-
-      // Get Marker Featues only from all GeoJSON data
-      getMarkerFeatures: function() {
-
-        return this.geoJSONFeature.features.filter(function(feature) {
-          return feature.geometry.type === 'Point';
+        this.clusterLayer = new window.L.MarkerClusterGroup({
+          showCoverageOnHover: false,
+          spiderfyOnMaxZoom: true
         });
       },
 
+      // Set up Layer for features other than markers
+      setUpFeaturesLayer: function() {
+
+        // Create a GeoJSON layer from data
+        this.geoJSONLayer = window.L.geoJson(this.data, this.geoJsonLayerOptions);
+
+        // Remove markers from GeoJSON layer as they are already on map in the cluster layer
+        this.markers.forEach(function(marker) {
+          this.geoJSONLayer.removeLayer(marker);
+        }.bind(this));
+      },
+
       detached: function() {
-        if (this.container && this.eventsLayer) {
-          this.container.removeLayer(this.eventsLayer);
+
+        if (this.container && this.featuresLayer) {
+          this.container.removeLayer(this.featuresLayer);
+        }
+
+        if (this.container && this.clusterLayer) {
+          this.container.removeLayer(this.clusterLayer);
         }
       }
     });
