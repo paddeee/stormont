@@ -12,9 +12,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <dom-module id="epe-view-packages">
   <style>
+
     :host {
       display: block;
       min-height: 80vh;
+    }
+
+    .no-packages {
+      color: var(--secondary-text-color);
+      font-size: 3vh;
+      height: 30vh;
     }
 
     iron-list {
@@ -143,7 +150,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .export-dialog {
+      height: 35vh;
       width: 50vw;
+    }
+
+    .export-progress {
+      height: 60%;
     }
 
     paper-input {
@@ -152,6 +164,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       --paper-input-container-input-color: var(--secondary-text-color);
       --paper-input-container-invalid-color: var(--google-red-500);
       margin: 2vh 0;
+    }
+
+    paper-progress {
+      --paper-progress-active-color: var(--dark-primary-color);
+      --paper-progress-secondary-color: var(--paper-light-blue-100);
+      width: 100%;
     }
   </style>
   <template>
@@ -241,7 +259,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
 
       </template>
-      </iron-list>
+    </iron-list>
+
+    <div class="no-packages layout horizontal center center-justified"
+         hidden$="[[!hidePackagesList]]">
+      <div>There are no packages available for view/edit.</div>
+    </div>
 
     <paper-dialog id="NoYubiKeyDialog" modal>
       <h2>YubiKey not Inserted</h2>
@@ -271,6 +294,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
     </paper-dialog>
 
+    <paper-dialog id="ExportingPackage"
+                  class="export-dialog"
+                  modal>
+      <h2>Exporting Package</h2>
+      <div class="export-progress layout horizontal center center-justified">
+        <paper-progress indeterminate value="800" min="100" max="1000"></paper-progress>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="ExportSuccessDialog" modal>
+      <h2>Package Successfully Exported</h2>
+      <div>
+        <span>The package has been successfully exported to the selected location.</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="ExportErrorDialog" modal>
+      <h2>Package Export Error</h2>
+      <div>
+        <span>ToDO: Error message logic to go here</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
   </template>
 </dom-module>
 <script>
@@ -282,6 +334,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       presentationsData: {
         type: Array
+      },
+
+      hidePackagesList: {
+        type: Boolean,
+        computed: 'isPackages(presentationsData)',
+        value: true
       },
 
       yubiKeyMessage: {
@@ -331,6 +389,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // If a YubiKey is inserted
       } else if (messageType === 'yubiKeyInserted') {
         this.$.ExportDialog.open();
+
+      // Package successfully exported
+      } else if (messageType === 'exportSuccess') {
+        this.$.ExportSuccessDialog.open();
+        this.$.ExportingPackage.close();
+
+      // Package export error
+      } else if (messageType === 'exportError') {
+        this.$.ExportErrorDialog.open();
+        this.$.ExportingPackage.close();
       }
     },
 
@@ -566,6 +634,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.ExportPassword.value = null;
         this.$.ExportDialog.close();
 
+        // Open the Exporing Loading Dialog
+        this.$.ExportingPackage.open();
+
         // Call presentationStateChanged presentations action
         this.exportActions.exportPresentation({
           packageName: this.presentationForExport,
@@ -573,7 +644,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           packagePassword: packagePassword
         });
       }
-
     },
 
     // Export Package action button pressed
@@ -584,6 +654,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       } else {
         return true;
       }
+    },
+
+    // Return Boolean based on gridData
+    isPackages: function(presentationData) {
+
+      if (presentationData && presentationData.length) {
+        return false;
+      }
+      return true;
     }
   });
 })();

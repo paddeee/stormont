@@ -318,8 +318,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Set up Clustering on Markers
       setUpLeafletCluster: function() {
 
-        this.clusterLayer && this.container.removeLayer(this.clusterLayer);
-
         this.clusterLayer = new window.L.MarkerClusterGroup({
           showCoverageOnHover: false,
           spiderfyOnMaxZoom: true
