@@ -12,6 +12,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <dom-module id="epe-map-geojson">
     <template>
+      <link rel="stylesheet" href="../../bower_components/leaflet.markercluster/dist/MarkerCluster.css" />
+      <link rel="stylesheet" href="../../bower_components/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+
       <style>
 
         :host {
@@ -21,6 +24,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </style>
     </template>
 </dom-module>
+
+<script src="../../bower_components/leaflet.markercluster/dist/leaflet.markercluster-src.js"></script>
 
 <script>
 
@@ -157,9 +162,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       ready: function() {
 
+        // Create clusters
+        this.clusterLayer = new window.L.MarkerClusterGroup({
+          showCoverageOnHover: false,
+          spiderfyOnMaxZoom: true
+        });
+
         // Assign functions to the geoJsonLayerOptions Object
         this.geoJsonLayerOptions = {
-          pointToLayer: this._pointToLayer,
+          pointToLayer: this._pointToLayer.bind(this),
           onEachFeature: this._onEachFeature,
           filter: this._filterFeature,
           style: this._setFeatureStyle.bind(this)
@@ -203,6 +214,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           offset: new window.L.point(230, -4),
           autoPanPadding: new window.L.point(230, 28)
         });
+
+        this.clusterLayer.addLayer(marker);
 
         return marker;
       },
@@ -280,14 +293,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         if (this.container && this.data) {
 
-          if (this.eventsLayer) {
-            this.container.removeLayer(this.eventsLayer);
-          }
+          //this.container.removeLayer(this.eventsLayer);
+          this.container.removeLayer(this.clusterLayer);
 
+          this.clusterLayer = new window.L.MarkerClusterGroup();
           this.eventsLayer = window.L.geoJson(this.data, this.geoJsonLayerOptions);
 
-          this.eventsLayer.addTo(this.container);
+          //this.eventsLayer.addTo(this.container);
+          this.clusterLayer.addTo(this.container);
         }
+      },
+
+      // Set up Clustering on Markers
+      setUpLeafletCluster: function() {
+
+        var clusters = window.L.markerClusterGroup();
+
+        /*this.$.MapGeoJSON.eventsLayer.eachLayer(function (layer) {
+         clusters.addLayer(layer);
+         });
+
+         this.$.LeafletMap.map.addLayer(clusters);*/
+
+        this.fire('data-changed');
+      },
+
+      // Get Marker Featues only from all GeoJSON data
+      getMarkerFeatures: function() {
+
+        return this.geoJSONFeature.features.filter(function(feature) {
+          return feature.geometry.type === 'Point';
+        });
       },
 
       detached: function() {
