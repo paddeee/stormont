@@ -83,18 +83,27 @@ module.exports = Reflux.createStore({
     // Encrypt zip file
     this.encryptPackage(tempExportDirectory + '.zip');
 
-    // Delete temp directory
-    // ToDo: Do this properly and remove setTimeout which is being used just for demo
     setTimeout(function() {
 
+      // Delete temp directory
       fs.remove(tempExportDirectory, function(err) {
 
         if (err) {
+
+          this.message = 'exportError';
+
+          this.trigger(this);
+
           return console.error(err);
         }
-      });
-    }, 1000);
 
+        this.message = 'exportSuccess';
+
+        this.trigger(this);
+
+      }.bind(this));
+
+    }.bind(this), 4000);
   },
 
   // Encrypt a zip file using aes-256-ctr and the package password
