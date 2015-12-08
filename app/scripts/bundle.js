@@ -1911,7 +1911,25 @@ module.exports = Reflux.createStore({
 
     if (status === 'loggedin') {
       userObject.userName = userLoginObject.username;
-      userObject.role = 'gatekeeper';
+
+      // ToDo: Remove this when ldap set up
+      switch (userObject.userName) {
+        case 'User':
+          userObject.role = 'user';
+          break;
+        case 'Gatekeeper':
+          userObject.role = 'gatekeeper';
+          break;
+        case 'Authoriser':
+          userObject.role = 'authoriser';
+          break;
+        case 'Admin':
+          userObject.role = 'admin';
+          break;
+        default:
+          console.log('Sorry, not a valid user');
+      }
+
       userObject.message = userObject.userName + ' has logged in as ' + userObject.role;
       return userObject;
 
