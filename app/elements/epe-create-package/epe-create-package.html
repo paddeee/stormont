@@ -83,7 +83,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .main-content,
     section,
-    .time-map {
+    .time-map,
+    .profile-holder,
+    .profile {
       height: 100%;
     }
 
@@ -223,6 +225,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         </section>
       </div>
+
+      <!-- Profile View -->
+      <section data-route="profile" class="profile-holder">
+        <epe-profile id="Profile" class="profile relative"></epe-profile>
+      </section>
 
       <!-- Map View -->
       <section data-route="map" class="time-map">
