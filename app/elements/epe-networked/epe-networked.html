@@ -472,9 +472,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Toggle Menu panel
     toggleMenu: function(event) {
 
+      event.preventDefault();
+
+      var route = event.currentTarget.dataset.route;
+
       // If Create Package selected than reset the presentation package to no filters
       if (event.currentTarget.id === 'CreatePackageMenuNavigation') {
         this.resetPackage();
+      }
+
+      if (route) {
+        page(route);
       }
 
       this.$.paperDrawerPanel.togglePanel();

@@ -174,6 +174,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
 
+    <div class="no-packages layout horizontal center center-justified"
+         hidden$="[[!hidePackagesList]]">
+      <div>There are no packages available for view/edit.</div>
+    </div>
+
     <iron-list id="List" items="[[presentationsData]]" as="item">
       <template>
         <div class="item">
@@ -260,11 +265,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       </template>
     </iron-list>
-
-    <div class="no-packages layout horizontal center center-justified"
-         hidden$="[[!hidePackagesList]]">
-      <div>There are no packages available for view/edit.</div>
-    </div>
 
     <paper-dialog id="NoYubiKeyDialog" modal>
       <h2>YubiKey not Inserted</h2>
