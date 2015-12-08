@@ -157,9 +157,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                  id="MapButton">
                 <paper-icon-button icon="maps:map"></paper-icon-button>
               </a>
-              <a data-route="/create-package/profiles"
-                 href="/create-package/profiles"
-                 id="ProfilesButton">
+              <a data-route="/create-package/profile"
+                 href="/create-package/profile"
+                 id="ProfileButton">
                 <paper-icon-button icon="social:people"></paper-icon-button>
               </a>
               <a data-route="/create-package/data-grid/Source"
@@ -181,9 +181,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                  id="MapButton">
                 <paper-icon-button icon="maps:map"></paper-icon-button>
               </a>
-              <a data-route="/edit-package/profiles"
-                 href="/edit-package/profiles"
-                 id="ProfilesButton">
+              <a data-route="/edit-package/profile"
+                 href="/edit-package/profile"
+                 id="ProfileButton">
                 <paper-icon-button icon="social:people"></paper-icon-button>
               </a>
               <a data-route="/edit-package/data-grid/Source"
@@ -199,7 +199,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-tooltip for="MenuButton" offset="0">Show Menu</paper-tooltip>
           <paper-tooltip for="DataGridButton" offset="0">Data Grid</paper-tooltip>
           <paper-tooltip for="MapButton" offset="0">Map</paper-tooltip>
-          <paper-tooltip for="ProfilesButton" offset="0">Profiles</paper-tooltip>
+          <paper-tooltip for="ProfileButton" offset="0">Profiles</paper-tooltip>
           <paper-tooltip for="SourceButton" offset="0">Source</paper-tooltip>
 
           <!-- Application name -->
@@ -546,6 +546,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       } else if (window.EpeCreatePackage.createPackageRoute === 'map') {
         this.sectionTitle = 'Create Package - Map';
 
+      } else if (window.EpeCreatePackage.createPackageRoute === 'profile') {
+        this.sectionTitle = 'Create Package - Profile';
+
       } else if (window.EpeCreatePackage.createPackageRoute === 'source') {
         this.sectionTitle = 'Create Package - Supporting Evidence';
       }
@@ -568,6 +571,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       } else if (window.EpeEditPackage.createPackageRoute === 'map') {
         this.sectionTitle = 'Map - ' + this.presentationName;
+
+      } else if (window.EpeEditPackage.createPackageRoute === 'profile') {
+        this.sectionTitle = 'Profile - ' + this.presentationName;
 
       } else if (window.EpeEditPackage.createPackageRoute === 'source') {
         this.sectionTitle = 'Supporting Evidence - ' + this.presentationName;
@@ -609,7 +615,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         case 'map':
           $scrollHeader.scroll(128, true);
           break;
-        case 'profiles':
+        case 'profile':
           $scrollHeader.scroll(0, true);
           break;
         case 'source':

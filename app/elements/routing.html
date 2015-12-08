@@ -54,6 +54,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       EpeCreatePackage.createPackageRoute = 'map';
     });
 
+    page('/create-package/profile', function () {
+      app.route = 'create-package';
+      EpeCreatePackage.createPackageRoute = 'profile';
+    });
+
     page('/create-package/source/:type', function (data) {
       app.route = 'create-package';
       EpeCreatePackage.createPackageRoute = 'source';
@@ -74,6 +79,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     page('/edit-package/map', function () {
       app.route = 'edit-package';
       EpeEditPackage.createPackageRoute = 'map';
+    });
+
+    page('/edit-package/profile', function () {
+      app.route = 'edit-package';
+      EpeEditPackage.createPackageRoute = 'profile';
     });
 
     page('/edit-package/source/:type', function (data) {
