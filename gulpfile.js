@@ -94,10 +94,10 @@ gulp.task('jshint', function () {
 // Optimize Images
 gulp.task('images', function () {
   return gulp.src('app/images/**/*')
-    .pipe($.cache($.imagemin({
+    /*.pipe($.cache($.imagemin({
       progressive: true,
       interlaced: true
-    })))
+    })))*/
     .pipe(gulp.dest('dist/images'))
     .pipe($.size({title: 'images'}));
 });
@@ -329,7 +329,7 @@ gulp.task('default', ['clean'], function (cb) {
     'browserify',
     ['copy', 'styles'],
     'elements',
-    ['jshint', 'images', 'fonts', 'html'/*, 'unit-tests'*/],
+    ['jshint', 'images', 'fonts'/*, 'html', 'unit-tests'*/],
     //'vulcanize',
     cb);
     // Note: add , 'precache' , after 'vulcanize', if your are going to use Service Worker
@@ -337,7 +337,7 @@ gulp.task('default', ['clean'], function (cb) {
 
 // Load tasks for web-component-tester
 // Adds tasks for `gulp test:local` and `gulp test:remote`
-require('web-component-tester').gulp.init(gulp);
+//require('web-component-tester').gulp.init(gulp);
 
 // Load custom tasks from the `tasks` directory
 try { require('require-dir')('tasks'); } catch (err) {}
