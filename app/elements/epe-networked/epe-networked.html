@@ -509,6 +509,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (app.route === 'choose-option') {
           this.sectionTitle = 'What Would You Like To Do?';
 
+          // While we're here, scroll header to top
+          this.manageScrollHeader('choose-option');
+
         } else if (app.route === 'import') {
           this.setImportTitle();
 
@@ -637,6 +640,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           break;
         case 'image':
           $scrollHeader.scroll(128, true);
+          break;
+        case 'choose-option':
+          // Hack that fixed header issue on Chrome Windows
+          $scrollHeader.scroll(128, false);
+          $scrollHeader.scroll(0, false);
           break;
         default:
           $scrollHeader.scroll(0, true);
