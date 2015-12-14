@@ -227,6 +227,14 @@ module.exports = Reflux.createStore({
         this.selectedSourceRoute = 'image';
         this.selectedSourceFileType = 'image';
         break;
+      case 'gif':
+        this.selectedSourceRoute = 'image';
+        this.selectedSourceFileType = 'image';
+        break;
+      case 'png':
+        this.selectedSourceRoute = 'image';
+        this.selectedSourceFileType = 'image';
+        break;
       case 'mp3':
         this.selectedSourceRoute = 'media';
         this.selectedSourceFileType = 'audio';
