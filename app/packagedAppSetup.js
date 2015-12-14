@@ -25,7 +25,7 @@ if (typeof global === 'object') {
     }
   };
 
-  fs.readFile(configDirectory + '/appConfig.json', 'utf-8', function(err, data) {
+  fs.readFile(configDirectory + '/SITF/ConfigWindows/appConfig.json', 'utf-8', function(err, data) {
 
     if (data) {
       remoteConfig = JSON.parse(data);
