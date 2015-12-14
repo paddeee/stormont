@@ -1833,6 +1833,14 @@ module.exports = Reflux.createStore({
         this.selectedSourceRoute = 'image';
         this.selectedSourceFileType = 'image';
         break;
+      case 'gif':
+        this.selectedSourceRoute = 'image';
+        this.selectedSourceFileType = 'image';
+        break;
+      case 'png':
+        this.selectedSourceRoute = 'image';
+        this.selectedSourceFileType = 'image';
+        break;
       case 'mp3':
         this.selectedSourceRoute = 'media';
         this.selectedSourceFileType = 'audio';
@@ -1924,6 +1932,18 @@ module.exports = Reflux.createStore({
           userObject.role = 'authoriser';
           break;
         case 'Admin':
+          userObject.role = 'admin';
+          break;
+        case 'User2':
+          userObject.role = 'user';
+          break;
+        case 'Gatekeeper2':
+          userObject.role = 'gatekeeper';
+          break;
+        case 'Authoriser2':
+          userObject.role = 'authoriser';
+          break;
+        case 'Admin2':
           userObject.role = 'admin';
           break;
         default:
