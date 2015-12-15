@@ -86,67 +86,89 @@ module.exports = Reflux.createStore({
 
     // Commence Export Process
     copyDBFile
+    .then(function() {
+      console.log('DB File Copied');
+
+      // Iterate through each Source Object and copy the file from its Source Path into the temp directory
+      this.copySourceFiles(this.getLokiSourceObjects(presentationObject.packageName), presentationObject, tempExportDirectory)
       .then(function() {
-        console.log('db file copied');
+        console.log('Source Files Copied');
 
-        // Iterate through each Source Object and copy the file from its Source Path into the temp directory
-        this.copySourceFiles(this.getLokiSourceObjects(presentationObject.packageName), presentationObject, tempExportDirectory)
+        // Zip temporary directory
+        zipTempDirectory
+        .then(function() {
+        console.log('Folder Zipped');
+
+        // Encrypt zip file
+        this.encryptPackage(tempExportDirectory + '.zip')
+        .then(function() {
+          console.log('Package Encrypted');
+
+          // Delete temporary directory
+          this.deleteTempDirectory(tempExportDirectory)
           .then(function() {
-            console.log('Zip Folder');
-
-            // Zip temporary directory
-            zipTempDirectory.then(function() {
-              console.log('Encrypt Zip File');
-
-              // Encrypt zip file
-              this.encryptPackage(tempExportDirectory + '.zip');
-            }.bind(this))
-            .catch(function(reason) {
-              console.log(reason);
-            });
-          }.bind(this))
+            console.log('Temp directory removed');
+            this.message = 'exportSuccess';
+            this.trigger(this);
+          })
           .catch(function(reason) {
-            console.log(reason);
+            console.error(reason);
+            this.message = 'removeDirectoryFailure';
+            this.trigger(this);
           });
-      }.bind(this))
-      .catch(
-      function(reason) {
-        console.error(reason);
-      });
-
-    setTimeout(function() {
-
-      // Delete temp directory
-      fs.remove(tempExportDirectory, function(err) {
-
-        if (err) {
-
-          this.message = 'exportError';
-
+        }.bind(this))
+        .catch(function(reason) {
+          console.error(reason);
+          this.message = 'encryptionFailure';
           this.trigger(this);
-
-          return console.error(err);
-        }
-        console.log('Temp directory removed');
-
-        this.message = 'exportSuccess';
-
+        });
+      }.bind(this))
+      .catch(function(reason) {
+        console.error(reason);
+        this.message = 'zipDirectoryFailure';
         this.trigger(this);
-
-      }.bind(this));
-
-    }.bind(this), 4000);
+      });
+      }.bind(this))
+      .catch(function(reason) {
+        console.error(reason);
+        this.message = 'sourceFileCopyFailure';
+        this.trigger(this);
+      });
+    }.bind(this))
+    .catch(
+    function(reason) {
+      console.error(reason);
+      this.message = 'dbCopyFailure';
+      this.trigger(this);
+    });
   },
 
   // Encrypt a zip file using aes-256-ctr and the package password
   encryptPackage: function (zipPath) {
 
-    var algorithm = 'aes-256-ctr';
-    var zipStream = fs.createReadStream(zipPath);
-    var encrypt = crypto.createCipher(algorithm, this.packagePassword);
+    return new Promise(function (resolve, reject) {
 
-    zipStream.pipe(encrypt);
-    console.log('Zip encrypted???');
+      var algorithm = 'aes-256-ctr';
+      var zipStream = fs.createReadStream(zipPath);
+      var encrypt = crypto.createCipher(algorithm, this.packagePassword);
+
+      // This will wait until we know the readable stream is actually valid before piping
+      zipStream.on('open', function () {
+        zipStream.pipe(encrypt)
+          .on('error', function () {
+            reject('Error encrypting Zip file');
+          })
+          .on('finish', function () {
+            console.error('all writes are now complete.');
+            resolve();
+          });
+      });
+
+      // This catches any errors that happen while creating the readable stream (usually invalid names)
+      zipStream.on('error', function (err) {
+        reject(err);
+      });
+    }.bind(this));
   },
 
   // Get an array of loki Source objects that we can use to copy files across
@@ -210,6 +232,22 @@ module.exports = Reflux.createStore({
         .catch(function(err) {
           reject(Error(err));
         });
+    });
+  },
+
+  // Delete the temporary Directory
+  deleteTempDirectory: function(tempExportDirectory) {
+
+    return new Promise(function (resolve, reject) {
+
+      fs.remove(tempExportDirectory, function (err) {
+
+        if (err) {
+          reject(Error(err));
+        } else {
+          resolve();
+        }
+      }.bind(this));
     });
   }
 });
