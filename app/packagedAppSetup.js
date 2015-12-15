@@ -16,7 +16,14 @@ if (typeof global === 'object') {
 
   // ToDo: Change to something that isn't users desktop
   var configDirectory = electronApp.remote.app.getPath('desktop');
+  var platformPath;
   var remoteConfig;
+
+  if (process.platform != 'darwin') {
+    platformPath = '/SITF/ConfigWindows/';
+  } else {
+    platformPath = '/SITF/ConfigOSX/';
+  }
 
   appConfig = {
 
@@ -25,7 +32,7 @@ if (typeof global === 'object') {
     }
   };
 
-  fs.readFile(configDirectory + '/SITF/ConfigOSX/appConfig.json', 'utf-8', function(err, data) {
+  fs.readFile(configDirectory + platformPath + '/appConfig.json', 'utf-8', function(err, data) {
 
     if (data) {
       remoteConfig = JSON.parse(data);

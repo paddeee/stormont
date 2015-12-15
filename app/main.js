@@ -36,7 +36,7 @@ electronApp.on('ready', function() {
   mainWindow.loadURL('file://' + __dirname + '/index.html');
 
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {
@@ -67,5 +67,5 @@ electronApp.on('ready', function() {
     ]}
   ];
 
-  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+  //Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 });
