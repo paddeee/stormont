@@ -149,26 +149,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <!-- Navigation Tabs -->
         <paper-tabs attr-for-selected="name" selected="{{params.name}}" on-iron-select="tabSelected">
-          <paper-tab name="Events" link>
-            <a href="/data-grid/Events"
-               class="horizontal center-center layout"
-               on-tap="tabNavigate">EVENTS</a>
-          </paper-tab>
-          <paper-tab name="People" link>
-            <a href="/data-grid/People"
-               class="horizontal center-center layout"
-               on-tap="tabNavigate">PEOPLE</a>
-          </paper-tab>
-          <paper-tab name="Places" link>
-            <a href="/data-grid/Places"
-               class="horizontal center-center layout"
-               on-tap="tabNavigate">PLACES</a>
-          </paper-tab>
-          <paper-tab name="Source" link>
-            <a href="/data-grid/Source"
-               class="horizontal center-center layout"
-               on-tap="tabNavigate">SOURCE</a>
-          </paper-tab>
+          <paper-tab name="Events"
+                     data-path="/data-grid/Events"
+                     on-tap="tabNavigate">EVENTS</paper-tab>
+          <paper-tab name="People"
+                     data-path="/data-grid/People"
+                     on-tap="tabNavigate">PEOPLE</paper-tab>
+          <paper-tab name="Places"
+                     data-path="/data-grid/Places"
+                     on-tap="tabNavigate">PLACES</paper-tab>
+          <paper-tab name="Source"
+                     data-path="/data-grid/Source"
+                     on-tap="tabNavigate">SOURCE</paper-tab>
         </paper-tabs>
 
         <!-- Container Area For DataGrid and Filters -->
@@ -591,12 +583,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Used by template to set tab links depending on whether user is creating or editing
     tabNavigate: function(event) {
 
-      event.preventDefault();
-
       if (this.editState === 'creating' && this.presentationState === 'creating') {
-        page('/create-package' + event.currentTarget.pathname);
+        page('/create-package' + event.currentTarget.dataset.path);
       } else if (this.editState === 'editing' && this.presentationState !== 'creating') {
-        page('/edit-package' + event.currentTarget.pathname);
+        page('/edit-package' + event.currentTarget.dataset.path);
       }
     },
 

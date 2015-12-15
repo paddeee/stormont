@@ -44,8 +44,6 @@
     "node-libs-browser": "^0.5.2",
     "opn": "^1.0.0",
     "path": "^0.12.7",
-    "pouchdb": "^3.6.0",
-    "react": "^0.13.3",
     "reflux": "^0.2.10",
     "require-dir": "^0.3.0",
     "run-sequence": "^1.0.2",
