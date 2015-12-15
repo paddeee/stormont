@@ -329,10 +329,22 @@ gulp.task('default', ['clean'], function (cb) {
     'browserify',
     ['copy', 'styles'],
     'elements',
-    ['jshint', 'images', 'fonts'/*, 'html', 'unit-tests'*/],
+    ['jshint', 'images', 'fonts', 'html', /*'unit-tests'*/],
     //'vulcanize',
     cb);
     // Note: add , 'precache' , after 'vulcanize', if your are going to use Service Worker
+});
+
+// Build Production Files, the Default Task
+gulp.task('default-windows', ['clean'], function (cb) {
+  runSequence(
+    'browserify',
+    ['copy', 'styles'],
+    'elements',
+    ['jshint', 'images', 'fonts'/*, 'html', 'unit-tests'*/],
+    //'vulcanize',
+    cb);
+  // Note: add , 'precache' , after 'vulcanize', if your are going to use Service Worker
 });
 
 // Load tasks for web-component-tester
