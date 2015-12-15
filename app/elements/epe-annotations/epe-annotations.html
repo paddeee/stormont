@@ -126,6 +126,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           value: '#FFFF00'
         },
 
+        defaultRedactionColour: {
+          type: String,
+          value: '#000'
+        },
+
         defaultLineColour: {
           type: String,
           value: 'rgb(231, 76, 60)'
@@ -526,6 +531,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           width: 100,
           height: 20,
           fill: this.defaultHighlightFillColour,
+          stroke: this.defaultHighlightFillColour,
           top: this.canvas.getCenter().top / 2,
           left: this.canvas.getCenter().left / 2,
           opacity: 0.4,
@@ -540,6 +546,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.setAllObjectsSelectable(true);
 
         this.canvas.add(highlight);
+      },
+
+      // Add a rectangle with redaction colour
+      redaction: function() {
+
+        var redaction = new window.fabric.Rect({
+          width: 100,
+          height: 20,
+          fill: this.defaultRedactionColour,
+          stroke: this.defaultRedactionColour,
+          top: this.canvas.getCenter().top / 2,
+          left: this.canvas.getCenter().left / 2,
+          opacity: 1,
+          hideEditor: true
+        });
+
+        this.canvas.isDrawingMode = false;
+        this.canvas.selection = true;
+        this.deleteMode = false;
+
+        // Set all objects selectable
+        this.setAllObjectsSelectable(true);
+
+        this.canvas.add(redaction);
       },
 
       // Add a line

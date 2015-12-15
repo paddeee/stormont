@@ -1833,14 +1833,6 @@ module.exports = Reflux.createStore({
         this.selectedSourceRoute = 'image';
         this.selectedSourceFileType = 'image';
         break;
-      case 'gif':
-        this.selectedSourceRoute = 'image';
-        this.selectedSourceFileType = 'image';
-        break;
-      case 'png':
-        this.selectedSourceRoute = 'image';
-        this.selectedSourceFileType = 'image';
-        break;
       case 'mp3':
         this.selectedSourceRoute = 'media';
         this.selectedSourceFileType = 'audio';
@@ -1919,37 +1911,7 @@ module.exports = Reflux.createStore({
 
     if (status === 'loggedin') {
       userObject.userName = userLoginObject.username;
-
-      // ToDo: Remove this when ldap set up
-      switch (userObject.userName) {
-        case 'User':
-          userObject.role = 'user';
-          break;
-        case 'Gatekeeper':
-          userObject.role = 'gatekeeper';
-          break;
-        case 'Authoriser':
-          userObject.role = 'authoriser';
-          break;
-        case 'Admin':
-          userObject.role = 'admin';
-          break;
-        case 'User2':
-          userObject.role = 'user';
-          break;
-        case 'Gatekeeper2':
-          userObject.role = 'gatekeeper';
-          break;
-        case 'Authoriser2':
-          userObject.role = 'authoriser';
-          break;
-        case 'Admin2':
-          userObject.role = 'admin';
-          break;
-        default:
-          console.log('Sorry, not a valid user');
-      }
-
+      userObject.role = 'gatekeeper';
       userObject.message = userObject.userName + ' has logged in as ' + userObject.role;
       return userObject;
 
