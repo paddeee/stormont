@@ -747,6 +747,29 @@ module.exports = Reflux.createStore({
     var dbName = '/SITF.json';
     var dbFilePath = window.appConfig.paths.dbPath + dbName;
 
+    // Create promise for copying the Database file
+    var copyDBFile = new Promise(function (resolve, reject) {
+
+      fs.copy(dbFilePath, tempExportDirectory + dbName, function(err) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
+
+    // Create promise for zipping the Temporary Directory
+    var zipTempDirectory = new Promise(function (resolve, reject) {
+
+      zipFolder(tempExportDirectory, tempExportDirectory + '.zip', function(err) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
 
     // Set the package password
     this.packagePassword = presentationObject.packagePassword;
@@ -762,27 +785,34 @@ module.exports = Reflux.createStore({
     // ToDo: Remove all other package transforms
     this.removeOtherTransformFilters();
 
-    // Copy the database file into the temp directory
-    fs.copy(dbFilePath, tempExportDirectory + dbName, function(err) {
+    copyDBFile
+      .then(function() {
+        console.log('db file copied');
 
-      if (err) {
-        return console.error(err);
-      }
-    });
+        // Iterate through each Source Object and copy the file from its Source Path into the temp directory
+        this.copySourceFiles(this.getLokiSourceObjects(presentationObject.packageName), presentationObject, tempExportDirectory)
+          .then(function() {
+            console.log('Zip Folder');
 
-    // Iterate through each Source Object and copy the file from its Source Path into the temp directory
-    this.copySourceFiles(this.getLokiSourceObjects(presentationObject.packageName), presentationObject, tempExportDirectory);
+            // Zip temporary directory
+            zipTempDirectory.then(function() {
+              console.log('Encrypt Zip File');
 
-    // Zip temp directory
-    zipFolder(tempExportDirectory, tempExportDirectory + '.zip', function(err) {
-
-      if (err) {
-        console.error('Zip of package failed');
-      }
-    });
-
-    // Encrypt zip file
-    this.encryptPackage(tempExportDirectory + '.zip');
+              // Encrypt zip file
+              this.encryptPackage(tempExportDirectory + '.zip');
+            }.bind(this))
+            .catch(function(reason) {
+              console.log(reason);
+            });
+          }.bind(this))
+          .catch(function(reason) {
+            console.log(reason);
+          });
+      }.bind(this))
+      .catch(
+      function(reason) {
+        console.error(reason);
+      });
 
     setTimeout(function() {
 
@@ -797,6 +827,7 @@ module.exports = Reflux.createStore({
 
           return console.error(err);
         }
+        console.log('Temp directory removed');
 
         this.message = 'exportSuccess';
 
@@ -815,6 +846,7 @@ module.exports = Reflux.createStore({
     var encrypt = crypto.createCipher(algorithm, this.packagePassword);
 
     zipStream.pipe(encrypt);
+    console.log('Zip encrypted???');
   },
 
   // Get an array of loki Source objects that we can use to copy files across
@@ -845,17 +877,39 @@ module.exports = Reflux.createStore({
   // Iterate through each Source Object and copy the file from its Source Path into the temp directory
   copySourceFiles: function(sourceFilesArray, presentationObject, tempExportDirectory) {
 
-    var sourceFilePath = window.appConfig.paths.sourcePath;
+    return new Promise(function (resolve, reject) {
 
-    sourceFilesArray.forEach(function(sourceFile) {
+      var sourceFilePath = window.appConfig.paths.sourcePath;
 
-      // Copy each source file to the temp directory
-      fs.copy(sourceFilePath + '/' + sourceFile.Src, tempExportDirectory + '/' + sourceFile.Src, function(err) {
+      // Return a new Promise for every file to be copied
+      var copyFile = function (sourceFile) { // sample async action
 
-        if (err) {
-          return console.error(err);
-        }
-      });
+        return new Promise(function(resolve, reject) {
+
+          // Copy each source file to the temp directory
+          fs.copy(sourceFilePath + '/' + sourceFile.Src, tempExportDirectory + '/' + sourceFile.Src, function (err) {
+
+            if (err) {
+              reject(err);
+            } else {
+              console.log(sourceFile.Src + ' copied');
+              resolve();
+            }
+          });
+        });
+      };
+
+      // run the function over all items.
+      var arrayOfPromises = sourceFilesArray.map(copyFile);
+
+      // Resolve or reject Promise when all Promises have been evaluated
+      Promise.all(arrayOfPromises).then(function() {
+          console.log('All source files copied');
+          resolve();
+        })
+        .catch(function(err) {
+          reject(Error(err));
+        });
     });
   }
 });
@@ -1833,6 +1887,14 @@ module.exports = Reflux.createStore({
         this.selectedSourceRoute = 'image';
         this.selectedSourceFileType = 'image';
         break;
+      case 'gif':
+        this.selectedSourceRoute = 'image';
+        this.selectedSourceFileType = 'image';
+        break;
+      case 'png':
+        this.selectedSourceRoute = 'image';
+        this.selectedSourceFileType = 'image';
+        break;
       case 'mp3':
         this.selectedSourceRoute = 'media';
         this.selectedSourceFileType = 'audio';
@@ -1911,7 +1973,37 @@ module.exports = Reflux.createStore({
 
     if (status === 'loggedin') {
       userObject.userName = userLoginObject.username;
-      userObject.role = 'gatekeeper';
+
+      // ToDo: Remove this when ldap set up
+      switch (userObject.userName) {
+        case 'User':
+          userObject.role = 'user';
+          break;
+        case 'Gatekeeper':
+          userObject.role = 'gatekeeper';
+          break;
+        case 'Authoriser':
+          userObject.role = 'authoriser';
+          break;
+        case 'Admin':
+          userObject.role = 'admin';
+          break;
+        case 'User2':
+          userObject.role = 'user';
+          break;
+        case 'Gatekeeper2':
+          userObject.role = 'gatekeeper';
+          break;
+        case 'Authoriser2':
+          userObject.role = 'authoriser';
+          break;
+        case 'Admin2':
+          userObject.role = 'admin';
+          break;
+        default:
+          console.log('Sorry, not a valid user');
+      }
+
       userObject.message = userObject.userName + ' has logged in as ' + userObject.role;
       return userObject;
 
