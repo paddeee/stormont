@@ -208,6 +208,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <paper-icon-button id="AddRect" icon="image:crop-landscape" on-tap="addRect"></paper-icon-button>
             <div id="AddText" class="add-text" on-tap="addText">T</div>
             <div id="HighlightText" class="highlight-text" on-tap="highlightText">T</div>
+            <paper-icon-button id="Redaction" icon="a" on-tap="addRedaction"></paper-icon-button>
             <paper-icon-button id="AddLine" icon="icons:remove" on-tap="addLine"></paper-icon-button>
             <paper-icon-button id="AddPolygon" icon="image:panorama-horizontal" on-tap="addPolygon" hidden></paper-icon-button>
             <paper-icon-button id="DeleteAnnotation" icon="delete" on-tap="deleteAnnotation"></paper-icon-button>
@@ -220,6 +221,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-tooltip for="AddRect" position="top" offset="0">Add Rectangle</paper-tooltip>
           <paper-tooltip for="AddText" position="top" offset="0">Add Text</paper-tooltip>
           <paper-tooltip for="HighlightText" position="top" offset="0">Highlight Text</paper-tooltip>
+          <paper-tooltip for="Redaction" position="top" offset="0">Add Redaction</paper-tooltip>
           <paper-tooltip for="AddLine" position="top" offset="0">Add Line</paper-tooltip>
           <paper-tooltip for="AddPolygon" position="top" offset="0">Add Polygon</paper-tooltip>
           <paper-tooltip for="DeleteAnnotation" position="top" offset="0">Delete Selected Annotations</paper-tooltip>
@@ -682,6 +684,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.manageSelectedButtonClass(event.currentTarget);
 
       this.$$('#PDFAnnotations' + this.page).highlightText();
+    },
+
+    // Add Redaction
+    addRedaction: function(event) {
+
+      // Make annotation layer pick up pointer events
+      this.pointerEvents = true;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
+
+      this.$$('#PDFAnnotations' + this.page).redaction();
     },
 
     // Add a line
