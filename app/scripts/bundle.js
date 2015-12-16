@@ -706,7 +706,8 @@ var ExportActions = require('../actions/export.js');
 var dataSourceStore = require('../stores/dataSource.js');
 var fs = window.electronRequire('fs-extra');
 var zipFolder = window.electronRequire('zip-folder');
-var crypto = window.electronRequire('crypto');
+var encryptor = window.electronRequire('file-encryptor');
+//var crypto = window.electronRequire('crypto');
 //var usbDetect = window.electronRequire('usb-detection');
 
 module.exports = Reflux.createStore({
@@ -762,13 +763,16 @@ module.exports = Reflux.createStore({
     // Create promise for zipping the Temporary Directory
     var zipTempDirectory = new Promise(function (resolve, reject) {
 
-      zipFolder(tempExportDirectory, tempExportDirectory + '.zip', function(err) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
+      setTimeout(function() {
+
+        zipFolder(tempExportDirectory, tempExportDirectory + '.zip', function(err) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
+      }, 100);
     });
 
     // Set the package password
@@ -798,77 +802,86 @@ module.exports = Reflux.createStore({
         // Zip temporary directory
         zipTempDirectory
         .then(function() {
-        console.log('Folder Zipped');
+          console.log('Folder Zipped');
 
-        // Encrypt zip file
-        this.encryptPackage(tempExportDirectory + '.zip')
-        .then(function() {
-          console.log('Package Encrypted');
-
-          // Delete temporary directory
-          this.deleteTempDirectory(tempExportDirectory)
+          // Encrypt zip file
+          this.encryptPackage(presentationObject)
           .then(function() {
-            console.log('Temp directory removed');
-            this.message = 'exportSuccess';
-            this.trigger(this);
-          })
+            console.log('Package Encrypted');
+
+            // Delete temporary directory and zip file
+            this.deleteTempDirectory(tempExportDirectory)
+            .then(function() {
+              console.log('Temp directory removed');
+
+              this.deleteZipFile(tempExportDirectory + '.zip')
+              .then(function() {
+                console.log('Zip File removed');
+
+                this.message = 'exportSuccess';
+                this.trigger(this);
+              }.bind(this))
+              .catch(function(reason) {
+                console.error(reason);
+                this.message = 'removeZipFileFailure';
+                this.trigger(this);
+              }.bind(this));
+            }.bind(this))
+            .catch(function(reason) {
+              console.log(this);
+              console.error(reason);
+              this.message = 'removeDirectoryFailure';
+              this.trigger(this);
+            }.bind(this));
+          }.bind(this))
           .catch(function(reason) {
             console.error(reason);
-            this.message = 'removeDirectoryFailure';
+            this.message = 'encryptionFailure';
             this.trigger(this);
-          });
+          }.bind(this));
         }.bind(this))
         .catch(function(reason) {
           console.error(reason);
-          this.message = 'encryptionFailure';
+          this.message = 'zipDirectoryFailure';
           this.trigger(this);
-        });
-      }.bind(this))
-      .catch(function(reason) {
-        console.error(reason);
-        this.message = 'zipDirectoryFailure';
-        this.trigger(this);
-      });
+        }.bind(this));
       }.bind(this))
       .catch(function(reason) {
         console.error(reason);
         this.message = 'sourceFileCopyFailure';
         this.trigger(this);
-      });
+      }.bind(this));
     }.bind(this))
     .catch(
     function(reason) {
       console.error(reason);
       this.message = 'dbCopyFailure';
       this.trigger(this);
-    });
+    }.bind(this));
   },
 
-  // Encrypt a zip file using aes-256-ctr and the package password
-  encryptPackage: function (zipPath) {
+  // Encrypt a zip file using aes-256 and the package password
+  encryptPackage: function (presentationObject) {
 
     return new Promise(function (resolve, reject) {
 
-      var algorithm = 'aes-256-ctr';
-      var zipStream = fs.createReadStream(zipPath);
-      var encrypt = crypto.createCipher(algorithm, this.packagePassword);
+      var packageName = presentationObject.packageName;
+      var tempDirectory = presentationObject.packageLocation;
+      var zipPath = tempDirectory + packageName + '.zip';
+      var options = {
+        algorithm: 'aes256'
+      };
 
-      // This will wait until we know the readable stream is actually valid before piping
-      zipStream.on('open', function () {
-        zipStream.pipe(encrypt)
-          .on('error', function () {
-            reject('Error encrypting Zip file');
-          })
-          .on('finish', function () {
-            console.error('all writes are now complete.');
-            resolve();
-          });
+      // Encrypt file
+      encryptor.encryptFile(zipPath, tempDirectory + packageName + '.dat', this.packagePassword, options, function(err) {
+
+        if (err) {
+          reject('Error encrypting Zip file: ' + err);
+        } else {
+          resolve();
+        }
       });
 
-      // This catches any errors that happen while creating the readable stream (usually invalid names)
-      zipStream.on('error', function (err) {
-        reject(err);
-      });
     }.bind(this));
   },
 
@@ -942,6 +955,22 @@ module.exports = Reflux.createStore({
     return new Promise(function (resolve, reject) {
 
       fs.remove(tempExportDirectory, function (err) {
+
+        if (err) {
+          reject(Error(err));
+        } else {
+          resolve();
+        }
+      }.bind(this));
+    });
+  },
+
+  // Delete the zip file
+  deleteZipFile: function(zipPath) {
+
+    return new Promise(function (resolve, reject) {
+
+      fs.remove(zipPath, function (err) {
 
         if (err) {
           reject(Error(err));
