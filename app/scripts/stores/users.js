@@ -1,5 +1,6 @@
 'use strict';
 
+var ldap =  window.electronRequire('ldapjs');
 var Reflux = require('reflux');
 var UserActions = require('../actions/users.js');
 
@@ -26,14 +27,60 @@ module.exports = Reflux.createStore({
   // When a user has attempted login
   loginAttempted: function (userLoginObject) {
 
-    var status;
+    //var status;
+
+    // Authenticate user against LDAP directory
+    this.authenticateUser(userLoginObject)
+    .then(function(userObject) {
+      console.log(userObject);
+    })
+    .catch(function(err) {
+      console.error(err);
+    });
+
 
     // ToDo: LDAP - for now just trigger successful login
-    status = 'loggedin';
+    /*status = 'loggedin';
 
     this.user = this.createUserObject(status, userLoginObject);
 
-    this.trigger(this.user);
+    this.trigger(this.user);*/
+  },
+
+  // Authenticate User
+  authenticateUser: function(userLoginObject) {
+console.log(userLoginObject);
+    return new Promise(function (resolve, reject) {
+
+      var client = ldap.createClient({
+        url: 'ldap://ldap.forumsys.com:389'
+      });
+
+      var options = {
+        filter: '(uid=riemann)',
+        scope: 'sub'
+      };
+
+      // Search for User in LDAP
+      client.search('dc=example,dc=com', options, function(err, res) {
+
+        var ldapUsers = [];
+
+        if (err) {
+          reject('General Error searching LDAP for User: ' + err);
+        }
+
+        res.on('searchEntry', function(entry) {
+          ldapUsers.push(entry.object);
+        });
+        res.on('error', function(err) {
+          reject('Search Failed: ' + err.message);
+        });
+        res.on('end', function() {
+          resolve(ldapUsers);
+        });
+      });
+    });
   },
 
   // Return a user object for listeners to consume
