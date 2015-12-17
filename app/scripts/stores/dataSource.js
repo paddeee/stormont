@@ -1,5 +1,6 @@
 'use strict';
 
+var ldap =  window.electronRequire('ldapjs');
 var Reflux = require('reflux');
 var loki = require('lokijs');
 var fileAdapter = require('../adapters/loki-file-adapter.js');
@@ -16,7 +17,11 @@ module.exports = Reflux.createStore({
   // Set the dataSource Object based on the availability of LDAP
   checkForLDAP: function () {
 
-    if (this.LDAPExists()) {
+    // Check for LDAP
+    this.LDAPExists()
+     .then(function() {
+
+      console.log('LDAP exists');
 
       this.dataSource = new loki('SITF.json', {
         adapter: fileAdapter
@@ -28,13 +33,35 @@ module.exports = Reflux.createStore({
         this.trigger(this);
 
       }.bind(this));
-    }
+    }.bind(this))
+    .catch(function(error) {
+      console.error(error);
+
+      // ToDO: Check error and if timeout, start the app in offline mode
+
+
+    }.bind(this));
   },
 
   // Can we establish an LDAP connection
   // ToDo: Need to manage LDAP connectivity checks from here. For now, just return true
   LDAPExists: function() {
-    return true;
+
+    return new Promise(function (resolve, reject) {
+
+      var client = ldap.createClient({
+        url: 'ldap://ldap.forumsys.com:389'
+      });
+
+      client.bind('cn=read-only-admin,dc=example,dc=com', 'password', function (err, res) {
+
+        if (err) {
+          reject('Error connecting to LDAP: ' + err);
+        } else if (res) {
+          resolve();
+        }
+      });
+    });
   },
 
   // Update and broadcast dataSource when a collection is imported

@@ -20,9 +20,9 @@ if (typeof global === 'object') {
   var remoteConfig;
 
   if (process.platform != 'darwin') {
-    platformPath = '/SITF/ConfigWindows/';
+    platformPath = '/SITFConfig/ConfigWindows/';
   } else {
-    platformPath = '/SITF/ConfigOSX/';
+    platformPath = '/SITFConfig/ConfigOSX/';
   }
 
   appConfig = {
