@@ -53,13 +53,22 @@ module.exports = Reflux.createStore({
         url: 'ldap://ldap.forumsys.com:389'
       });
 
-      client.bind('cn=read-only-admin,dc=example,dc=com', 'password', function (err, res) {
+      client.bind('cn=read-only-admin,dc=example,dc=com', 'password', function (err) {
 
         if (err) {
+          client.unbind();
           reject('Error connecting to LDAP: ' + err);
-        } else if (res) {
-          resolve();
         }
+
+        // Can unbind connection now we know online is available
+        client.unbind(function(err) {
+
+          if (err) {
+            reject('Problem unbinding from LDAP: ' + err);
+          }
+
+          resolve();
+        });
       });
     });
   },

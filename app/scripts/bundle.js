@@ -416,6 +416,10 @@ module.exports = Reflux.createStore({
     }.bind(this))
     .catch(function(error) {
       console.error(error);
+
+      // ToDO: Check error and if timeout, start the app in offline mode
+
+
     }.bind(this));
   },
 
@@ -429,13 +433,22 @@ module.exports = Reflux.createStore({
         url: 'ldap://ldap.forumsys.com:389'
       });
 
-      client.bind('cn=read-only-admin,dc=example,dc=com', 'password', function (err, res) {
+      client.bind('cn=read-only-admin,dc=example,dc=com', 'password', function (err) {
 
         if (err) {
+          client.unbind();
           reject('Error connecting to LDAP: ' + err);
-        } else if (res) {
-          resolve();
         }
+
+        // Can unbind connection now we know online is available
+        client.unbind(function(err) {
+
+          if (err) {
+            reject('Problem unbinding from LDAP: ' + err);
+          }
+
+          resolve();
+        });
       });
     });
   },
@@ -2019,6 +2032,7 @@ module.exports = Reflux.createStore({
 },{"../actions/source.js":6,"../config/filterTransforms.js":10,"../stores/dataSource.js":11,"../stores/filterState.js":14,"../stores/presentations.js":18,"reflux":182}],20:[function(require,module,exports){
 'use strict';
 
+var ldap =  window.electronRequire('ldapjs');
 var Reflux = require('reflux');
 var UserActions = require('../actions/users.js');
 
@@ -2045,14 +2059,76 @@ module.exports = Reflux.createStore({
   // When a user has attempted login
   loginAttempted: function (userLoginObject) {
 
-    var status;
+    //var status;
+
+    // Authenticate user against LDAP directory
+    this.authenticateUser(userLoginObject)
+    .then(function(userObject) {
+      console.log(userObject);
+    })
+    .catch(function(err) {
+      console.error(err);
+    });
+
 
     // ToDo: LDAP - for now just trigger successful login
-    status = 'loggedin';
+    /*status = 'loggedin';
 
     this.user = this.createUserObject(status, userLoginObject);
 
-    this.trigger(this.user);
+    this.trigger(this.user);*/
+  },
+
+  // Authenticate User
+  authenticateUser: function(userLoginObject) {
+console.log(userLoginObject);
+    return new Promise(function (resolve, reject) {
+
+      var client = ldap.createClient({
+        url: 'ldap://ldap.forumsys.com:389'
+      });
+
+      var options = {
+        filter: '(uid=riemann)',
+        scope: 'sub'
+      };
+
+/*      client.bind('ou=mathematicians,dc=example,dc=com', 'password', function (err, res) {
+
+        var options;
+
+        if (err) {
+          client.unbind();
+          reject('Error connecting to LDAP: ' + err);
+        }
+        console.log(res);
+
+        options = {
+          filter: (('Email=*@foo.com'))
+        };
+ */
+        //This search works correct:
+        // Search for User in LDAP
+        client.search('dc=example,dc=com', options, function(err, res) {
+
+          var ldapUsers = [];
+
+          if (err) {
+            reject('General Error searching LDAP for User: ' + err);
+          }
+
+          res.on('searchEntry', function(entry) {
+            ldapUsers.push(entry.object);
+          });
+          res.on('error', function(err) {
+            reject('Search Failed: ' + err.message);
+          });
+          res.on('end', function() {
+            resolve(ldapUsers);
+          });
+        });
+      });
+   /* });*/
   },
 
   // Return a user object for listeners to consume
