@@ -1,6 +1,6 @@
 'use strict';
 
-var ldap =  window.electronRequire('ldapjs');
+var ldap =  global.packagedApp ? window.electronRequire('ldapjs') : null;
 var Reflux = require('reflux');
 var loki = require('lokijs');
 var fileAdapter = require('../adapters/loki-file-adapter.js');
@@ -48,6 +48,11 @@ module.exports = Reflux.createStore({
   LDAPExists: function() {
 
     return new Promise(function (resolve, reject) {
+
+      // In browser
+      if (!ldap) {
+        resolve();
+      }
 
       var client = ldap.createClient({
         url: 'ldap://ldap.forumsys.com:389'
