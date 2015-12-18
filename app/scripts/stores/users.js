@@ -1,6 +1,6 @@
 'use strict';
 
-var ldap =  window.electronRequire('ldapjs');
+var ldap =  global.packagedApp ? window.electronRequire('ldapjs') : null;
 var Reflux = require('reflux');
 var UserActions = require('../actions/users.js');
 
@@ -38,7 +38,6 @@ module.exports = Reflux.createStore({
       console.error(err);
     });
 
-
     // ToDo: LDAP - for now just trigger successful login
     /*status = 'loggedin';
 
@@ -52,12 +51,17 @@ module.exports = Reflux.createStore({
 console.log(userLoginObject);
     return new Promise(function (resolve, reject) {
 
+      // In browser
+      if (!ldap) {
+        resolve(userLoginObject);
+      }
+
       var client = ldap.createClient({
         url: 'ldap://ldap.forumsys.com:389'
       });
 
       var options = {
-        filter: '(uid=riemann)',
+        filter: '(uid=' + userLoginObject.username + ')',
         scope: 'sub'
       };
 
