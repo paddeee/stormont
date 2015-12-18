@@ -43,6 +43,7 @@
     "merge-stream": "^0.1.7",
     "mocha": "^2.2.5",
     "moment": "^2.10.3",
+    "node-hid": "^0.5.1",
     "node-libs-browser": "^0.5.2",
     "opn": "^1.0.0",
     "path": "^0.12.7",
