@@ -6,8 +6,6 @@ var dataSourceStore = require('../stores/dataSource.js');
 var fs = window.electronRequire('fs-extra');
 var zipFolder = window.electronRequire('zip-folder');
 var encryptor = window.electronRequire('file-encryptor');
-//var crypto = window.electronRequire('crypto');
-//var usbDetect = window.electronRequire('usb-detection');
 
 module.exports = Reflux.createStore({
 
