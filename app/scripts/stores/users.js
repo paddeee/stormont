@@ -27,13 +27,19 @@ module.exports = Reflux.createStore({
   // When a user has attempted login
   loginAttempted: function (userLoginObject) {
 
-    //var status;
+    var status;
 
     // Authenticate user against LDAP directory
     this.authenticateUser(userLoginObject)
     .then(function(userObject) {
-      console.log(userObject);
-    })
+
+        // ToDo: LDAP - for now just trigger successful login
+        status = 'loggedin';
+
+        this.user = this.createUserObject(status, userObject);
+
+        this.trigger(this.user);
+      }.bind(this))
     .catch(function(err) {
       console.error(err);
     });
@@ -48,7 +54,7 @@ module.exports = Reflux.createStore({
 
   // Authenticate User
   authenticateUser: function(userLoginObject) {
-console.log(userLoginObject);
+
     return new Promise(function (resolve, reject) {
 
       // In browser
