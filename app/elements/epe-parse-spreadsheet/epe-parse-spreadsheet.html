@@ -96,12 +96,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <div class="drop-area__text  vertical layout center center-justified"
            invisible$="{{importing}}">
         <p>Drag <span>[[csvType]]</span> CaseMap file here</p>
-        <input type="file"
+        <!--<input type="file"
                id="files"
                class="files"
                name="files[]"
                on-change="handleFilePick"
-               multiple>
+               webkitdirectory>-->
       </div>
 
       <paper-spinner alt="Loading contacts list" active$="[[importing]]"></paper-spinner>
@@ -190,29 +190,92 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       this.importing = true;
 
-      this.parseSheet(event, 'drop');
+      var items = event.dataTransfer.items;
+
+      for (var i = 0, item; item = items[i]; ++i) {
+        var entry = item.webkitGetAsEntry();
+
+        // Folder? Copy the DirectoryEntry over to our local filesystem.
+        if (entry.isDirectory) {
+
+          this.getDirectoryFiles(entry.createReader())
+            .then(function(files) {
+              this.parseSheet(files);
+            }.bind(this))
+            .catch(function(error) {
+              console.log(error);
+            }.bind(this));
+
+        } else {
+          console.error('Dropped object needs to be a directory');
+        }
+      }
     },
 
     // Loop through files and convert from binary to a JavaScript object
-    parseSheet: function(event, inputMethod) {
+    getDirectoryFiles: function(directoryReader) {
 
-      var files;
-      var i, f;
+      return new Promise(function (resolve, reject) {
 
-      if (inputMethod === 'file-input') {
-        files = event.target.files;
-      } else if (inputMethod === 'drop') {
-        files = event.dataTransfer.files;
+        directoryReader.readEntries(function (results) {
+
+          if (!results.length) {
+            console.error('No files in the directory');
+            reject([]);
+          } else {
+            resolve(results);
+          }
+        });
+      });
+    },
+
+    // Loop through files and convert from binary to a JavaScript object
+    parseSheet: function(files) {
+
+      var fileEntry;
+      var i;
+      var reader;
+
+      for (i = 0; fileEntry = files[i]; ++i) {
+
+        if (this.isCaseMapFile(fileEntry.name)) {
+          console.log(fileEntry.name);
+
+          fileEntry.file(function(file) {
+
+            reader = new FileReader();
+
+            reader.onloadend = this.sheetLoaded.bind(this);
+
+            reader.readAsBinaryString(file);
+
+          }.bind(this), function() {
+            console.error('Error retrieving file from HTML5 File System');
+          });
+        }
+      }
+    },
+
+    // Return Boolean for valid importable file types
+    isCaseMapFile: function(fileName) {
+
+      var isFileExtension = false;
+      var fileExtension = fileName.substr(fileName.lastIndexOf('.') + 1);
+
+      switch(fileExtension) {
+        case 'cpf':
+          isFileExtension = true;
+          break;
+        case 'csv':
+          isFileExtension = true;
+          break;
+        case 'txt':
+          isFileExtension = true;
+        default:
+          isFileExtension = false;
       }
 
-      for (i = 0, f = files[i]; i !== files.length; ++i) {
-
-        var reader = new FileReader();
-
-        reader.onload = this.sheetLoaded.bind(this);
-
-        reader.readAsBinaryString(f);
-      }
+      return isFileExtension;
     },
 
     sheetLoaded: function (event) {
@@ -230,8 +293,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         CSV: CSV
       };
 
+      console.log(action);
+
       // Call fileImported action
-      this.importActions.fileImported(action);
+      //this.importActions.fileImported(action);
 
       // Avoid flash of spinner if import is very quick, by delaying a minimum of 1 second
       this.async(function () {
