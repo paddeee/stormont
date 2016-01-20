@@ -174,6 +174,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                    hidden="[[!showField(item.name)]]"
                    sort-status="neutral"
                    heading-name$="[[item.name]]"
+                   on-mouseover="showFullText"
+                   on-mouseout="hideFullText"
                    on-tap="sortByColumn">
                 <div class="field-heading__text flex">
                   <span>{{item.name}}</span>
@@ -199,7 +201,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                   checked$="[[item.showRecord]]"></paper-checkbox>
                 </div>
                 <template is="dom-repeat" items="[[toArray(item)]]">
-                  <div class="field flex" hidden="[[!showField(item.name)]]">
+                  <div class="field flex"
+                       on-mouseover="showFullText"
+                       on-mouseout="hideFullText"
+                       hidden="[[!showField(item.name)]]">
                     <span>{{item.value}}</span>
                   </div>
                 </template>
@@ -251,6 +256,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       </div>
     </div>
+
+    <!-- Import Notifications -->
+    <paper-toast id="ShowFullTextToast" duration="3600000">
+      <div>[[fullText]]</div>
+    </paper-toast>
   </template>
 </dom-module>
 <script>
@@ -306,6 +316,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       hideViewSourceButton: {
         tye: Boolean,
         computed: 'isSource(collectionName)'
+      },
+
+      fullText: {
+        type: String,
+        value: ''
       }
     },
 
@@ -495,6 +510,40 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // before sending out the object again.
       this.sourceActions.viewSourceFile(null);
       this.sourceActions.viewSourceFile(sourceObject);
+    },
+
+    // FIRED WHEN USER TAPS OR MOUSES OVER DATA FIELD
+    showFullText: function(event) {
+
+      var dataText;
+
+      // Set text depending on whether method is called from mousing over column heading or data field
+      if (event.currentTarget.classList.contains('field-heading')) {
+        dataText = event.model.item.name;
+      } else {
+        dataText = event.model.item.value;
+      }
+
+      this.debounce('showFullText', function() {
+
+        // Set toast text
+        this.fullText = dataText;
+
+        // Show Toast
+        this.$.ShowFullTextToast.show();
+
+        this.cancelDebouncer('showFullText');
+      }, 1000);
+    },
+
+    // FIRED WHEN USER MOUSES OUT OF DATA FIELD
+    hideFullText: function(event) {
+
+      // Hide toast
+      this.$.ShowFullTextToast.hide();
+
+      // Cancel debouncer
+      this.cancelDebouncer('showFullText');
     }
   });
 })();
