@@ -145,17 +145,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       csvParser: {
         type: Object,
         value: null
+      },
+
+      validFiles: {
+        type: Array,
+        value: []
+      },
+
+      sheetsArray: {
+        type: Array,
+        value: []
       }
     },
 
     ready: function() {
 
-      this.importStore.listen(function(importFinished) {
+      this.importStore.listen(function(importMessage) {
 
-        this.fire('import-finished', importFinished);
+        if (importMessage.type === "fileImported") {
+          console.log(importMessage.message)
+        } else if(importMessage.type === "success") {
+          this.fire('import-finished', importMessage);
+        }
 
         // Reset input file type
-        this.$.files.value = '';
+        //this.$.files.value = '';
 
       }.bind(this));
     },
@@ -236,24 +250,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var i;
       var reader;
 
+      // Create array of only valid files
       for (i = 0; fileEntry = files[i]; ++i) {
 
         if (this.isCaseMapFile(fileEntry.name)) {
           console.log(fileEntry.name);
-
-          fileEntry.file(function(file) {
-
-            reader = new FileReader();
-
-            reader.onloadend = this.sheetLoaded.bind(this);
-
-            reader.readAsBinaryString(file);
-
-          }.bind(this), function() {
-            console.error('Error retrieving file from HTML5 File System');
-          });
+          this.validFiles.push(fileEntry);
         }
       }
+
+      this.validFiles.forEach(function(fileEntry) {
+
+        fileEntry.file(function(file) {
+
+          reader = new FileReader();
+
+          reader.onloadend = this.sheetLoaded.bind(this);
+
+          reader.readAsBinaryString(file);
+
+        }.bind(this), function() {
+          console.error('Error retrieving file from HTML5 File System');
+        });
+      }.bind(this));
     },
 
     // Return Boolean for valid importable file types
@@ -271,6 +290,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           break;
         case 'txt':
           isFileExtension = true;
+          break;
         default:
           isFileExtension = false;
       }
@@ -280,6 +300,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     sheetLoaded: function (event) {
 
+      var sheetObject;
+      var collectionName;
       var data = event.target.result;
       var importData = data.split('[ImportData]')[1].trim();
 
@@ -288,20 +310,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         type: 'binary'
       });
 
-      var action = {
-        collectionName: this.csvType,
+      collectionName = this.getCollectionName(data);
+
+      sheetObject = {
+        collectionName: collectionName,
         CSV: CSV
       };
 
-      console.log(action);
+      this.sheetsArray.push(sheetObject);
 
-      // Call fileImported action
-      //this.importActions.fileImported(action);
+      // When all sheets have been loaded in, call filesImported action
+      if (this.sheetsArray.length === this.validFiles.length) {
+        this.importActions.filesImported(this.sheetsArray);
+      }
 
       // Avoid flash of spinner if import is very quick, by delaying a minimum of 1 second
       this.async(function () {
         this.importing = false;
       }, 1000);
+    },
+
+    // Get Collection name from contents of a file
+    getCollectionName: function(data) {
+
+      var objectTypeRegEx = /^(?:ObjectType\=)(\w+$)/gm;
+      var regExResult = objectTypeRegEx.exec(data)[0];
+      var collectionName = regExResult.split('=')[1];
+
+      return this.toTitleCase(collectionName);
+    },
+
+    // Helper to convert to title case
+    toTitleCase: function(string) {
+      return string.replace(/\w\S*/g, function(txt) {
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+      });
     }
   });
 })();
