@@ -95,7 +95,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <div class="drop-area__text  vertical layout center center-justified"
            invisible$="{{importing}}">
-        <p>Drag <span>[[csvType]]</span> CaseMap file here</p>
+        <p>Drag <span>[[csvType]]</span> CaseMap files here</p>
         <!--<input type="file"
                id="files"
                class="files"
@@ -163,7 +163,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.importStore.listen(function(importMessage) {
 
         if (importMessage.type === "fileImported") {
-          console.log(importMessage.message)
+          this.fire('file-imported', importMessage);
         } else if(importMessage.type === "success") {
           this.fire('import-finished', importMessage);
         }
