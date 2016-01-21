@@ -113,7 +113,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div class="import-status-heading">Import Status</div>
             <div class="import-status-files"
                  hidden="[[importing]]">Awaiting import..</div>
-            <template is="dom-repeat"
+            <template id="FileImportTemplate"
+                      is="dom-repeat"
                       items="[[importedFiles]]">
               <div class="import-status-files flex layout horizontal center"
                    hidden="[[!importing]]">
@@ -125,17 +126,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </paper-material>
         </div>
       </section>
-
-      <!-- Import Check -->
-      <section data-route="import-check" class="import-check">
-        <epe-import-check
-          id="EpeImportCheck"
-          filter-state-actions="[[filterStateActions]]"
-          events-store="[[eventsStore]]"
-          places-store="[[placesStore]]"
-          people-store="[[peopleStore]]"
-          source-store="[[sourceStore]]"></epe-import-check>
-      </section>
     </iron-pages>
 
     <!-- Import Notifications -->
@@ -143,13 +133,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <h2><span>[[importFinished.title]]</span></h2>
       <div>
         <div>[[importFinished.message]]</div>
-        <div>View Imported CaseMap File?</div>
         <div class="toast-button-container layout horizontal">
-          <paper-button tabindex="0" class="flex custom" on-tap="closeToast">
-            <iron-icon icon="clear"></iron-icon>NO
-          </paper-button>
-          <paper-button tabindex="0" class="affirmitive flex custom" on-tap="navigateToImportCheck">
-            <iron-icon icon="check"></iron-icon>YES
+          <paper-button tabindex="0" class="affirmitive flex custom" on-tap="closeToast">
+            <iron-icon icon="check"></iron-icon>OK
           </paper-button>
         </div>
       </div>
@@ -190,6 +176,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       this.importing = true;
 
+      // If an import has just already been performed
+      if (this.importFinished) {
+        this.splice('importedFiles', 0, this.importedFiles.length);
+        this.importFinished = null;
+      }
+
       this.push('importedFiles', fileObject);
     },
 
@@ -200,11 +192,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Delay by a second as the spinner hiding is delayed by a second
       this.async(function() {
-
-        // Reset Page
-        this.isFileTypeSelected = false;
-        this.lastFileTypeImported = this.importedFileType;
-        this.importedFileType = '';
 
         // Show dialog message
         this.openToast();
@@ -219,12 +206,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Close the Toast
     closeToast: function() {
       this.$.ImportToast.hide();
-    },
-
-    // Navigate to the import check view
-    navigateToImportCheck: function() {
-      page('/import-check/' + this.lastFileTypeImported);
-      this.closeToast();
     }
   });
 })();

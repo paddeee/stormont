@@ -103,8 +103,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <iron-icon icon="file-upload"></iron-icon>
             <span>Import CaseMap File</span>
           </a>
-          <a data-route="/create-package/data-grid/Events"
-             href="/create-package/data-grid/Events"
+          <a data-route="/create-package/data-grid/Event"
+             href="/create-package/data-grid/Event"
              on-tap="toggleMenu"
              id="CreatePackageMenuNavigation">
             <iron-icon icon="create"></iron-icon>
@@ -147,8 +147,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             <!-- Creating Navigation Toolbar -->
             <div hidden$="[[editingPresentation]]" id="CreatingPackageViewNav" class="package-navigation">
-              <a data-route="/create-package/data-grid/Events"
-                 href="/create-package/data-grid/Events"
+              <a data-route="/create-package/data-grid/Event"
+                 href="/create-package/data-grid/Event"
                  id="DataGridButton">
                 <paper-icon-button icon="view-list"></paper-icon-button>
               </a>
@@ -162,8 +162,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                  id="ProfileButton">
                 <paper-icon-button icon="social:people"></paper-icon-button>
               </a>
-              <a data-route="/create-package/data-grid/Source"
-                 href="/create-package/data-grid/Source"
+              <a data-route="/create-package/data-grid/Sources"
+                 href="/create-package/data-grid/Sources"
                  id="SourceButton">
                 <paper-icon-button icon="description"></paper-icon-button>
               </a>
@@ -171,8 +171,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             <!-- Editing Navigation Toolbar -->
             <div hidden$="[[!editingPresentation]]" id="EditingPackageViewNav" class="package-navigation">
-              <a data-route="/edit-package/data-grid/Events"
-                 href="/edit-package/data-grid/Events"
+              <a data-route="/edit-package/data-grid/Event"
+                 href="/edit-package/data-grid/Event"
                  id="DataGridButton">
                 <paper-icon-button icon="view-list"></paper-icon-button>
               </a>
@@ -186,8 +186,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                  id="ProfileButton">
                 <paper-icon-button icon="social:people"></paper-icon-button>
               </a>
-              <a data-route="/edit-package/data-grid/Source"
-                 href="/edit-package/data-grid/Source"
+              <a data-route="/edit-package/data-grid/Sources"
+                 href="/edit-package/data-grid/Sources"
                  id="SourceButton">
                 <paper-icon-button icon="description"></paper-icon-button>
               </a>
@@ -236,11 +236,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               id="EpeImport"
               import-actions="[[importActions]]"
               import-store="[[importStore]]"
-              filter-state-actions="[[filterStateActions]]"
-              events-store="[[eventsStore]]"
-              places-store="[[placesStore]]"
-              people-store="[[peopleStore]]"
-              source-store="[[sourceStore]]"
               packaged-app="[[packagedApp]]"
               csv-parser="[[csvParser]]"></epe-import>
           </section>
@@ -513,7 +508,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.manageScrollHeader('choose-option');
 
         } else if (app.route === 'import') {
-          this.setImportTitle();
+          this.sectionTitle = 'Import Casemap Files';
 
         } else if (app.route === 'create-package') {
 
@@ -529,18 +524,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           // While we're here, scroll header to top
           this.manageScrollHeader('view-packages');
-        }
-      }
-    },
-
-    // Handle the title when in Create Package section
-    setImportTitle: function() {
-
-      if (window.EpeImport.importRoute === 'import-parse') {
-        this.sectionTitle = 'Import Casemap File';
-      } else if (window.EpeImport.importRoute === 'import-check') {
-        if (window.EpeImportCheck.params) {
-          this.sectionTitle = 'Check ' + window.EpeImportCheck.params.name + ' CaseMap File';
         }
       }
     },
