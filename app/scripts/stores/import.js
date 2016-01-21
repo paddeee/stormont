@@ -11,7 +11,7 @@ module.exports = Reflux.createStore({
   listenables: [ImportActions, DataSourceActions],
 
   // When a CSV file has been selected by an Administrator
-  onFileImported: function (fileObject) {
+  importFile: function (fileObject) {
 
     var collectionArray;
     var dataSource = dataSourceStore.dataSource;
@@ -29,12 +29,28 @@ module.exports = Reflux.createStore({
 
     // Insert the array into the database collection
     this.populateCollection(collectionArray, dataCollection, fileObject.collectionName);
+  },
+
+  // When a bunch of data files have been imported by an Administrator
+  onFilesImported: function (filesArray) {
+
+    var dataSource = dataSourceStore.dataSource;
+
+    filesArray.forEach(function(fileObject) {
+      this.importFile(fileObject);
+    }.bind(this));
 
     // Save database
     dataSource.saveDatabase(function() {
       DataSourceActions.collectionImported(dataSource);
     });
 
+    // Pass on to listeners
+    this.trigger({
+      type: 'success',
+      title: 'Import Successful',
+      message: 'All files have been successfully imported'
+    });
   },
 
   // Create an array of cellObjects which can be iterated through to return a dataCollection
@@ -150,13 +166,13 @@ module.exports = Reflux.createStore({
   // Populate the Loki collection with our array of data
   populateCollection: function (collectionArray, dataCollection, collectionName) {
 
-    dataCollection.insert(collectionArray);
-
     // Pass on to listeners
     this.trigger({
-      type: 'success',
-      title: 'Import Successful',
-      message: collectionName + ' CSV has been successfully imported'
+      type: 'fileImported',
+      title: 'File Import Successful',
+      message: collectionName
     });
+
+    dataCollection.insert(collectionArray);
   }
 });

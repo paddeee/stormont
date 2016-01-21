@@ -10,6 +10,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 var reflux = require('reflux');
 var moment = require('moment');
 var CSVParser = require('./vendor/harb-customised.js');
+var VerEx = require('verbal-expressions');
 var dataSourceActions = require('./actions/dataSource.js');
 var filterStateActions = require('./actions/filterState.js');
 var eventsStore = require('./stores/events.js');
@@ -60,6 +61,7 @@ var exportStore = global.packagedApp ? require('./stores/export.js') : null;
   app.sourceStore = sourceStore;
   app.sourceActions = sourceActions;
   app.packagedApp = global.packagedApp ? true : false;
+  app.VerEx = VerEx;
 
   app.displayInstalledToast = function() {
     document.querySelector('#caching-complete').show();
