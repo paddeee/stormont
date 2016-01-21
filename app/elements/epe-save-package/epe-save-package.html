@@ -104,7 +104,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             label="Notes (optional)"
                             rows="6"
                             max-rows="10"
-                            value="[[notes]]"></paper-textarea>
+                            value=""></paper-textarea>
 
             <div class="save-package__fab-container layout horizontal center">
               <paper-button
@@ -130,7 +130,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               id="PresentationNameUpdate"
               class="save-package__name"
               label="Presentation Name"
-              disabled
               value="[[presentationName]]"></paper-input>
 
             <paper-textarea id="NotesUpdate"
@@ -243,10 +242,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Reset the form values
     resetForm: function() {
+
       this.$.PresentationNameSave.value = '';
       this.$.NotesSave.value = '';
-      this.$.PresentationNameUpdate.value = '';
-      this.$.NotesUpdate.value = '';
     },
 
     // Called by save button being tapped
@@ -276,7 +274,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
-    // Called by update  button being tapped
+    // Called by update button being tapped
     updatePresentation: function() {
 
       var presentationObject;
