@@ -1,7 +1,7 @@
 'use strict';
 
 var filterTransforms = {
-  Events: {
+  Event: {
     filters: {
       type: 'find',
       value: {
@@ -34,7 +34,7 @@ var filterTransforms = {
       desc: true
     }
   },
-  Places: {
+  Place: {
     filters: {
       type: 'find',
       value: {
@@ -57,7 +57,7 @@ var filterTransforms = {
       desc: true
     }
   },
-  People: {
+  Person: {
     filters: {
       type: 'find',
       value: {
@@ -90,7 +90,7 @@ var filterTransforms = {
       desc: true
     }
   },
-  Source: {
+  Sources: {
     filters: {
       type: 'find',
       value: {

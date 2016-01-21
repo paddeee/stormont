@@ -35,13 +35,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       EpeImport.importRoute = 'import-parse';
     });
 
-    page('/import-check/:name', function (data) {
-      app.route = 'import';
-      EpeImport.importRoute = 'import-check';
-      EpeImportCheck.importCheckRoute = 'import-check';
-      EpeImportCheck.params = data.params;
-    });
-
     page('/create-package/data-grid/:name', function (data) {
       app.route = 'create-package';
       EpeCreatePackage.createPackageRoute = 'data-grid';

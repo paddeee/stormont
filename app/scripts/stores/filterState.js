@@ -45,17 +45,17 @@ module.exports = Reflux.createStore({
   updateFilteredData: function(searchFilterObject) {
 
       switch (searchFilterObject.collectionName) {
-        case 'Events':
-          filterTransforms.Events.filters = this.createFilterObject(searchFilterObject);
+        case 'Event':
+          filterTransforms.Event.filters = this.createFilterObject(searchFilterObject);
           break;
-        case 'Places':
-          filterTransforms.Places.filters = this.createFilterObject(searchFilterObject);
+        case 'Place':
+          filterTransforms.Place.filters = this.createFilterObject(searchFilterObject);
           break;
-        case 'People':
-          filterTransforms.People.filters = this.createFilterObject(searchFilterObject);
+        case 'Person':
+          filterTransforms.Person.filters = this.createFilterObject(searchFilterObject);
           break;
-        case 'Source':
-          filterTransforms.Source.filters = this.createFilterObject(searchFilterObject);
+        case 'Sources':
+          filterTransforms.Sources.filters = this.createFilterObject(searchFilterObject);
           break;
         default:
           console.error('No collection Name');
@@ -67,17 +67,17 @@ module.exports = Reflux.createStore({
   updateSortedData: function(sortingObject) {
 
     switch (sortingObject.collectionName) {
-      case 'Events':
-        filterTransforms.Events.sorting = this.createSortingObject(sortingObject);
+      case 'Event':
+        filterTransforms.Event.sorting = this.createSortingObject(sortingObject);
         break;
-      case 'Places':
-        filterTransforms.Places.sorting = this.createSortingObject(sortingObject);
+      case 'Place':
+        filterTransforms.Place.sorting = this.createSortingObject(sortingObject);
         break;
-      case 'People':
-        filterTransforms.People.sorting = this.createSortingObject(sortingObject);
+      case 'Person':
+        filterTransforms.Person.sorting = this.createSortingObject(sortingObject);
         break;
-      case 'Source':
-        filterTransforms.Source.sorting = this.createSortingObject(sortingObject);
+      case 'Sources':
+        filterTransforms.Sources.sorting = this.createSortingObject(sortingObject);
         break;
       default:
         console.error('No collection Name');

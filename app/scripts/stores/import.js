@@ -147,13 +147,13 @@ module.exports = Reflux.createStore({
     var indices = [];
 
     switch (collectionName) {
-      case 'Places':
+      case 'Place':
         indices.push('name');
         break;
-      case 'People':
+      case 'Person':
         indices.push('name');
         break;
-      case 'Events':
+      case 'Event':
         indices.push('name');
         break;
       default:

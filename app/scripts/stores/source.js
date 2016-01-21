@@ -14,7 +14,7 @@ module.exports = Reflux.createStore({
   listenables: [SourceActions],
 
   // Name to use for this collection
-  collectionName: 'Source',
+  collectionName: 'Sources',
 
   // Data storage for all collections
   dataSource: null,

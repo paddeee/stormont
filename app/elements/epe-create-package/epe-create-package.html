@@ -149,17 +149,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <!-- Navigation Tabs -->
         <paper-tabs attr-for-selected="name" selected="{{params.name}}" on-iron-select="tabSelected">
-          <paper-tab name="Events"
-                     data-path="/data-grid/Events"
+          <paper-tab name="Event"
+                     data-path="/data-grid/Event"
                      on-tap="tabNavigate">EVENTS</paper-tab>
-          <paper-tab name="People"
-                     data-path="/data-grid/People"
+          <paper-tab name="Person"
+                     data-path="/data-grid/Person"
                      on-tap="tabNavigate">PEOPLE</paper-tab>
-          <paper-tab name="Places"
-                     data-path="/data-grid/Places"
+          <paper-tab name="Place"
+                     data-path="/data-grid/Place"
                      on-tap="tabNavigate">PLACES</paper-tab>
-          <paper-tab name="Source"
-                     data-path="/data-grid/Source"
+          <paper-tab name="Sources"
+                     data-path="/data-grid/Sources"
                      on-tap="tabNavigate">SOURCE</paper-tab>
         </paper-tabs>
 
@@ -468,25 +468,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     setUpGrid: function(collectionName) {
 
       switch (collectionName) {
-        case 'Events':
+        case 'Event':
           this.gridData = this.eventsData;
-          this.filtersToShow = this.eventsStore.filterTransform.Events.filters.value.$and;
-          this.sortingState = this.eventsStore.filterTransform.Events.sorting;
+          this.filtersToShow = this.eventsStore.filterTransform.Event.filters.value.$and;
+          this.sortingState = this.eventsStore.filterTransform.Event.sorting;
           break;
-        case 'Places':
+        case 'Place':
           this.gridData = this.placesData;
-          this.filtersToShow = this.placesStore.filterTransform.Places.filters.value.$and;
-          this.sortingState = this.placesStore.filterTransform.Places.sorting;
+          this.filtersToShow = this.placesStore.filterTransform.Place.filters.value.$and;
+          this.sortingState = this.placesStore.filterTransform.Place.sorting;
           break;
-        case 'People':
+        case 'Person':
           this.gridData = this.peopleData;
-          this.filtersToShow = this.peopleStore.filterTransform.People.filters.value.$and;
-          this.sortingState = this.peopleStore.filterTransform.People.sorting;
+          this.filtersToShow = this.peopleStore.filterTransform.Person.filters.value.$and;
+          this.sortingState = this.peopleStore.filterTransform.Person.sorting;
           break;
-        case 'Source':
+        case 'Sources':
           this.gridData = this.sourceData;
-          this.filtersToShow = this.sourceStore.filterTransform.Source.filters.value.$and;
-          this.sortingState = this.sourceStore.filterTransform.Source.sorting;
+          this.filtersToShow = this.sourceStore.filterTransform.Sources.filters.value.$and;
+          this.sortingState = this.sourceStore.filterTransform.Sources.sorting;
           break;
         default:
           console.log('Sorry, no collectionName set for grid data');
