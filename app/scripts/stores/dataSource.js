@@ -119,18 +119,29 @@ module.exports = Reflux.createStore({
   updatePresentation: function (presentationObject) {
 
     var presentationName = presentationObject.presentationName;
+    var originalName = presentationObject.originalName;
     var createdDate = new Date();
 
-    this.manageCollectionTransformNames(presentationObject, presentationName);
+    // Broadcast message if collection exists
+    if (presentationName !== originalName && this.collectionExists(presentationName)) {
 
-    // Create Presentation meta info such as user and date created
-    this.savePresentationMetaData(presentationObject, createdDate, 'update');
-
-    // Save database
-    this.dataSource.saveDatabase(function() {
-      this.message = 'presentationSaved';
+      this.message = 'collectionExists';
       this.trigger(this);
-    }.bind(this));
+
+      // Try to save database
+    } else {
+
+      this.manageCollectionTransformNames(presentationObject, presentationName);
+
+      // Create Presentation meta info such as user and date created
+      this.savePresentationMetaData(presentationObject, createdDate, 'update');
+
+      // Save database
+      this.dataSource.saveDatabase(function () {
+        this.message = 'presentationSaved';
+        this.trigger(this);
+      }.bind(this));
+    }
   },
 
   // Return true if presentationName exists in collection
