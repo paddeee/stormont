@@ -98,28 +98,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       color: var(--paper-green-500);
     }
 
-    .expand__icon {
-      cursor: pointer;
-    }
-
-    .collapse-content {
-      display: none;
-    }
-
-    .expanded .collapse-content {
-      display: block;
-    }
-
-    .expanded .expand__icon--more,
-    .expand__icon {
-      display: none;
-    }
-
-    .expanded .expand__icon--less,
-    .expand__icon--more {
-      display: block;
-    }
-
     .notes {
       font-style: italic;
       margin: 1vh 0;
@@ -194,15 +172,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   Created by <span class="user-name__name">[[item.userName]]</span> -
                 </div>
                 <div>[[formatCreatedDate(item.createdDate)]]</div>
-                <div class="expand">
-                  <iron-icon
-                    class="expand__icon  expand__icon--more"
-                    icon="expand-more"></iron-icon>
-                    <paper-tooltip>More info</paper-tooltip>
-                  <iron-icon
-                    class="expand__icon  expand__icon--less"
-                    icon="expand-less"></iron-icon>
-                </div>
                 <div class="traffic-lights flex layout vertical end-justified">
                   <div class="traffic-lights__status gatekeeper-state layout horizontal center">
                     <div class="flex">Registry Status</div>
@@ -220,8 +189,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   </div>
                 </div>
               </div>
-              <div class="collapse-content">
-                <div class="notes" hidden$="[[!item.notes.length]]">
+              <div>
+                <div class="notes">
                   Notes: <p>[[item.notes]]</p>
                 </div>
                 <div class="submit-package" hidden$="[[!isUserCreatedPackage(item.userName)]]">
@@ -438,26 +407,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Return a friendly date
     formatCreatedDate: function(timeStamp) {
       return app.moment(timeStamp).calendar();
-    },
-
-    // Handle expanded content for a list item
-    collapseExpand: function(event) {
-
-      var list = this.$.List;
-      var index = event.model.index;
-      var $item = event.currentTarget.closest('.item');
-
-      this.getClassForItem($item, true);
-      list.updateSizeForItem(index);
-    },
-
-    // Return expanded class for an item
-    getClassForItem: function($item) {
-      if ($item.classList.contains('expanded')) {
-        $item.classList.remove('expanded');
-      } else {
-        $item.classList.add('expanded');
-      }
     },
 
     // Checkbox has been changed in marking for approval.
