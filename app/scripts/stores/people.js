@@ -89,12 +89,12 @@ module.exports = Reflux.createStore({
       } else {
         collectionToAddTransformTo.addTransform(filterTransformObject.transformName, this.collectionTransform);
       }
+
+      this.filteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).data();
+
+      // Send object out to all listeners
+      this.trigger(this.filteredCollection);
     }
-
-    this.filteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).data();
-
-    // Send object out to all listeners
-    this.trigger(this.filteredCollection);
   },
 
   // Retrieve a transform from the db using a transform name
