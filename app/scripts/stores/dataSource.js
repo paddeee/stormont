@@ -208,8 +208,12 @@ module.exports = Reflux.createStore({
   updateCollectionTransformNames: function(presentationObject) {
 
     this.dataSource.collections.forEach(function (collection) {
-      collection.transforms[presentationObject.presentationName] = collection.transforms[presentationObject.originalName];
-      delete collection.transforms[presentationObject.originalName];
+
+      // Don't need to do anything if Presentation name hasn't changed
+      if (presentationObject.presentationName !== presentationObject.originalName) {
+        collection.transforms[presentationObject.presentationName] = collection.transforms[presentationObject.originalName];
+        delete collection.transforms[presentationObject.originalName];
+      }
     });
   },
 
