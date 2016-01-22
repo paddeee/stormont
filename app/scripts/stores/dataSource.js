@@ -209,10 +209,17 @@ module.exports = Reflux.createStore({
 
     this.dataSource.collections.forEach(function (collection) {
 
-      // Don't need to do anything if Presentation name hasn't changed
-      if (presentationObject.presentationName !== presentationObject.originalName) {
-        collection.transforms[presentationObject.presentationName] = collection.transforms[presentationObject.originalName];
-        delete collection.transforms[presentationObject.originalName];
+      if (collection.transforms.hasOwnProperty('ViewingFilter')) {
+        collection.transforms[presentationObject.presentationName] = collection.transforms.ViewingFilter;
+        delete collection.transforms.ViewingFilter;
+
+      } else {
+
+        // Don't need to do anything if Presentation name hasn't changed
+        if (collection.transforms[presentationObject.originalName] && presentationObject.presentationName !== presentationObject.originalName) {
+          collection.transforms[presentationObject.presentationName] = collection.transforms[presentationObject.originalName];
+          delete collection.transforms[presentationObject.originalName];
+        }
       }
     });
   },
