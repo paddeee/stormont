@@ -6,5 +6,6 @@ module.exports = Reflux.createActions([
   'checkForLDAP',
   'collectionImported',
   'savePresentation',
-  'updatePresentation'
+  'updatePresentation',
+  'deletePresentation'
 ]);

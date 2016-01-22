@@ -144,6 +144,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       width: 2.5vh;
     }
 
+    .view,
+    .delete {
+      margin-right: 1vw;
+    }
+
     .export-button {
       background-color: var(--default-primary-color);
       color: var(--text-primary-color);
@@ -245,14 +250,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               </div>
             </div>
             <div class="card-actions layout horizontal center">
-              <div class="flex">
+              <div class="view">
                 <paper-button id="ViewPackageButton"
                               raised
                               on-tap="viewPackageSelected">
                   View Package<iron-icon icon="visibility"></iron-icon>
                 </paper-button>
               </div>
-              <div hidden$="[[hideExportButton(item.authoriserState)]]">
+              <div class="delete"
+                   hidden$="[[hideDeleteButton(item.userName)]]">
+                <paper-button raised
+                              on-tap="deletePackageSelected">
+                  Delete Package<iron-icon icon="delete"></iron-icon>
+                </paper-button>
+              </div>
+              <div class="flex layout horizontal end-justified export"
+                   hidden$="[[hideExportButton(item.authoriserState)]]">
                 <paper-button raised
                               class="export-button"
                               on-tap="exportPackageSelected">
@@ -323,6 +336,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
     </paper-dialog>
 
+    <paper-dialog id="DeleteWarningDialog" modal>
+      <h2>Are you sure you want to delete this package?</h2>
+      <div class="buttons layout horizontal">
+        <paper-button dialog-dismiss autofocus>Cancel</paper-button>
+        <paper-button dialog-confirm
+          on-tap="deletePackageConfirmed">OK</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="DeletedDialog" modal>
+      <h2>Package Successfully Deleted</h2>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
   </template>
 </dom-module>
 <script>
@@ -362,6 +391,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.presentationsData = presentationsStore.presentationsData;
 
           this.$.List.items = this.presentationsData;
+
+          if (presentationsStore.message === 'presentationDeleted') {
+            this.$.DeletedDialog.open();
+          }
 
         }.bind(this));
       }
@@ -616,6 +649,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
+    // Delete Package action button pressed
+    deletePackageSelected: function(event) {
+
+      this.presentationForDeletion = event.model.item;
+
+      this.$.DeleteWarningDialog.open();
+    },
+
+    // Delete Package action confirmation button pressed
+    deletePackageConfirmed: function() {
+
+      // Call deletePresentation action
+      this.dataSourceActions.deletePresentation(this.presentationForDeletion);
+    },
+
     // When the Yubikey Password has been entered
     yubiKeyPressed: function(event) {
 
@@ -646,7 +694,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
-    // Export Package action button pressed
+    // Delete Package action button
+    hideDeleteButton: function(userName) {
+
+      if (this.isUserCreatedPackage(userName) || this.userStore.user.role === 'admin') {
+        return false;
+      } else {
+        return true;
+      }
+    },
+
+    // Export Package action button
     hideExportButton: function(authoriserState) {
 
       if ((this.userStore.user.role === 'gatekeeper' || this.userStore.user.role === 'admin') && authoriserState === 'green') {

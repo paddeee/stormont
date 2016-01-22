@@ -102,7 +102,7 @@ module.exports = Reflux.createStore({
     // Try to save database
     } else {
 
-      this.manageCollectionTransformNames(presentationObject, presentationName);
+      this.manageCollectionTransformNames(presentationObject);
 
       // Create Presentation meta info such as user and date created
       this.savePresentationMetaData(presentationObject, createdDate, 'save');
@@ -131,7 +131,7 @@ module.exports = Reflux.createStore({
       // Try to save database
     } else {
 
-      this.manageCollectionTransformNames(presentationObject, presentationName);
+      this.updateCollectionTransformNames(presentationObject);
 
       // Create Presentation meta info such as user and date created
       this.savePresentationMetaData(presentationObject, createdDate, 'update');
@@ -144,13 +144,39 @@ module.exports = Reflux.createStore({
     }
   },
 
+  // Delete Presentation, transform information and save loki db
+  deletePresentation: function (presentationObject) {
+
+    var presentationName = presentationObject.presentationName;
+
+    // Broadcast message if collection exists
+    if (this.collectionExists(presentationName)) {
+
+      this.deleteCollectionTransformNames(presentationObject);
+
+      // Create Presentation meta info such as user and date created
+      this.savePresentationMetaData(presentationObject, null, 'delete');
+
+      // Save database
+      this.dataSource.saveDatabase(function() {
+        this.message = 'presentationDeleted';
+        this.trigger(this);
+      }.bind(this));
+
+    } else {
+      console.error('Can\'t delete collection as doesn\'t exist in database');
+    }
+  },
+
   // Return true if presentationName exists in collection
   collectionExists: function(presentationName) {
 
     var presentationCollection = this.dataSource.getCollection('Presentations');
 
     if (presentationCollection) {
-      if (presentationCollection.find({'presentationName' : presentationName}).length) {
+      if (presentationCollection.find({
+          'presentationName' : presentationName
+        }).length) {
         return true;
       }
     }
@@ -170,8 +196,29 @@ module.exports = Reflux.createStore({
       // Could hit this condition if user is editing but haven't changed filters before saving.
       // If so, just use the transform from the package that's being created from.
       } else {
-        collection.transforms[presentationObject.presentationName] = collection.transforms[presentationObject.originalName];
+        if (collection.transforms[presentationObject.originalName]) {
+          collection.transforms[presentationObject.presentationName] = collection.transforms[presentationObject.originalName];
+        }
       }
+    });
+  },
+
+  // Iterate through all collections and copy the original transform to one with a new object key.
+  // Then, delete the transform names matching the user created presentation name
+  updateCollectionTransformNames: function(presentationObject) {
+
+    this.dataSource.collections.forEach(function (collection) {
+      collection.transforms[presentationObject.presentationName] = collection.transforms[presentationObject.originalName];
+      delete collection.transforms[presentationObject.originalName];
+    });
+  },
+
+  // Iterate through all collections and delete the transform names matching the user created
+  // presentation name
+  deleteCollectionTransformNames: function(presentationObject) {
+
+    this.dataSource.collections.forEach(function (collection) {
+      delete collection.transforms[presentationObject.presentationName];
     });
   },
 
@@ -197,6 +244,8 @@ module.exports = Reflux.createStore({
       presentationsCollection.insert(presentationInfo);
     } else if (action === 'update') {
       presentationsCollection.update(presentationObject);
+    } else if (action === 'delete') {
+      presentationsCollection.remove(presentationObject);
     }
   }
 
