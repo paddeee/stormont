@@ -285,11 +285,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <epe-view-packages
               id="EpeView"
               user-store="[[userStore]]"
+              data-source-actions="[[dataSourceActions]]"
               filter-state-actions="[[filterStateActions]]"
               presentations-actions="[[presentationsActions]]"
               presentations-store="[[presentationsStore]]"
               export-actions="[[exportActions]]"
-              export-store="[[exportStore]]"></epe-view-packages>
+              export-store="[[exportStore]]"
+              on-show-dialog="showDialog"></epe-view-packages>
           </section>
         </iron-pages>
 
