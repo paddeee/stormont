@@ -41,7 +41,7 @@ module.exports = Reflux.createStore({
     this.setDefaultFilter();
 
     // Call when the source data is updated
-    this.createFilterTransform(this.filterTransform);
+    this.createFilterTransform(this.filterTransform, dataSourceStore.message);
   },
 
   // Set search filter on our collectionTransform
@@ -77,7 +77,7 @@ module.exports = Reflux.createStore({
   },
 
   // Create a transform from the passed in object and save it on the collection
-  createFilterTransform: function(filterTransformObject) {
+  createFilterTransform: function(filterTransformObject, message) {
 
     if (!this.dataSource) {
       return;
@@ -107,7 +107,16 @@ module.exports = Reflux.createStore({
       var filteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName);
 
       // Example of filtering on a branched subset of data
-      console.log(filteredCollection.copy().find({'Type':{'$contains': ['M']}}).data());
+      console.log(filteredCollection.copy().find({'Full Name':{'$contains': ['M']}}).data());
+
+      this.filteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).data();
+
+      // Send object out to all listeners
+      this.trigger(this.filteredCollection);
+    }
+
+    // Don't set the branched collection if saving a presentation.
+    if (message !== 'presentationSaved') {
 
       this.filteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).data();
 
