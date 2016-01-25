@@ -2,6 +2,7 @@
 
 var Reflux = require('reflux');
 var dataSourceStore = require('../stores/dataSource.js');
+var config = require('../config/config.js');
 var filterTransform = require('../config/filterTransforms.js');
 var filterStateStore = require('../stores/filterState.js');
 var presentationsStore = require('../stores/presentations.js');
@@ -9,7 +10,7 @@ var presentationsStore = require('../stores/presentations.js');
 module.exports = Reflux.createStore({
 
   // Name to use for this collection
-  collectionName: 'Event',
+  collectionName: config.EventsCollection,
 
   // Data storage for all collections
   dataSource: null,
@@ -37,18 +38,17 @@ module.exports = Reflux.createStore({
 
     this.dataSource = dataSourceStore.dataSource;
 
-    console.log(dataSourceStore.message);
-
     this.setDefaultFilter();
 
     // Call when the source data is updated
-    this.filterStateChanged(this.filterTransform);
+    this.createFilterTransform(this.filterTransform);
   },
 
   // Set search filter on our collectionTransform
   filterStateChanged: function(filterTransformBroadcast) {
 
     // If the incoming parameter is a string, we are setting the transform from a pre-existing one
+    // (i.e viewing an existing package)
     if (typeof filterTransformBroadcast === 'string') {
       this.updateFilterTransform(filterTransformBroadcast);
     } else {
@@ -62,6 +62,17 @@ module.exports = Reflux.createStore({
     // If presentation name has been set to 'ViewingFilter', reset the presentation
     if (presentationsStore.presentationName === 'ViewingFilter') {
       this.resetFilterTransform();
+    }
+  },
+
+  // Create a branch of the imported Collection to be used for operations on subsets of filtered data
+  // If we have both we can do things such as show records that have been filtered out as greyed out
+  // using the original collection
+  createFilteredBranch: function(message) {
+
+    if (message.type === 'collectionImported' && message.collectionName === this.collectionName) {
+      console.log(this.collectionName);
+      console.log(this.filteredCollectionName);
     }
   },
 

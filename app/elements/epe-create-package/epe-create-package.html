@@ -152,6 +152,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <section data-route="data-grid" class="data-grid">
 
         <!-- Navigation Tabs -->
+        <!-- ToDO: Make name and datapath configurable from config.js -->
         <paper-tabs attr-for-selected="name" selected="{{params.name}}" on-iron-select="tabSelected">
           <paper-tab name="Event"
                      data-path="/data-grid/Event"
@@ -474,23 +475,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       switch (collectionName) {
         case 'Event':
           this.gridData = this.eventsData;
-          this.filtersToShow = this.eventsStore.filterTransform.Event.filters.value.$and;
-          this.sortingState = this.eventsStore.filterTransform.Event.sorting;
+          this.filtersToShow = this.eventsStore.filterTransform[app.config.EventsCollection].filters.value.$and;
+          this.sortingState = this.eventsStore.filterTransform[app.config.EventsCollection].sorting;
           break;
         case 'Place':
           this.gridData = this.placesData;
-          this.filtersToShow = this.placesStore.filterTransform.Place.filters.value.$and;
-          this.sortingState = this.placesStore.filterTransform.Place.sorting;
+          this.filtersToShow = this.placesStore.filterTransform[app.config.PlacesCollection].filters.value.$and;
+          this.sortingState = this.placesStore.filterTransform[app.config.PlacesCollection].sorting;
           break;
         case 'Person':
           this.gridData = this.peopleData;
-          this.filtersToShow = this.peopleStore.filterTransform.Person.filters.value.$and;
-          this.sortingState = this.peopleStore.filterTransform.Person.sorting;
+          this.filtersToShow = this.peopleStore.filterTransform[app.config.PeopleCollection].filters.value.$and;
+          this.sortingState = this.peopleStore.filterTransform[app.config.PeopleCollection].sorting;
           break;
         case 'Sources':
           this.gridData = this.sourceData;
-          this.filtersToShow = this.sourceStore.filterTransform.Sources.filters.value.$and;
-          this.sortingState = this.sourceStore.filterTransform.Sources.sorting;
+          this.filtersToShow = this.sourceStore.filterTransform[app.config.SourcesCollection].filters.value.$and;
+          this.sortingState = this.sourceStore.filterTransform[app.config.SourcesCollection].sorting;
           break;
         default:
           console.log('Sorry, no collectionName set for grid data');
