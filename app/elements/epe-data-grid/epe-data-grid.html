@@ -501,7 +501,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Computed function to return true if we're looking at a 'Source' data-grid
     isSource: function(collectionName) {
 
-      if (collectionName !== 'Sources' || app.route === 'import') {
+      if (collectionName !== app.config.SourcesCollection || app.route === 'import') {
         return true;
       }
       return false;

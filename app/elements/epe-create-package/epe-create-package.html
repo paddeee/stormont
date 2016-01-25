@@ -473,22 +473,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     setUpGrid: function(collectionName) {
 
       switch (collectionName) {
-        case 'Event':
+        case app.config.EventsCollection:
           this.gridData = this.eventsData;
           this.filtersToShow = this.eventsStore.filterTransform[app.config.EventsCollection].filters.value.$and;
           this.sortingState = this.eventsStore.filterTransform[app.config.EventsCollection].sorting;
           break;
-        case 'Place':
+        case app.config.PlacesCollection:
           this.gridData = this.placesData;
           this.filtersToShow = this.placesStore.filterTransform[app.config.PlacesCollection].filters.value.$and;
           this.sortingState = this.placesStore.filterTransform[app.config.PlacesCollection].sorting;
           break;
-        case 'Person':
+        case app.config.PeopleCollection:
           this.gridData = this.peopleData;
           this.filtersToShow = this.peopleStore.filterTransform[app.config.PeopleCollection].filters.value.$and;
           this.sortingState = this.peopleStore.filterTransform[app.config.PeopleCollection].sorting;
           break;
-        case 'Sources':
+        case app.config.SourcesCollection:
           this.gridData = this.sourceData;
           this.filtersToShow = this.sourceStore.filterTransform[app.config.SourcesCollection].filters.value.$and;
           this.sortingState = this.sourceStore.filterTransform[app.config.SourcesCollection].sorting;
