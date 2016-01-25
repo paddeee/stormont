@@ -29,6 +29,11 @@ module.exports = Reflux.createStore({
 
     // Insert the array into the database collection
     this.populateCollection(collectionArray, dataCollection, fileObject.collectionName);
+
+    // Save database
+    dataSource.saveDatabase(function() {
+      DataSourceActions.collectionImported(dataSource);
+    });
   },
 
   // When a bunch of data files have been imported by an Administrator
@@ -39,11 +44,6 @@ module.exports = Reflux.createStore({
     filesArray.forEach(function(fileObject) {
       this.importFile(fileObject);
     }.bind(this));
-
-    // Save database
-    dataSource.saveDatabase(function() {
-      DataSourceActions.collectionImported(dataSource);
-    });
 
     // Pass on to listeners
     this.trigger({

@@ -30,6 +30,7 @@ module.exports = Reflux.createStore({
       this.dataSource.loadDatabase({}, function() {
 
         // Send object out to all listeners when database loaded
+        this.message = 'databaseLoaded';
         this.trigger(this);
 
       }.bind(this));
@@ -84,6 +85,7 @@ module.exports = Reflux.createStore({
     this.dataSource = dataSource;
 
     // Send object out to all listeners when database loaded
+    this.message = 'collectionImported';
     this.trigger(this);
   },
 
