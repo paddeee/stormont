@@ -1,6 +1,7 @@
 'use strict';
 
 var Reflux = require('reflux');
+var config = require('../config/config.js');
 var ImportActions = require('../actions/import.js');
 var DataSourceActions = require('../actions/dataSource.js');
 var dataSourceStore = require('../stores/dataSource.js');
@@ -30,10 +31,13 @@ module.exports = Reflux.createStore({
     // Insert the array into the database collection
     this.populateCollection(collectionArray, dataCollection, fileObject.collectionName);
 
-    // Save database
-    dataSource.saveDatabase(function() {
-      DataSourceActions.collectionImported(dataSource);
-    });
+    dataSource.message = {
+      type: 'collectionImported',
+      collectionName: fileObject.collectionName
+    };
+
+    // Call collectionImported method on DataSource store
+    dataSourceStore.collectionImported(dataSource);
   },
 
   // When a bunch of data files have been imported by an Administrator
@@ -45,12 +49,17 @@ module.exports = Reflux.createStore({
       this.importFile(fileObject);
     }.bind(this));
 
-    // Pass on to listeners
-    this.trigger({
-      type: 'success',
-      title: 'Import Successful',
-      message: 'All files have been successfully imported'
-    });
+    // Save database
+    dataSource.saveDatabase(function() {
+      console.log('DataBase saved');
+
+      // Pass on to listeners
+      this.trigger({
+        type: 'success',
+        title: 'Import Successful',
+        message: 'All files have been successfully imported'
+      });
+    }.bind(this));
   },
 
   // Create an array of cellObjects which can be iterated through to return a dataCollection
@@ -147,13 +156,16 @@ module.exports = Reflux.createStore({
     var indices = [];
 
     switch (collectionName) {
-      case 'Place':
+      case config.PlacesCollection:
         indices.push('name');
         break;
-      case 'Person':
+      case config.PeopleCollection:
         indices.push('name');
         break;
-      case 'Event':
+      case config.EventsCollection:
+        indices.push('name');
+        break;
+      case config.SourcesCollection:
         indices.push('name');
         break;
       default:

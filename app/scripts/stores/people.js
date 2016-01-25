@@ -2,6 +2,7 @@
 
 var Reflux = require('reflux');
 var dataSourceStore = require('../stores/dataSource.js');
+var config = require('../config/config.js');
 var filterTransform = require('../config/filterTransforms.js');
 var filterStateStore = require('../stores/filterState.js');
 var presentationsStore = require('../stores/presentations.js');
@@ -9,7 +10,7 @@ var presentationsStore = require('../stores/presentations.js');
 module.exports = Reflux.createStore({
 
   // Name to use for this collection
-  collectionName: 'Person',
+  collectionName: config.PeopleCollection,
 
   // Data storage for all collections
   dataSource: null,
