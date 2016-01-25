@@ -104,6 +104,11 @@ module.exports = Reflux.createStore({
         collectionToAddTransformTo.addTransform(filterTransformObject.transformName, this.collectionTransform);
       }
 
+      var filteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName);
+
+      // Example of filtering on a branched subset of data
+      console.log(filteredCollection.copy().find({'Type':{'$contains': ['M']}}).data());
+
       this.filteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).data();
 
       // Send object out to all listeners
