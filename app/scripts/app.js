@@ -14,6 +14,7 @@ var CSVParser = require('./vendor/harb-customised.js');
 var VerEx = require('verbal-expressions');
 var dataSourceActions = require('./actions/dataSource.js');
 var filterStateActions = require('./actions/filterState.js');
+var filterStateStore = require('./stores/filterState.js');
 var eventsStore = require('./stores/events.js');
 var placesStore = require('./stores/places.js');
 var peopleStore = require('./stores/people.js');
@@ -28,7 +29,7 @@ var importStore = require('./stores/import.js');
 var exportActions = require('./actions/export.js');
 var exportStore = global.packagedApp ? require('./stores/export.js') : null;
 
-(function(document, reflux, moment, config, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore) {
+(function(document, reflux, moment, config, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore) {
   'use strict';
 
   // Call checkForLDAP action when in browser
@@ -97,4 +98,4 @@ var exportStore = global.packagedApp ? require('./stores/export.js') : null;
   // Maybe dangerous but can change for different approach if needed
   NodeList.prototype.forEach = Array.prototype.forEach;
 
-})(document, reflux, moment, config, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore);
+})(document, reflux, moment, config, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore);

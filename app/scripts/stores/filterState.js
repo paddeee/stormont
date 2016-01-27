@@ -4,6 +4,10 @@ var Reflux = require('reflux');
 var config = require('../config/config.js');
 var filterTransforms = require('../config/filterTransforms.js');
 var FilterStateActions = require('../actions/filterState.js');
+var eventsStore = require('../stores/events.js');
+var placesStore = require('../stores/places.js');
+var peopleStore = require('../stores/people.js');
+var sourcesStore = require('../stores/source.js');
 
 module.exports = Reflux.createStore({
 
@@ -18,11 +22,28 @@ module.exports = Reflux.createStore({
   // Set search filter on our collectionTransform
   searchFilterChanged: function(searchFilterObject) {
 
+    var promises = [];
+
     this.updateFilteredData(searchFilterObject);
 
     // Manage the filter transform name in this store and listening collection
     // stores can use it when broadcasted
     filterTransforms.transformName = this.transformName;
+
+    // Push each promise onto the promises array
+    promises.push(eventsStore.filterStateChanged(filterTransforms));
+    promises.push(placesStore.filterStateChanged(filterTransforms));
+    promises.push(peopleStore.filterStateChanged(filterTransforms));
+    promises.push(sourcesStore.filterStateChanged(filterTransforms));
+
+    // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollection
+    // method on each data store
+    Promise.all(promises).then(function() {
+      console.log(eventsStore.userFilteredCollection);
+      console.log(placesStore.userFilteredCollection);
+      console.log(peopleStore.userFilteredCollection);
+      console.log(sourcesStore.userFilteredCollection);
+    });
 
     // Send object out to all listeners
     this.trigger(filterTransforms);

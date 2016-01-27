@@ -42,7 +42,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .heading {
       background-color: var(--divider-color);
-      border-bottom: 1px var(--divider-color) solid;
+      border-bottom: 1px var(--secondary-text-color) solid;
       color: var(--primary-text-color);
       line-height: 3;
       padding: 0 0 0 16px;
@@ -50,10 +50,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .list-item {
-      background-color: var(--text-primary-color);
       border-bottom: 1px var(--divider-color) solid;
       line-height: 3;
       padding: 0 0 0 16px;
+    }
+
+    .list-item:nth-child(even) {
+      background-color: var(--text-primary-color);
+    }
+
+    .list-item:nth-child(odd) {
+      background-color: rgba(240, 240, 240, 1);
     }
 
     .field-heading,
@@ -151,6 +158,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .field__button {
+      background-color: var(--primary-background-color);
       font-size: 0.8vw;
       line-height: 3;
       padding: 0 0.5vw;
