@@ -31,19 +31,17 @@ module.exports = Reflux.createStore({
     filterTransforms.transformName = this.transformName;
 
     // Push each promise onto the promises array
-    promises.push(eventsStore.filterStateChanged(filterTransforms));
-    promises.push(placesStore.filterStateChanged(filterTransforms));
-    promises.push(peopleStore.filterStateChanged(filterTransforms));
-    promises.push(sourcesStore.filterStateChanged(filterTransforms));
+    eventsStore.filterStateChanged(filterTransforms);
+    placesStore.filterStateChanged(filterTransforms);
+    peopleStore.filterStateChanged(filterTransforms);
+    sourcesStore.filterStateChanged(filterTransforms);
 
     // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollection
     // method on each data store
-    Promise.all(promises).then(function() {
-      console.log(eventsStore.userFilteredCollection);
-      console.log(placesStore.userFilteredCollection);
-      console.log(peopleStore.userFilteredCollection);
-      console.log(sourcesStore.userFilteredCollection);
-    });
+    console.log(eventsStore.userFilteredCollection);
+    console.log(placesStore.userFilteredCollection);
+    console.log(peopleStore.userFilteredCollection);
+    console.log(sourcesStore.userFilteredCollection);
 
     // Send object out to all listeners
     this.trigger(filterTransforms);
