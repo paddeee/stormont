@@ -385,7 +385,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // When the source data is updated, update our grid data
         this.sourceStore.listen(function (sourceData) {
 
-          this.sourceData = sourceData.filteredCollection;
+          this.sourceData = sourceData.userFilteredCollection;
 
           if (this.params) {
 
