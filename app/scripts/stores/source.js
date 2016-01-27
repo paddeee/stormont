@@ -4,7 +4,7 @@ var Reflux = require('reflux');
 var dataSourceStore = require('../stores/dataSource.js');
 var config = require('../config/config.js');
 var filterTransform = require('../config/filterTransforms.js');
-var filterStateStore = require('../stores/filterState.js');
+//var filterStateStore = require('../stores/filterState.js');
 var presentationsStore = require('../stores/presentations.js');
 var SourceActions = require('../actions/source.js');
 
@@ -33,7 +33,7 @@ module.exports = Reflux.createStore({
     this.listenTo(dataSourceStore, this.dataSourceChanged);
 
     // Register filterStateStore's changes
-    this.listenTo(filterStateStore, this.filterStateChanged);
+    //this.listenTo(filterStateStore, this.filterStateChanged);
 
     this.listenTo(presentationsStore, this.presentationsStoreChanged);
   },
@@ -52,12 +52,18 @@ module.exports = Reflux.createStore({
   // Set search filter on our collectionTransform
   filterStateChanged: function(filterTransformBroadcast) {
 
-    // If the incoming parameter is a string, we are setting the transform from a pre-existing one
-    if (typeof filterTransformBroadcast === 'string') {
-      this.updateFilterTransform(filterTransformBroadcast);
-    } else {
-      this.createFilterTransform(filterTransformBroadcast);
-    }
+    return new Promise(function(resolve) {
+
+      // If the incoming parameter is a string, we are setting the transform from a pre-existing one
+      // (i.e viewing an existing package)
+      if (typeof filterTransformBroadcast === 'string') {
+        this.updateFilterTransform(filterTransformBroadcast);
+        resolve();
+      } else {
+        this.createFilterTransform(filterTransformBroadcast);
+        resolve();
+      }
+    }.bind(this));
   },
 
   // Listener to changes on Presentations Store
