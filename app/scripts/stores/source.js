@@ -48,18 +48,13 @@ module.exports = Reflux.createStore({
   // Set search filter on our collectionTransform
   filterStateChanged: function(filterTransformBroadcast) {
 
-    return new Promise(function(resolve) {
-
-      // If the incoming parameter is a string, we are setting the transform from a pre-existing one
-      // (i.e viewing an existing package)
-      if (typeof filterTransformBroadcast === 'string') {
-        this.updateFilterTransform(filterTransformBroadcast);
-        resolve();
-      } else {
-        this.createFilterTransform(filterTransformBroadcast);
-        resolve();
-      }
-    }.bind(this));
+    // If the incoming parameter is a string, we are setting the transform from a pre-existing one
+    // (i.e viewing an existing package)
+    if (typeof filterTransformBroadcast === 'string') {
+      this.updateFilterTransform(filterTransformBroadcast);
+    } else {
+      this.createFilterTransform(filterTransformBroadcast);
+    }
   },
 
   // Listener to changes on Presentations Store
@@ -100,18 +95,12 @@ module.exports = Reflux.createStore({
       }
 
       this.userFilteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).data();
+    } else {
 
-      // Send object out to all listeners
-      this.trigger(this);
-    }
-
-    // Don't set the branched collection if saving a presentation.
-    if (message !== 'presentationSaved') {
-
-      this.userFilteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).data();
-
-      // Send object out to all listeners
-      this.trigger(this);
+      // Set the branched collection if saving a presentation.
+      if (message !== 'presentationSaved') {
+        this.userFilteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).data();
+      }
     }
 
     // Set viewingSource property to false

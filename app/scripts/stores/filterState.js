@@ -4,6 +4,7 @@ var Reflux = require('reflux');
 var config = require('../config/config.js');
 var filterTransforms = require('../config/filterTransforms.js');
 var FilterStateActions = require('../actions/filterState.js');
+var dataSourceStore = require('../stores/dataSource.js');
 var eventsStore = require('../stores/events.js');
 var placesStore = require('../stores/places.js');
 var peopleStore = require('../stores/people.js');
@@ -17,6 +18,19 @@ module.exports = Reflux.createStore({
 
   init: function() {
     this.transformName = 'ViewingFilter';
+
+    // Register dataSourceStores's changes
+    this.listenTo(dataSourceStore, this.dataSourceChanged);
+  },
+
+  // Set the filteredData Object
+  dataSourceChanged: function () {
+
+    // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
+    // method
+    this.autoFilterCollections();
+
+    eventsStore.trigger(eventsStore.filteredCollection);
   },
 
   // Set search filter on our collectionTransform
@@ -34,8 +48,12 @@ module.exports = Reflux.createStore({
     peopleStore.filterStateChanged(filterTransforms);
     sourcesStore.filterStateChanged(filterTransforms);
 
-    // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollection
+    // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
     // method
+    this.autoFilterCollections();
+
+    eventsStore.trigger(eventsStore.filteredCollection);
+
     console.log(eventsStore.userFilteredCollection);
     console.log(placesStore.userFilteredCollection);
     console.log(peopleStore.userFilteredCollection);
@@ -151,5 +169,17 @@ module.exports = Reflux.createStore({
     placesStore.filterStateChanged(presentationName);
     peopleStore.filterStateChanged(presentationName);
     sourcesStore.filterStateChanged(presentationName);
+  },
+
+  // Filter on datastore userFilteredCollections based on linkage rules between tables
+  autoFilterCollections: function() {
+
+    // ToDo:
+    // Parse collections to filter down other collections. For now, just assigning to each datastore's
+    // filteredCollection property
+    eventsStore.filteredCollection = eventsStore.userFilteredCollection;
+    placesStore.filteredCollection = placesStore.userFilteredCollection;
+    peopleStore.filteredCollection = peopleStore.userFilteredCollection;
+    sourcesStore.filteredCollection = sourcesStore.userFilteredCollection;
   }
 });
