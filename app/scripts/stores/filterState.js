@@ -22,29 +22,24 @@ module.exports = Reflux.createStore({
   // Set search filter on our collectionTransform
   searchFilterChanged: function(searchFilterObject) {
 
-    var promises = [];
-
     this.updateFilteredData(searchFilterObject);
 
     // Manage the filter transform name in this store and listening collection
     // stores can use it when broadcasted
     filterTransforms.transformName = this.transformName;
 
-    // Push each promise onto the promises array
+    // Call filterStateChanged on each data store
     eventsStore.filterStateChanged(filterTransforms);
     placesStore.filterStateChanged(filterTransforms);
     peopleStore.filterStateChanged(filterTransforms);
     sourcesStore.filterStateChanged(filterTransforms);
 
     // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollection
-    // method on each data store
+    // method
     console.log(eventsStore.userFilteredCollection);
     console.log(placesStore.userFilteredCollection);
     console.log(peopleStore.userFilteredCollection);
     console.log(sourcesStore.userFilteredCollection);
-
-    // Send object out to all listeners
-    this.trigger(filterTransforms);
   },
 
   // Set simpleSort on our collectionTransform
@@ -56,8 +51,11 @@ module.exports = Reflux.createStore({
     // stores can use it when broadcasted
     filterTransforms.transformName = this.transformName;
 
-    // Send object out to all listeners
-    this.trigger(filterTransforms);
+    // Call filterStateChanged on each data store
+    eventsStore.filterStateChanged(filterTransforms);
+    placesStore.filterStateChanged(filterTransforms);
+    peopleStore.filterStateChanged(filterTransforms);
+    sourcesStore.filterStateChanged(filterTransforms);
   },
 
   // Update filtered data based on the collection
@@ -148,7 +146,10 @@ module.exports = Reflux.createStore({
   // Triggered when a package is chosen to be viewed or edited
   packageSelected: function(presentationName) {
 
-    // Send object out to all listeners
-    this.trigger(presentationName);
+    // Call filterStateChanged on each data store
+    eventsStore.filterStateChanged(presentationName);
+    placesStore.filterStateChanged(presentationName);
+    peopleStore.filterStateChanged(presentationName);
+    sourcesStore.filterStateChanged(presentationName);
   }
 });

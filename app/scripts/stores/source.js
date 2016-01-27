@@ -4,7 +4,6 @@ var Reflux = require('reflux');
 var dataSourceStore = require('../stores/dataSource.js');
 var config = require('../config/config.js');
 var filterTransform = require('../config/filterTransforms.js');
-//var filterStateStore = require('../stores/filterState.js');
 var presentationsStore = require('../stores/presentations.js');
 var SourceActions = require('../actions/source.js');
 
@@ -31,9 +30,6 @@ module.exports = Reflux.createStore({
 
     // Register dataSourceStores's changes
     this.listenTo(dataSourceStore, this.dataSourceChanged);
-
-    // Register filterStateStore's changes
-    //this.listenTo(filterStateStore, this.filterStateChanged);
 
     this.listenTo(presentationsStore, this.presentationsStoreChanged);
   },
@@ -103,12 +99,7 @@ module.exports = Reflux.createStore({
         collectionToAddTransformTo.addTransform(filterTransformObject.transformName, this.collectionTransform);
       }
 
-      var filteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName);
-
-      // Example of filtering on a branched subset of data
-      console.log(filteredCollection.copy().find({'Full Name':{'$contains': ['M']}}).data());
-
-      this.filteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).data();
+      this.userFilteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).data();
 
       // Send object out to all listeners
       this.trigger(this);
@@ -117,7 +108,7 @@ module.exports = Reflux.createStore({
     // Don't set the branched collection if saving a presentation.
     if (message !== 'presentationSaved') {
 
-      this.filteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).data();
+      this.userFilteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).data();
 
       // Send object out to all listeners
       this.trigger(this);
@@ -144,7 +135,7 @@ module.exports = Reflux.createStore({
     this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
 
     // Update the collection resulting from the transform
-    this.filteredCollection = collectionToAddTransformTo.chain(transformName).data();
+    this.userFilteredCollection = collectionToAddTransformTo.chain(transformName).data();
 
     // Set viewingSource property to false
     this.viewingSource = false;
@@ -173,7 +164,7 @@ module.exports = Reflux.createStore({
     this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
 
     // Update the collection resulting from the transform
-    this.filteredCollection = collectionToAddTransformTo.chain(transformName).data();
+    this.userFilteredCollection = collectionToAddTransformTo.chain(transformName).data();
 
     // Set viewingSource property to false
     this.viewingSource = false;
