@@ -28,8 +28,9 @@ var importActions = require('./actions/import.js');
 var importStore = require('./stores/import.js');
 var exportActions = require('./actions/export.js');
 var exportStore = global.packagedApp ? require('./stores/export.js') : null;
+var mapGeoJSONStore = require('./stores/mapGeoJSON.js');
 
-(function(document, reflux, moment, config, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore) {
+(function(document, reflux, moment, config, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJSONStore) {
   'use strict';
 
   // Call checkForLDAP action when in browser
@@ -98,4 +99,4 @@ var exportStore = global.packagedApp ? require('./stores/export.js') : null;
   // Maybe dangerous but can change for different approach if needed
   NodeList.prototype.forEach = Array.prototype.forEach;
 
-})(document, reflux, moment, config, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore);
+})(document, reflux, moment, config, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJSONStore);

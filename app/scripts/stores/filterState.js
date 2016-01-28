@@ -29,8 +29,6 @@ module.exports = Reflux.createStore({
     // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
     // method
     this.autoFilterCollections();
-
-    eventsStore.trigger(eventsStore.filteredCollection);
   },
 
   // Set search filter on our collectionTransform
@@ -51,8 +49,6 @@ module.exports = Reflux.createStore({
     // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
     // method
     this.autoFilterCollections();
-
-    eventsStore.trigger(eventsStore.filteredCollection);
 
     console.log(eventsStore.userFilteredCollection);
     console.log(placesStore.userFilteredCollection);
@@ -174,12 +170,27 @@ module.exports = Reflux.createStore({
   // Filter on datastore userFilteredCollections based on linkage rules between tables
   autoFilterCollections: function() {
 
+    // Example of filtering on a branched subset of data
+    //console.log(eventsStore.userFilteredCollection.find({'Full Name':{'$contains': ['M']}}).data());
+
     // ToDo:
     // Parse collections to filter down other collections. For now, just assigning to each datastore's
-    // filteredCollection property
+    // filteredCollection data
     eventsStore.filteredCollection = eventsStore.userFilteredCollection;
     placesStore.filteredCollection = placesStore.userFilteredCollection;
     peopleStore.filteredCollection = peopleStore.userFilteredCollection;
     sourcesStore.filteredCollection = sourcesStore.userFilteredCollection;
+
+    // Pass data onto views
+    eventsStore.trigger(eventsStore.filteredCollection.data());
+    placesStore.trigger(placesStore.filteredCollection.data());
+    peopleStore.trigger(peopleStore.filteredCollection.data());
+    sourcesStore.trigger(sourcesStore);
+
+    this.message = {
+      type: 'filteredCollectionsUpdated'
+    };
+
+    this.trigger(this);
   }
 });

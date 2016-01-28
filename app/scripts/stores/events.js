@@ -89,7 +89,7 @@ module.exports = Reflux.createStore({
         collectionToAddTransformTo.addTransform(filterTransformObject.transformName, this.collectionTransform);
       }
 
-      this.userFilteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).data();
+      this.userFilteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).copy();
 
       /* TODO:
       // The functionality below will create a filtered collection based on a search the user has specified
@@ -105,7 +105,7 @@ module.exports = Reflux.createStore({
 
       // Set the branched collection if saving a presentation.
       if (message !== 'presentationSaved') {
-        this.userFilteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).data();
+        this.userFilteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).copy();
       }
     }
   },

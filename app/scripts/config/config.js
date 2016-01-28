@@ -5,6 +5,7 @@ var config = {
   PeopleCollection: 'Person',
   PlacesCollection: 'Place',
   SourcesCollection: 'Sources',
+  MapGeoJSONCollection: 'MapGeoJSON'
 };
 
 module.exports = config;
