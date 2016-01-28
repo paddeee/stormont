@@ -94,12 +94,12 @@ module.exports = Reflux.createStore({
         collectionToAddTransformTo.addTransform(filterTransformObject.transformName, this.collectionTransform);
       }
 
-      this.userFilteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).data();
+      this.userFilteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).copy();
     } else {
 
       // Set the branched collection if saving a presentation.
       if (message !== 'presentationSaved') {
-        this.userFilteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).data();
+        this.userFilteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).copy();
       }
     }
 
