@@ -253,7 +253,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </div>
           <epe-paginator
             id="Paginator"
-            perpage="1"
+            perpage="50"
             items="{{paginatedData}}"
             data="[[gridData]]"
             show-first="true"
@@ -270,7 +270,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div class="no-save-message" hidden$="[[hideNoSaveMessage]]">
           This presentation is awaiting authorisation so cannot currently be saved.
         </div>
-
       </div>
     </div>
 
@@ -476,6 +475,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.querySelectorAll('.record-checkbox').forEach(function(checkbox) {
         checkbox.checked = true;
       });
+
+      // Call checkBoxesUpdated action
+      this.filterStateActions.checkBoxesUpdated({
+        collectionName: this.collectionName,
+        collectionData: this.gridData
+      });
     },
 
     // FIRED BY USER SELECTING A RECORD'S CHECKBOX: Deselect the Select All Checkbox and
@@ -498,7 +503,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       }
 
-      // Call filterStateChanged action
+      // Call checkBoxesUpdated action
+      this.filterStateActions.checkBoxesUpdated({
+        collectionName: this.collectionName,
+        collectionData: this.gridData
+      });
     },
 
     // Called when Save Presentation button is tapped

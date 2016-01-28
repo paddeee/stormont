@@ -72,6 +72,27 @@ module.exports = Reflux.createStore({
     sourcesStore.filterStateChanged(filterTransforms);
   },
 
+  // Update showRecord property of collections
+  checkBoxesUpdated: function(showRecordObject) {
+
+    switch(showRecordObject.collectionName) {
+      case config.EventsCollection:
+        this.eventsCheckBoxesUpdated(showRecordObject.collectionData);
+        break;
+      case config.PlacesCollection:
+        console.log('Places Records Checkbox Changed');
+        break;
+      case config.PeopleCollection:
+        console.log('People Records Checkbox Changed');
+        break;
+      case config.SourcesCollection:
+        console.log('Sources Records Checkbox Changed');
+        break;
+      default:
+        return;
+    }
+  },
+
   // Update filtered data based on the collection
   // ToDo: Need to make this dynamic based on passed in fields
   updateFilteredData: function(searchFilterObject) {
@@ -192,5 +213,15 @@ module.exports = Reflux.createStore({
     };
 
     this.trigger(this);
+  },
+
+  // Parse the 'Place' field of each events record to build up an array of all places associated with events
+  // Iterate through each record in Places collection and set showRecord to true and disableCheckbox to true
+  eventsCheckBoxesUpdated: function(eventsCollectionData) {
+
+    eventsCollectionData.forEach(function(event) {
+      console.log(event.showRecord);
+      console.log(event.Place);
+    });
   }
 });
