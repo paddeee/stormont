@@ -177,11 +177,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <div class="data-grid__container flex">
         <div class="headings">
           <div class="heading layout horizontal">
-            <div class="checkbox-holder"
+            <div id="checkBoxHolder"
+                 class="checkbox-holder"
               hidden$="[[!noRecords]]">
-              <paper-checkbox on-change="selectAllRecords"
-                              hidden$="[[hideRecordFilters]]"></paper-checkbox>
+              <paper-checkbox
+                id="selectAllCheckbox"
+                on-change="selectAllRecords"></paper-checkbox>
             </div>
+            <paper-tooltip for="checkBoxHolder" position="top">Select All</paper-tooltip>
             <template is="dom-repeat"
                       items="[[toArray(gridDataFirstRecord)]]">
               <div class="field-heading flex layout horizontal"
@@ -207,11 +210,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <div class="records">
           <iron-list id="List" items="[[paginatedData]]" as="item">
-            <template>
+            <template id="ListTemplate">
               <div class="list-item layout horizontal">
-                <div class="checkbox-holder"
-                     hidden$="[[hideCheckBoxes()]]">
-                  <paper-checkbox on-iron-change="selectRecord"
+                <div class="checkbox-holder">
+                  <paper-checkbox class="record-checkbox"
+                                  on-iron-change="selectRecord"
                                   checked$="[[item.showRecord]]"></paper-checkbox>
                 </div>
                 <template is="dom-repeat" items="[[toArray(item)]]">
@@ -250,7 +253,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </div>
           <epe-paginator
             id="Paginator"
-            perpage="50"
+            perpage="1"
             items="{{paginatedData}}"
             data="[[gridData]]"
             show-first="true"
@@ -297,11 +300,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       hideNoSaveMessage: {
         type: Boolean,
         value: true
-      },
-
-      hideRecordFilters: {
-        type: Boolean,
-        value: false
       },
 
       // Used to get the headings
@@ -399,16 +397,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       return 0;
     },
 
-    // Don't know why I need this but if I just use the hideRecordFilters property in the iron-list template it won't
-    // show the checkboxes when it should.
-    hideCheckBoxes: function () {
-
-      if (this.hideRecordFilters) {
-        return true;
-      }
-      return false;
-    },
-
     // CALLED BY OBSERVABLE ON GRIDDATA
     gridDataChanged: function() {
 
@@ -476,9 +464,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.filterStateActions.sortingChanged(sortingObject);
     },
 
-    // Select all checkboxes in list
+    // FIRED BY USER SELECTING CHECKBOXHOLDER: Select all checkboxes in list
     selectAllRecords: function() {
 
+      // Update all items in the data collection
+      this.gridData.forEach(function(record) {
+        record.showRecord = true;
+      });
+
+      // Update UI for all visible Checkboxes
+      this.querySelectorAll('.record-checkbox').forEach(function(checkbox) {
+        checkbox.checked = true;
+      });
+    },
+
+    // FIRED BY USER SELECTING A RECORD'S CHECKBOX: Deselect the Select All Checkbox and
+    // call filterStateChanged action
+    selectRecord: function(event) {
+
+      // Deselect the Select All Checkbox if checkbox is being de-selected
+      if (!event.target.checked) {
+        this.querySelector('#selectAllCheckbox').checked = false;
+
+        // Set the model showRecord property
+        if(event.model.item) {
+          event.model.item.showRecord = false;
+        }
+      } else {
+
+        // Set the model showRecord property
+        if(event.model.item) {
+          event.model.item.showRecord = true;
+        }
+      }
+
+      // Call filterStateChanged action
     },
 
     // Called when Save Presentation button is tapped
