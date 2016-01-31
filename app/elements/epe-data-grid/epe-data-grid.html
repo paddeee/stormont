@@ -475,12 +475,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.querySelectorAll('.record-checkbox').forEach(function(checkbox) {
         checkbox.checked = true;
       });
-
-      // Call checkBoxesUpdated action
-      this.filterStateActions.checkBoxesUpdated({
-        collectionName: this.collectionName,
-        collectionData: this.gridData
-      });
     },
 
     // FIRED BY USER SELECTING A RECORD'S CHECKBOX: Deselect the Select All Checkbox and
