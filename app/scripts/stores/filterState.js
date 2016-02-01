@@ -9,6 +9,7 @@ var eventsStore = require('../stores/events.js');
 var placesStore = require('../stores/places.js');
 var peopleStore = require('../stores/people.js');
 var sourcesStore = require('../stores/source.js');
+var uniq = require('lodash/array/uniq');
 
 module.exports = Reflux.createStore({
 
@@ -241,12 +242,36 @@ module.exports = Reflux.createStore({
   },
 
   // Parse the 'Place' field of each events record to build up an array of all places associated with events
-  // Iterate through each record in Places collection and set showRecord to true and disableCheckbox to true
+  // in order to automatically select related records in Places, People and Sources collections
   eventsCheckBoxesUpdated: function(eventsCollectionData) {
 
+    var placeArray = [];
+
     eventsCollectionData.forEach(function(event) {
-      console.log(event.showRecord);
-      console.log(event.Place);
+
+      // If checkbox is selected
+      if (event.showRecord) {
+        placeArray.push(event.Place);
+      }
     });
+
+    this.autoUpdatePlacesCheckboxes(uniq(placeArray));
+  },
+
+  // Iterate through each record in Places collection and set showRecord to true and disableCheckbox to true
+  autoUpdatePlacesCheckboxes: function(placeArray) {
+
+    placeArray.forEach(function(place) {
+      placesStore.filteredCollection.copy().find({
+        'Short Name': {
+          '$eq' : place
+        }
+      }).update(function(placeObject) {
+        placeObject.showRecord = true;
+        placeObject.disabled = true;
+        console.log(placeObject);
+      });
+    });
+    console.log(placesStore.filteredCollection);
   }
 });

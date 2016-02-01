@@ -216,7 +216,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <div class="checkbox-holder">
                   <paper-checkbox class="record-checkbox"
                                   on-iron-change="selectRecord"
-                                  checked$="[[item.showRecord]]"></paper-checkbox>
+                                  checked$="[[item.showRecord]]"
+                                  disabled="[[item.disabled]]"></paper-checkbox>
                 </div>
                 <template is="dom-repeat" items="[[toArray(item)]]">
                   <div class="field flex"
@@ -377,7 +378,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Return false if item is a loki property
     showField: function(keyName) {
 
-      if (keyName === 'meta' || keyName === '$loki' || keyName === 'showRecord') {
+      if (keyName === 'meta' || keyName === '$loki' || keyName === 'showRecord' || keyName === 'disabled') {
         return false;
       }
       return true;
