@@ -123,22 +123,22 @@ module.exports = Reflux.createStore({
   // ToDo: Need to make this dynamic based on passed in fields
   updateFilteredData: function(searchFilterObject) {
 
-      switch (searchFilterObject.collectionName) {
-        case config.EventsCollection:
-          filterTransforms[config.EventsCollection].filters = this.createFilterObject(searchFilterObject);
-          break;
-        case config.PlacesCollection:
-          filterTransforms[config.PlacesCollection].filters = this.createFilterObject(searchFilterObject);
-          break;
-        case config.PeopleCollection:
-          filterTransforms[config.PeopleCollection].filters = this.createFilterObject(searchFilterObject);
-          break;
-        case config.SourcesCollection:
-          filterTransforms[config.SourcesCollection].filters = this.createFilterObject(searchFilterObject);
-          break;
-        default:
-          console.error('No collection Name');
-      }
+    switch (searchFilterObject.collectionName) {
+      case config.EventsCollection:
+        filterTransforms[config.EventsCollection].filters = this.createFilterObject(searchFilterObject);
+        break;
+      case config.PlacesCollection:
+        filterTransforms[config.PlacesCollection].filters = this.createFilterObject(searchFilterObject);
+        break;
+      case config.PeopleCollection:
+        filterTransforms[config.PeopleCollection].filters = this.createFilterObject(searchFilterObject);
+        break;
+      case config.SourcesCollection:
+        filterTransforms[config.SourcesCollection].filters = this.createFilterObject(searchFilterObject);
+        break;
+      default:
+        console.error('No collection Name');
+    }
   },
 
   // Update sorted data based on the collection
@@ -223,10 +223,10 @@ module.exports = Reflux.createStore({
     // ToDo:
     // Parse collections to filter down other collections. For now, just assigning to each datastore's
     // filteredCollection data
-    eventsStore.filteredCollection = eventsStore.userFilteredCollection;
-    placesStore.filteredCollection = placesStore.userFilteredCollection;
-    peopleStore.filteredCollection = peopleStore.userFilteredCollection;
-    sourcesStore.filteredCollection = sourcesStore.userFilteredCollection;
+    eventsStore.filteredCollection = eventsStore.userFilteredCollection.copy();
+    placesStore.filteredCollection = placesStore.userFilteredCollection.copy();
+    peopleStore.filteredCollection = peopleStore.userFilteredCollection.copy();
+    sourcesStore.filteredCollection = sourcesStore.userFilteredCollection.copy();
 
     // Pass data onto views
     eventsStore.trigger(eventsStore.filteredCollection.data());
@@ -246,10 +246,6 @@ module.exports = Reflux.createStore({
   eventsCheckBoxesUpdated: function(eventsCollectionData) {
 
     var placeArray = [];
-
-    // Manage the filter transform name in this store and listening collection
-    // stores can use it when broadcasted
-    filterTransforms.transformName = this.transformName;
 
     eventsCollectionData.forEach(function(event) {
 
@@ -283,6 +279,10 @@ module.exports = Reflux.createStore({
         }
       });
     });
+
+    // Manage the filter transform name in this store and listening collection
+    // stores can use it when broadcasted
+    filterTransforms.transformName = this.transformName;
 
     // Call filterStateChanged on each data store
     eventsStore.filterStateChanged(filterTransforms);
