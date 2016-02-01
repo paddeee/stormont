@@ -179,9 +179,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <div class="heading layout horizontal">
             <div id="checkBoxHolder"
                  class="checkbox-holder"
-              hidden$="[[!noRecords]]">
+                 hidden$="[[!noRecords]]">
               <paper-checkbox
                 id="selectAllCheckbox"
+                checked$="[[showAllSelected]]"
                 on-change="selectAllRecords"></paper-checkbox>
             </div>
             <paper-tooltip for="checkBoxHolder" position="top">Select All</paper-tooltip>
@@ -500,7 +501,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Call checkBoxesUpdated action
       this.filterStateActions.checkBoxesUpdated({
         collectionName: this.collectionName,
-        collectionData: this.gridData
+        collectionData: this.gridData,
+        showAllSelected: this.querySelector('#selectAllCheckbox').checked
       });
     },
 

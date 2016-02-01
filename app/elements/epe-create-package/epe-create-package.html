@@ -202,6 +202,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   hidden$="[[hideDataGrid]]"
                   class="data-grid fit"
                   grid-data="[[gridData]]"
+                  show-all-selected="[[showAllSelected]]"
                   on-save-presentation="savePresentation"></epe-data-grid>
               </section>
             </iron-pages>
@@ -303,6 +304,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       editState: {
         type: String,
         value: 'creating'
+      },
+
+      showAllSelected: {
+        type: Boolean,
+        value: false
       },
 
       animationConfig: {
@@ -477,21 +483,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.gridData = this.eventsData;
           this.filtersToShow = this.eventsStore.filterTransform[app.config.EventsCollection].filters.value.$and;
           this.sortingState = this.eventsStore.filterTransform[app.config.EventsCollection].sorting;
+          this.showAllSelected = this.eventsStore.showAllSelected;
           break;
         case app.config.PlacesCollection:
           this.gridData = this.placesData;
           this.filtersToShow = this.placesStore.filterTransform[app.config.PlacesCollection].filters.value.$and;
           this.sortingState = this.placesStore.filterTransform[app.config.PlacesCollection].sorting;
+          this.showAllSelected = this.placesStore.showAllSelected;
           break;
         case app.config.PeopleCollection:
           this.gridData = this.peopleData;
           this.filtersToShow = this.peopleStore.filterTransform[app.config.PeopleCollection].filters.value.$and;
           this.sortingState = this.peopleStore.filterTransform[app.config.PeopleCollection].sorting;
+          this.showAllSelected = this.peopleStore.showAllSelected;
           break;
         case app.config.SourcesCollection:
           this.gridData = this.sourceData;
           this.filtersToShow = this.sourceStore.filterTransform[app.config.SourcesCollection].filters.value.$and;
           this.sortingState = this.sourceStore.filterTransform[app.config.SourcesCollection].sorting;
+          this.showAllSelected = this.sourceStore.showAllSelected;
           break;
         default:
           console.log('Sorry, no collectionName set for grid data');
