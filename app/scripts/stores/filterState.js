@@ -70,6 +70,10 @@ module.exports = Reflux.createStore({
     placesStore.filterStateChanged(filterTransforms);
     peopleStore.filterStateChanged(filterTransforms);
     sourcesStore.filterStateChanged(filterTransforms);
+
+    // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
+    // method
+    this.autoFilterCollections();
   },
 
   // Update showRecord property of collections
@@ -77,16 +81,37 @@ module.exports = Reflux.createStore({
 
     switch(showRecordObject.collectionName) {
       case config.EventsCollection:
+
+        // Start process of updating related data tables
         this.eventsCheckBoxesUpdated(showRecordObject.collectionData);
+
+        // Set property on the events store so the show All checkbox state will be maintained
+        eventsStore.showAllSelected = showRecordObject.showAllSelected;
+
         break;
       case config.PlacesCollection:
+
         console.log('Places Records Checkbox Changed');
+
+        // Set property on the events store so the show All checkbox state will be maintained
+        placesStore.showAllSelected = showRecordObject.showAllSelected;
+
         break;
       case config.PeopleCollection:
+
         console.log('People Records Checkbox Changed');
+
+        // Set property on the events store so the show All checkbox state will be maintained
+        peopleStore.showAllSelected = showRecordObject.showAllSelected;
+
         break;
       case config.SourcesCollection:
+
         console.log('Sources Records Checkbox Changed');
+
+        // Set property on the events store so the show All checkbox state will be maintained
+        sourcesStore.showAllSelected = showRecordObject.showAllSelected;
+
         break;
       default:
         return;
