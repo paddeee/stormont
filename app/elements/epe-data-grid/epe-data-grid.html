@@ -467,14 +467,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     selectAllRecords: function() {
 
       // Update all items in the data collection
-      this.gridData.forEach(function(record) {
-        record.showRecord = true;
-      });
+      this.gridData.forEach(function(record, index) {
 
-      // Update UI for all visible Checkboxes
-      this.querySelectorAll('.record-checkbox').forEach(function(checkbox) {
-        checkbox.checked = true;
-      });
+        // This is the way to make iron-list update the UI when a property of the model
+        // data changes
+        this.$.List.set('items.' + index + '.showRecord', true);
+      }.bind(this));
     },
 
     // FIRED BY USER SELECTING A RECORD'S CHECKBOX: Deselect the Select All Checkbox and
@@ -487,12 +485,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Set the model showRecord property
         if(event.model.item) {
+          this.$.List.set('items.' + event.model.index + '.showRecord', false);
           event.model.item.showRecord = false;
         }
       } else {
 
         // Set the model showRecord property
         if(event.model.item) {
+          this.$.List.set('items.' + event.model.index + '.showRecord', true);
           event.model.item.showRecord = true;
         }
       }
