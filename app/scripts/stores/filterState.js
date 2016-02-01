@@ -247,12 +247,18 @@ module.exports = Reflux.createStore({
 
     var placeArray = [];
 
+    // Manage the filter transform name in this store and listening collection
+    // stores can use it when broadcasted
+    filterTransforms.transformName = this.transformName;
+
     eventsCollectionData.forEach(function(event) {
 
-      // If checkbox is selected
-      if (event.showRecord) {
-        placeArray.push(event.Place);
-      }
+      var eventObject = {
+        place: event.Place,
+        showRecord: event.showRecord
+      };
+
+      placeArray.push(eventObject);
     });
 
     this.autoUpdatePlacesCheckboxes(uniq(placeArray));
@@ -261,17 +267,31 @@ module.exports = Reflux.createStore({
   // Iterate through each record in Places collection and set showRecord to true and disableCheckbox to true
   autoUpdatePlacesCheckboxes: function(placeArray) {
 
-    placeArray.forEach(function(place) {
+    placeArray.forEach(function(eventObject) {
       placesStore.filteredCollection.copy().find({
         'Short Name': {
-          '$eq' : place
+          '$eq' : eventObject.place
         }
       }).update(function(placeObject) {
-        placeObject.showRecord = true;
-        placeObject.disabled = true;
-        console.log(placeObject);
+
+        // If the event record is selected
+        if (eventObject.showRecord) {
+          placeObject.showRecord = true;
+          placeObject.disabled = true;
+        } else {
+          placeObject.disabled = false;
+        }
       });
     });
-    console.log(placesStore.filteredCollection);
+
+    // Call filterStateChanged on each data store
+    eventsStore.filterStateChanged(filterTransforms);
+    placesStore.filterStateChanged(filterTransforms);
+    peopleStore.filterStateChanged(filterTransforms);
+    sourcesStore.filterStateChanged(filterTransforms);
+
+    // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
+    // method
+    this.autoFilterCollections();
   }
 });
