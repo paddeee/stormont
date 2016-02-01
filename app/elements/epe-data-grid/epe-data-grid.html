@@ -181,7 +181,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                  class="checkbox-holder"
                  hidden$="[[!noRecords]]">
               <paper-checkbox
-                id="selectAllCheckbox"
+                id="SelectAllCheckbox"
                 checked$="[[showAllSelected]]"
                 on-change="selectAllRecords"></paper-checkbox>
             </div>
@@ -333,6 +333,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       fullText: {
         type: String,
         value: ''
+      },
+
+      showAllSelected: {
+        type: Boolean,
+        value: false,
+        notify: true
       }
     },
 
@@ -465,15 +471,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // FIRED BY USER SELECTING CHECKBOXHOLDER: Select all checkboxes in list
-    selectAllRecords: function() {
+    selectAllRecords: function(event) {
 
-      // Update all items in the data collection
-      this.gridData.forEach(function(record, index) {
+      if (event.target.checked) {
 
-        // This is the way to make iron-list update the UI when a property of the model
-        // data changes
-        this.$.List.set('items.' + index + '.showRecord', true);
-      }.bind(this));
+        this.showAllSelected = true;
+
+        // Update all items in the data collection
+        this.gridData.forEach(function(record, index) {
+
+          // This is the way to make iron-list update the UI when a property of the model
+          // data changes
+          this.$.List.set('items.' + index + '.showRecord', true);
+        }.bind(this));
+
+      } else {
+
+        this.showAllSelected = false;
+
+        // Call checkBoxesUpdated action
+        this.filterStateActions.checkBoxesUpdated({
+          collectionName: this.collectionName,
+          collectionData: this.gridData,
+          showAllSelected: this.showAllSelected
+        });
+      }
     },
 
     // FIRED BY USER SELECTING A RECORD'S CHECKBOX: Deselect the Select All Checkbox and
@@ -482,7 +504,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Deselect the Select All Checkbox if checkbox is being de-selected
       if (!event.target.checked) {
-        this.querySelector('#selectAllCheckbox').checked = false;
+        this.showAllSelected = false;
 
         // Set the model showRecord property
         if(event.model.item) {
@@ -502,7 +524,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.filterStateActions.checkBoxesUpdated({
         collectionName: this.collectionName,
         collectionData: this.gridData,
-        showAllSelected: this.querySelector('#selectAllCheckbox').checked
+        showAllSelected: this.showAllSelected
       });
     },
 
