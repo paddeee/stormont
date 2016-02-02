@@ -162,28 +162,28 @@ module.exports = Reflux.createStore({
     peopleStore.filterStateChanged(filterTransforms);
     sourcesStore.filterStateChanged(filterTransforms);
 
-    // ToDo:
-    // Parse collections to filter down other collections. For now, just assigning to each datastore's
-    // filteredCollection data
-    eventsStore.filteredCollection = eventsStore.userFilteredCollection.copy();
-    placesStore.filteredCollection = placesStore.userFilteredCollection.copy();
-    peopleStore.filteredCollection = peopleStore.userFilteredCollection.copy();
-    sourcesStore.filteredCollection = sourcesStore.userFilteredCollection.copy();
+    // Update all Event Checkboxes
+    this.selectAllCheckboxes(eventsStore, true);
 
     // ToDo: Update Checkboxes???
 
 
     // Pass data onto views
-    eventsStore.trigger(eventsStore.filteredCollection.data());
-    placesStore.trigger(placesStore.filteredCollection.data());
-    peopleStore.trigger(peopleStore.filteredCollection.data());
+    eventsStore.trigger(eventsStore.userFilteredCollection.data());
+    placesStore.trigger(placesStore.userFilteredCollection.data());
+    peopleStore.trigger(peopleStore.userFilteredCollection.data());
     sourcesStore.trigger(sourcesStore);
 
     this.message = {
-      type: 'filteredCollectionsUpdated'
+      type: 'userFilteredCollectionsUpdated'
     };
 
     this.trigger(this);
+  },
+
+  // Select all checkboxes in a store
+  selectAllCheckboxes: function(store, value) {
+    store.showAllSelected = value;
   },
 
   // Update showRecord property of collections
@@ -251,7 +251,7 @@ module.exports = Reflux.createStore({
   autoUpdatePlacesCheckboxes: function(placeArray) {
 
     placeArray.forEach(function(eventObject) {
-      placesStore.filteredCollection.copy().find({
+      placesStore.userFilteredCollection.copy().find({
         'Short Name': {
           '$eq' : eventObject.place
         }
