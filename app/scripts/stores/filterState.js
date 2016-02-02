@@ -37,24 +37,9 @@ module.exports = Reflux.createStore({
 
     this.updateFilteredData(searchFilterObject);
 
-    // Manage the filter transform name in this store and listening collection
-    // stores can use it when broadcasted
-    filterTransforms.transformName = this.transformName;
-
-    // Call filterStateChanged on each data store
-    eventsStore.filterStateChanged(filterTransforms);
-    placesStore.filterStateChanged(filterTransforms);
-    peopleStore.filterStateChanged(filterTransforms);
-    sourcesStore.filterStateChanged(filterTransforms);
-
     // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
     // method
     this.autoFilterCollections();
-
-    console.log(eventsStore.userFilteredCollection);
-    console.log(placesStore.userFilteredCollection);
-    console.log(peopleStore.userFilteredCollection);
-    console.log(sourcesStore.userFilteredCollection);
   },
 
   // Set simpleSort on our collectionTransform
@@ -62,61 +47,9 @@ module.exports = Reflux.createStore({
 
     this.updateSortedData(sortingObject);
 
-    // Manage the filter transform name in this store and listening collection
-    // stores can use it when broadcasted
-    filterTransforms.transformName = this.transformName;
-
-    // Call filterStateChanged on each data store
-    eventsStore.filterStateChanged(filterTransforms);
-    placesStore.filterStateChanged(filterTransforms);
-    peopleStore.filterStateChanged(filterTransforms);
-    sourcesStore.filterStateChanged(filterTransforms);
-
     // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
     // method
     this.autoFilterCollections();
-  },
-
-  // Update showRecord property of collections
-  checkBoxesUpdated: function(showRecordObject) {
-
-    switch(showRecordObject.collectionName) {
-      case config.EventsCollection:
-
-        // Start process of updating related data tables
-        this.eventsCheckBoxesUpdated(showRecordObject.collectionData);
-
-        // Set property on the events store so the show All checkbox state will be maintained
-        eventsStore.showAllSelected = showRecordObject.showAllSelected;
-
-        break;
-      case config.PlacesCollection:
-
-        console.log('Places Records Checkbox Changed');
-
-        // Set property on the events store so the show All checkbox state will be maintained
-        placesStore.showAllSelected = showRecordObject.showAllSelected;
-
-        break;
-      case config.PeopleCollection:
-
-        console.log('People Records Checkbox Changed');
-
-        // Set property on the events store so the show All checkbox state will be maintained
-        peopleStore.showAllSelected = showRecordObject.showAllSelected;
-
-        break;
-      case config.SourcesCollection:
-
-        console.log('Sources Records Checkbox Changed');
-
-        // Set property on the events store so the show All checkbox state will be maintained
-        sourcesStore.showAllSelected = showRecordObject.showAllSelected;
-
-        break;
-      default:
-        return;
-    }
   },
 
   // Update filtered data based on the collection
@@ -215,10 +148,19 @@ module.exports = Reflux.createStore({
   },
 
   // Filter on datastore userFilteredCollections based on linkage rules between tables
+  // Event Place field links to Places Shortname field
+  // Event Suspects, Victims and Witnesses fields link to People's Shortname field
   autoFilterCollections: function() {
 
-    // Example of filtering on a branched subset of data
-    //console.log(eventsStore.userFilteredCollection.find({'Full Name':{'$contains': ['M']}}).data());
+    // Manage the filter transform name in this store and listening collection
+    // stores can use it when broadcasted
+    filterTransforms.transformName = this.transformName;
+
+    // Call filterStateChanged on each data store to ensure each store's userFilteredCollection is up to date
+    eventsStore.filterStateChanged(filterTransforms);
+    placesStore.filterStateChanged(filterTransforms);
+    peopleStore.filterStateChanged(filterTransforms);
+    sourcesStore.filterStateChanged(filterTransforms);
 
     // ToDo:
     // Parse collections to filter down other collections. For now, just assigning to each datastore's
@@ -227,6 +169,9 @@ module.exports = Reflux.createStore({
     placesStore.filteredCollection = placesStore.userFilteredCollection.copy();
     peopleStore.filteredCollection = peopleStore.userFilteredCollection.copy();
     sourcesStore.filteredCollection = sourcesStore.userFilteredCollection.copy();
+
+    // ToDo: Update Checkboxes???
+
 
     // Pass data onto views
     eventsStore.trigger(eventsStore.filteredCollection.data());
@@ -239,6 +184,48 @@ module.exports = Reflux.createStore({
     };
 
     this.trigger(this);
+  },
+
+  // Update showRecord property of collections
+  checkBoxesUpdated: function(showRecordObject) {
+
+    switch(showRecordObject.collectionName) {
+      case config.EventsCollection:
+
+        // Start process of updating related data tables
+        this.eventsCheckBoxesUpdated(showRecordObject.collectionData);
+
+        // Set property on the events store so the show All checkbox state will be maintained
+        eventsStore.showAllSelected = showRecordObject.showAllSelected;
+
+        break;
+      case config.PlacesCollection:
+
+        console.log('Places Records Checkbox Changed');
+
+        // Set property on the events store so the show All checkbox state will be maintained
+        placesStore.showAllSelected = showRecordObject.showAllSelected;
+
+        break;
+      case config.PeopleCollection:
+
+        console.log('People Records Checkbox Changed');
+
+        // Set property on the events store so the show All checkbox state will be maintained
+        peopleStore.showAllSelected = showRecordObject.showAllSelected;
+
+        break;
+      case config.SourcesCollection:
+
+        console.log('Sources Records Checkbox Changed');
+
+        // Set property on the events store so the show All checkbox state will be maintained
+        sourcesStore.showAllSelected = showRecordObject.showAllSelected;
+
+        break;
+      default:
+        return;
+    }
   },
 
   // Parse the 'Place' field of each events record to build up an array of all places associated with events
@@ -279,19 +266,5 @@ module.exports = Reflux.createStore({
         }
       });
     });
-
-    // Manage the filter transform name in this store and listening collection
-    // stores can use it when broadcasted
-    filterTransforms.transformName = this.transformName;
-
-    // Call filterStateChanged on each data store
-    eventsStore.filterStateChanged(filterTransforms);
-    placesStore.filterStateChanged(filterTransforms);
-    peopleStore.filterStateChanged(filterTransforms);
-    sourcesStore.filterStateChanged(filterTransforms);
-
-    // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
-    // method
-    this.autoFilterCollections();
   }
 });

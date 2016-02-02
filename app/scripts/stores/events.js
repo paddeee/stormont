@@ -91,16 +91,6 @@ module.exports = Reflux.createStore({
 
       this.userFilteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).copy();
 
-      /* TODO:
-      // The functionality below will create a filtered collection based on a search the user has specified
-      // specifically on this collection
-
-      // Create a branch of the collection to operate the Filter transforms on
-      this.userFilteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).copy();
-
-      // Example of filtering on a branched subset of data
-      console.log(this.userFilteredCollection = this.userFilteredCollection.find({'Full Name':{'$contains': ['M']}}).data());
-      */
     } else {
 
       // Set the branched collection if saving a presentation.
@@ -154,7 +144,6 @@ module.exports = Reflux.createStore({
     this.userFilteredCollection = collectionToAddTransformTo.chain(transformName).data();
 
     // Send collection object out to all listeners
-    this.trigger(this.userFilteredCollection);
     this.trigger(this.userFilteredCollection);
   },
 
