@@ -183,7 +183,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <paper-checkbox
                 id="SelectAllCheckbox"
                 checked$="[[showAllSelected]]"
-                on-change="selectAllRecords"></paper-checkbox>
+                on-iron-change="selectAllRecords"></paper-checkbox>
             </div>
             <paper-tooltip for="checkBoxHolder" position="top">Select All</paper-tooltip>
             <template is="dom-repeat"
@@ -487,15 +487,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }.bind(this));
 
       } else {
-
         this.showAllSelected = false;
-
-        // Call checkBoxesUpdated action
-        this.filterStateActions.checkBoxesUpdated({
-          collectionName: this.collectionName,
-          collectionData: this.gridData,
-          showAllSelected: this.showAllSelected
-        });
       }
     },
 
