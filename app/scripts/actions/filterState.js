@@ -5,6 +5,6 @@ var Reflux = require('reflux');
 module.exports = Reflux.createActions([
   'searchFilterChanged',
   'sortingChanged',
-  'checkBoxesUpdated',
+  'checkBoxUpdated',
   'packageSelected'
 ]);

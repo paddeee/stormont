@@ -69,7 +69,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       margin: 0 16px 0 0;
     }
 
+    .selected-by-event {
+      margin: 0 0 0 8px;
+      padding: 0 10px 0 0;
+    }
+
+    .selected-by-event__icon {
+      color: var(--paper-green-500);
+      height: 2.4vh;
+      width: 2.4vh;
+    }
+
+    .selected-by-event-heading {
+      margin: 0 16px 0 0;
+    }
+
+    .selected-by-event__heading-icon {
+      margin: 0 0 0 8px;
+      height: 2vh;
+      width: 2vh;
+    }
+
     .field-heading__text,
+    .selected-by-event-heading,
     .field {
       display: block;
       text-overflow: ellipsis;
@@ -152,7 +174,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       width: 30vw;
     }
 
-    .blank-source,
+    .blank,
     .field__source {
       width: 8vw;
     }
@@ -206,7 +228,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </div>
               </div>
             </template>
-            <div class="blank-source" hidden$="[[hideViewSourceButton]]"></div>
+            <div class="selected-by-event-heading flex layout horizontal center center-justified">
+              <iron-icon icon="event"
+                         class="selected-by-event__heading-icon"></iron-icon>
+              <paper-tooltip position="top">Item is<br/>selected as it<br/>is related to <br/> an event</paper-tooltip>
+            </div>
+            <div class="blank" hidden$="[[hideViewSourceButton]]"></div>
           </div>
         </div>
 
@@ -217,22 +244,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <div class="checkbox-holder">
                   <paper-checkbox class="record-checkbox"
                                   on-iron-change="selectRecord"
-                                  checked$="[[item.showRecord]]"
-                                  disabled="[[item.disabled]]"></paper-checkbox>
+                                  checked$="[[item.showRecord]]"></paper-checkbox>
                 </div>
                 <template is="dom-repeat" items="[[toArray(item)]]">
                   <div class="field flex"
                        on-mouseover="showFullText"
                        on-mouseout="hideFullText"
-                       hidden="[[!showField(item.name)]]">
+                       hidden$="[[!showField(item.name)]]">
                     <span>{{item.value}}</span>
                   </div>
                 </template>
-                <div class="field__source" hidden$="[[hideViewSourceButton]]">
+                <div class="field flex selected-by-event layout horizontal center center-justified">
+                  <iron-icon icon="check"
+                             class="selected-by-event__icon"
+                             hidden$="[[!item.selectedByEvent]]"></iron-icon></div>
+                <div class="field__source layout horizontal center center-justified" hidden$="[[hideViewSourceButton]]">
                   <paper-button
                     class="field__button"
                     raised
-                    on-tap="viewSourceFile">View <iron-icon icon="description"></iron-icon></paper-button>
+                    on-tap="viewSourceFile">View <iron-icon icon="description"></iron-icon>
+                  </paper-button>
                 </div>
               </div>
             </template>
@@ -379,7 +410,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Return false if item is a loki property
     showField: function(keyName) {
 
-      if (keyName === 'meta' || keyName === '$loki' || keyName === 'showRecord' || keyName === 'disabled') {
+      if (keyName === 'meta' || keyName === '$loki' || keyName === 'showRecord' || keyName === 'selectedByEvent') {
         return false;
       }
       return true;
@@ -524,8 +555,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       }
 
-      // Call checkBoxesUpdated action
-      this.filterStateActions.checkBoxesUpdated({
+      // Call checkBoxUpdated action
+      this.filterStateActions.checkBoxUpdated({
         collectionName: this.collectionName,
         collectionData: this.gridData,
         showAllSelected: this.showAllSelected

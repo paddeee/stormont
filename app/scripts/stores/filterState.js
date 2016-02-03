@@ -189,7 +189,7 @@ module.exports = Reflux.createStore({
   },
 
   // Update showRecord property of collections
-  checkBoxesUpdated: function(showRecordObject) {
+  checkBoxUpdated: function(showRecordObject) {
 
     switch(showRecordObject.collectionName) {
       case config.EventsCollection:
@@ -243,7 +243,7 @@ module.exports = Reflux.createStore({
     this.autoUpdatePlacesCheckboxes(uniq(placeArray));
   },
 
-  // Iterate through each record in Places collection and set showRecord to true and disableCheckbox to true
+  // Iterate through each record in Places collection and set showRecord to true and selectedByEvent to true
   autoUpdatePlacesCheckboxes: function(placeArray) {
 
     placeArray.forEach(function(eventObject) {
@@ -256,9 +256,10 @@ module.exports = Reflux.createStore({
         // If the event record is selected
         if (eventObject.showRecord) {
           placeObject.showRecord = true;
-          placeObject.disabled = true;
+          placeObject.selectedByEvent = true;
         } else {
-          placeObject.disabled = false;
+          placeObject.showRecord = false;
+          placeObject.selectedByEvent = false;
         }
       });
     });
