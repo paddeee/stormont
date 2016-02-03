@@ -29,7 +29,7 @@ module.exports = Reflux.createStore({
 
     // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
     // method
-    this.autoFilterCollections();
+    this.autoFilterCollections(false);
   },
 
   // Set search filter on our collectionTransform
@@ -39,7 +39,7 @@ module.exports = Reflux.createStore({
 
     // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
     // method
-    this.autoFilterCollections();
+    this.autoFilterCollections(true);
   },
 
   // Set simpleSort on our collectionTransform
@@ -49,7 +49,7 @@ module.exports = Reflux.createStore({
 
     // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
     // method
-    this.autoFilterCollections();
+    this.autoFilterCollections(false);
   },
 
   // Update filtered data based on the collection
@@ -150,7 +150,7 @@ module.exports = Reflux.createStore({
   // Filter on datastore userFilteredCollections based on linkage rules between tables
   // Event Place field links to Places Shortname field
   // Event Suspects, Victims and Witnesses fields link to People's Shortname field
-  autoFilterCollections: function() {
+  autoFilterCollections: function(autoSelectCheckBoxes) {
 
     // Manage the filter transform name in this store and listening collection
     // stores can use it when broadcasted
@@ -163,7 +163,9 @@ module.exports = Reflux.createStore({
     sourcesStore.filterStateChanged(filterTransforms);
 
     // Update all Event Checkboxes
-    this.selectAllCheckboxes(eventsStore, true);
+    if (autoSelectCheckBoxes) {
+      this.selectAllCheckboxes(eventsStore, true);
+    }
 
     // ToDo: Update Checkboxes???
 
@@ -201,23 +203,17 @@ module.exports = Reflux.createStore({
         break;
       case config.PlacesCollection:
 
-        console.log('Places Records Checkbox Changed');
-
         // Set property on the events store so the show All checkbox state will be maintained
         placesStore.showAllSelected = showRecordObject.showAllSelected;
 
         break;
       case config.PeopleCollection:
 
-        console.log('People Records Checkbox Changed');
-
         // Set property on the events store so the show All checkbox state will be maintained
         peopleStore.showAllSelected = showRecordObject.showAllSelected;
 
         break;
       case config.SourcesCollection:
-
-        console.log('Sources Records Checkbox Changed');
 
         // Set property on the events store so the show All checkbox state will be maintained
         sourcesStore.showAllSelected = showRecordObject.showAllSelected;

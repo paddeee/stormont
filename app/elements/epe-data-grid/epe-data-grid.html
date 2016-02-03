@@ -420,6 +420,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // CALLED BY OBSERVABLE ON SORTINGSTATE
     sortingStateChanged: function() {
+
       // Stick in async so the gridData headings will have been added to DOM in template
       this.async(this.resetHeadingSortIndicators);
     },
@@ -482,8 +483,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.gridData.forEach(function(record, index) {
 
           // This is the way to make iron-list update the UI when a property of the model
-          // data changes
-          this.$.List.set('items.' + index + '.showRecord', true);
+          // data changes. Need async for paper-checkbox UI to update when tihe select all is checked programmatically
+          // but no idea why. Polymer issue again I guess.
+          this.async(function() {
+            this.$.List.set('items.' + index + '.showRecord', true);
+          });
         }.bind(this));
 
       } else {
