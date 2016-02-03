@@ -108,7 +108,7 @@ module.exports = Reflux.createStore({
         dataRecord[headingsHash[cellLetterIdentifier]] = cellObject[cellIdentifier].v;
 
         // Set all record's 'showRecord' and 'disabled' properties to false by default
-        dataRecord.disabled = false;
+        dataRecord.selectedByEvent = false;
         dataRecord.showRecord = false;
       }
 
