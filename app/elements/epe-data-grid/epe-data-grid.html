@@ -231,7 +231,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div class="selected-by-event-heading flex layout horizontal center center-justified">
               <iron-icon icon="event"
                          class="selected-by-event__heading-icon"></iron-icon>
-              <paper-tooltip position="top">Item is<br/>selected as it<br/>is related to <br/> an event</paper-tooltip>
+              <paper-tooltip position="top">Item is<br/>related to<br/>a selected <br/>event</paper-tooltip>
             </div>
             <div class="blank" hidden$="[[hideViewSourceButton]]"></div>
           </div>
@@ -257,7 +257,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <div class="field flex selected-by-event layout horizontal center center-justified">
                   <iron-icon icon="check"
                              class="selected-by-event__icon"
-                             hidden$="[[!item.selectedByEvent]]"></iron-icon></div>
+                             hidden$="[[!item.highlightAsRelatedToEvent]]"></iron-icon></div>
                 <div class="field__source layout horizontal center center-justified" hidden$="[[hideViewSourceButton]]">
                   <paper-button
                     class="field__button"
@@ -410,7 +410,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Return false if item is a loki property
     showField: function(keyName) {
 
-      if (keyName === 'meta' || keyName === '$loki' || keyName === 'showRecord' || keyName === 'selectedByEvent') {
+      if (keyName === 'meta' || keyName === '$loki' || keyName === 'showRecord' || keyName === 'selectedByEvent' || keyName === 'highlightAsRelatedToEvent') {
         return false;
       }
       return true;
@@ -541,9 +541,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (!event.target.checked) {
         this.showAllSelected = false;
 
-        // Set the model showRecord property
+        // Set the model showRecord and highlightAsRelatedToEvent properties
         if(event.model.item) {
           this.$.List.set('items.' + event.model.index + '.showRecord', false);
+          this.$.List.set('items.' + event.model.index + '.highlightAsRelatedToEvent', false);
           event.model.item.showRecord = false;
         }
       } else {
@@ -551,6 +552,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Set the model showRecord property
         if(event.model.item) {
           this.$.List.set('items.' + event.model.index + '.showRecord', true);
+
+          //
+          if (event.model.item.selectedByEvent) {
+            this.$.List.set('items.' + event.model.index + '.highlightAsRelatedToEvent', true);
+          } else {
+            this.$.List.set('items.' + event.model.index + '.highlightAsRelatedToEvent', false);
+          }
           event.model.item.showRecord = true;
         }
       }
@@ -559,6 +567,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.filterStateActions.checkBoxUpdated({
         collectionName: this.collectionName,
         collectionData: this.gridData,
+        item: event.model.item,
         showAllSelected: this.showAllSelected
       });
     },
