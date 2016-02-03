@@ -167,9 +167,6 @@ module.exports = Reflux.createStore({
       this.selectAllCheckboxes(eventsStore, true);
     }
 
-    // ToDo: Update Checkboxes???
-
-
     // Pass data onto views
     eventsStore.trigger(eventsStore.userFilteredCollection.data());
     placesStore.trigger(placesStore.userFilteredCollection.data());
@@ -195,13 +192,16 @@ module.exports = Reflux.createStore({
       case config.EventsCollection:
 
         // Start process of updating related data tables
-        this.eventsCheckBoxesUpdated(showRecordObject.collectionData);
+        this.eventsCheckBoxUpdated(showRecordObject.collectionData);
 
         // Set property on the events store so the show All checkbox state will be maintained
         eventsStore.showAllSelected = showRecordObject.showAllSelected;
 
         break;
       case config.PlacesCollection:
+
+        // Start process of updating related data tables
+        this.placesCheckBoxUpdated(showRecordObject.item);
 
         // Set property on the events store so the show All checkbox state will be maintained
         placesStore.showAllSelected = showRecordObject.showAllSelected;
@@ -220,13 +220,18 @@ module.exports = Reflux.createStore({
 
         break;
       default:
-        return;
     }
+
+    // ToDo: Update Checkboxes???
+
+
   },
 
   // Parse the 'Place' field of each events record to build up an array of all places associated with events
   // in order to automatically select related records in Places, People and Sources collections
-  eventsCheckBoxesUpdated: function(eventsCollectionData) {
+
+  // Auto Update the Sources selected records based on the related documents field in Places
+  eventsCheckBoxUpdated: function(eventsCollectionData) {
 
     var placeArray = [];
 
@@ -241,6 +246,34 @@ module.exports = Reflux.createStore({
     });
 
     this.autoUpdatePlacesCheckboxes(uniq(placeArray));
+
+    // TODO: autoUpdateSourcesCheckbox
+
+
+  },
+
+  // Set the highlightAsRelatedToEvent property based on whether the item is selected and is related to an event
+  placesCheckBoxUpdated: function(placeCheckBoxObject) {
+
+    if (placeCheckBoxObject) {
+
+      placesStore.userFilteredCollection.copy().find({
+        '$loki': {
+          '$eq' : placeCheckBoxObject.$loki
+        }
+      }).update(function(placeObject) {
+
+        if (placeCheckBoxObject.showRecord && placeCheckBoxObject.selectedByEvent) {
+          placeObject.highlightAsRelatedToEvent = true;
+        } else {
+          placeObject.highlightAsRelatedToEvent = false;
+        }
+      });
+    }
+
+    // TODO: autoUpdateSourcesCheckbox
+
+
   },
 
   // Iterate through each record in Places collection and set showRecord to true and selectedByEvent to true
@@ -257,9 +290,11 @@ module.exports = Reflux.createStore({
         if (eventObject.showRecord) {
           placeObject.showRecord = true;
           placeObject.selectedByEvent = true;
+          placeObject.highlightAsRelatedToEvent = true;
         } else {
           placeObject.showRecord = false;
           placeObject.selectedByEvent = false;
+          placeObject.highlightAsRelatedToEvent = false;
         }
       });
     });
