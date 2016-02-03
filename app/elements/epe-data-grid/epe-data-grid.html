@@ -183,6 +183,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <paper-checkbox
                 id="SelectAllCheckbox"
                 checked$="[[showAllSelected]]"
+                on-change="selectAllRecords"
                 on-iron-change="selectAllRecords"></paper-checkbox>
             </div>
             <paper-tooltip for="checkBoxHolder" position="top">Select All</paper-tooltip>
@@ -475,23 +476,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // FIRED BY USER SELECTING CHECKBOXHOLDER: Select all checkboxes in list
     selectAllRecords: function(event) {
 
-      // Update all items in the data collection
-      this.gridData.forEach(function(record, index) {
+      if (this.gridData) {
 
-        // This is the way to make iron-list update the UI when a property of the model
-        // data changes. Need async for paper-checkbox UI to update when the select all is checked programmatically
-        // but no idea why. Polymer issue again I guess.
-        this.async(function() {
+        // Update all items in the data collection
+        this.gridData.forEach(function(record, index) {
 
-          if (event.target.checked) {
-            this.showAllSelected = true;
-            this.$.List.set('items.' + index + '.showRecord', true);
-          } else {
-            this.showAllSelected = false;
-            this.$.List.set('items.' + index + '.showRecord', false);
-          }
-        });
-      }.bind(this));
+          // This is the way to make iron-list update the UI when a property of the model
+          // data changes. Need async for paper-checkbox UI to update when the select all is checked programmatically
+          // but no idea why. Polymer issue again I guess.
+          this.async(function() {
+
+            if (event.target.checked) {
+              this.showAllSelected = true;
+              this.$.List.set('items.' + index + '.showRecord', true);
+            } else {
+              this.showAllSelected = false;
+
+              // Only set checkbox to false if user has deselected Select All checkbox not when called programmatically
+              if (event.type === 'change') {
+                this.$.List.set('items.' + index + '.showRecord', false);
+              }
+            }
+          });
+        }.bind(this));
+      }
     },
 
     // FIRED BY USER SELECTING A RECORD'S CHECKBOX: Deselect the Select All Checkbox and
