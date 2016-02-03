@@ -475,24 +475,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // FIRED BY USER SELECTING CHECKBOXHOLDER: Select all checkboxes in list
     selectAllRecords: function(event) {
 
-      if (event.target.checked) {
+      // Update all items in the data collection
+      this.gridData.forEach(function(record, index) {
 
-        this.showAllSelected = true;
+        // This is the way to make iron-list update the UI when a property of the model
+        // data changes. Need async for paper-checkbox UI to update when the select all is checked programmatically
+        // but no idea why. Polymer issue again I guess.
+        this.async(function() {
 
-        // Update all items in the data collection
-        this.gridData.forEach(function(record, index) {
-
-          // This is the way to make iron-list update the UI when a property of the model
-          // data changes. Need async for paper-checkbox UI to update when tihe select all is checked programmatically
-          // but no idea why. Polymer issue again I guess.
-          this.async(function() {
+          if (event.target.checked) {
+            this.showAllSelected = true;
             this.$.List.set('items.' + index + '.showRecord', true);
-          });
-        }.bind(this));
-
-      } else {
-        this.showAllSelected = false;
-      }
+          } else {
+            this.showAllSelected = false;
+            this.$.List.set('items.' + index + '.showRecord', false);
+          }
+        });
+      }.bind(this));
     },
 
     // FIRED BY USER SELECTING A RECORD'S CHECKBOX: Deselect the Select All Checkbox and
