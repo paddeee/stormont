@@ -228,7 +228,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </div>
               </div>
             </template>
-            <div class="selected-by-event-heading flex layout horizontal center center-justified">
+            <div class="selected-by-event-heading flex layout horizontal center center-justified"
+                 hidden$="[[hideRelatedToEventColumn]]">
               <iron-icon icon="event"
                          class="selected-by-event__heading-icon"></iron-icon>
               <paper-tooltip position="top">Item is<br/>related to<br/>a selected <br/>event</paper-tooltip>
@@ -254,7 +255,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <span>{{item.value}}</span>
                   </div>
                 </template>
-                <div class="field flex selected-by-event layout horizontal center center-justified">
+                <div class="selected-by-event field flex layout horizontal center center-justified"
+                     hidden$="[[hideRelatedToEventColumn]]">
                   <iron-icon icon="check"
                              class="selected-by-event__icon"
                              hidden$="[[!item.highlightAsRelatedToEvent]]"></iron-icon></div>
@@ -361,6 +363,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       hideViewSourceButton: {
         tye: Boolean,
         computed: 'isSource(collectionName)'
+      },
+
+      hideRelatedToEventColumn: {
+        tye: Boolean,
+        computed: 'isEvent(collectionName)'
       },
 
       fullText: {
@@ -597,15 +604,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
-    // Computed function to return true if we're looking at a 'Source' data-grid
-    isSource: function(collectionName) {
-
-      if (collectionName !== app.config.SourcesCollection || app.route === 'import') {
-        return true;
-      }
-      return false;
-    },
-
     // FIRED WHEN USER TAPS VIEW SOURCE BUTTON
     viewSourceFile: function(event) {
 
@@ -649,6 +647,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Cancel debouncer
       this.cancelDebouncer('showFullText');
+    },
+
+    // Computed function to return true if we're looking at a 'Source' data-grid
+    isSource: function(collectionName) {
+
+      if (collectionName !== app.config.SourcesCollection) {
+        return true;
+      }
+      return false;
+    },
+
+    // Computed function to return true if we're looking at a 'Event' data-grid
+    isEvent: function() {
+
+      if (this.collectionName === app.config.EventsCollection) {
+        return true;
+      }
+      return false;
     }
   });
 })();
