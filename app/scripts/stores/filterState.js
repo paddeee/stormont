@@ -9,6 +9,7 @@ var eventsStore = require('../stores/events.js');
 var placesStore = require('../stores/places.js');
 var peopleStore = require('../stores/people.js');
 var sourcesStore = require('../stores/source.js');
+var filter = require('lodash/collection/filter');
 var flatten = require('lodash/array/flatten');
 var map = require('lodash/collection/map');
 var uniq = require('lodash/array/uniq');
@@ -236,11 +237,28 @@ module.exports = Reflux.createStore({
   // Auto Update the Sources selected records based on the related documents field in Places
   eventsCheckBoxUpdated: function(showRecordObject) {
 
+    var itemArray = [];
+
+    showRecordObject.collectionData.forEach(function(event) {
+
+      var eventObject = {
+        suspects: event.Suspects,
+        victims: event.Victims,
+        witnesses: event.Witnesses,
+        place: event.Place,
+        showRecord: event.showRecord
+      };
+
+      itemArray.push(eventObject);
+    });
+
     // Auto Update related Places checkboxes
     //this.autoUpdatePlacesCheckboxes(showRecordObject.collectionData);
 
+    this.autoUpdatePlacesCheckboxes(itemArray);
+
     // Auto Update related People checkboxes
-    this.autoUpdatePeopleCheckboxes(showRecordObject);
+    this.autoUpdatePeopleCheckboxes(itemArray);
 
     // TODO: autoUpdateSourcesCheckbox
 
@@ -271,14 +289,13 @@ module.exports = Reflux.createStore({
 
   },
 
-  // Find each record in Places collection where Place matches a place in Events collection and set showRecord,
-  // selectedByEvent and highlightAsRelatedToEvent properties
-  autoUpdatePlacesCheckboxes: function(eventsCollection) {
+  // Iterate through each record in Places collection and set showRecord to true and selectedByEvent to true
+  autoUpdatePlacesCheckboxes: function(itemArray) {
 
-    placeArray.forEach(function(eventObject) {
+    itemArray.forEach(function(eventObject) {
       placesStore.userFilteredCollection.copy().find({
         'Short Name': {
-          '$eq' : eventObject.Place
+          '$eq' : eventObject.place
         }
       }).update(function(placeObject) {
 
@@ -298,41 +315,46 @@ module.exports = Reflux.createStore({
 
   // Find each record in People collection where People matches a person in Events collection and set showRecord,
   // selectedByEvent and highlightAsRelatedToEvent properties
-  autoUpdatePeopleCheckboxes: function(eventCheckBoxObject) {
+  autoUpdatePeopleCheckboxes: function(itemArray) {
 
     // Helper methods for parsing People fields
-    var splitPeople = function(event) {
-      return union(event.Suspects.split(','), event.Victims.split(','), event.Witnesses.split(','));
+    var filterSelectedEvents = function (event) {
+      return event.showRecord === true;
     };
 
-    var trimPeople = function(victim) {
-      return victim.trim();
+    // Helper methods for parsing People fields
+    var splitPeople = function (event) {
+      if (event.showRecord === true) {
+        return union(event.suspects.split(','), event.victims.split(','), event.witnesses.split(','));
+      }
     };
 
-    if (eventCheckBoxObject.item) {
+    var trimPeople = function (person) {
+      return person.trim();
+    };
 
-      // Parse People fields into single array of unique related people
-      var relatedPeopleArray = uniq(map(flatten(map(eventCheckBoxObject.collectionData, splitPeople)), trimPeople));
+    // Parse People fields into single array of unique related people
+    var relatedPeopleArray = uniq(map(flatten(map(filter(itemArray, filterSelectedEvents), splitPeople)), trimPeople));
+    console.log(relatedPeopleArray);
 
-      //eventsCollection.forEach(function(eventObject) {
-      peopleStore.userFilteredCollection.copy().find({
-        'Short Name': {
-          '$in': relatedPeopleArray
-        }
-      }).update(function (personObject) {
+    itemArray.forEach(function(eventObject) {
+      console.log('Update People - Event : ' + eventObject.place + ': ' + eventObject.showRecord);
 
-        // If the event record is selected
-        if (eventCheckBoxObject.item.showRecord) {
-          personObject.showRecord = true;
-          personObject.selectedByEvent = true;
-          personObject.highlightAsRelatedToEvent = true;
-        } else {
-          personObject.showRecord = false;
-          personObject.selectedByEvent = false;
-          personObject.highlightAsRelatedToEvent = false;
-        }
+      relatedPeopleArray.forEach(function (person) {
+
+        peopleStore.userFilteredCollection.copy().find({
+          'Short Name': {
+            '$eq': person
+          }
+        }).update(function (personObject) {
+
+          // If the event record is selected
+            personObject.showRecord = true;
+            personObject.selectedByEvent = true;
+            personObject.highlightAsRelatedToEvent = true;
+          console.log('Update People - Place : ' + personObject['Short Name'] + ': ' + personObject.showRecord);
+        });
       });
-    }
-    //});
+    });
   }
 });
