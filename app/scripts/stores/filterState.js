@@ -9,7 +9,10 @@ var eventsStore = require('../stores/events.js');
 var placesStore = require('../stores/places.js');
 var peopleStore = require('../stores/people.js');
 var sourcesStore = require('../stores/source.js');
+var flatten = require('lodash/array/flatten');
+var map = require('lodash/collection/map');
 var uniq = require('lodash/array/uniq');
+var union = require('lodash/array/union');
 
 module.exports = Reflux.createStore({
 
@@ -192,7 +195,7 @@ module.exports = Reflux.createStore({
       case config.EventsCollection:
 
         // Start process of updating related data tables
-        this.eventsCheckBoxUpdated(showRecordObject.collectionData);
+        this.eventsCheckBoxUpdated(showRecordObject);
 
         // Set property on the events store so the show All checkbox state will be maintained
         eventsStore.showAllSelected = showRecordObject.showAllSelected;
@@ -231,21 +234,13 @@ module.exports = Reflux.createStore({
   // in order to automatically select related records in Places, People and Sources collections
 
   // Auto Update the Sources selected records based on the related documents field in Places
-  eventsCheckBoxUpdated: function(eventsCollectionData) {
+  eventsCheckBoxUpdated: function(showRecordObject) {
 
-    var placeArray = [];
+    // Auto Update related Places checkboxes
+    //this.autoUpdatePlacesCheckboxes(showRecordObject.collectionData);
 
-    eventsCollectionData.forEach(function(event) {
-
-      var eventObject = {
-        place: event.Place,
-        showRecord: event.showRecord
-      };
-
-      placeArray.push(eventObject);
-    });
-
-    this.autoUpdatePlacesCheckboxes(uniq(placeArray));
+    // Auto Update related People checkboxes
+    this.autoUpdatePeopleCheckboxes(showRecordObject);
 
     // TODO: autoUpdateSourcesCheckbox
 
@@ -276,13 +271,14 @@ module.exports = Reflux.createStore({
 
   },
 
-  // Iterate through each record in Places collection and set showRecord to true and selectedByEvent to true
-  autoUpdatePlacesCheckboxes: function(placeArray) {
+  // Find each record in Places collection where Place matches a place in Events collection and set showRecord,
+  // selectedByEvent and highlightAsRelatedToEvent properties
+  autoUpdatePlacesCheckboxes: function(eventsCollection) {
 
     placeArray.forEach(function(eventObject) {
       placesStore.userFilteredCollection.copy().find({
         'Short Name': {
-          '$eq' : eventObject.place
+          '$eq' : eventObject.Place
         }
       }).update(function(placeObject) {
 
@@ -298,5 +294,45 @@ module.exports = Reflux.createStore({
         }
       });
     });
+  },
+
+  // Find each record in People collection where People matches a person in Events collection and set showRecord,
+  // selectedByEvent and highlightAsRelatedToEvent properties
+  autoUpdatePeopleCheckboxes: function(eventCheckBoxObject) {
+
+    // Helper methods for parsing People fields
+    var splitPeople = function(event) {
+      return union(event.Suspects.split(','), event.Victims.split(','), event.Witnesses.split(','));
+    };
+
+    var trimPeople = function(victim) {
+      return victim.trim();
+    };
+
+    if (eventCheckBoxObject.item) {
+
+      // Parse People fields into single array of unique related people
+      var relatedPeopleArray = uniq(map(flatten(map(eventCheckBoxObject.collectionData, splitPeople)), trimPeople));
+
+      //eventsCollection.forEach(function(eventObject) {
+      peopleStore.userFilteredCollection.copy().find({
+        'Short Name': {
+          '$in': relatedPeopleArray
+        }
+      }).update(function (personObject) {
+
+        // If the event record is selected
+        if (eventCheckBoxObject.item.showRecord) {
+          personObject.showRecord = true;
+          personObject.selectedByEvent = true;
+          personObject.highlightAsRelatedToEvent = true;
+        } else {
+          personObject.showRecord = false;
+          personObject.selectedByEvent = false;
+          personObject.highlightAsRelatedToEvent = false;
+        }
+      });
+    }
+    //});
   }
 });
