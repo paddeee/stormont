@@ -523,13 +523,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             if (event.target.checked) {
               this.showAllSelected = true;
-              //this.$.List.set('items.' + index + '.showRecord', true);
+              this.$.ListTemplate.set('items.' + index + '.showRecord', true);
             } else {
               this.showAllSelected = false;
 
               // Only set checkbox to false if user has deselected Select All checkbox not when called programmatically
               if (event.type === 'change') {
-                //this.$.List.set('items.' + index + '.showRecord', false);
+                this.$.ListTemplate.set('items.' + index + '.showRecord', false);
               }
             }
           });
@@ -547,21 +547,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Set the model showRecord and highlightAsRelatedToEvent properties
         if(event.model.item) {
-          //this.$.List.set('items.' + event.model.index + '.showRecord', false);
-          //this.$.List.set('items.' + event.model.index + '.highlightAsRelatedToEvent', false);
+          this.$.ListTemplate.set('items.' + event.model.index + '.showRecord', false);
+          this.$.ListTemplate.set('items.' + event.model.index + '.highlightAsRelatedToEvent', false);
           event.model.item.showRecord = false;
         }
       } else {
 
         // Set the model showRecord property
         if(event.model.item) {
-          //this.$.List.set('items.' + event.model.index + '.showRecord', true);
+          this.$.ListTemplate.set('items.' + event.model.index + '.showRecord', true);
 
           //
           if (event.model.item.selectedByEvent) {
-           //this.$.List.set('items.' + event.model.index + '.highlightAsRelatedToEvent', true);
+           this.$.ListTemplate.set('items.' + event.model.index + '.highlightAsRelatedToEvent', true);
           } else {
-            //this.$.List.set('items.' + event.model.index + '.highlightAsRelatedToEvent', false);
+            this.$.ListTemplate.set('items.' + event.model.index + '.highlightAsRelatedToEvent', false);
           }
           event.model.item.showRecord = true;
         }
