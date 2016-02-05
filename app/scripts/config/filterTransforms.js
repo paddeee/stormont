@@ -67,22 +67,12 @@ var peopleObject = {
       '$and': [
         {
           'Full Name': {
-            '$regex': ['', 'i']
+            '$regex' : ['', 'i']
           }
         },
         {
-          'Ethnicity': {
-            '$regex': ['', 'i']
-          }
-        },
-        {
-          'Affiliation': {
-            '$regex': ['', 'i']
-          }
-        },
-        {
-          'Role In Case': {
-            '$regex': ['', 'i']
+          'Gender': {
+            '$regex' : ['', 'i']
           }
         }]
     }
