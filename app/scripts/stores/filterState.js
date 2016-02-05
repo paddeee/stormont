@@ -19,6 +19,11 @@ module.exports = Reflux.createStore({
   init: function() {
     this.transformName = 'ViewingFilter';
 
+    // Arrays to keep track of selected related documents in each data store
+    this.selectedEventDocuments = [];
+    this.selectedPeopleDocuments = [];
+    this.selectedPlaceDocuments = [];
+
     // Register dataSourceStores's changes
     this.listenTo(dataSourceStore, this.dataSourceChanged);
   },
@@ -200,7 +205,7 @@ module.exports = Reflux.createStore({
       case config.PlacesCollection:
 
         // Auto Update related Source checkboxes
-        this.autoUpdateSourceCheckboxes(showRecordObject.collectionData);
+        //this.autoUpdateSourceCheckboxes(showRecordObject.collectionData);
 
         // Set property on the events store so the show All checkbox state will be maintained
         placesStore.showAllSelected = showRecordObject.showAllSelected;
@@ -209,7 +214,7 @@ module.exports = Reflux.createStore({
       case config.PeopleCollection:
 
         // Auto Update related Source checkboxes
-        this.autoUpdateSourceCheckboxes(showRecordObject.collectionData);
+        //this.autoUpdateSourceCheckboxes(showRecordObject.collectionData);
 
         // Set property on the events store so the show All checkbox state will be maintained
         peopleStore.showAllSelected = showRecordObject.showAllSelected;
@@ -223,23 +228,19 @@ module.exports = Reflux.createStore({
         break;
       default:
     }
-
-    // ToDo: Update Checkboxes???
-
-
   },
 
   // Auto Update the Places, People and Sources selected records
   eventsCheckBoxUpdated: function(showRecordObject) {
+
+    // Manage the Source Collection Selected Records
+    //this.autoUpdateSourceCheckboxes(showRecordObject.item, config.EventsCollection);
 
     // Auto Update related Place checkboxes
     this.autoUpdatePlacesCheckboxes(showRecordObject.collectionData);
 
     // Auto Update related People checkboxes
     this.autoUpdatePeopleCheckboxes(showRecordObject.collectionData);
-
-    // Auto Update related Source checkboxes
-    this.autoUpdateSourceCheckboxes(showRecordObject.collectionData);
   },
 
   // Iterate through each record in Places collection and set showRecord to true and selectedByEvent to true
@@ -262,8 +263,12 @@ module.exports = Reflux.createStore({
           placeObject.selectedByEvent = false;
           placeObject.highlightAsRelatedToEvent = false;
         }
-      });
-    });
+
+        // Manage the Source Collection Selected Records
+        this.autoUpdateSourceCheckboxes(placeObject, config.PlacesCollection);
+
+      }.bind(this));
+    }.bind(this));
   },
 
   // Find each record in People collection where People matches a person in Events collection and set showRecord,
@@ -300,11 +305,16 @@ module.exports = Reflux.createStore({
           '$eq': person
         }
       }).update(function (personObject) {
+
         personObject.showRecord = true;
         personObject.selectedByEvent = true;
         personObject.highlightAsRelatedToEvent = true;
-      });
-    });
+
+        // Manage the Source Collection Selected Records
+        this.autoUpdateSourceCheckboxes(personObject, config.PeopleCollection);
+
+      }.bind(this));
+    }.bind(this));
 
     // Update all People from the nonRelatedPeople array to not show
     nonRelatedPeopleArray.forEach(function (person) {
@@ -313,19 +323,93 @@ module.exports = Reflux.createStore({
           '$eq': person
         }
       }).update(function (personObject) {
+
         personObject.showRecord = false;
         personObject.selectedByEvent = false;
         personObject.highlightAsRelatedToEvent = false;
-      });
-    });
+
+        // Manage the Source Collection Selected Records
+        this.autoUpdateSourceCheckboxes(personObject, config.PeopleCollection);
+
+      }.bind(this));
+    }.bind(this));
   },
 
-  // Find each record in Source collection where Source matches a person in collection and set showRecord,
-  // selectedByEvent and highlightAsRelatedToEvent properties
-  autoUpdateSourceCheckboxes: function(itemArray) {
+  // Add or remove Supporting Documents to each data type's array to work out whether to show a Source Record or not
+  autoUpdateSourceCheckboxes: function(item, dataType) {
+
+    var eventsArray;
+    var placesArray;
+    var peopleArray;
+    var relatedSourceArray;
+
+    // Helper methods for parsing Source records
+    var trim = function (item) {
+      if (item) {
+        return item.trim();
+      }
+    };
+
+    // Manage each data type's array
+    switch(dataType) {
+      case config.EventsCollection:
+        if (item.showRecord === true) {
+          item.selectedByEvent = true;
+          this.selectedEventDocuments.push(item['Supporting Documents'].split(','));
+        } else {
+          item.selectedByEvent = false;
+          //_.remove(this.selectedEventDocuments, item['Supporting Documents']);
+        }
+        break;
+      case config.PlacesCollection:
+        if (item.showRecord === true) {
+          item.selectedByPlace = true;
+          this.selectedPlaceDocuments.push(item['Supporting Documents'].split(','));
+        } else {
+          item.selectedByPlace = false;
+          //_.remove(this.selectedPlaceDocuments, item['Supporting Documents']);
+        }
+        break;
+      case config.PeopleCollection:
+        if (item.showRecord === true) {
+          item.selectedByPeople = true;
+          this.selectedPeopleDocuments.push(item['Supporting Documents'].split(','));
+        } else {
+          item.selectedByPeople = false;
+          //_.remove(this.selectedPeopleDocuments, item['Supporting Documents']);
+        }
+        break;
+      default:
+    }
+
+    eventsArray = _.uniq(_.map(_.flatten(this.selectedEventDocuments), trim));
+    placesArray = _.uniq(_.map(_.flatten(this.selectedPlaceDocuments), trim));
+    peopleArray = _.uniq(_.map(_.flatten(this.selectedPeopleDocuments), trim));
+
+    relatedSourceArray = _.union(eventsArray, placesArray, peopleArray);
+
+    sourcesStore.userFilteredCollection.copy().find({
+      'Short Name': {
+        '$containsAny': relatedSourceArray
+      }
+    }).update(function (sourceObject) {
+      sourceObject.showRecord = true;
+      sourceObject.selectedByEvent = true;
+      sourceObject.highlightAsRelatedToEvent = true;
+    });
+
+    /*sourcesStore.userFilteredCollection.copy().find({
+      'Short Name': {
+        '$containsNone': relatedSourceArray
+      }
+    }).update(function (sourceObject) {
+      sourceObject.showRecord = false;
+      sourceObject.selectedByEvent = false;
+      sourceObject.highlightAsRelatedToEvent = true;
+    })*/
 
     // Helper methods for parsing People fields
-    var filterSelected = function (item) {
+    /*var filterSelected = function (item) {
       return item.showRecord === true;
     };
 
@@ -378,6 +462,6 @@ module.exports = Reflux.createStore({
         sourceObject.selectedByEvent = false;
         sourceObject.highlightAsRelatedToEvent = false;
       });
-    });
+    });*/
   }
 });
