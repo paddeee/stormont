@@ -355,7 +355,8 @@ module.exports = Reflux.createStore({
       case config.EventsCollection:
         if (item.showRecord === true) {
           item.selectedByEvent = true;
-          this.selectedEventDocuments.push(item['Supporting Documents'].split(','));
+          this.selectedEventDocuments = _.union(this.selectedEventDocuments, _.map(_.flatten(item['Supporting Documents'].split(','))), trim);
+          //this.selectedEventDocuments.push(_.flatten(item['Supporting Documents'].split(',')));
         } else {
           item.selectedByEvent = false;
           //_.remove(this.selectedEventDocuments, item['Supporting Documents']);
@@ -364,7 +365,8 @@ module.exports = Reflux.createStore({
       case config.PlacesCollection:
         if (item.showRecord === true) {
           item.selectedByPlace = true;
-          this.selectedPlaceDocuments.push(item['Supporting Documents'].split(','));
+          this.selectedPlaceDocuments = _.union(this.selectedPlaceDocuments, _.map(_.flatten(item['Supporting Documents'].split(','))), trim);
+          //this.selectedPlaceDocuments.push(_.flatten(item['Supporting Documents'].split(',')));
         } else {
           item.selectedByPlace = false;
           //_.remove(this.selectedPlaceDocuments, item['Supporting Documents']);
@@ -373,7 +375,8 @@ module.exports = Reflux.createStore({
       case config.PeopleCollection:
         if (item.showRecord === true) {
           item.selectedByPeople = true;
-          this.selectedPeopleDocuments.push(item['Supporting Documents'].split(','));
+          this.selectedPeopleDocuments = _.union(this.selectedPeopleDocuments, _.map(_.flatten(item['Supporting Documents'].split(','))), trim);
+          //this.selectedPeopleDocuments.push(_.flatten(item['Supporting Documents'].split(',')));
         } else {
           item.selectedByPeople = false;
           //_.remove(this.selectedPeopleDocuments, item['Supporting Documents']);
@@ -382,11 +385,7 @@ module.exports = Reflux.createStore({
       default:
     }
 
-    eventsArray = _.uniq(_.map(_.flatten(this.selectedEventDocuments), trim));
-    placesArray = _.uniq(_.map(_.flatten(this.selectedPlaceDocuments), trim));
-    peopleArray = _.uniq(_.map(_.flatten(this.selectedPeopleDocuments), trim));
-
-    relatedSourceArray = _.union(eventsArray, placesArray, peopleArray);
+    relatedSourceArray = _.union(this.selectedEventDocuments, this.selectedPlaceDocuments, this.selectedPeopleDocuments);
 
     sourcesStore.userFilteredCollection.copy().find({
       'Short Name': {
@@ -398,70 +397,34 @@ module.exports = Reflux.createStore({
       sourceObject.highlightAsRelatedToEvent = true;
     });
 
-    /*sourcesStore.userFilteredCollection.copy().find({
+    sourcesStore.userFilteredCollection.copy()/*.find({
       'Short Name': {
         '$containsNone': relatedSourceArray
       }
-    }).update(function (sourceObject) {
+    });.update(function (sourceObject) {
       sourceObject.showRecord = false;
       sourceObject.selectedByEvent = false;
-      sourceObject.highlightAsRelatedToEvent = true;
+      sourceObject.highlightAsRelatedToEvent = false;
     })*/
+    .data().forEach(function(item) {
 
-    // Helper methods for parsing People fields
-    /*var filterSelected = function (item) {
-      return item.showRecord === true;
-    };
+      var itemArray = [];
 
-    var filterNonSelected = function (item) {
-      return item.showRecord === false;
-    };
-
-    var split = function (item) {
-      if (item['Supporting Documents']) {
-        return item['Supporting Documents'].split(',');
-      }
-    };
-
-    var trim = function (item) {
-      if (item) {
-        return item.trim();
-      }
-    };
-
-    // Parse Source fields into single array of unique related source records
-    var relatedSourceArray = _.uniq(_.map(_.flatten(_.remove(_.map(_.filter(itemArray, filterSelected), split), undefined)), trim));
-
-    // Parse Source fields into single array of unique non related source records
-    var nonRelatedSourceArray = _.difference(_.uniq(_.map(_.flatten(_.remove(_.map(_.filter(itemArray, filterNonSelected), split), undefined)), trim)), relatedSourceArray);
-
-    console.log(relatedSourceArray);
-    console.log(nonRelatedSourceArray);
-
-    // Update all Source records from the relatedSourceArray array to show
-    relatedSourceArray.forEach(function (source) {
-      sourcesStore.userFilteredCollection.copy().find({
-        'Short Name': {
-          '$eq': source
+      relatedSourceArray.forEach(function(sourceName) {
+        if (item['Short Name'] === sourceName) {
+          itemArray.push(item);
         }
-      }).update(function (sourceObject) {
-        sourceObject.showRecord = true;
-        sourceObject.selectedByEvent = true;
-        sourceObject.highlightAsRelatedToEvent = true;
       });
+
+      if (!itemArray.length) {
+        item.showRecord = false;
+        item.selectedByEvent = false;
+        item.highlightAsRelatedToEvent = false;
+      }
     });
 
-    // Update all Source records from the nonRelatedSourceArray array to not show
-    nonRelatedSourceArray.forEach(function (source) {
-      sourcesStore.userFilteredCollection.copy().find({
-        'Short Name': {
-          '$eq': source
-        }
-      }).update(function (sourceObject) {
-        sourceObject.showRecord = false;
-        sourceObject.selectedByEvent = false;
-        sourceObject.highlightAsRelatedToEvent = false;
-      });
-    });*/
+    console.log(this.selectedEventDocuments);
+    console.log(this.selectedPlaceDocuments);
+    console.log(this.selectedPeopleDocuments);
   }
 });
