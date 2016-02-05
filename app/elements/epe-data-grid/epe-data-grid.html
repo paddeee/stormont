@@ -547,12 +547,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Set the model showRecord and highlightAsRelatedToEvent properties
         if(event.model.item) {
+          //this.$.List.set('items.' + event.model.index + '.showRecord', false);
+          //this.$.List.set('items.' + event.model.index + '.highlightAsRelatedToEvent', false);
           event.model.item.showRecord = false;
         }
       } else {
 
         // Set the model showRecord property
         if(event.model.item) {
+          //this.$.List.set('items.' + event.model.index + '.showRecord', true);
+
+          //
+          if (event.model.item.selectedByEvent) {
+           //this.$.List.set('items.' + event.model.index + '.highlightAsRelatedToEvent', true);
+          } else {
+            //this.$.List.set('items.' + event.model.index + '.highlightAsRelatedToEvent', false);
+          }
           event.model.item.showRecord = true;
         }
       }
