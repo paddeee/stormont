@@ -239,37 +239,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
 
         <div class="records">
-          <iron-list id="List" items="[[paginatedData]]" as="item">
-            <template id="ListTemplate">
-              <div class="list-item layout horizontal">
-                <div class="checkbox-holder">
-                  <paper-checkbox class="record-checkbox"
-                                  on-iron-change="selectRecord"
-                                  checked$="[[item.showRecord]]"></paper-checkbox>
-                </div>
-                <template is="dom-repeat" items="[[toArray(item)]]">
-                  <div class="field flex"
-                       on-mouseover="showFullText"
-                       on-mouseout="hideFullText"
-                       hidden$="[[!showField(item.name)]]">
-                    <span>{{item.value}}</span>
-                  </div>
-                </template>
-                <div class="selected-by-event field flex layout horizontal center center-justified"
-                     hidden$="[[hideRelatedToEventColumn]]">
-                  <iron-icon icon="check"
-                             class="selected-by-event__icon"
-                             hidden$="[[!item.highlightAsRelatedToEvent]]"></iron-icon></div>
-                <div class="field__source layout horizontal center center-justified" hidden$="[[hideViewSourceButton]]">
-                  <paper-button
-                    class="field__button"
-                    raised
-                    on-tap="viewSourceFile">View <iron-icon icon="description"></iron-icon>
-                  </paper-button>
-                </div>
+          <template id="ListTemplate" is="dom-repeat" items="[[paginatedData]]">
+            <div class="list-item layout horizontal">
+              <div class="checkbox-holder">
+                <paper-checkbox class="record-checkbox"
+                                on-iron-change="selectRecord"
+                                checked$="[[item.showRecord]]"></paper-checkbox>
               </div>
-            </template>
-          </iron-list>
+              <template is="dom-repeat" items="[[toArray(item)]]">
+                <div class="field flex"
+                     on-mouseover="showFullText"
+                     on-mouseout="hideFullText"
+                     hidden$="[[!showField(item.name)]]">
+                  <span>{{item.value}}</span>
+                </div>
+              </template>
+              <div class="selected-by-event field flex layout horizontal center center-justified"
+                   hidden$="[[hideRelatedToEventColumn]]">
+                <iron-icon icon="check"
+                           class="selected-by-event__icon"
+                           hidden$="[[!item.highlightAsRelatedToEvent]]"></iron-icon></div>
+              <div class="field__source layout horizontal center center-justified" hidden$="[[hideViewSourceButton]]">
+                <paper-button
+                  class="field__button"
+                  raised
+                  on-tap="viewSourceFile">View <iron-icon icon="description"></iron-icon>
+                </paper-button>
+              </div>
+            </div>
+          </template>
         </div>
 
         <!-- No records returned form filter -->
@@ -446,11 +444,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // CALLED BY OBSERVABLE ON GRIDDATA
     gridDataChanged: function() {
 
-      if(this.gridData) {
-        this.gridDataFirstRecord = this.gridData[0];
+      if (this.gridData) {
 
-        // Fire this so iron-list can calculate all list item positions correctly
-        this.$.List.fire('resize');
+        // This is the column headings
+        this.gridDataFirstRecord = this.gridData[0];
 
         // Reset Pagination to first page on grid data changing
         this.$.Paginator.currentpage = 0;
@@ -526,13 +523,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             if (event.target.checked) {
               this.showAllSelected = true;
-              this.$.List.set('items.' + index + '.showRecord', true);
+              //this.$.List.set('items.' + index + '.showRecord', true);
             } else {
               this.showAllSelected = false;
 
               // Only set checkbox to false if user has deselected Select All checkbox not when called programmatically
               if (event.type === 'change') {
-                this.$.List.set('items.' + index + '.showRecord', false);
+                //this.$.List.set('items.' + index + '.showRecord', false);
               }
             }
           });
@@ -550,22 +547,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Set the model showRecord and highlightAsRelatedToEvent properties
         if(event.model.item) {
-          this.$.List.set('items.' + event.model.index + '.showRecord', false);
-          this.$.List.set('items.' + event.model.index + '.highlightAsRelatedToEvent', false);
           event.model.item.showRecord = false;
         }
       } else {
 
         // Set the model showRecord property
         if(event.model.item) {
-          this.$.List.set('items.' + event.model.index + '.showRecord', true);
-
-          //
-          if (event.model.item.selectedByEvent) {
-            this.$.List.set('items.' + event.model.index + '.highlightAsRelatedToEvent', true);
-          } else {
-            this.$.List.set('items.' + event.model.index + '.highlightAsRelatedToEvent', false);
-          }
           event.model.item.showRecord = true;
         }
       }
