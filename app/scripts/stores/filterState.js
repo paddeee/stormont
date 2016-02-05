@@ -355,7 +355,7 @@ module.exports = Reflux.createStore({
       case config.EventsCollection:
         if (item.showRecord === true) {
           item.selectedByEvent = true;
-          this.selectedEventDocuments = _.union(this.selectedEventDocuments, _.map(_.flatten(item['Supporting Documents'].split(','))), trim);
+          this.selectedEventDocuments = _.union(this.selectedEventDocuments, _.flatten(_.map(item['Supporting Documents'].split(','), trim)));
           //this.selectedEventDocuments.push(_.flatten(item['Supporting Documents'].split(',')));
         } else {
           item.selectedByEvent = false;
@@ -365,7 +365,7 @@ module.exports = Reflux.createStore({
       case config.PlacesCollection:
         if (item.showRecord === true) {
           item.selectedByPlace = true;
-          this.selectedPlaceDocuments = _.union(this.selectedPlaceDocuments, _.map(_.flatten(item['Supporting Documents'].split(','))), trim);
+          this.selectedPlaceDocuments = _.union(this.selectedPlaceDocuments, _.flatten(_.map(item['Supporting Documents'].split(','), trim)));
           //this.selectedPlaceDocuments.push(_.flatten(item['Supporting Documents'].split(',')));
         } else {
           item.selectedByPlace = false;
@@ -375,7 +375,7 @@ module.exports = Reflux.createStore({
       case config.PeopleCollection:
         if (item.showRecord === true) {
           item.selectedByPeople = true;
-          this.selectedPeopleDocuments = _.union(this.selectedPeopleDocuments, _.map(_.flatten(item['Supporting Documents'].split(','))), trim);
+          this.selectedPeopleDocuments = _.union(this.selectedPeopleDocuments, _.flatten(_.map(item['Supporting Documents'].split(','), trim)));
           //this.selectedPeopleDocuments.push(_.flatten(item['Supporting Documents'].split(',')));
         } else {
           item.selectedByPeople = false;
@@ -423,8 +423,6 @@ module.exports = Reflux.createStore({
       }
     });
 
-    console.log(this.selectedEventDocuments);
-    console.log(this.selectedPlaceDocuments);
-    console.log(this.selectedPeopleDocuments);
+    console.log(relatedSourceArray);
   }
 });
