@@ -9,11 +9,6 @@ var eventsStore = require('../stores/events.js');
 var placesStore = require('../stores/places.js');
 var peopleStore = require('../stores/people.js');
 var sourcesStore = require('../stores/source.js');
-var filter = require('lodash/collection/filter');
-var flatten = require('lodash/array/flatten');
-var map = require('lodash/collection/map');
-var uniq = require('lodash/array/uniq');
-var union = require('lodash/array/union');
 
 module.exports = Reflux.createStore({
 
@@ -322,11 +317,12 @@ module.exports = Reflux.createStore({
       return event.showRecord === true;
     };
 
-    // Helper methods for parsing People fields
+    var filterNonSelectedEvents = function (event) {
+      return event.showRecord === false;
+    };
+
     var splitPeople = function (event) {
-      if (event.showRecord === true) {
-        return union(event.suspects.split(','), event.victims.split(','), event.witnesses.split(','));
-      }
+      return _.union(event.suspects.split(','), event.victims.split(','), event.witnesses.split(','));
     };
 
     var trimPeople = function (person) {
@@ -334,26 +330,34 @@ module.exports = Reflux.createStore({
     };
 
     // Parse People fields into single array of unique related people
-    var relatedPeopleArray = uniq(map(flatten(map(filter(itemArray, filterSelectedEvents), splitPeople)), trimPeople));
-    console.log(relatedPeopleArray);
+    var relatedPeopleArray = _.uniq(_.map(_.flatten(_.map(_.filter(itemArray, filterSelectedEvents), splitPeople)), trimPeople));
 
-    itemArray.forEach(function(eventObject) {
-      console.log('Update People - Event : ' + eventObject.place + ': ' + eventObject.showRecord);
+    // Parse People fields into single array of unique non related people
+    var nonRelatedPeopleArray = _.difference(_.uniq(_.map(_.flatten(_.map(_.filter(itemArray, filterNonSelectedEvents), splitPeople)), trimPeople)), relatedPeopleArray);
 
-      relatedPeopleArray.forEach(function (person) {
+    // Update all People from the relatedPeople array to show
+    relatedPeopleArray.forEach(function (person) {
+      peopleStore.userFilteredCollection.copy().find({
+        'Short Name': {
+          '$eq': person
+        }
+      }).update(function (personObject) {
+        personObject.showRecord = true;
+        personObject.selectedByEvent = true;
+        personObject.highlightAsRelatedToEvent = true;
+      });
+    });
 
-        peopleStore.userFilteredCollection.copy().find({
-          'Short Name': {
-            '$eq': person
-          }
-        }).update(function (personObject) {
-
-          // If the event record is selected
-            personObject.showRecord = true;
-            personObject.selectedByEvent = true;
-            personObject.highlightAsRelatedToEvent = true;
-          console.log('Update People - Place : ' + personObject['Short Name'] + ': ' + personObject.showRecord);
-        });
+    // Update all People from the nonRelatedPeople array to not show
+    nonRelatedPeopleArray.forEach(function (person) {
+      peopleStore.userFilteredCollection.copy().find({
+        'Short Name': {
+          '$eq': person
+        }
+      }).update(function (personObject) {
+        personObject.showRecord = false;
+        personObject.selectedByEvent = false;
+        personObject.highlightAsRelatedToEvent = false;
       });
     });
   }
