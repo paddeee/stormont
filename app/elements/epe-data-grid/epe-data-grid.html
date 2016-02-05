@@ -415,7 +415,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Return false if item is a loki property
     showField: function(keyName) {
 
-      if (keyName === 'meta' || keyName === '$loki' || keyName === 'showRecord' || keyName === 'selectedByEvent' || keyName === 'highlightAsRelatedToEvent') {
+      if (keyName === 'meta' || keyName === '$loki' || keyName === 'showRecord' || keyName === 'selectedByEvent' || keyName === 'highlightAsRelatedToEvent' || keyName === 'selectedByPeople' || keyName === 'selectedByPlace') {
         return false;
       }
       return true;
@@ -516,7 +516,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Update all items in the data collection
         this.gridData.forEach(function(record, index) {
 
-          // This is the way to make iron-list update the UI when a property of the model
+          // This is the way to make DOM-Repeat template update the UI when a property of the model
           // data changes. Need async for paper-checkbox UI to update when the select all is checked programmatically
           // but no idea why. Polymer issue again I guess.
           this.async(function() {
