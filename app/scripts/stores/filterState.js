@@ -199,14 +199,17 @@ module.exports = Reflux.createStore({
         break;
       case config.PlacesCollection:
 
-        // Start process of updating related data tables
-        this.placesCheckBoxUpdated(showRecordObject.item);
+        // Auto Update related Source checkboxes
+        this.autoUpdateSourceCheckboxes(showRecordObject.collectionData);
 
         // Set property on the events store so the show All checkbox state will be maintained
         placesStore.showAllSelected = showRecordObject.showAllSelected;
 
         break;
       case config.PeopleCollection:
+
+        // Auto Update related Source checkboxes
+        this.autoUpdateSourceCheckboxes(showRecordObject.collectionData);
 
         // Set property on the events store so the show All checkbox state will be maintained
         peopleStore.showAllSelected = showRecordObject.showAllSelected;
@@ -226,62 +229,17 @@ module.exports = Reflux.createStore({
 
   },
 
-  // Parse the 'Place' field of each events record to build up an array of all places associated with events
-  // in order to automatically select related records in Places, People and Sources collections
-
-  // Auto Update the Sources selected records based on the related documents field in Places
+  // Auto Update the Places, People and Sources selected records
   eventsCheckBoxUpdated: function(showRecordObject) {
 
-    var itemArray = [];
-
-    showRecordObject.collectionData.forEach(function(event) {
-
-      var eventObject = {
-        suspects: event.Suspects,
-        victims: event.Victims,
-        witnesses: event.Witnesses,
-        place: event.Place,
-        showRecord: event.showRecord
-      };
-
-      itemArray.push(eventObject);
-    });
-
-    // Auto Update related Places checkboxes
-    //this.autoUpdatePlacesCheckboxes(showRecordObject.collectionData);
-
-    this.autoUpdatePlacesCheckboxes(itemArray);
+    // Auto Update related Place checkboxes
+    this.autoUpdatePlacesCheckboxes(showRecordObject.collectionData);
 
     // Auto Update related People checkboxes
-    this.autoUpdatePeopleCheckboxes(itemArray);
+    this.autoUpdatePeopleCheckboxes(showRecordObject.collectionData);
 
-    // TODO: autoUpdateSourcesCheckbox
-
-
-  },
-
-  // Set the highlightAsRelatedToEvent property based on whether the item is selected and is related to an event
-  placesCheckBoxUpdated: function(placeCheckBoxObject) {
-
-    if (placeCheckBoxObject) {
-
-      placesStore.userFilteredCollection.copy().find({
-        '$loki': {
-          '$eq' : placeCheckBoxObject.$loki
-        }
-      }).update(function(placeObject) {
-
-        if (placeCheckBoxObject.showRecord && placeCheckBoxObject.selectedByEvent) {
-          placeObject.highlightAsRelatedToEvent = true;
-        } else {
-          placeObject.highlightAsRelatedToEvent = false;
-        }
-      });
-    }
-
-    // TODO: autoUpdateSourcesCheckbox
-
-
+    // Auto Update related Source checkboxes
+    this.autoUpdateSourceCheckboxes(showRecordObject.collectionData);
   },
 
   // Iterate through each record in Places collection and set showRecord to true and selectedByEvent to true
@@ -290,7 +248,7 @@ module.exports = Reflux.createStore({
     itemArray.forEach(function(eventObject) {
       placesStore.userFilteredCollection.copy().find({
         'Short Name': {
-          '$eq' : eventObject.place
+          '$eq' : eventObject.Place
         }
       }).update(function(placeObject) {
 
@@ -313,27 +271,27 @@ module.exports = Reflux.createStore({
   autoUpdatePeopleCheckboxes: function(itemArray) {
 
     // Helper methods for parsing People fields
-    var filterSelectedEvents = function (event) {
-      return event.showRecord === true;
+    var filterSelected = function (item) {
+      return item.showRecord === true;
     };
 
-    var filterNonSelectedEvents = function (event) {
-      return event.showRecord === false;
+    var filterNonSelected = function (item) {
+      return item.showRecord === false;
     };
 
-    var splitPeople = function (event) {
-      return _.union(event.suspects.split(','), event.victims.split(','), event.witnesses.split(','));
+    var split = function (item) {
+      return _.union(item.Suspects.split(','), item.Victims.split(','), item.Witnesses.split(','));
     };
 
-    var trimPeople = function (person) {
-      return person.trim();
+    var trim = function (item) {
+      return item.trim();
     };
 
     // Parse People fields into single array of unique related people
-    var relatedPeopleArray = _.uniq(_.map(_.flatten(_.map(_.filter(itemArray, filterSelectedEvents), splitPeople)), trimPeople));
+    var relatedPeopleArray = _.uniq(_.map(_.flatten(_.map(_.filter(itemArray, filterSelected), split)), trim));
 
     // Parse People fields into single array of unique non related people
-    var nonRelatedPeopleArray = _.difference(_.uniq(_.map(_.flatten(_.map(_.filter(itemArray, filterNonSelectedEvents), splitPeople)), trimPeople)), relatedPeopleArray);
+    var nonRelatedPeopleArray = _.difference(_.uniq(_.map(_.flatten(_.map(_.filter(itemArray, filterNonSelected), split)), trim)), relatedPeopleArray);
 
     // Update all People from the relatedPeople array to show
     relatedPeopleArray.forEach(function (person) {
@@ -358,6 +316,67 @@ module.exports = Reflux.createStore({
         personObject.showRecord = false;
         personObject.selectedByEvent = false;
         personObject.highlightAsRelatedToEvent = false;
+      });
+    });
+  },
+
+  // Find each record in Source collection where Source matches a person in collection and set showRecord,
+  // selectedByEvent and highlightAsRelatedToEvent properties
+  autoUpdateSourceCheckboxes: function(itemArray) {
+
+    // Helper methods for parsing People fields
+    var filterSelected = function (item) {
+      return item.showRecord === true;
+    };
+
+    var filterNonSelected = function (item) {
+      return item.showRecord === false;
+    };
+
+    var split = function (item) {
+      if (item['Supporting Documents']) {
+        return item['Supporting Documents'].split(',');
+      }
+    };
+
+    var trim = function (item) {
+      if (item) {
+        return item.trim();
+      }
+    };
+
+    // Parse Source fields into single array of unique related source records
+    var relatedSourceArray = _.uniq(_.map(_.flatten(_.remove(_.map(_.filter(itemArray, filterSelected), split), undefined)), trim));
+
+    // Parse Source fields into single array of unique non related source records
+    var nonRelatedSourceArray = _.difference(_.uniq(_.map(_.flatten(_.remove(_.map(_.filter(itemArray, filterNonSelected), split), undefined)), trim)), relatedSourceArray);
+
+    console.log(relatedSourceArray);
+    console.log(nonRelatedSourceArray);
+
+    // Update all Source records from the relatedSourceArray array to show
+    relatedSourceArray.forEach(function (source) {
+      sourcesStore.userFilteredCollection.copy().find({
+        'Short Name': {
+          '$eq': source
+        }
+      }).update(function (sourceObject) {
+        sourceObject.showRecord = true;
+        sourceObject.selectedByEvent = true;
+        sourceObject.highlightAsRelatedToEvent = true;
+      });
+    });
+
+    // Update all Source records from the nonRelatedSourceArray array to not show
+    nonRelatedSourceArray.forEach(function (source) {
+      sourcesStore.userFilteredCollection.copy().find({
+        'Short Name': {
+          '$eq': source
+        }
+      }).update(function (sourceObject) {
+        sourceObject.showRecord = false;
+        sourceObject.selectedByEvent = false;
+        sourceObject.highlightAsRelatedToEvent = false;
       });
     });
   }
