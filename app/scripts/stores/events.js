@@ -100,6 +100,15 @@ module.exports = Reflux.createStore({
     }
   },
 
+  // When an events collection is filtered, the removed records need to be set to not selected.
+  // Otherwise, any records in the other data types will still be selected even though the event which made
+  // them selected has been filtered out
+  setFilteredOutEventsToNotSelected: function(eventsCollection, filteredEventsCollection) {
+    _.difference(eventsCollection, filteredEventsCollection).forEach(function(eventObject) {
+      eventObject.showRecord = false;
+    });
+  },
+
   // Retrieve a transform from the db using a transform name
   updateFilterTransform: function(transformName) {
 
