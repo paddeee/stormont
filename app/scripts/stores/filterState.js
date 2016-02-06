@@ -156,6 +156,8 @@ module.exports = Reflux.createStore({
   // Event Suspects, Victims and Witnesses fields link to People's Shortname field
   autoFilterCollections: function(autoSelectCheckBoxes) {
 
+    var eventsCollection = dataSourceStore.dataSource.getCollection(app.config.EventsCollection);
+
     // Manage the filter transform name in this store and listening collection
     // stores can use it when broadcasted
     filterTransforms.transformName = this.transformName;
@@ -166,10 +168,16 @@ module.exports = Reflux.createStore({
     peopleStore.filterStateChanged(filterTransforms);
     sourcesStore.filterStateChanged(filterTransforms);
 
+    // Set all event record's 'showRecord' properties that have been filtered out, to false
+    eventsStore.setFilteredOutEventsToNotSelected(eventsCollection.data, eventsStore.userFilteredCollection.data());
+
     // Update all Event Checkboxes
     if (autoSelectCheckBoxes) {
       this.selectAllCheckboxes(eventsStore, true);
     }
+
+    // Update all data types checkboxes to only show records from filtered records
+    this.eventsCheckBoxUpdated(eventsStore.userFilteredCollection.data());
 
     // Pass data onto views
     eventsStore.trigger(eventsStore.userFilteredCollection.data());
@@ -196,7 +204,7 @@ module.exports = Reflux.createStore({
       case config.EventsCollection:
 
         // Start process of updating related data tables
-        this.eventsCheckBoxUpdated(showRecordObject);
+        this.eventsCheckBoxUpdated(showRecordObject.collectionData);
 
         // Set property on the events store so the show All checkbox state will be maintained
         eventsStore.showAllSelected = showRecordObject.showAllSelected;
@@ -231,16 +239,16 @@ module.exports = Reflux.createStore({
   },
 
   // Auto Update the Places, People and Sources selected records
-  eventsCheckBoxUpdated: function(showRecordObject) {
+  eventsCheckBoxUpdated: function(collectionData) {
 
     // Manage the Source Collection Selected Records
     //this.autoUpdateSourceCheckboxes(showRecordObject.item, config.EventsCollection);
 
     // Auto Update related Place checkboxes
-    this.autoUpdatePlacesCheckboxes(showRecordObject.collectionData);
+    this.autoUpdatePlacesCheckboxes(collectionData);
 
     // Auto Update related People checkboxes
-    this.autoUpdatePeopleCheckboxes(showRecordObject.collectionData);
+    this.autoUpdatePeopleCheckboxes(collectionData);
   },
 
   // Iterate through each record in Places collection and set showRecord to true and selectedByEvent to true
@@ -338,9 +346,6 @@ module.exports = Reflux.createStore({
   // Add or remove Supporting Documents to each data type's array to work out whether to show a Source Record or not
   autoUpdateSourceCheckboxes: function(item, dataType) {
 
-    var eventsArray;
-    var placesArray;
-    var peopleArray;
     var relatedSourceArray;
 
     // Helper methods for parsing Source records
@@ -353,30 +358,27 @@ module.exports = Reflux.createStore({
     // Manage each data type's array
     switch(dataType) {
       case config.EventsCollection:
-        if (item.showRecord === true) {
+        if (item.showRecord === true && item['Supporting Documents']) {
           item.selectedByEvent = true;
           this.selectedEventDocuments = _.union(this.selectedEventDocuments, _.flatten(_.map(item['Supporting Documents'].split(','), trim)));
-          //this.selectedEventDocuments.push(_.flatten(item['Supporting Documents'].split(',')));
         } else {
           item.selectedByEvent = false;
           //_.remove(this.selectedEventDocuments, item['Supporting Documents']);
         }
         break;
       case config.PlacesCollection:
-        if (item.showRecord === true) {
+        if (item.showRecord === true && item['Supporting Documents']) {
           item.selectedByPlace = true;
           this.selectedPlaceDocuments = _.union(this.selectedPlaceDocuments, _.flatten(_.map(item['Supporting Documents'].split(','), trim)));
-          //this.selectedPlaceDocuments.push(_.flatten(item['Supporting Documents'].split(',')));
         } else {
           item.selectedByPlace = false;
           //_.remove(this.selectedPlaceDocuments, item['Supporting Documents']);
         }
         break;
       case config.PeopleCollection:
-        if (item.showRecord === true) {
+        if (item.showRecord === true && item['Supporting Documents']) {
           item.selectedByPeople = true;
           this.selectedPeopleDocuments = _.union(this.selectedPeopleDocuments, _.flatten(_.map(item['Supporting Documents'].split(','), trim)));
-          //this.selectedPeopleDocuments.push(_.flatten(item['Supporting Documents'].split(',')));
         } else {
           item.selectedByPeople = false;
           //_.remove(this.selectedPeopleDocuments, item['Supporting Documents']);
