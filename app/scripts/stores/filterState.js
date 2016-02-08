@@ -217,11 +217,21 @@ module.exports = Reflux.createStore({
         break;
       case config.PlacesCollection:
 
+        // Manage the Source Collection Selected Records
+        if (showRecordObject.item) {
+          this.autoUpdateSourceCheckboxes(showRecordObject.item, config.PlacesCollection);
+        }
+
         // Set property on the events store so the show All checkbox state will be maintained
         placesStore.showAllSelected = showRecordObject.showAllSelected;
 
         break;
       case config.PeopleCollection:
+
+        // Manage the Source Collection Selected Records
+        if (showRecordObject.item) {
+          this.autoUpdateSourceCheckboxes(showRecordObject.item, config.PeopleCollection);
+        }
 
         // Set property on the events store so the show All checkbox state will be maintained
         peopleStore.showAllSelected = showRecordObject.showAllSelected;
@@ -370,7 +380,6 @@ module.exports = Reflux.createStore({
       case config.EventsCollection:
         if (item.showRecord === true && item['Supporting Documents']) {
           item.selectedByEvent = true;
-          //this.selectedEventDocuments = this.selectedEventDocuments.concat(_.flatten(_.map(item['Supporting Documents'].split(','), trim)));
           this.selectedEventDocuments.push(item);
         } else {
           item.selectedByEvent = false;
@@ -380,7 +389,6 @@ module.exports = Reflux.createStore({
       case config.PlacesCollection:
         if (item.showRecord === true && item['Supporting Documents']) {
           item.selectedByPlace = true;
-          //this.selectedPlaceDocuments = this.selectedPlaceDocuments.concat(_.flatten(_.map(item['Supporting Documents'].split(','), trim)));
           this.selectedPlaceDocuments.push(item);
         } else {
           item.selectedByPlace = false;
@@ -390,7 +398,6 @@ module.exports = Reflux.createStore({
       case config.PeopleCollection:
         if (item.showRecord === true && item['Supporting Documents']) {
           item.selectedByPeople = true;
-          //this.selectedPeopleDocuments = this.selectedPeopleDocuments.concat(_.flatten(_.map(item['Supporting Documents'].split(','), trim)));
           this.selectedPeopleDocuments.push(item);
         } else {
           item.selectedByPeople = false;
