@@ -549,6 +549,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if(event.model.item) {
           this.$.ListTemplate.set('items.' + event.model.index + '.showRecord', false);
           this.$.ListTemplate.set('items.' + event.model.index + '.highlightAsRelatedToEvent', false);
+          event.model.item.showRecord = false;
         }
       } else {
 
