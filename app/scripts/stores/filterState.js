@@ -236,6 +236,9 @@ module.exports = Reflux.createStore({
         break;
       default:
     }
+
+    // Let listeners know data has been updated
+    this.selectedDataChanged();
   },
 
   // Auto Update the Places, People and Sources selected records
@@ -433,18 +436,15 @@ module.exports = Reflux.createStore({
         item.highlightAsRelatedToEvent = false;
       }
     });
-
-    // Let listeners know data has been updated
-    this.selectedDataChanged();
   },
 
   // Let listeners know the userFilteredCollections have been updated
   selectedDataChanged: function() {
 
     // Pass data onto views
-    eventsStore.trigger(eventsStore.userFilteredCollection.data());
-    placesStore.trigger(placesStore.userFilteredCollection.data());
-    peopleStore.trigger(peopleStore.userFilteredCollection.data());
+    eventsStore.trigger(eventsStore.userFilteredCollection.simplesort('selectRecord', true).data());
+    placesStore.trigger(placesStore.userFilteredCollection.simplesort('selectRecord', true).data());
+    peopleStore.trigger(peopleStore.userFilteredCollection.simplesort('selectRecord', true).data());
     sourcesStore.trigger(sourcesStore);
 
     this.message = {
