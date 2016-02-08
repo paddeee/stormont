@@ -169,7 +169,7 @@ module.exports = Reflux.createStore({
     sourcesStore.filterStateChanged(filterTransforms);
 
     // Set all event record's 'showRecord' properties that have been filtered out, to false
-    eventsStore.setFilteredOutEventsToNotSelected(eventsCollection.data, eventsStore.userFilteredCollection.data());
+    eventsStore.setFilteredOutItemsToNotSelected(eventsCollection.data, eventsStore.userFilteredCollection.data());
 
     // Update all data types checkboxes to only show records from filtered records
     this.eventsCheckBoxUpdated(eventsCollection.data);
@@ -208,11 +208,6 @@ module.exports = Reflux.createStore({
     switch(showRecordObject.collectionName) {
       case config.EventsCollection:
 
-        // Manage the Source Collection Selected Records
-        if (showRecordObject.item) {
-          this.autoUpdateSourceCheckboxes(showRecordObject.item, config.EventsCollection);
-        }
-
         // Start process of updating related data tables
         this.eventsCheckBoxUpdated(showRecordObject.collectionData);
 
@@ -222,17 +217,11 @@ module.exports = Reflux.createStore({
         break;
       case config.PlacesCollection:
 
-        // Auto Update related Source checkboxes
-        //this.autoUpdateSourceCheckboxes(showRecordObject.collectionData);
-
         // Set property on the events store so the show All checkbox state will be maintained
         placesStore.showAllSelected = showRecordObject.showAllSelected;
 
         break;
       case config.PeopleCollection:
-
-        // Auto Update related Source checkboxes
-        //this.autoUpdateSourceCheckboxes(showRecordObject.collectionData);
 
         // Set property on the events store so the show All checkbox state will be maintained
         peopleStore.showAllSelected = showRecordObject.showAllSelected;
@@ -250,6 +239,11 @@ module.exports = Reflux.createStore({
 
   // Auto Update the Places, People and Sources selected records
   eventsCheckBoxUpdated: function(collectionData) {
+
+    // Manage the Source Collection Selected Records that are related to Event Supporting Documents
+    collectionData.forEach(function(eventObject) {
+      this.autoUpdateSourceCheckboxes(eventObject, config.EventsCollection);
+    }.bind(this));
 
     // Auto Update related Place checkboxes
     this.autoUpdatePlacesCheckboxes(collectionData);
@@ -416,17 +410,13 @@ module.exports = Reflux.createStore({
     relatedSourceArray = _.uniq(_.flatten(relatedSourceArray));
 
     // Update related source records to show
-    sourcesStore.userFilteredCollection.copy()/*.find({
-      'Short Name': {
-        '$containsAny': relatedSourceArray
-      }
-    })*/.where(function(sourceObject) {
+    sourcesStore.userFilteredCollection.copy().where(function(sourceObject) {
         return relatedSourceArray.indexOf(sourceObject['Short Name'].toString()) !== -1;
       })
       .update(function (sourceObject) {
-      sourceObject.showRecord = true;
-      sourceObject.selectedByEvent = true;
-      sourceObject.highlightAsRelatedToEvent = true;
+        sourceObject.showRecord = true;
+        sourceObject.selectedByEvent = true;
+        sourceObject.highlightAsRelatedToEvent = true;
     });
 
     // Update non related source records to not show
@@ -446,7 +436,5 @@ module.exports = Reflux.createStore({
         item.highlightAsRelatedToEvent = false;
       }
     });
-
-    console.log(relatedSourceArray);
   }
 });
