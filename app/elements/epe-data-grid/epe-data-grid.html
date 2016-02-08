@@ -549,7 +549,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if(event.model.item) {
           this.$.ListTemplate.set('items.' + event.model.index + '.showRecord', false);
           this.$.ListTemplate.set('items.' + event.model.index + '.highlightAsRelatedToEvent', false);
-          event.model.item.showRecord = false;
         }
       } else {
 
@@ -563,7 +562,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           } else {
             this.$.ListTemplate.set('items.' + event.model.index + '.highlightAsRelatedToEvent', false);
           }
-          event.model.item.showRecord = true;
         }
       }
 
@@ -571,7 +569,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.filterStateActions.checkBoxUpdated({
         collectionName: this.collectionName,
         collectionData: this.gridData,
-        showAllSelected: this.showAllSelected
+        showAllSelected: this.showAllSelected,
+        item: event.model.item
       });
     },
 
