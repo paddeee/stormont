@@ -22,6 +22,10 @@ module.exports = Reflux.createStore({
 
     // Register dataSourceStores's changes
     this.listenTo(filterStateStore, this.filterStateChanged);
+
+    // Create a debounced function so as this function will be called whenever any checkbox updates so need to limit it
+    // for performance reasons
+    this.debouncedCreateGeoJSON = _.debounce(this.createGeoJSON, 150);
   },
 
   // When filter state is changed we need to update the GeoJSON object
@@ -40,8 +44,22 @@ module.exports = Reflux.createStore({
   // When filter state is changed we need to update the GeoJSON object
   filterStateChanged: function() {
 
+    if (this.debouncedCreateGeoJSON) {
+      this.debouncedCreateGeoJSON();
+    }
+  },
+
+  // Create a GeoJSON Object that can be used by the Map and Timeline to visualise data
+  createGeoJSON: function() {
+
     // Create an empty GeoJSON object
-    /*var geoJSONObject = this.createGeoJSON();
+    var geoJSONObject = {
+      type: Object,
+        value: {
+        'type': 'FeatureCollection',
+        'features': []
+      }
+    };
 
     // Create Resultsets of selected records
     this.createSelectedCollections();
@@ -49,19 +67,7 @@ module.exports = Reflux.createStore({
     console.log(this.selectedEvents.data());
     console.log(this.selectedPlaces.data());
     console.log(this.selectedPeople.data());
-    console.log(this.selectedSources.data());*/
-  },
-
-  // Create a GeoJSON Object that can be used by the Map and Timeline to visualise data
-  createGeoJSON: function() {
-
-    return {
-      type: Object,
-        value: {
-        'type': 'FeatureCollection',
-        'features': []
-      }
-    };
+    console.log(this.selectedSources.data());
   },
 
   // Create a ResultSet on each store's userFilteredCollection
