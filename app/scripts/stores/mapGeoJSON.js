@@ -29,7 +29,7 @@ module.exports = Reflux.createStore({
 
     var geoJSONCollection = dataSourceStore.dataSource.getCollection(config.MapGeoJSONCollection);
 
-    // Create/Update a collection in the database
+    // Create/Update a GeoJSON collection in the database
     if (geoJSONCollection) {
       geoJSONCollection.clear();
     } else {
@@ -40,12 +40,83 @@ module.exports = Reflux.createStore({
   // When filter state is changed we need to update the GeoJSON object
   filterStateChanged: function() {
 
-    this.updateGeoJSON();
+    // Create an empty GeoJSON object
+    var geoJSONObject = this.createGeoJSON();
+
+    // Create Resultsets of selected records
+    this.createSelectedCollections();
+
+    console.log(this.selectedEvents.data());
+    console.log(this.selectedPlaces.data());
+    console.log(this.selectedPeople.data());
+    console.log(this.selectedSources.data());
   },
 
-  // Listener to changes on Presentations Store
-  updateGeoJSON: function() {
+  // Create a GeoJSON Object that can be used by the Map and Timeline to visualise data
+  createGeoJSON: function() {
 
-    console.log(dataSourceStore.dataSource);
+    return {
+      type: Object,
+        value: {
+        'type': 'FeatureCollection',
+        'features': []
+      }
+    };
+  },
+
+  // Create a ResultSet on each store's userFilteredCollection
+  createSelectedCollections: function() {
+
+    this.selectedEvents = eventsStore.userFilteredCollection.copy().find({
+      'showRecord': {
+        '$eq': true
+      }
+    });
+
+    this.selectedPlaces = placesStore.userFilteredCollection.copy().find({
+      'showRecord': {
+        '$eq': true
+      }
+    });
+
+    this.selectedPeople = peopleStore.userFilteredCollection.copy().find({
+      'showRecord': {
+        '$eq': true
+      }
+    });
+
+    this.selectedSources = sourcesStore.userFilteredCollection.copy().find({
+      'showRecord': {
+        '$eq': true
+      }
+    });
+  },
+
+  // Create a ResultSet on each store's userFilteredCollection
+  sortSelectedCollections: function() {
+
+    this.selectedEvents = eventsStore.userFilteredCollection.copy().find({
+      'showRecord': {
+        '$eq': true
+      }
+    });
+
+    this.selectedPlaces = placesStore.userFilteredCollection.copy().find({
+      'showRecord': {
+        '$eq': true
+      }
+    });
+
+    this.selectedPeople = peopleStore.userFilteredCollection.copy().find({
+      'showRecord': {
+        '$eq': true
+      }
+    });
+
+    this.selectedSources = sourcesStore.userFilteredCollection.copy().find({
+      'showRecord': {
+        '$eq': true
+      }
+    });
   }
 });
