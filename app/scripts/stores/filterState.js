@@ -208,6 +208,11 @@ module.exports = Reflux.createStore({
     switch(showRecordObject.collectionName) {
       case config.EventsCollection:
 
+        // Manage the Source Collection Selected Records
+        if (showRecordObject.item) {
+          this.autoUpdateSourceCheckboxes(showRecordObject.item, config.EventsCollection);
+        }
+
         // Start process of updating related data tables
         this.eventsCheckBoxUpdated(showRecordObject.collectionData);
 
@@ -245,9 +250,6 @@ module.exports = Reflux.createStore({
 
   // Auto Update the Places, People and Sources selected records
   eventsCheckBoxUpdated: function(collectionData) {
-
-    // Manage the Source Collection Selected Records
-    //this.autoUpdateSourceCheckboxes(showRecordObject.item, config.EventsCollection);
 
     // Auto Update related Place checkboxes
     this.autoUpdatePlacesCheckboxes(collectionData);
@@ -404,39 +406,36 @@ module.exports = Reflux.createStore({
       default:
     }
 
+    // Created array of related source shortnames to match
     mergedObjectArray = _.union(this.selectedEventDocuments, this.selectedPlaceDocuments, this.selectedPeopleDocuments);
 
     mergedObjectArray.forEach(function(item) {
-      relatedSourceArray.push(_.map(item['Supporting Documents'].split(','), trim));
+      relatedSourceArray.push(_.map(item['Supporting Documents'].toString().split(','), trim));
     });
 
     relatedSourceArray = _.uniq(_.flatten(relatedSourceArray));
 
-    sourcesStore.userFilteredCollection.copy().find({
+    // Update related source records to show
+    sourcesStore.userFilteredCollection.copy()/*.find({
       'Short Name': {
         '$containsAny': relatedSourceArray
       }
-    }).update(function (sourceObject) {
+    })*/.where(function(sourceObject) {
+        return relatedSourceArray.indexOf(sourceObject['Short Name'].toString()) !== -1;
+      })
+      .update(function (sourceObject) {
       sourceObject.showRecord = true;
       sourceObject.selectedByEvent = true;
       sourceObject.highlightAsRelatedToEvent = true;
     });
 
-    sourcesStore.userFilteredCollection.copy()/*.find({
-      'Short Name': {
-        '$containsNone': relatedSourceArray
-      }
-    });.update(function (sourceObject) {
-      sourceObject.showRecord = false;
-      sourceObject.selectedByEvent = false;
-      sourceObject.highlightAsRelatedToEvent = false;
-    })*/
-    .data().forEach(function(item) {
+    // Update non related source records to not show
+    sourcesStore.userFilteredCollection.copy().data().forEach(function(item) {
 
       var itemArray = [];
 
       relatedSourceArray.forEach(function(sourceName) {
-        if (item['Short Name'] === sourceName) {
+        if (item['Short Name'].toString() === sourceName) {
           itemArray.push(item);
         }
       });
