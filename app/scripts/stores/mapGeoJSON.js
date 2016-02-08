@@ -41,7 +41,7 @@ module.exports = Reflux.createStore({
   filterStateChanged: function() {
 
     // Create an empty GeoJSON object
-    var geoJSONObject = this.createGeoJSON();
+    /*var geoJSONObject = this.createGeoJSON();
 
     // Create Resultsets of selected records
     this.createSelectedCollections();
@@ -49,7 +49,7 @@ module.exports = Reflux.createStore({
     console.log(this.selectedEvents.data());
     console.log(this.selectedPlaces.data());
     console.log(this.selectedPeople.data());
-    console.log(this.selectedSources.data());
+    console.log(this.selectedSources.data());*/
   },
 
   // Create a GeoJSON Object that can be used by the Map and Timeline to visualise data
@@ -71,35 +71,7 @@ module.exports = Reflux.createStore({
       'showRecord': {
         '$eq': true
       }
-    });
-
-    this.selectedPlaces = placesStore.userFilteredCollection.copy().find({
-      'showRecord': {
-        '$eq': true
-      }
-    });
-
-    this.selectedPeople = peopleStore.userFilteredCollection.copy().find({
-      'showRecord': {
-        '$eq': true
-      }
-    });
-
-    this.selectedSources = sourcesStore.userFilteredCollection.copy().find({
-      'showRecord': {
-        '$eq': true
-      }
-    });
-  },
-
-  // Create a ResultSet on each store's userFilteredCollection
-  sortSelectedCollections: function() {
-
-    this.selectedEvents = eventsStore.userFilteredCollection.copy().find({
-      'showRecord': {
-        '$eq': true
-      }
-    });
+    }).simplesort('Begin Date and Time');
 
     this.selectedPlaces = placesStore.userFilteredCollection.copy().find({
       'showRecord': {
