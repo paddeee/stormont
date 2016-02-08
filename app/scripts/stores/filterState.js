@@ -195,6 +195,11 @@ module.exports = Reflux.createStore({
   // Select all checkboxes in a store
   selectAllCheckboxes: function(store, value) {
     store.showAllSelected = value;
+
+    // Set all records showRecord property to true
+    eventsStore.userFilteredCollection.update(function (sourceObject) {
+      sourceObject.showRecord = true;
+    });
   },
 
   // Update showRecord property of collections
