@@ -259,7 +259,12 @@ module.exports = Reflux.createStore({
   // Iterate through each record in Places collection and set showRecord to true and selectedByEvent to true
   autoUpdatePlacesCheckboxes: function(itemArray) {
 
+    // Used to keep track of places in case the same place is is used by an event record that isn't set to show and
+    // then removes it from being set by a previous event which was set to show.
+    var placeArray = [];
+
     itemArray.forEach(function(eventObject) {
+
       placesStore.userFilteredCollection.copy().find({
         'Short Name': {
           '$eq' : eventObject.Place
@@ -268,13 +273,16 @@ module.exports = Reflux.createStore({
 
         // If the event record is selected
         if (eventObject.showRecord) {
+          placeArray.push(placeObject);
           placeObject.showRecord = true;
           placeObject.selectedByEvent = true;
           placeObject.highlightAsRelatedToEvent = true;
         } else {
-          placeObject.showRecord = false;
-          placeObject.selectedByEvent = false;
-          placeObject.highlightAsRelatedToEvent = false;
+          if (placeArray.indexOf(placeObject) === -1) {
+            placeObject.showRecord = false;
+            placeObject.selectedByEvent = false;
+            placeObject.highlightAsRelatedToEvent = false;
+          }
         }
 
         // Manage the Source Collection Selected Records
@@ -351,7 +359,8 @@ module.exports = Reflux.createStore({
   // Add or remove Supporting Documents to each data type's array to work out whether to show a Source Record or not
   autoUpdateSourceCheckboxes: function(item, dataType) {
 
-    var relatedSourceArray;
+    var mergedObjectArray;
+    var relatedSourceArray = [];
 
     // Helper methods for parsing Source records
     var trim = function (item) {
@@ -365,34 +374,43 @@ module.exports = Reflux.createStore({
       case config.EventsCollection:
         if (item.showRecord === true && item['Supporting Documents']) {
           item.selectedByEvent = true;
-          this.selectedEventDocuments = _.union(this.selectedEventDocuments, _.flatten(_.map(item['Supporting Documents'].split(','), trim)));
+          //this.selectedEventDocuments = this.selectedEventDocuments.concat(_.flatten(_.map(item['Supporting Documents'].split(','), trim)));
+          this.selectedEventDocuments.push(item);
         } else {
           item.selectedByEvent = false;
-          //_.remove(this.selectedEventDocuments, item['Supporting Documents']);
+          _.remove(this.selectedEventDocuments, item);
         }
         break;
       case config.PlacesCollection:
         if (item.showRecord === true && item['Supporting Documents']) {
           item.selectedByPlace = true;
-          this.selectedPlaceDocuments = _.union(this.selectedPlaceDocuments, _.flatten(_.map(item['Supporting Documents'].split(','), trim)));
+          //this.selectedPlaceDocuments = this.selectedPlaceDocuments.concat(_.flatten(_.map(item['Supporting Documents'].split(','), trim)));
+          this.selectedPlaceDocuments.push(item);
         } else {
           item.selectedByPlace = false;
-          //_.remove(this.selectedPlaceDocuments, item['Supporting Documents']);
+          _.remove(this.selectedPlaceDocuments, item);
         }
         break;
       case config.PeopleCollection:
         if (item.showRecord === true && item['Supporting Documents']) {
           item.selectedByPeople = true;
-          this.selectedPeopleDocuments = _.union(this.selectedPeopleDocuments, _.flatten(_.map(item['Supporting Documents'].split(','), trim)));
+          //this.selectedPeopleDocuments = this.selectedPeopleDocuments.concat(_.flatten(_.map(item['Supporting Documents'].split(','), trim)));
+          this.selectedPeopleDocuments.push(item);
         } else {
           item.selectedByPeople = false;
-          //_.remove(this.selectedPeopleDocuments, item['Supporting Documents']);
+          _.remove(this.selectedPeopleDocuments, item);
         }
         break;
       default:
     }
 
-    relatedSourceArray = _.union(this.selectedEventDocuments, this.selectedPlaceDocuments, this.selectedPeopleDocuments);
+    mergedObjectArray = _.union(this.selectedEventDocuments, this.selectedPlaceDocuments, this.selectedPeopleDocuments);
+
+    mergedObjectArray.forEach(function(item) {
+      relatedSourceArray.push(_.map(item['Supporting Documents'].split(','), trim));
+    });
+
+    relatedSourceArray = _.uniq(_.flatten(relatedSourceArray));
 
     sourcesStore.userFilteredCollection.copy().find({
       'Short Name': {
