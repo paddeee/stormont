@@ -193,7 +193,7 @@ module.exports = Reflux.createStore({
       item.showRecord = true;
     });
 
-    this.eventsCheckBoxUpdated(eventsCollection.data);
+    this.eventsCheckBoxUpdated(eventsStore.userFilteredCollection.data());
   },
 
   // Fired from grid view when Select all checkbox is selected
