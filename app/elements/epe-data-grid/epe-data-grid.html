@@ -529,28 +529,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Update all items in the data collection
         this.gridData.forEach(function(record, index) {
 
-          // This is the way to make DOM-Repeat template update the UI when a property of the model
-          // data changes. Need async for paper-checkbox UI to update when the select all is checked programmatically
-          // but no idea why. Polymer issue again I guess.
-          this.async(function() {
+          if (event.target.checked) {
+            this.showAllSelected = true;
+            this.$.ListTemplate.set('items.' + index + '.showRecord', true);
+          } else {
+            this.showAllSelected = false;
 
-            if (event.target.checked) {
-              this.showAllSelected = true;
-              this.$.ListTemplate.set('items.' + index + '.showRecord', true);
-            } else {
-              this.showAllSelected = false;
-
-              // Only set checkbox to false if user has deselected Select All checkbox not when called programmatically
-              if (event.type === 'change') {
-                this.$.ListTemplate.set('items.' + index + '.showRecord', false);
-              }
+            // Only set checkbox to false if user has deselected Select All checkbox not when called programmatically
+            if (event.type === 'change') {
+              this.$.ListTemplate.set('items.' + index + '.showRecord', false);
             }
-          });
+          }
         }.bind(this));
 
         // Call showAllSelected action
         if (event.type === 'change') {
           this.filterStateActions.showAllSelected({
+            collectionData: this.gridData,
             collectionName: this.collectionName,
             showAllSelected: this.showAllSelected
           });
