@@ -189,7 +189,7 @@ module.exports = Reflux.createStore({
     store.showAllSelected = value;
 
     // Set all records showRecord property to true
-    eventsStore.userFilteredCollection.update(function (item) {
+    store.userFilteredCollection.update(function (item) {
       item.showRecord = true;
     });
 
@@ -200,13 +200,30 @@ module.exports = Reflux.createStore({
   // If Select All is ticked on People or Places update the Related Sources
   showAllSelected: function(showAllObject) {
 
-    if (showAllObject.collectionName === config.PlacesCollection) {
+    // Set all model item's to show record
+    showAllObject.collectionData.forEach(function(item) {
+      if (showAllObject.showAllSelected) {
+        item.showRecord = true;
+      } else {
+        item.showRecord = false;
+      }
+    });
+
+    // Events
+    if (showAllObject.collectionName === config.EventsCollection) {
+
+      this.eventsCheckBoxUpdated(showAllObject.collectionData);
+
+      // Places
+    } else if (showAllObject.collectionName === config.PlacesCollection) {
 
       placesStore.userFilteredCollection.data().forEach(function (placeObject) {
 
         // Manage the Source Collection Selected Records
         this.autoUpdateSourceCheckboxes(placeObject, config.PlacesCollection);
       }.bind(this));
+
+      // People
     } else if (showAllObject.collectionName === config.PeopleCollection) {
 
       peopleStore.userFilteredCollection.data().forEach(function (personObject) {
@@ -215,6 +232,9 @@ module.exports = Reflux.createStore({
         this.autoUpdateSourceCheckboxes(personObject, config.PeopleCollection);
       }.bind(this));
     }
+
+    // Sort the order of selected records
+    this.selectedDataChanged(true);
   },
 
   // Update showRecord property of collections
