@@ -177,6 +177,8 @@ module.exports = Reflux.createStore({
     // Update all Event Checkboxes
     if (selectAllCheckBoxes) {
       this.selectAllCheckboxes(eventsStore, true);
+
+      this.eventsCheckBoxUpdated(eventsStore.userFilteredCollection.data());
     }
 
     // Let listeners know data has been updated
@@ -192,30 +194,22 @@ module.exports = Reflux.createStore({
     store.userFilteredCollection.update(function (item) {
       item.showRecord = true;
     });
-
-    this.eventsCheckBoxUpdated(eventsStore.userFilteredCollection.data());
   },
 
   // Fired from grid view when Select all checkbox is selected
   // If Select All is ticked on People or Places update the Related Sources
   showAllSelected: function(showAllObject) {
 
-    // Set all model item's to show record
-    showAllObject.collectionData.forEach(function(item) {
-      if (showAllObject.showAllSelected) {
-        item.showRecord = true;
-      } else {
-        item.showRecord = false;
-      }
-    });
-
     // Events
     if (showAllObject.collectionName === config.EventsCollection) {
 
-      this.eventsCheckBoxUpdated(showAllObject.collectionData);
+      this.selectAllCheckboxes(eventsStore, showAllObject.showAllSelected);
+      this.eventsCheckBoxUpdated(eventsStore.userFilteredCollection.data());
 
       // Places
     } else if (showAllObject.collectionName === config.PlacesCollection) {
+
+      this.selectAllCheckboxes(placesStore, showAllObject.showAllSelected);
 
       placesStore.userFilteredCollection.data().forEach(function (placeObject) {
 
@@ -225,6 +219,8 @@ module.exports = Reflux.createStore({
 
       // People
     } else if (showAllObject.collectionName === config.PeopleCollection) {
+
+      this.selectAllCheckboxes(peopleStore, showAllObject.showAllSelected);
 
       peopleStore.userFilteredCollection.data().forEach(function (personObject) {
 
