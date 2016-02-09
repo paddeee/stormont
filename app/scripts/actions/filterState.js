@@ -6,5 +6,6 @@ module.exports = Reflux.createActions([
   'searchFilterChanged',
   'sortingChanged',
   'checkBoxUpdated',
+  'showAllSelected',
   'packageSelected'
 ]);
