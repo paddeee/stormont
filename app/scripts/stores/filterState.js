@@ -192,7 +192,7 @@ module.exports = Reflux.createStore({
 
     // Set all records showRecord property to true
     store.userFilteredCollection.update(function (item) {
-      item.showRecord = true;
+      item.showRecord = value;
     });
   },
 
