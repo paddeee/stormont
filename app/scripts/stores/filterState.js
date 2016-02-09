@@ -245,13 +245,11 @@ module.exports = Reflux.createStore({
         // Manage the Source Collection Selected Records
         if (showRecordObject.userSelected) {
           this.checkBoxUpdatedByUser(showRecordObject.item, showRecordObject.checkBoxSelected, config.PlacesCollection);
+          this.selectedDataChanged(false);
         }
 
         // Set property on the events store so the show All checkbox state will be maintained
         placesStore.showAllSelected = showRecordObject.showAllSelected;
-
-        // Let listeners know data has been updated
-        this.selectedDataChanged(!showRecordObject.userSelected);
 
         break;
       case config.PeopleCollection:
@@ -259,22 +257,17 @@ module.exports = Reflux.createStore({
         // Manage the Source Collection Selected Records
         if (showRecordObject.userSelected) {
           this.checkBoxUpdatedByUser(showRecordObject.item, showRecordObject.checkBoxSelected, config.PeopleCollection);
+          this.selectedDataChanged(false);
         }
 
         // Set property on the events store so the show All checkbox state will be maintained
         peopleStore.showAllSelected = showRecordObject.showAllSelected;
-
-        // Let listeners know data has been updated
-        this.selectedDataChanged(!showRecordObject.userSelected);
 
         break;
       case config.SourcesCollection:
 
         // Set property on the events store so the show All checkbox state will be maintained
         sourcesStore.showAllSelected = showRecordObject.showAllSelected;
-
-        // Let listeners know data has been updated
-        this.selectedDataChanged(!showRecordObject.userSelected);
 
         break;
       default:
@@ -500,6 +493,9 @@ module.exports = Reflux.createStore({
         item.highlightAsRelatedToEvent = false;
       }
     });
+
+    // Let listeners know data has been updated
+    this.selectedDataChanged(true);
   },
 
   // Let listeners know the userFilteredCollections have been updated
