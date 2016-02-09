@@ -33,7 +33,7 @@ module.exports = Reflux.createStore({
 
     // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
     // method
-    this.autoFilterCollections(false);
+    this.autoFilterCollections(false, false);
   },
 
   // Set search filter on our collectionTransform
@@ -43,7 +43,7 @@ module.exports = Reflux.createStore({
 
     // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
     // method
-    this.autoFilterCollections(true);
+    this.autoFilterCollections(true, false);
   },
 
   // Set simpleSort on our collectionTransform
@@ -53,7 +53,7 @@ module.exports = Reflux.createStore({
 
     // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
     // method
-    this.autoFilterCollections(false);
+    this.autoFilterCollections(false, false);
   },
 
   // Update filtered data based on the collection
@@ -154,7 +154,7 @@ module.exports = Reflux.createStore({
   // Filter on datastore userFilteredCollections based on linkage rules between tables
   // Event Place field links to Places Shortname field
   // Event Suspects, Victims and Witnesses fields link to People's Shortname field
-  autoFilterCollections: function (autoSelectCheckBoxes) {
+  autoFilterCollections: function (selectAllCheckBoxes, sortCheckBoxes) {
 
     var eventsCollection = dataSourceStore.dataSource.getCollection(app.config.EventsCollection);
 
@@ -175,12 +175,12 @@ module.exports = Reflux.createStore({
     this.eventsCheckBoxUpdated(eventsCollection.data);
 
     // Update all Event Checkboxes
-    if (autoSelectCheckBoxes) {
+    if (selectAllCheckBoxes) {
       this.selectAllCheckboxes(eventsStore, true);
     }
 
     // Let listeners know data has been updated
-    this.selectedDataChanged();
+    this.selectedDataChanged(sortCheckBoxes);
   },
 
   // Select all checkboxes in a store
@@ -205,6 +205,9 @@ module.exports = Reflux.createStore({
         // Set property on the events store so the show All checkbox state will be maintained
         eventsStore.showAllSelected = showRecordObject.showAllSelected;
 
+        // Let listeners know data has been updated
+        this.selectedDataChanged(true);
+
         break;
       case config.PlacesCollection:
 
@@ -215,6 +218,9 @@ module.exports = Reflux.createStore({
 
         // Set property on the events store so the show All checkbox state will be maintained
         placesStore.showAllSelected = showRecordObject.showAllSelected;
+
+        // Let listeners know data has been updated
+        this.selectedDataChanged(false);
 
         break;
       case config.PeopleCollection:
@@ -227,18 +233,21 @@ module.exports = Reflux.createStore({
         // Set property on the events store so the show All checkbox state will be maintained
         peopleStore.showAllSelected = showRecordObject.showAllSelected;
 
+        // Let listeners know data has been updated
+        this.selectedDataChanged(false);
+
         break;
       case config.SourcesCollection:
 
         // Set property on the events store so the show All checkbox state will be maintained
         sourcesStore.showAllSelected = showRecordObject.showAllSelected;
 
+        // Let listeners know data has been updated
+        this.selectedDataChanged(false);
+
         break;
       default:
     }
-
-    // Let listeners know data has been updated
-    this.selectedDataChanged();
   },
 
   // Auto Update the Places, People and Sources selected records
@@ -439,9 +448,12 @@ module.exports = Reflux.createStore({
   },
 
   // Let listeners know the userFilteredCollections have been updated
-  selectedDataChanged: function() {
+  selectedDataChanged: function(sortCheckBoxes) {
 
-    var sortedRecords = this.sortBySelectedRecords();
+    // Only sort when checkboxes have been ticked, not when a sort has been done
+    if (sortCheckBoxes) {
+      this.sortBySelectedRecords();
+    }
 
     // Pass data onto views
     eventsStore.trigger(eventsStore.userFilteredCollection.data());
