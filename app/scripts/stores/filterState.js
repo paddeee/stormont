@@ -156,7 +156,7 @@ module.exports = Reflux.createStore({
   // Event Suspects, Victims and Witnesses fields link to People's Shortname field
   autoFilterCollections: function (selectAllCheckBoxes, sortCheckBoxes) {
 
-    var eventsCollection = dataSourceStore.dataSource.getCollection(app.config.EventsCollection);
+    var eventsCollection = dataSourceStore.dataSource.getCollection(config.EventsCollection);
 
     // Manage the filter transform name in this store and listening collection
     // stores can use it when broadcasted
@@ -185,12 +185,15 @@ module.exports = Reflux.createStore({
 
   // Select all checkboxes in a store
   selectAllCheckboxes: function (store, value) {
+
     store.showAllSelected = value;
 
     // Set all records showRecord property to true
     eventsStore.userFilteredCollection.update(function (item) {
       item.showRecord = true;
     });
+
+    this.eventsCheckBoxUpdated(eventsCollection.data);
   },
 
   // Update showRecord property of collections
@@ -200,7 +203,14 @@ module.exports = Reflux.createStore({
       case config.EventsCollection:
 
         // Start process of updating related data tables
-        this.eventsCheckBoxUpdated(showRecordObject.collectionData);
+        if (showRecordObject.userSelected) {
+          this.eventsCheckBoxUpdated(showRecordObject.collectionData);
+        }
+
+        // If there has been a change to Select all, start the process of updating related data tables
+        if (eventsStore.showAllSelected !== showRecordObject.showAllSelected) {
+          this.eventsCheckBoxUpdated(showRecordObject.collectionData);
+        }
 
         // Set property on the events store so the show All checkbox state will be maintained
         eventsStore.showAllSelected = showRecordObject.showAllSelected;
@@ -212,8 +222,8 @@ module.exports = Reflux.createStore({
       case config.PlacesCollection:
 
         // Manage the Source Collection Selected Records
-        if (showRecordObject.item) {
-          this.autoUpdateSourceCheckboxes(showRecordObject.item, config.PlacesCollection);
+        if (showRecordObject.userSelected) {
+          this.checkBoxUpdatedByUser(showRecordObject.item, showRecordObject.checkBoxSelected, config.PlacesCollection);
         }
 
         // Set property on the events store so the show All checkbox state will be maintained
@@ -226,8 +236,8 @@ module.exports = Reflux.createStore({
       case config.PeopleCollection:
 
         // Manage the Source Collection Selected Records
-        if (showRecordObject.item) {
-          this.autoUpdateSourceCheckboxes(showRecordObject.item, config.PeopleCollection);
+        if (showRecordObject.userSelected) {
+          this.checkBoxUpdatedByUser(showRecordObject.item, showRecordObject.checkBoxSelected, config.PeopleCollection);
         }
 
         // Set property on the events store so the show All checkbox state will be maintained
@@ -265,6 +275,21 @@ module.exports = Reflux.createStore({
     this.autoUpdatePeopleCheckboxes(collectionData);
   },
 
+  // Whena checkbox has been manually updated
+  checkBoxUpdatedByUser: function(item, checkBoxSelected, collectionName) {
+
+    if (checkBoxSelected) {
+      item.showRecord = true;
+      item.userSelected = true;
+    } else {
+      item.showRecord = false;
+      item.userSelected = false;
+    }
+
+    // Manage the Source Collection Selected Records
+    this.autoUpdateSourceCheckboxes(item, collectionName);
+  },
+
   // Iterate through each record in Places collection and set showRecord to true and selectedByEvent to true
   autoUpdatePlacesCheckboxes: function (itemArray) {
 
@@ -288,7 +313,12 @@ module.exports = Reflux.createStore({
           placeObject.highlightAsRelatedToEvent = true;
         } else {
           if (placeArray.indexOf(placeObject) === -1) {
-            placeObject.showRecord = false;
+
+            // Only hide record if the user hadn't manually selected it
+            if (!placeObject.userSelected) {
+              placeObject.showRecord = false;
+            }
+
             placeObject.selectedByEvent = false;
             placeObject.highlightAsRelatedToEvent = false;
           }
@@ -354,7 +384,11 @@ module.exports = Reflux.createStore({
         }
       }).update(function (personObject) {
 
-        personObject.showRecord = false;
+        // Only hide record if the user hadn't manually selected it
+        if (!personObject.userSelected) {
+          personObject.showRecord = false;
+        }
+
         personObject.selectedByEvent = false;
         personObject.highlightAsRelatedToEvent = false;
 
