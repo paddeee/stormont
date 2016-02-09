@@ -441,10 +441,12 @@ module.exports = Reflux.createStore({
   // Let listeners know the userFilteredCollections have been updated
   selectedDataChanged: function() {
 
+    var sortedRecords = this.sortBySelectedRecords();
+
     // Pass data onto views
-    eventsStore.trigger(eventsStore.userFilteredCollection.simplesort('selectRecord', true).data());
-    placesStore.trigger(placesStore.userFilteredCollection.simplesort('selectRecord', true).data());
-    peopleStore.trigger(peopleStore.userFilteredCollection.simplesort('selectRecord', true).data());
+    eventsStore.trigger(eventsStore.userFilteredCollection.data());
+    placesStore.trigger(placesStore.userFilteredCollection.data());
+    peopleStore.trigger(peopleStore.userFilteredCollection.data());
     sourcesStore.trigger(sourcesStore);
 
     this.message = {
@@ -452,5 +454,12 @@ module.exports = Reflux.createStore({
     };
 
     this.trigger(this);
+  },
+
+  // Sort the collections by selected records
+  sortBySelectedRecords: function() {
+    placesStore.userFilteredCollection.simplesort('showRecord', true).data();
+    peopleStore.userFilteredCollection.simplesort('showRecord', true).data();
+    sourcesStore.userFilteredCollection.simplesort('showRecord', true).data();
   }
 });
