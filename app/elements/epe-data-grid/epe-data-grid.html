@@ -288,7 +288,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </div>
           <epe-paginator
             id="Paginator"
-            perpage="50"
+            perpage="3"
             items="{{paginatedData}}"
             data="[[gridData]]"
             show-first="true"
@@ -320,6 +320,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     is: 'epe-data-grid',
 
     properties: {
+
+      collectionName: {
+        type: String,
+        observer: 'collectionNameChanged'
+      },
 
       gridData: {
         type: Array,
@@ -442,6 +447,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       return 0;
     },
 
+    // CALLED BY OBSERVABLE ON COLLECTIONNAME
+    collectionNameChanged: function() {
+
+      // Reset Pagination to first page on collection name changing
+      this.$.Paginator.currentpage = 0;
+    },
+
     // CALLED BY OBSERVABLE ON GRIDDATA
     gridDataChanged: function() {
 
@@ -451,7 +463,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.gridDataFirstRecord = this.gridData[0];
 
         // Reset Pagination to first page on grid data changing
-        this.$.Paginator.currentpage = 0;
+        //this.$.Paginator.currentpage = 0;
       }
     },
 
