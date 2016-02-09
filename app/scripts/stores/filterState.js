@@ -242,7 +242,6 @@ module.exports = Reflux.createStore({
         break;
       case config.PlacesCollection:
 
-        // Manage the Source Collection Selected Records
         if (showRecordObject.userSelected) {
           this.checkBoxUpdatedByUser(showRecordObject.item, showRecordObject.checkBoxSelected, config.PlacesCollection);
           this.selectedDataChanged(false);
@@ -254,7 +253,6 @@ module.exports = Reflux.createStore({
         break;
       case config.PeopleCollection:
 
-        // Manage the Source Collection Selected Records
         if (showRecordObject.userSelected) {
           this.checkBoxUpdatedByUser(showRecordObject.item, showRecordObject.checkBoxSelected, config.PeopleCollection);
           this.selectedDataChanged(false);
@@ -289,7 +287,7 @@ module.exports = Reflux.createStore({
     this.autoUpdatePeopleCheckboxes(collectionData);
   },
 
-  // Whena checkbox has been manually updated
+  // When a checkbox has been manually updated
   checkBoxUpdatedByUser: function(item, checkBoxSelected, collectionName) {
 
     if (checkBoxSelected) {
@@ -302,6 +300,9 @@ module.exports = Reflux.createStore({
 
     // Manage the Source Collection Selected Records
     this.autoUpdateSourceCheckboxes(item, collectionName);
+
+    // Sort the order of Source records to selected
+    this.sortBySelectedSourceRecords();
   },
 
   // Iterate through each record in Places collection and set showRecord to true and selectedByEvent to true
@@ -493,9 +494,6 @@ module.exports = Reflux.createStore({
         item.highlightAsRelatedToEvent = false;
       }
     });
-
-    // Let listeners know data has been updated
-    this.selectedDataChanged(true);
   },
 
   // Let listeners know the userFilteredCollections have been updated
@@ -523,6 +521,12 @@ module.exports = Reflux.createStore({
   sortBySelectedRecords: function() {
     placesStore.userFilteredCollection.simplesort('showRecord', true).data();
     peopleStore.userFilteredCollection.simplesort('showRecord', true).data();
+    this.sortBySelectedSourceRecords();
+  },
+
+  // Sort the collections by selected source records
+  // Needed because of scenario that all data tables can order sources
+  sortBySelectedSourceRecords: function() {
     sourcesStore.userFilteredCollection.simplesort('showRecord', true).data();
   }
 });
