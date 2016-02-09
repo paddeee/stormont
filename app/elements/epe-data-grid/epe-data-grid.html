@@ -244,6 +244,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <div class="checkbox-holder">
                 <paper-checkbox class="record-checkbox"
                                 on-iron-change="selectRecord"
+                                on-change="selectRecord"
                                 checked$="[[item.showRecord]]"></paper-checkbox>
               </div>
               <template is="dom-repeat" items="[[toArray(item)]]">
@@ -415,7 +416,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Return false if item is a loki property
     showField: function(keyName) {
 
-      if (keyName === 'meta' || keyName === '$loki' || keyName === 'showRecord' || keyName === 'selectedByEvent' || keyName === 'highlightAsRelatedToEvent' || keyName === 'selectedByPeople' || keyName === 'selectedByPlace') {
+      if (keyName === 'meta' || keyName === '$loki' || keyName === 'showRecord' || keyName === 'selectedByEvent' || keyName === 'highlightAsRelatedToEvent' || keyName === 'selectedByPeople' || keyName === 'selectedByPlace' || keyName === 'userSelected') {
         return false;
       }
       return true;
@@ -541,17 +542,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // call filterStateChanged action
     selectRecord: function(event) {
 
+      var checkBoxSelected;
+
       // Deselect the Select All Checkbox if checkbox is being de-selected
       if (!event.target.checked) {
+        checkBoxSelected = false;
         this.showAllSelected = false;
 
         // Set the model showRecord and highlightAsRelatedToEvent properties
         if(event.model.item) {
           this.$.ListTemplate.set('items.' + event.model.index + '.showRecord', false);
-          this.$.ListTemplate.set('items.' + event.model.index + '.highlightAsRelatedToEvent', false);
-          event.model.item.showRecord = false;
+          //this.$.ListTemplate.set('items.' + event.model.index + '.highlightAsRelatedToEvent', false);
         }
       } else {
+
+        checkBoxSelected = true;
 
         // Set the model showRecord property
         if(event.model.item) {
@@ -561,7 +566,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           if (event.model.item.selectedByEvent) {
            this.$.ListTemplate.set('items.' + event.model.index + '.highlightAsRelatedToEvent', true);
           } else {
-            this.$.ListTemplate.set('items.' + event.model.index + '.highlightAsRelatedToEvent', false);
+            //this.$.ListTemplate.set('items.' + event.model.index + '.highlightAsRelatedToEvent', false);
           }
         }
       }
@@ -571,7 +576,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         collectionName: this.collectionName,
         collectionData: this.gridData,
         showAllSelected: this.showAllSelected,
-        item: event.model.item
+        item: event.model.item,
+        checkBoxSelected: checkBoxSelected,
+        userSelected: event.type === 'change'
       });
     },
 
