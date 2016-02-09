@@ -43,7 +43,7 @@ module.exports = Reflux.createStore({
 
     // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
     // method
-    this.autoFilterCollections(true, false);
+    this.autoFilterCollections(true, false, searchFilterObject);
   },
 
   // Set simpleSort on our collectionTransform
@@ -154,7 +154,7 @@ module.exports = Reflux.createStore({
   // Filter on datastore userFilteredCollections based on linkage rules between tables
   // Event Place field links to Places Shortname field
   // Event Suspects, Victims and Witnesses fields link to People's Shortname field
-  autoFilterCollections: function (selectAllCheckBoxes, sortCheckBoxes) {
+  autoFilterCollections: function (selectAllCheckBoxes, sortCheckBoxes, filterObject) {
 
     var eventsCollection = dataSourceStore.dataSource.getCollection(config.EventsCollection);
 
@@ -168,18 +168,19 @@ module.exports = Reflux.createStore({
     peopleStore.filterStateChanged(filterTransforms);
     sourcesStore.filterStateChanged(filterTransforms);
 
-    // Set all event record's 'showRecord' properties that have been filtered out, to false
-    eventsStore.setFilteredOutItemsToNotSelected(eventsCollection.data, eventsStore.userFilteredCollection.data());
+    //if (filterObject && filterObject.collectionName === config.EventsCollection) {
 
-    // Update all data types checkboxes to only show records from filtered records
-    this.eventsCheckBoxUpdated(eventsCollection.data);
+      // Set all event record's 'showRecord' properties that have been filtered out, to false
+      eventsStore.setFilteredOutItemsToNotSelected(eventsCollection.data, eventsStore.userFilteredCollection.data());
 
-    // Update all Event Checkboxes
-    if (selectAllCheckBoxes) {
-      this.selectAllCheckboxes(eventsStore, true);
+      // Update all data types checkboxes to only show records from filtered records
+      this.eventsCheckBoxUpdated(eventsCollection.data);
 
-      this.eventsCheckBoxUpdated(eventsStore.userFilteredCollection.data());
-    }
+      // Update all Event Checkboxes
+      if (selectAllCheckBoxes) {
+        this.selectAllCheckboxes(eventsStore, true);
+      }
+    //}
 
     // Let listeners know data has been updated
     this.selectedDataChanged(sortCheckBoxes);
