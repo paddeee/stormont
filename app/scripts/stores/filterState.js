@@ -196,6 +196,27 @@ module.exports = Reflux.createStore({
     this.eventsCheckBoxUpdated(eventsCollection.data);
   },
 
+  // Fired from grid view when Select all checkbox is selected
+  // If Select All is ticked on People or Places update the Related Sources
+  showAllSelected: function(showAllObject) {
+
+    if (showAllObject.collectionName === config.PlacesCollection) {
+
+      placesStore.userFilteredCollection.data().forEach(function (placeObject) {
+
+        // Manage the Source Collection Selected Records
+        this.autoUpdateSourceCheckboxes(placeObject, config.PlacesCollection);
+      }.bind(this));
+    } else if (showAllObject.collectionName === config.PeopleCollection) {
+
+      peopleStore.userFilteredCollection.data().forEach(function (personObject) {
+
+        // Manage the Source Collection Selected Records
+        this.autoUpdateSourceCheckboxes(personObject, config.PeopleCollection);
+      }.bind(this));
+    }
+  },
+
   // Update showRecord property of collections
   checkBoxUpdated: function (showRecordObject) {
 
@@ -230,7 +251,7 @@ module.exports = Reflux.createStore({
         placesStore.showAllSelected = showRecordObject.showAllSelected;
 
         // Let listeners know data has been updated
-        this.selectedDataChanged(false);
+        this.selectedDataChanged(!showRecordObject.userSelected);
 
         break;
       case config.PeopleCollection:
@@ -244,7 +265,7 @@ module.exports = Reflux.createStore({
         peopleStore.showAllSelected = showRecordObject.showAllSelected;
 
         // Let listeners know data has been updated
-        this.selectedDataChanged(false);
+        this.selectedDataChanged(!showRecordObject.userSelected);
 
         break;
       case config.SourcesCollection:
@@ -253,7 +274,7 @@ module.exports = Reflux.createStore({
         sourcesStore.showAllSelected = showRecordObject.showAllSelected;
 
         // Let listeners know data has been updated
-        this.selectedDataChanged(false);
+        this.selectedDataChanged(!showRecordObject.userSelected);
 
         break;
       default:

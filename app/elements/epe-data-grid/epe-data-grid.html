@@ -535,6 +535,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
           });
         }.bind(this));
+
+        // Call showAllSelected action
+        if (event.type === 'change') {
+          this.filterStateActions.showAllSelected({
+            collectionName: this.collectionName,
+            showAllSelected: this.showAllSelected
+          });
+        }
       }
     },
 
@@ -552,7 +560,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Set the model showRecord and highlightAsRelatedToEvent properties
         if(event.model.item) {
           this.$.ListTemplate.set('items.' + event.model.index + '.showRecord', false);
-          //this.$.ListTemplate.set('items.' + event.model.index + '.highlightAsRelatedToEvent', false);
         }
       } else {
 
@@ -562,11 +569,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if(event.model.item) {
           this.$.ListTemplate.set('items.' + event.model.index + '.showRecord', true);
 
-          //
+          // Set highlight tick
           if (event.model.item.selectedByEvent) {
            this.$.ListTemplate.set('items.' + event.model.index + '.highlightAsRelatedToEvent', true);
-          } else {
-            //this.$.ListTemplate.set('items.' + event.model.index + '.highlightAsRelatedToEvent', false);
           }
         }
       }
