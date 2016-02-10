@@ -124,7 +124,7 @@ module.exports = Reflux.createStore({
     this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
 
     // Update the collection resulting from the transform
-    this.userFilteredCollection = collectionToAddTransformTo.chain(transformName).data();
+    this.userFilteredCollection = collectionToAddTransformTo.chain(transformName);
 
     // Set viewingSource property to false
     this.viewingSource = false;
@@ -153,7 +153,7 @@ module.exports = Reflux.createStore({
     this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
 
     // Update the collection resulting from the transform
-    this.userFilteredCollection = collectionToAddTransformTo.chain(transformName).data();
+    this.userFilteredCollection = collectionToAddTransformTo.chain(transformName);
 
     // Set viewingSource property to false
     this.viewingSource = false;
