@@ -68,17 +68,17 @@ module.exports = Reflux.createStore({
     console.log('filterState - updateFilteredData');
 
     switch (searchFilterObject.collectionName) {
-      case config.EventsCollection:
-        filterTransforms[config.EventsCollection].filters = this.createFilterObject(searchFilterObject);
+      case config.EventsCollection.name:
+        filterTransforms[config.EventsCollection.name].filters = this.createFilterObject(searchFilterObject);
         break;
-      case config.PlacesCollection:
-        filterTransforms[config.PlacesCollection].filters = this.createFilterObject(searchFilterObject);
+      case config.PlacesCollection.name:
+        filterTransforms[config.PlacesCollection.name].filters = this.createFilterObject(searchFilterObject);
         break;
-      case config.PeopleCollection:
-        filterTransforms[config.PeopleCollection].filters = this.createFilterObject(searchFilterObject);
+      case config.PeopleCollection.name:
+        filterTransforms[config.PeopleCollection.name].filters = this.createFilterObject(searchFilterObject);
         break;
-      case config.SourcesCollection:
-        filterTransforms[config.SourcesCollection].filters = this.createFilterObject(searchFilterObject);
+      case config.SourcesCollection.name:
+        filterTransforms[config.SourcesCollection.name].filters = this.createFilterObject(searchFilterObject);
         break;
       default:
         console.error('No collection Name');
@@ -90,17 +90,17 @@ module.exports = Reflux.createStore({
   updateSortedData: function (sortingObject) {
 
     switch (sortingObject.collectionName) {
-      case config.EventsCollection:
-        filterTransforms[config.EventsCollection].sorting = this.createSortingObject(sortingObject);
+      case config.EventsCollection.name:
+        filterTransforms[config.EventsCollection.name].sorting = this.createSortingObject(sortingObject);
         break;
-      case config.PlacesCollection:
-        filterTransforms[config.PlacesCollection].sorting = this.createSortingObject(sortingObject);
+      case config.PlacesCollection.name:
+        filterTransforms[config.PlacesCollection.name].sorting = this.createSortingObject(sortingObject);
         break;
-      case config.PeopleCollection:
-        filterTransforms[config.PeopleCollection].sorting = this.createSortingObject(sortingObject);
+      case config.PeopleCollection.name:
+        filterTransforms[config.PeopleCollection.name].sorting = this.createSortingObject(sortingObject);
         break;
-      case config.SourcesCollection:
-        filterTransforms[config.SourcesCollection].sorting = this.createSortingObject(sortingObject);
+      case config.SourcesCollection.name:
+        filterTransforms[config.SourcesCollection.name].sorting = this.createSortingObject(sortingObject);
         break;
       default:
         console.error('No collection Name');
@@ -165,7 +165,7 @@ module.exports = Reflux.createStore({
   // Event Suspects, Victims and Witnesses fields link to People's Shortname field
   autoFilterCollections: function (selectAllCheckBoxes, sortCheckBoxes) {
 
-    var eventsCollection = dataSourceStore.dataSource.getCollection(config.EventsCollection);
+    var eventsCollection = dataSourceStore.dataSource.getCollection(config.EventsCollection.name);
 
     // Manage the filter transform name in this store and listening collection
     // stores can use it when broadcasted
@@ -180,7 +180,7 @@ module.exports = Reflux.createStore({
     // Set all event record's 'showRecord' properties that have been filtered out, to false
     eventsStore.setFilteredOutItemsToNotSelected(eventsCollection.data, eventsStore.userFilteredCollection.data());
 
-    // Update all Event Checkboxes
+    // Update all Checkboxes
     if (selectAllCheckBoxes) {
       this.selectAllCheckboxes(eventsStore, true);
     }
@@ -208,31 +208,31 @@ module.exports = Reflux.createStore({
   showAllSelected: function(showAllObject) {
 
     // Events
-    if (showAllObject.collectionName === config.EventsCollection) {
+    if (showAllObject.collectionName === config.EventsCollection.name) {
 
       this.selectAllCheckboxes(eventsStore, showAllObject.showAllSelected);
       this.eventsCheckBoxUpdated(eventsStore.userFilteredCollection.data());
 
       // Places
-    } else if (showAllObject.collectionName === config.PlacesCollection) {
+    } else if (showAllObject.collectionName === config.PlacesCollection.name) {
 
       this.selectAllCheckboxes(placesStore, showAllObject.showAllSelected);
 
       placesStore.userFilteredCollection.data().forEach(function (placeObject) {
 
         // Manage the Source Collection Selected Records
-        this.autoUpdateSourceCheckboxes(placeObject, config.PlacesCollection);
+        this.autoUpdateSourceCheckboxes(placeObject, config.PlacesCollection.name);
       }.bind(this));
 
       // People
-    } else if (showAllObject.collectionName === config.PeopleCollection) {
+    } else if (showAllObject.collectionName === config.PeopleCollection.name) {
 
       this.selectAllCheckboxes(peopleStore, showAllObject.showAllSelected);
 
       peopleStore.userFilteredCollection.data().forEach(function (personObject) {
 
         // Manage the Source Collection Selected Records
-        this.autoUpdateSourceCheckboxes(personObject, config.PeopleCollection);
+        this.autoUpdateSourceCheckboxes(personObject, config.PeopleCollection.name);
       }.bind(this));
     }
 
@@ -244,7 +244,7 @@ module.exports = Reflux.createStore({
   checkBoxUpdated: function (showRecordObject) {
 
     switch (showRecordObject.collectionName) {
-      case config.EventsCollection:
+      case config.EventsCollection.name:
 
         // Start process of updating related data tables
         if (showRecordObject.userSelected) {
@@ -263,10 +263,10 @@ module.exports = Reflux.createStore({
         this.selectedDataChanged(true);
 
         break;
-      case config.PlacesCollection:
+      case config.PlacesCollection.name:
 
         if (showRecordObject.userSelected) {
-          this.checkBoxUpdatedByUser(showRecordObject.item, showRecordObject.checkBoxSelected, config.PlacesCollection);
+          this.checkBoxUpdatedByUser(showRecordObject.item, showRecordObject.checkBoxSelected, config.PlacesCollection.name);
           this.selectedDataChanged(false);
         }
 
@@ -274,10 +274,10 @@ module.exports = Reflux.createStore({
         placesStore.showAllSelected = showRecordObject.showAllSelected;
 
         break;
-      case config.PeopleCollection:
+      case config.PeopleCollection.name:
 
         if (showRecordObject.userSelected) {
-          this.checkBoxUpdatedByUser(showRecordObject.item, showRecordObject.checkBoxSelected, config.PeopleCollection);
+          this.checkBoxUpdatedByUser(showRecordObject.item, showRecordObject.checkBoxSelected, config.PeopleCollection.name);
           this.selectedDataChanged(false);
         }
 
@@ -285,7 +285,7 @@ module.exports = Reflux.createStore({
         peopleStore.showAllSelected = showRecordObject.showAllSelected;
 
         break;
-      case config.SourcesCollection:
+      case config.SourcesCollection.name:
 
         // Set property on the events store so the show All checkbox state will be maintained
         sourcesStore.showAllSelected = showRecordObject.showAllSelected;
@@ -300,7 +300,7 @@ module.exports = Reflux.createStore({
 
     // Manage the Source Collection Selected Records that are related to Event Supporting Documents
     collectionData.forEach(function (eventObject) {
-      this.autoUpdateSourceCheckboxes(eventObject, config.EventsCollection);
+      this.autoUpdateSourceCheckboxes(eventObject, config.EventsCollection.name);
     }.bind(this));
 
     // Auto Update related Place checkboxes
@@ -363,7 +363,7 @@ module.exports = Reflux.createStore({
         }
 
         // Manage the Source Collection Selected Records
-        this.autoUpdateSourceCheckboxes(placeObject, config.PlacesCollection);
+        this.autoUpdateSourceCheckboxes(placeObject, config.PlacesCollection.name);
 
       }.bind(this));
     }.bind(this));
@@ -409,7 +409,7 @@ module.exports = Reflux.createStore({
         personObject.highlightAsRelatedToEvent = true;
 
         // Manage the Source Collection Selected Records
-        this.autoUpdateSourceCheckboxes(personObject, config.PeopleCollection);
+        this.autoUpdateSourceCheckboxes(personObject, config.PeopleCollection.name);
 
       }.bind(this));
     }.bind(this));
@@ -431,7 +431,7 @@ module.exports = Reflux.createStore({
         personObject.highlightAsRelatedToEvent = false;
 
         // Manage the Source Collection Selected Records
-        this.autoUpdateSourceCheckboxes(personObject, config.PeopleCollection);
+        this.autoUpdateSourceCheckboxes(personObject, config.PeopleCollection.name);
 
       }.bind(this));
     }.bind(this));
@@ -452,7 +452,7 @@ module.exports = Reflux.createStore({
 
     // Manage each data type's array
     switch (dataType) {
-      case config.EventsCollection:
+      case config.EventsCollection.name:
         if (item.showRecord === true && item['Supporting Documents']) {
           item.selectedByEvent = true;
           this.selectedEventDocuments.push(item);
@@ -461,7 +461,7 @@ module.exports = Reflux.createStore({
           _.remove(this.selectedEventDocuments, item);
         }
         break;
-      case config.PlacesCollection:
+      case config.PlacesCollection.name:
         if (item.showRecord === true && item['Supporting Documents']) {
           item.selectedByPlace = true;
           this.selectedPlaceDocuments.push(item);
@@ -470,7 +470,7 @@ module.exports = Reflux.createStore({
           _.remove(this.selectedPlaceDocuments, item);
         }
         break;
-      case config.PeopleCollection:
+      case config.PeopleCollection.name:
         if (item.showRecord === true && item['Supporting Documents']) {
           item.selectedByPeople = true;
           this.selectedPeopleDocuments.push(item);

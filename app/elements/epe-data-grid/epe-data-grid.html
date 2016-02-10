@@ -667,7 +667,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Computed function to return true if we're looking at a 'Source' data-grid
     isSource: function(collectionName) {
 
-      if (collectionName !== app.config.SourcesCollection) {
+      if (collectionName !== app.config.SourcesCollection.name) {
         return true;
       }
       return false;
@@ -676,7 +676,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Computed function to return true if we're looking at a 'Event' data-grid
     isEvent: function() {
 
-      if (this.collectionName === app.config.EventsCollection) {
+      if (this.collectionName === app.config.EventsCollection.name) {
         return true;
       }
       return false;

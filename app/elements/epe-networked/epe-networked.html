@@ -84,7 +84,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
 
-    <paper-drawer-panel force-narrow id="paperDrawerPanel">
+    <!-- All the attributes are to try and prevent the bug where menu drags out when clicking near edge of screen. None work -->
+    <paper-drawer-panel id="paperDrawerPanel"
+                        force-narrow
+                        disableEdgeSwipe="true"
+                        disableSwipe="true"
+                        dragging="false"
+                        edgeSwipeSensitivity="0">
 
       <!-- Drawer Scroll Header Panel -->
       <paper-scroll-header-panel drawer fixed>
