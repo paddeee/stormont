@@ -168,19 +168,16 @@ module.exports = Reflux.createStore({
     peopleStore.filterStateChanged(filterTransforms);
     sourcesStore.filterStateChanged(filterTransforms);
 
-    //if (filterObject && filterObject.collectionName === config.EventsCollection) {
+    // Set all event record's 'showRecord' properties that have been filtered out, to false
+    eventsStore.setFilteredOutItemsToNotSelected(eventsCollection.data, eventsStore.userFilteredCollection.data());
 
-      // Set all event record's 'showRecord' properties that have been filtered out, to false
-      eventsStore.setFilteredOutItemsToNotSelected(eventsCollection.data, eventsStore.userFilteredCollection.data());
+    // Update all Event Checkboxes
+    if (selectAllCheckBoxes) {
+      this.selectAllCheckboxes(eventsStore, true);
+    }
 
-      // Update all data types checkboxes to only show records from filtered records
-      this.eventsCheckBoxUpdated(eventsCollection.data);
-
-      // Update all Event Checkboxes
-      if (selectAllCheckBoxes) {
-        this.selectAllCheckboxes(eventsStore, true);
-      }
-    //}
+    // Update all data types checkboxes to only show records from filtered records
+    this.eventsCheckBoxUpdated(eventsCollection.data);
 
     // Let listeners know data has been updated
     this.selectedDataChanged(sortCheckBoxes);
