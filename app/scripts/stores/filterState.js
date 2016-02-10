@@ -29,15 +29,21 @@ module.exports = Reflux.createStore({
   },
 
   // Set the filteredData Object
-  dataSourceChanged: function () {
+  dataSourceChanged: function (dataSourceBroadcast) {
 
-    // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
-    // method
-    this.autoFilterCollections(false, false);
+    // Don't do this on load or import
+    if (dataSourceBroadcast.dataSource.message.type !== 'collectionImported' && dataSourceBroadcast.dataSource.message.type !== 'dataBaseLoaded') {
+
+      // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
+      // method
+      this.autoFilterCollections(false, false);
+    }
+
   },
 
   // Set search filter on our collectionTransform
   searchFilterChanged: function (searchFilterObject) {
+    console.log('filterState - searchFilterChanged');
 
     this.updateFilteredData(searchFilterObject);
 
@@ -59,6 +65,7 @@ module.exports = Reflux.createStore({
   // Update filtered data based on the collection
   // ToDo: Need to make this dynamic based on passed in fields
   updateFilteredData: function (searchFilterObject) {
+    console.log('filterState - updateFilteredData');
 
     switch (searchFilterObject.collectionName) {
       case config.EventsCollection:
@@ -102,6 +109,8 @@ module.exports = Reflux.createStore({
 
   // Create a filter transform object from a filter Object
   createFilterObject: function (searchFilterObject) {
+    console.log('filterState - createFilterObject');
+
 
     var transform = {
       type: 'find',
