@@ -9,7 +9,7 @@ var presentationsStore = require('../stores/presentations.js');
 module.exports = Reflux.createStore({
 
   // Name to use for this collection
-  collectionName: config.EventsCollection,
+  collectionName: config.EventsCollection.name,
 
   // Data storage for all collections
   dataSource: null,

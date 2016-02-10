@@ -9,6 +9,8 @@ var eventsObject = {
       '$and': [
         {
           'Full Name': {
+            // Bring back Full Name for Murder OR Kindnapping BUT NOT PersonA
+            // '$regex': ['(?:(?:Murder)(?:[^PersonA]*))|(?:(?:Rape)(?:[^PersonA]*))', 'i']
             '$regex': ['', 'i']
           }
         },
@@ -110,9 +112,9 @@ var sourcesObject = {
 
 var filterTransforms = {};
 
-filterTransforms[config.EventsCollection] = eventsObject;
-filterTransforms[config.PlacesCollection] = placesObject;
-filterTransforms[config.PeopleCollection] = peopleObject;
-filterTransforms[config.SourcesCollection] = sourcesObject;
+filterTransforms[config.EventsCollection.name] = eventsObject;
+filterTransforms[config.PlacesCollection.name] = placesObject;
+filterTransforms[config.PeopleCollection.name] = peopleObject;
+filterTransforms[config.SourcesCollection.name] = sourcesObject;
 
 module.exports = filterTransforms;
