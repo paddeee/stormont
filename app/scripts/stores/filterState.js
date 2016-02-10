@@ -43,7 +43,7 @@ module.exports = Reflux.createStore({
 
     // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
     // method
-    this.autoFilterCollections(true, false, searchFilterObject);
+    this.autoFilterCollections(true, true, searchFilterObject);
   },
 
   // Set simpleSort on our collectionTransform
@@ -154,7 +154,7 @@ module.exports = Reflux.createStore({
   // Filter on datastore userFilteredCollections based on linkage rules between tables
   // Event Place field links to Places Shortname field
   // Event Suspects, Victims and Witnesses fields link to People's Shortname field
-  autoFilterCollections: function (selectAllCheckBoxes, sortCheckBoxes, filterObject) {
+  autoFilterCollections: function (selectAllCheckBoxes, sortCheckBoxes) {
 
     var eventsCollection = dataSourceStore.dataSource.getCollection(config.EventsCollection);
 
