@@ -124,10 +124,10 @@ module.exports = Reflux.createStore({
     }
 
     // Update the collection resulting from the transform
-    this.userFilteredCollection = collectionToAddTransformTo.chain(transformName).data();
+    this.userFilteredCollection = collectionToAddTransformTo.chain(transformName);
 
     // Send collection object out to all listeners
-    this.trigger(this.userFilteredCollection);
+    this.trigger(this.userFilteredCollection.data());
   },
 
   // Reset a transform on this collection
@@ -150,10 +150,10 @@ module.exports = Reflux.createStore({
     this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
 
     // Update the collection resulting from the transform
-    this.userFilteredCollection = collectionToAddTransformTo.chain(transformName).data();
+    this.userFilteredCollection = collectionToAddTransformTo.chain(transformName);
 
     // Send collection object out to all listeners
-    this.trigger(this.userFilteredCollection);
+    this.trigger(this.userFilteredCollection.data());
   },
 
   //
