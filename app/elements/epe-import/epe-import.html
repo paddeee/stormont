@@ -102,6 +102,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               csv-type="[[importedFileType]]"
               csv-parser="[[csvParser]]"
               on-file-imported="fileImported"
+              on-import-failed="importFailedHandler"
               on-import-finished="importFinishedHandler">
             </epe-parse-spreadsheet>
           </paper-material>
@@ -141,6 +142,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
     </paper-toast>
 
+    <paper-toast id="ImportFailedToast" duration="10000">
+      <h2><span>[[importFailed.title]]</span></h2>
+      <div>
+        <div>[[importFailed.message]]</div>
+        <div class="toast-button-container layout horizontal">
+          <paper-button tabindex="0" class="affirmitive flex custom" on-tap="closeToast">
+            <iron-icon icon="check"></iron-icon>OK
+          </paper-button>
+        </div>
+      </div>
+    </paper-toast>
+
   </template>
 </dom-module>
 <script>
@@ -157,6 +170,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       importFinished: {
+        type: Object,
+        value: null
+      },
+
+      importFailed: {
         type: Object,
         value: null
       },
@@ -183,6 +201,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       this.push('importedFiles', fileObject);
+    },
+
+    // TRIGGERED BY EVENT FIRED ON CHILD ELEMENT: Import failed
+    importFailedHandler: function(importData) {
+
+      this.importFailed = importData.detail;
+
+      this.importing = false;
+
+      // Delay by a second as the spinner hiding is delayed by a second
+      this.async(function() {
+
+        // Show dialog message
+        this.$.ImportFailedToast.show();
+      }, 1000);
     },
 
     // TRIGGERED BY EVENT FIRED ON CHILD ELEMENT: Import completed

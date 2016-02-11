@@ -11,6 +11,37 @@ module.exports = Reflux.createStore({
   // this will set up listeners to all publishers in ImportActions, using onKeyname (or keyname) as callbacks
   listenables: [ImportActions, DataSourceActions],
 
+  init: function() {
+    this.eventsSchemaFields = [];
+    this.placesSchemaFields = [];
+    this.peopleSchemaFields = [];
+    this.sourcesSchemaFields = [];
+  },
+
+  // Create arrays based on fields in schema to validate imported files
+  createSchemaArrays: function() {
+
+    // Events
+    config.EventsCollection.fields.forEach(function(object) {
+      this.eventsSchemaFields.push(object.name);
+    }.bind(this));
+
+    // Places
+    config.PlacesCollection.fields.forEach(function(object) {
+      this.placesSchemaFields.push(object.name);
+    }.bind(this));
+
+    // People
+    config.PeopleCollection.fields.forEach(function(object) {
+      this.peopleSchemaFields.push(object.name);
+    }.bind(this));
+
+    // Sources
+    config.SourcesCollection.fields.forEach(function(object) {
+      this.sourcesSchemaFields.push(object.name);
+    }.bind(this));
+  },
+
   // When a CSV file has been selected by an Administrator
   importFile: function (fileObject) {
 
@@ -19,7 +50,11 @@ module.exports = Reflux.createStore({
     var dataCollection = dataSource.getCollection(fileObject.collectionName);
 
     // Parse the CSV into an array
-    collectionArray = this.parseCSV(fileObject.CSV);
+    collectionArray = this.parseCSV(fileObject);
+
+    if (!collectionArray) {
+      return false;
+    }
 
     // Create/Update a collection in the database
     if (dataCollection) {
@@ -38,16 +73,28 @@ module.exports = Reflux.createStore({
 
     // Call collectionImported method on DataSource store
     dataSourceStore.collectionImported(dataSource);
+
+    return true;
   },
 
   // When a bunch of data files have been imported by an Administrator
   onFilesImported: function (filesArray) {
 
     var dataSource = dataSourceStore.dataSource;
+    var fileFailed = false;
 
+    this.createSchemaArrays();
+
+    // If any files failed set flag so we don't save the database
     filesArray.forEach(function(fileObject) {
-      this.importFile(fileObject);
+      if (!this.importFile(fileObject)) {
+        fileFailed = true;
+      }
     }.bind(this));
+
+    if (fileFailed) {
+      return;
+    }
 
     // Save database
     dataSource.saveDatabase(function() {
@@ -63,14 +110,16 @@ module.exports = Reflux.createStore({
   },
 
   // Create an array of cellObjects which can be iterated through to return a dataCollection
-  parseCSV: function (CSV) {
+  parseCSV: function (fileObject) {
 
     var headingRow = 1;
+    var collectionName = fileObject.collectionName;
     var cellArray;
     var dataCollection = [];
     var cellRow;
     var headingsHash = {};
-    var sheet = CSV.Sheets[CSV.SheetNames[0]];
+    var sheet = fileObject.CSV.Sheets[fileObject.CSV.SheetNames[0]];
+    var fileInvalid = false;
 
     // Create an array of cellObjects
     cellArray = this.createCellArray(sheet);
@@ -98,7 +147,18 @@ module.exports = Reflux.createStore({
       // If the cell comes from the row of headings, keep a record in the temporary headingsHash
       if (cellRow === headingRow) {
 
-        headingsHash[cellLetterIdentifier] = cellObject[cellIdentifier].v;
+        if (this.validateFieldName(collectionName, cellObject[cellIdentifier].v)) {
+          headingsHash[cellLetterIdentifier] = cellObject[cellIdentifier].v;
+        } else {
+
+          fileInvalid = true;
+
+          this.trigger({
+            type: 'collectionFailed',
+            collectionName: fileObject.collectionName,
+            message: 'Field Name "' + cellObject[cellIdentifier].v + '" does not match the "' + collectionName + '" schema in the config file.'
+          });
+        }
 
       } else {
 
@@ -112,9 +172,46 @@ module.exports = Reflux.createStore({
         dataRecord.showRecord = false;
       }
 
-    }, this);
+    }.bind(this));
 
-    return dataCollection;
+    if (fileInvalid) {
+      return false;
+    } else {
+      return dataCollection;
+    }
+  },
+
+  // Validate the incoming fieldName for a collection exists in the schema
+  validateFieldName: function (collectionName, fieldName) {
+
+    var validFieldName = false;
+
+    switch (collectionName) {
+      case config.EventsCollection.name:
+        if (_.indexOf(this.eventsSchemaFields, fieldName) !== -1) {
+          validFieldName = true;
+        }
+        break;
+      case config.PlacesCollection.name:
+        if (_.indexOf(this.placesSchemaFields, fieldName) !== -1) {
+          validFieldName = true;
+        }
+        break;
+      case config.PeopleCollection.name:
+        if (_.indexOf(this.peopleSchemaFields, fieldName) !== -1) {
+          validFieldName = true;
+        }
+        break;
+      case config.SourcesCollection.name:
+        if (_.indexOf(this.sourcesSchemaFields, fieldName) !== -1) {
+          validFieldName = true;
+        }
+        break;
+      default:
+        validFieldName = true;
+    }
+
+    return validFieldName;
   },
 
   // Create an array of cellObjects which can be iterated through to generate our dataCollection

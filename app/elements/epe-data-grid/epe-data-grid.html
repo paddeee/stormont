@@ -421,7 +421,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Return false if item is a loki property
     showField: function(keyName) {
 
-      if (keyName === 'meta' || keyName === '$loki' || keyName === 'showRecord' || keyName === 'selectedByEvent' || keyName === 'highlightAsRelatedToEvent' || keyName === 'selectedByPeople' || keyName === 'selectedByPlace' || keyName === 'userSelected') {
+      // Do for all collections
+      var fieldsToDisplay = [];
+      var schemaFields = app.config.EventsCollection.fields;
+
+      // Create array of Field Names for objects with display set to true
+      schemaFields.forEach(function(object) {
+        if (object.display === 'true') {
+          fieldsToDisplay.push(object.name);
+        }
+      });
+
+      if (_.indexOf(fieldsToDisplay, keyName) === -1) {
         return false;
       }
       return true;

@@ -164,13 +164,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         if (importMessage.type === 'fileImported') {
           this.fire('file-imported', importMessage);
-        } else if(importMessage.type === 'success') {
+
+        } else if (importMessage.type === 'success') {
 
           // Reset array
           this.validFiles = [];
           this.sheetsArray = [];
           this.fire('import-finished', importMessage);
+
+        } else if (importMessage.type === 'collectionFailed') {
+
+          // Reset array
+          this.validFiles = [];
+          this.sheetsArray = [];
+
+          // Reset array
+          this.fire('import-failed', importMessage);
         }
+
 
         // Reset input file type
         //this.$.files.value = '';

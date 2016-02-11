@@ -38,7 +38,6 @@ module.exports = Reflux.createStore({
       // method
       this.autoFilterCollections(false, false);
     }
-
   },
 
   // Set search filter on our collectionTransform
