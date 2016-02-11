@@ -421,20 +421,42 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Return false if item is a loki property
     showField: function(keyName) {
 
-      // Do for all collections
-      var fieldsToDisplay = [];
-      var schemaFields = app.config.EventsCollection.fields;
+      var schemaFieldsToDisplay = [];
 
-      // Create array of Field Names for objects with display set to true
-      schemaFields.forEach(function(object) {
-        if (object.display === 'true') {
-          fieldsToDisplay.push(object.name);
-        }
-      });
+      switch (this.collectionName) {
+        case app.config.EventsCollection.name:
+          app.config.EventsCollection.fields.forEach(function(object) {
+            if (object.display === 'true') {
+              schemaFieldsToDisplay.push(object.name);
+            }
+          }.bind(this));
+          break;
+        case app.config.PlacesCollection.name:
+          app.config.PlacesCollection.fields.forEach(function(object) {
+            if (object.display === 'true') {
+              schemaFieldsToDisplay.push(object.name);
+            }
+          }.bind(this));
+          break;
+        case app.config.PeopleCollection.name:
+          app.config.PeopleCollection.fields.forEach(function(object) {
+            if (object.display === 'true') {
+              schemaFieldsToDisplay.push(object.name);
+            }
+          }.bind(this));
+        case app.config.SourcesCollection.name:
+          app.config.SourcesCollection.fields.forEach(function(object) {
+            if (object.display === 'true') {
+              schemaFieldsToDisplay.push(object.name);
+            }
+          }.bind(this));
+          break;
+      }
 
-      if (_.indexOf(fieldsToDisplay, keyName) === -1) {
+      if (_.indexOf(schemaFieldsToDisplay, keyName) === -1) {
         return false;
       }
+
       return true;
     },
 
