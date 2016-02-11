@@ -163,8 +163,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-tab name="Place"
                      data-path="/data-grid/Place"
                      on-tap="tabNavigate">PLACES</paper-tab>
-          <paper-tab name="Sources"
-                     data-path="/data-grid/Sources"
+          <paper-tab name="Document"
+                     data-path="/data-grid/Document"
                      on-tap="tabNavigate">SOURCE</paper-tab>
         </paper-tabs>
 
@@ -343,7 +343,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // When the events data is updated, update our grid data
         this.eventsStore.listen(function(eventsData) {
 
-          this.eventsData = this.filterVisibleRecords(eventsData);
+          this.eventsData = eventsData;
 
           if (this.params) {
 
@@ -359,7 +359,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // When the places data is updated, update our grid data
         this.placesStore.listen(function (placesData) {
 
-          this.placesData = this.filterVisibleRecords(placesData);
+          this.placesData = placesData;
 
           if (this.params) {
 
@@ -375,7 +375,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // When the people data is updated, update our grid data
         this.peopleStore.listen(function (peopleData) {
 
-          this.peopleData = this.filterVisibleRecords(peopleData);
+          this.peopleData = peopleData;
 
           if (this.params) {
 
@@ -391,7 +391,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // When the source data is updated, update our grid data
         this.sourceStore.listen(function (sourceData) {
 
-          this.sourceData = this.filterVisibleRecords(sourceData.userFilteredCollection.data());
+          this.sourceData = sourceData.userFilteredCollection.data();
 
           if (this.params) {
 
@@ -410,14 +410,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.presentationState = presentationsStore.presentationState;
         }.bind(this));
       }
-    },
-
-    // Return a filtered collection that removes objects that are not set to display
-    filterVisibleRecords: function(collection) {
-
-      return collection.filter(function(object) {
-        object.display === 'true';
-      });
     },
 
     // When a tab is selected set the collectionData if available
