@@ -167,6 +167,10 @@ module.exports = Reflux.createStore({
 
     var eventsCollection = dataSourceStore.dataSource.getCollection(config.EventsCollection.name);
 
+    if (!eventsCollection) {
+      return;
+    }
+
     // Manage the filter transform name in this store and listening collection
     // stores can use it when broadcasted
     filterTransforms.transformName = this.transformName;
