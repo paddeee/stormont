@@ -172,13 +172,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.sheetsArray = [];
           this.fire('import-finished', importMessage);
 
-        } else if (importMessage.type === 'collectionFailed') {
+        } else if (importMessage instanceof Array) {
 
           // Reset array
           this.validFiles = [];
           this.sheetsArray = [];
-
-          // Reset array
+          // Fire to parent element
           this.fire('import-failed', importMessage);
         }
 

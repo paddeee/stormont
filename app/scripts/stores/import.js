@@ -16,6 +16,7 @@ module.exports = Reflux.createStore({
     this.placesSchemaFields = [];
     this.peopleSchemaFields = [];
     this.sourcesSchemaFields = [];
+    this.errorArray = [];
   },
 
   // Create arrays based on fields in schema to validate imported files
@@ -45,15 +46,16 @@ module.exports = Reflux.createStore({
   // When a CSV file has been selected by an Administrator
   importFile: function (fileObject) {
 
-    var collectionArray;
+    var parsedFile;
     var dataSource = dataSourceStore.dataSource;
     var dataCollection = dataSource.getCollection(fileObject.collectionName);
 
     // Parse the CSV into an array
-    collectionArray = this.parseCSV(fileObject);
+    parsedFile = this.parseCSV(fileObject);
 
-    if (!collectionArray) {
-      return false;
+    // If file import failed
+    if (!(parsedFile instanceof Array)) {
+      return parsedFile;
     }
 
     // Create/Update a collection in the database
@@ -64,7 +66,7 @@ module.exports = Reflux.createStore({
     }
 
     // Insert the array into the database collection
-    this.populateCollection(collectionArray, dataCollection, fileObject.collectionName);
+    this.populateCollection(parsedFile, dataCollection, fileObject.collectionName);
 
     dataSource.message = {
       type: 'collectionImported',
@@ -81,18 +83,23 @@ module.exports = Reflux.createStore({
   onFilesImported: function (filesArray) {
 
     var dataSource = dataSourceStore.dataSource;
-    var fileFailed = false;
 
     this.createSchemaArrays();
 
     // If any files failed set flag so we don't save the database
     filesArray.forEach(function(fileObject) {
-      if (!this.importFile(fileObject)) {
-        fileFailed = true;
+
+      var importFile = this.importFile(fileObject);
+
+      if (typeof importFile !== 'boolean') {
+        this.errorArray.push(importFile);
       }
     }.bind(this));
 
-    if (fileFailed) {
+    // If any file import has failed send array of fail objects
+    if (this.errorArray.length) {
+      this.trigger(this.errorArray);
+      this.errorArray = [];
       return;
     }
 
@@ -119,7 +126,7 @@ module.exports = Reflux.createStore({
     var cellRow;
     var headingsHash = {};
     var sheet = fileObject.CSV.Sheets[fileObject.CSV.SheetNames[0]];
-    var fileInvalid = false;
+    var fileInvalid;
 
     // Create an array of cellObjects
     cellArray = this.createCellArray(sheet);
@@ -150,14 +157,11 @@ module.exports = Reflux.createStore({
         if (this.validateFieldName(collectionName, cellObject[cellIdentifier].v)) {
           headingsHash[cellLetterIdentifier] = cellObject[cellIdentifier].v;
         } else {
-
-          fileInvalid = true;
-
-          this.trigger({
+          fileInvalid = {
             type: 'collectionFailed',
             collectionName: fileObject.collectionName,
             message: 'Field Name "' + cellObject[cellIdentifier].v + '" does not match the "' + collectionName + '" schema in the config file.'
-          });
+          };
         }
 
       } else {
@@ -175,7 +179,7 @@ module.exports = Reflux.createStore({
     }.bind(this));
 
     if (fileInvalid) {
-      return false;
+      return fileInvalid;
     } else {
       return dataCollection;
     }
