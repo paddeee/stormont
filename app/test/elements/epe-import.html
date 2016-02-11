@@ -146,17 +146,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           $radioPlaces = epeImport.querySelector('paper-radio-button[name=Places]');
         });
 
-        it('should show the correct title when landing on import-parse', function (done) {
+        it('should show the correct title when landing on import', function (done) {
 
-          epeImport.importRoute = 'import-parse';
+          epeImport.importRoute = 'import';
 
           $sectionName.textContent.should.equal('Import CaseMap File');
           done();
         });
 
-        it('should show the correct title when selecting a file type on import-parse', function (done) {
+        it('should show the correct title when selecting a file type on import', function (done) {
 
-          epeImport.importRoute = 'import-parse';
+          epeImport.importRoute = 'import';
 
           // Select Places Radio button
           MockInteractions.tap($radioPlaces);
