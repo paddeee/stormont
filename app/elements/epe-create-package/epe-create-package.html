@@ -343,7 +343,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // When the events data is updated, update our grid data
         this.eventsStore.listen(function(eventsData) {
 
-          this.eventsData = eventsData;
+          this.eventsData = this.filterVisibleRecords(eventsData);
 
           if (this.params) {
 
@@ -359,7 +359,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // When the places data is updated, update our grid data
         this.placesStore.listen(function (placesData) {
 
-          this.placesData = placesData;
+          this.placesData = this.filterVisibleRecords(placesData);
 
           if (this.params) {
 
@@ -375,7 +375,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // When the people data is updated, update our grid data
         this.peopleStore.listen(function (peopleData) {
 
-          this.peopleData = peopleData;
+          this.peopleData = this.filterVisibleRecords(peopleData);
 
           if (this.params) {
 
@@ -391,7 +391,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // When the source data is updated, update our grid data
         this.sourceStore.listen(function (sourceData) {
 
-          this.sourceData = sourceData.userFilteredCollection.data();
+          this.sourceData = this.filterVisibleRecords(sourceData.userFilteredCollection.data());
 
           if (this.params) {
 
@@ -410,6 +410,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.presentationState = presentationsStore.presentationState;
         }.bind(this));
       }
+    },
+
+    // Return a filtered collection that removes objects that are not set to display
+    filterVisibleRecords: function(collection) {
+
+      return collection.filter(function(object) {
+        object.display === 'true';
+      });
     },
 
     // When a tab is selected set the collectionData if available
