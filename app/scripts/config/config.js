@@ -94,7 +94,7 @@ var config = {
       filter: 'gte'
     },
     {
-      name: 'Date of Death',
+      name: 'Date of death',
       display: 'true',
       filter: 'lte'
     },
