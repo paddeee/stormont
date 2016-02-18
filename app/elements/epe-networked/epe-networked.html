@@ -43,8 +43,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     paper-scroll-header-panel #mainContainer {
-      @apply(--layout-flex);
-      @apply(--layout-vertical);
+    @apply(--layout-flex);
+    @apply(--layout-vertical);
     }
 
     paper-scroll-header-panel.hide-header {
@@ -77,9 +77,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     paper-drawer-panel {
-      --paper-drawer-panel-drawer-container: {
-        z-index: 2;
-      };
+    --paper-drawer-panel-drawer-container: {
+       z-index: 2;
+     };
     }
   </style>
   <template>
@@ -167,16 +167,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                  on-tap="toggleFilterDisplay">
                 <paper-icon-button icon="filter-list"></paper-icon-button>
               </a>
-              <!--<a data-route="/create-package/profile"
-                 href="/create-package/profile"
-                 id="ProfileButton">
-                <paper-icon-button icon="social:people"></paper-icon-button>
-              </a>
-              <a data-route="/create-package/data-grid/Document"
-                 href="/create-package/data-grid/Document"
-                 id="SourceButton">
-                <paper-icon-button icon="description"></paper-icon-button>
-              </a>-->
             </div>
 
             <!-- Editing Navigation Toolbar -->
@@ -192,19 +182,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <paper-icon-button icon="maps:map"></paper-icon-button>
               </a>
               <a id="FilterButton"
-                on-tap="toggleFilterDisplay">
+                 on-tap="toggleFilterDisplay">
                 <paper-icon-button icon="filter-list"></paper-icon-button>
               </a>
-              <!--<a data-route="/edit-package/profile"
-                 href="/edit-package/profile"
-                 id="ProfileButton">
-                <paper-icon-button icon="social:people"></paper-icon-button>
-              </a>
-              <a data-route="/edit-package/data-grid/Document"
-                 href="/edit-package/data-grid/Document"
-                 id="SourceButton">
-                <paper-icon-button icon="description"></paper-icon-button>
-              </a>-->
             </div>
           </div>
 
@@ -213,8 +193,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-tooltip for="MenuButton" offset="0">Show Menu</paper-tooltip>
           <paper-tooltip for="DataGridButton" offset="0">Data Grid</paper-tooltip>
           <paper-tooltip for="MapButton" offset="0">Map</paper-tooltip>
-          <paper-tooltip for="ProfileButton" offset="0">Profiles</paper-tooltip>
-          <paper-tooltip for="SourceButton" offset="0">Source</paper-tooltip>
+          <paper-tooltip for="FilterButton" offset="0">Search/Filter</paper-tooltip>
 
           <!-- Application name -->
           <div id="MiddleContainer" class="middle middle-container center horizontal layout">
@@ -349,394 +328,394 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </template>
 </dom-module>
 <script>
-(function() {
-  Polymer({
-    is: 'epe-networked',
+  (function() {
+    Polymer({
+      is: 'epe-networked',
 
-    properties: {
+      properties: {
 
-      user: {
-        type: Object,
-        value: null
+        user: {
+          type: Object,
+          value: null
+        },
+
+        route: {
+          type: Object
+        },
+
+        presentationState: {
+          type: String
+        },
+
+        hideHeaderPackageNavigation: {
+          type: Boolean,
+          computed: 'manageHeaderPackageNavigation(route)',
+          value: true
+        },
+
+        hideImport: {
+          type: Boolean,
+          computed: 'shouldHideImport(user)'
+        },
+
+        editingPresentation: {
+          type: Boolean,
+          computed: 'isEditingPresentation(presentationState)'
+        },
+
+        sectionTitle: {
+          type: String
+        },
+
+        // Whether filters editor is shown
+        showFilters: {
+          type: Boolean
+        }
       },
 
-      route: {
-        type: Object
+      // Set up listeners when element is ready
+      ready: function () {
+
+        addEventListener('content-scroll', function (e) {
+
+          var $header = e.detail.target;
+
+          this.deCondenseHeader($header);
+
+        }.bind(this));
+
+        addEventListener('paper-header-transform', function (e) {
+          var sectionName = this.$.SectionName;
+          var middleContainer = this.$.MiddleContainer;
+          var bottomContainer = this.$.BottomContainer;
+          var detail = e.detail;
+          var heightDiff = detail.height - detail.condensedHeight;
+          var yRatio = Math.min(1, detail.y / heightDiff);
+          var maxMiddleScale = 0.50;  // appName max size when condensed. The smaller the number the smaller the condensed size.
+          var scaleMiddle = Math.max(maxMiddleScale, (heightDiff - detail.y) / (heightDiff / (1 - maxMiddleScale)) + maxMiddleScale);
+          var scaleBottom = 1 - yRatio;
+
+          // Move/translate middleContainer
+          Polymer.Base.transform('translate3d(0,' + yRatio * 100 + '%,0)', middleContainer);
+
+          // Scale bottomContainer and bottom sub title to nothing and back
+          Polymer.Base.transform('scale(' + scaleBottom + ') translateZ(0)', bottomContainer);
+
+          // Scale middleContainer appName
+          Polymer.Base.transform('scale(' + scaleMiddle + ') translateZ(0)', sectionName);
+        }.bind(this));
+
+        // Listen to User Store
+        this.userStore.listen(function (user) {
+
+          if (user.status === 'loggedin') {
+            this.user = user;
+            this.navigateToChooseOption();
+          }
+
+          this.displayUserMessage();
+
+        }.bind(this));
+
+        // Listen to Presentations Store
+        this.presentationsStore.listen(function (presentationsStore) {
+
+          this.presentationState = presentationsStore.presentationState;
+          this.presentationName = presentationsStore.presentationName;
+
+          // Need to call this if presentation state changes but not if it was just because of an approval state change
+          if (presentationsStore.lastAction !== 'approvalStateChanged') {
+            this.setSectionTitle();
+          }
+
+        }.bind(this));
       },
 
-      presentationState: {
-        type: String
-      },
+      // FIRED BY IRON-PAGES ON-IRON-SELECTED EVENT
+      routeChanged: function () {
 
-      hideHeaderPackageNavigation: {
-        type: Boolean,
-        computed: 'manageHeaderPackageNavigation(route)',
-        value: true
-      },
+        this.setSectionTitle();
 
-      hideImport: {
-        type: Boolean,
-        computed: 'shouldHideImport(user)'
-      },
+        // See if we need to customise the header for the Source viewer
+        this.setSourceHeader();
 
-      editingPresentation: {
-        type: Boolean,
-        computed: 'isEditingPresentation(presentationState)'
-      },
-
-      sectionTitle: {
-        type: String
-      },
-
-      // Whether filters editor is shown
-      showFilters: {
-        type: Boolean
-      }
-    },
-
-    // Set up listeners when element is ready
-    ready: function() {
-
-      addEventListener('content-scroll', function(e) {
-
-        var $header = e.detail.target;
-
-        this.deCondenseHeader($header);
-
-      }.bind(this));
-
-      addEventListener('paper-header-transform', function(e) {
-        var sectionName = this.$.SectionName;
-        var middleContainer = this.$.MiddleContainer;
-        var bottomContainer = this.$.BottomContainer;
-        var detail = e.detail;
-        var heightDiff = detail.height - detail.condensedHeight;
-        var yRatio = Math.min(1, detail.y / heightDiff);
-        var maxMiddleScale = 0.50;  // appName max size when condensed. The smaller the number the smaller the condensed size.
-        var scaleMiddle = Math.max(maxMiddleScale, (heightDiff - detail.y) / (heightDiff / (1-maxMiddleScale))  + maxMiddleScale);
-        var scaleBottom = 1 - yRatio;
-
-        // Move/translate middleContainer
-        Polymer.Base.transform('translate3d(0,' + yRatio * 100 + '%,0)', middleContainer);
-
-        // Scale bottomContainer and bottom sub title to nothing and back
-        Polymer.Base.transform('scale(' + scaleBottom + ') translateZ(0)', bottomContainer);
-
-        // Scale middleContainer appName
-        Polymer.Base.transform('scale(' + scaleMiddle + ') translateZ(0)', sectionName);
-      }.bind(this));
-
-      // Listen to User Store
-      this.userStore.listen(function(user) {
-
-        if (user.status === 'loggedin') {
-          this.user = user;
-          this.navigateToChooseOption();
+        if (this.route !== 'media') {
+          this.fire('not-media-route');
         }
 
-        this.displayUserMessage();
-
-      }.bind(this));
-
-      // Listen to Presentations Store
-      this.presentationsStore.listen(function(presentationsStore) {
-
-        this.presentationState = presentationsStore.presentationState;
-        this.presentationName = presentationsStore.presentationName;
-
-        // Need to call this if presentation state changes but not if it was just because of an approval state change
-        if (presentationsStore.lastAction !== 'approvalStateChanged') {
-          this.setSectionTitle();
+        if (this.route !== 'image') {
+          this.fire('not-image-route');
         }
 
-      }.bind(this));
-    },
-
-    // FIRED BY IRON-PAGES ON-IRON-SELECTED EVENT
-    routeChanged: function() {
-
-      this.setSectionTitle();
-
-      // See if we need to customise the header for the Source viewer
-      this.setSourceHeader();
-
-      if (this.route !== 'media') {
-        this.fire('not-media-route');
-      }
-
-      if (this.route !== 'image') {
-        this.fire('not-image-route');
-      }
-
-      if (this.route !== 'pdf') {
-        this.fire('not-pdf-route');
-      }
-
-      if (this.route === 'login') {
-        this.$.MainScrollHeader.classList.add('hide-header');
-        this.$.MainScrollHeader.fixed = true;
-      } else {
-        this.$.MainScrollHeader.classList.remove('hide-header');
-        this.$.MainScrollHeader.fixed = false;
-      }
-    },
-
-    // Display relevant message to user
-    displayUserMessage: function() {
-      this.$.UserToast.show();
-    },
-
-    // Navigate to the Choose Option
-    navigateToChooseOption: function() {
-      page('/choose-option');
-    },
-
-    // Toggle Menu panel
-    toggleMenu: function(event) {
-
-      event.preventDefault();
-
-      var route = event.currentTarget.dataset.route;
-
-      // If Create Package selected than reset the presentation package to no filters
-      if (event.currentTarget.id === 'CreatePackageMenuNavigation') {
-        this.resetPackage();
-      }
-
-      if (route) {
-        page(route);
-      }
-
-      this.$.paperDrawerPanel.togglePanel();
-    },
-
-    // Trigger resetting a package to no filters
-    resetPackage: function() {
-
-      // ToDo: Maybe have a dialog here if state is editing or cloning or whatever
-
-      // Call presentationStateChanged presentations action
-      this.presentationsActions.presentationStateChanged({
-        presentationState: 'creating',
-        presentationName: 'ViewingFilter'
-      });
-    },
-
-    // Fire setSectionTitle method on selected child of iron-pages
-    // ToDO: This is a bit held together by string. May need rethinking if it gets too bad.
-    setSectionTitle: function() {
-
-      if (app.route !== 'login') {
-
-        if (app.route === 'choose-option') {
-          this.sectionTitle = 'What Would You Like To Do?';
-
-          // While we're here, scroll header to top
-          this.manageScrollHeader('choose-option');
-
-        } else if (app.route === 'import') {
-          this.sectionTitle = 'Import Casemap Files';
-
-        } else if (app.route === 'create-package') {
-
-          this.setCreatePackageTitle();
-
-        } else if (app.route === 'edit-package') {
-
-          this.setEditPackageTitle();
-
-        } else if (app.route === 'view-packages') {
-
-          this.sectionTitle = 'View/Edit Packages';
-
-          // While we're here, scroll header to top
-          this.manageScrollHeader('view-packages');
-        }
-      }
-    },
-
-    // Handle the title when in Create Package section
-    setCreatePackageTitle: function() {
-
-      if (window.EpeCreatePackage.createPackageRoute === 'data-grid') {
-
-        if (window.EpeCreatePackage.params) {
-          this.sectionTitle = 'Create Package - ' + window.EpeCreatePackage.params.name;
+        if (this.route !== 'pdf') {
+          this.fire('not-pdf-route');
         }
 
-      } else if (window.EpeCreatePackage.createPackageRoute === 'map') {
-        this.sectionTitle = 'Create Package - Map';
+        if (this.route === 'login') {
+          this.$.MainScrollHeader.classList.add('hide-header');
+          this.$.MainScrollHeader.fixed = true;
+        } else {
+          this.$.MainScrollHeader.classList.remove('hide-header');
+          this.$.MainScrollHeader.fixed = false;
+        }
+      },
 
-      } else if (window.EpeCreatePackage.createPackageRoute === 'profile') {
-        this.sectionTitle = 'Create Package - Profile';
+      // Display relevant message to user
+      displayUserMessage: function () {
+        this.$.UserToast.show();
+      },
 
-      } else if (window.EpeCreatePackage.createPackageRoute === 'source') {
-        this.sectionTitle = 'Create Package - Supporting Evidence';
-      }
-    },
+      // Navigate to the Choose Option
+      navigateToChooseOption: function () {
+        page('/choose-option');
+      },
 
-    // Handle the title when in Edit Package section
-    setEditPackageTitle: function() {
+      // Toggle Menu panel
+      toggleMenu: function (event) {
 
-      if (window.EpeEditPackage.createPackageRoute === 'data-grid') {
+        event.preventDefault();
 
-        if (window.EpeEditPackage.params) {
+        var route = event.currentTarget.dataset.route;
 
-          // While we're here, scroll header to top
-          this.manageScrollHeader('data-grid');
+        // If Create Package selected than reset the presentation package to no filters
+        if (event.currentTarget.id === 'CreatePackageMenuNavigation') {
+          this.resetPackage();
+        }
 
-          if (this.presentationName) {
-            this.sectionTitle = this.presentationName + ' - ' + window.EpeEditPackage.params.name;
+        if (route) {
+          page(route);
+        }
+
+        this.$.paperDrawerPanel.togglePanel();
+      },
+
+      // Trigger resetting a package to no filters
+      resetPackage: function () {
+
+        // ToDo: Maybe have a dialog here if state is editing or cloning or whatever
+
+        // Call presentationStateChanged presentations action
+        this.presentationsActions.presentationStateChanged({
+          presentationState: 'creating',
+          presentationName: 'ViewingFilter'
+        });
+      },
+
+      // Fire setSectionTitle method on selected child of iron-pages
+      // ToDO: This is a bit held together by string. May need rethinking if it gets too bad.
+      setSectionTitle: function () {
+
+        if (app.route !== 'login') {
+
+          if (app.route === 'choose-option') {
+            this.sectionTitle = 'What Would You Like To Do?';
+
+            // While we're here, scroll header to top
+            this.manageScrollHeader('choose-option');
+
+          } else if (app.route === 'import') {
+            this.sectionTitle = 'Import Casemap Files';
+
+          } else if (app.route === 'create-package') {
+
+            this.setCreatePackageTitle();
+
+          } else if (app.route === 'edit-package') {
+
+            this.setEditPackageTitle();
+
+          } else if (app.route === 'view-packages') {
+
+            this.sectionTitle = 'View/Edit Packages';
+
+            // While we're here, scroll header to top
+            this.manageScrollHeader('view-packages');
           }
         }
+      },
 
-      } else if (window.EpeEditPackage.createPackageRoute === 'map') {
-        this.sectionTitle = 'Map - ' + this.presentationName;
+      // Handle the title when in Create Package section
+      setCreatePackageTitle: function () {
 
-      } else if (window.EpeEditPackage.createPackageRoute === 'profile') {
-        this.sectionTitle = 'Profile - ' + this.presentationName;
+        if (window.EpeCreatePackage.createPackageRoute === 'data-grid') {
 
-      } else if (window.EpeEditPackage.createPackageRoute === 'source') {
-        this.sectionTitle = 'Supporting Evidence - ' + this.presentationName;
-      }
-    },
+          if (window.EpeCreatePackage.params) {
+            this.sectionTitle = 'Create Package - ' + window.EpeCreatePackage.params.name;
+          }
 
-    // FIRED BY ON-PACKAGE-VIEW_CHANGED EVENT ON EPE-CREATE-PACKAGE ELEMENT
-    packageViewChanged: function(event) {
-      this.packageRoute = event.detail.packageRoute;
-      this.manageScrollHeader(this.packageRoute);
-    },
+        } else if (window.EpeCreatePackage.createPackageRoute === 'map') {
+          this.sectionTitle = 'Create Package - Map';
 
-    // Navigate back
-    navigateBack: function() {
-      history.back();
-    },
+        } else if (window.EpeCreatePackage.createPackageRoute === 'profile') {
+          this.sectionTitle = 'Create Package - Profile';
 
-    // Hide import based on user role
-    shouldHideImport: function(user) {
-
-      if (user && (user.role === 'admin' || user.role === 'gatekeeper')) {
-        return false;
-      }
-      return true;
-    },
-
-    // Resize scroll header for different views
-    manageScrollHeader: function(route) {
-
-      var $scrollHeader = this.$.MainScrollHeader;
-
-      switch(route) {
-        case 'view-packages':
-          $scrollHeader.scroll(0, true);
-          break;
-        case 'data-grid':
-          $scrollHeader.scroll(0, true);
-          break;
-        case 'map':
-          $scrollHeader.scroll(128, true);
-          break;
-        case 'profile':
-          $scrollHeader.scroll(0, true);
-          break;
-        case 'source':
-          $scrollHeader.scroll(128, true);
-          break;
-        case 'pdf':
-          $scrollHeader.scroll(128, true);
-          break;
-        case 'media':
-          $scrollHeader.scroll(128, true);
-          break;
-        case 'image':
-          $scrollHeader.scroll(128, true);
-          break;
-        case 'choose-option':
-          // Hack that fixed header issue on Chrome Windows
-          $scrollHeader.scroll(128, false);
-          $scrollHeader.scroll(0, false);
-          break;
-        default:
-          $scrollHeader.scroll(0, true);
-      }
-    },
-
-    // Hide the package view navigation in the header if we are importing
-    manageHeaderPackageNavigation: function(route) {
-
-      if (route === 'create-package' || route === 'edit-package' ) {
-        return false;
-      }
-      return true;
-    },
-
-    // If Source view, customise the header
-    // ToDo: See if there is a better way to change colour and fix header to a slim bar that doesn't condense
-    setSourceHeader: function() {
-
-      var $packageElement;
-
-      if (app.route === 'create-package') {
-        $packageElement = this.$.EpeCreatePackage;
-      } else if (app.route === 'edit-package') {
-        $packageElement = this.$.EpeEditPackage;
-      }
-
-      if ((app.route === 'create-package' || app.route === 'edit-package') && $packageElement.createPackageRoute === 'source') {
-        this.$.MainScrollHeader.querySelector('#condensedHeaderBg').style.backgroundColor = '#374046';
-      } else {
-        this.$.MainScrollHeader.querySelector('#condensedHeaderBg').style.backgroundColor = '#03A9F4';
-      }
-    },
-
-    // Is a presentation being edited or created
-    isEditingPresentation: function(presentationState) {
-
-      if (presentationState === 'creating') {
-        return false;
-      }
-      return true;
-    },
-
-    // Fired from epe-create-package elements
-    showDialog: function(event) {
-      if (event.detail.type === 'presentationSaved') {
-        this.$.SuccessDialog.open();
-      } else if (event.detail.type === 'collectionExists') {
-        this.$.WarningDialog.open();
-      }
-    },
-
-    // Close the save presentation overlay on the epe-create-package elements
-    closeCard: function () {
-      this.$.EpeCreatePackage.closeCard();
-      this.$.EpeEditPackage.closeCard();
-    },
-
-    // Keep header small and fixed in certain conditions
-    deCondenseHeader: function($header) {
-
-      var $packageElement;
-
-      if (app.route === 'create-package') {
-        $packageElement = this.$.EpeCreatePackage;
-      } else if (app.route === 'edit-package') {
-        $packageElement = this.$.EpeEditPackage;
-      }
-
-      // If in Source View
-      if ((app.route === 'create-package' || app.route === 'edit-package') && $packageElement.createPackageRoute === 'source') {
-
-        if ($header.scrollTop < 128) {
-          this.$.MainScrollHeader.scroll(128, false);
+        } else if (window.EpeCreatePackage.createPackageRoute === 'source') {
+          this.sectionTitle = 'Create Package - Supporting Evidence';
         }
+      },
+
+      // Handle the title when in Edit Package section
+      setEditPackageTitle: function () {
+
+        if (window.EpeEditPackage.createPackageRoute === 'data-grid') {
+
+          if (window.EpeEditPackage.params) {
+
+            // While we're here, scroll header to top
+            this.manageScrollHeader('data-grid');
+
+            if (this.presentationName) {
+              this.sectionTitle = this.presentationName + ' - ' + window.EpeEditPackage.params.name;
+            }
+          }
+
+        } else if (window.EpeEditPackage.createPackageRoute === 'map') {
+          this.sectionTitle = 'Map - ' + this.presentationName;
+
+        } else if (window.EpeEditPackage.createPackageRoute === 'profile') {
+          this.sectionTitle = 'Profile - ' + this.presentationName;
+
+        } else if (window.EpeEditPackage.createPackageRoute === 'source') {
+          this.sectionTitle = 'Supporting Evidence - ' + this.presentationName;
+        }
+      },
+
+      // FIRED BY ON-PACKAGE-VIEW_CHANGED EVENT ON EPE-CREATE-PACKAGE ELEMENT
+      packageViewChanged: function (event) {
+        this.packageRoute = event.detail.packageRoute;
+        this.manageScrollHeader(this.packageRoute);
+      },
+
+      // Navigate back
+      navigateBack: function () {
+        history.back();
+      },
+
+      // Hide import based on user role
+      shouldHideImport: function (user) {
+
+        if (user && (user.role === 'admin' || user.role === 'gatekeeper')) {
+          return false;
+        }
+        return true;
+      },
+
+      // Resize scroll header for different views
+      manageScrollHeader: function (route) {
+
+        var $scrollHeader = this.$.MainScrollHeader;
+
+        switch (route) {
+          case 'view-packages':
+            $scrollHeader.scroll(0, true);
+            break;
+          case 'data-grid':
+            $scrollHeader.scroll(0, true);
+            break;
+          case 'map':
+            $scrollHeader.scroll(128, true);
+            break;
+          case 'profile':
+            $scrollHeader.scroll(0, true);
+            break;
+          case 'source':
+            $scrollHeader.scroll(128, true);
+            break;
+          case 'pdf':
+            $scrollHeader.scroll(128, true);
+            break;
+          case 'media':
+            $scrollHeader.scroll(128, true);
+            break;
+          case 'image':
+            $scrollHeader.scroll(128, true);
+            break;
+          case 'choose-option':
+            // Hack that fixed header issue on Chrome Windows
+            $scrollHeader.scroll(128, false);
+            $scrollHeader.scroll(0, false);
+            break;
+          default:
+            $scrollHeader.scroll(0, true);
+        }
+      },
+
+      // Hide the package view navigation in the header if we are importing
+      manageHeaderPackageNavigation: function (route) {
+
+        if (route === 'create-package' || route === 'edit-package') {
+          return false;
+        }
+        return true;
+      },
+
+      // If Source view, customise the header
+      // ToDo: See if there is a better way to change colour and fix header to a slim bar that doesn't condense
+      setSourceHeader: function () {
+
+        var $packageElement;
+
+        if (app.route === 'create-package') {
+          $packageElement = this.$.EpeCreatePackage;
+        } else if (app.route === 'edit-package') {
+          $packageElement = this.$.EpeEditPackage;
+        }
+
+        if ((app.route === 'create-package' || app.route === 'edit-package') && $packageElement.createPackageRoute === 'source') {
+          this.$.MainScrollHeader.querySelector('#condensedHeaderBg').style.backgroundColor = '#374046';
+        } else {
+          this.$.MainScrollHeader.querySelector('#condensedHeaderBg').style.backgroundColor = '#03A9F4';
+        }
+      },
+
+      // Is a presentation being edited or created
+      isEditingPresentation: function (presentationState) {
+
+        if (presentationState === 'creating') {
+          return false;
+        }
+        return true;
+      },
+
+      // Fired from epe-create-package elements
+      showDialog: function (event) {
+        if (event.detail.type === 'presentationSaved') {
+          this.$.SuccessDialog.open();
+        } else if (event.detail.type === 'collectionExists') {
+          this.$.WarningDialog.open();
+        }
+      },
+
+      // Close the save presentation overlay on the epe-create-package elements
+      closeCard: function () {
+        this.$.EpeCreatePackage.closeCard();
+        this.$.EpeEditPackage.closeCard();
+      },
+
+      // Keep header small and fixed in certain conditions
+      deCondenseHeader: function ($header) {
+
+        var $packageElement;
+
+        if (app.route === 'create-package') {
+          $packageElement = this.$.EpeCreatePackage;
+        } else if (app.route === 'edit-package') {
+          $packageElement = this.$.EpeEditPackage;
+        }
+
+        // If in Source View
+        if ((app.route === 'create-package' || app.route === 'edit-package') && $packageElement.createPackageRoute === 'source') {
+
+          if ($header.scrollTop < 128) {
+            this.$.MainScrollHeader.scroll(128, false);
+          }
+        }
+      },
+
+      // Show/Hide Filter Display
+      toggleFilterDisplay: function () {
+        this.showFilters = !this.showFilters;
       }
-    },
-
-    // Show/Hide Filter Display
-    toggleFilterDisplay: function() {
-
-    }
-  });
-})();
+    });
+  })();
 </script>
