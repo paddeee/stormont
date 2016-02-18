@@ -163,7 +163,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                  id="MapButton">
                 <paper-icon-button icon="maps:map"></paper-icon-button>
               </a>
-              <a data-route="/create-package/profile"
+              <a id="FilterButton"
+                 on-tap="toggleFilterDisplay">
+                <paper-icon-button icon="filter-list"></paper-icon-button>
+              </a>
+              <!--<a data-route="/create-package/profile"
                  href="/create-package/profile"
                  id="ProfileButton">
                 <paper-icon-button icon="social:people"></paper-icon-button>
@@ -172,7 +176,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                  href="/create-package/data-grid/Document"
                  id="SourceButton">
                 <paper-icon-button icon="description"></paper-icon-button>
-              </a>
+              </a>-->
             </div>
 
             <!-- Editing Navigation Toolbar -->
@@ -187,7 +191,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                  id="MapButton">
                 <paper-icon-button icon="maps:map"></paper-icon-button>
               </a>
-              <a data-route="/edit-package/profile"
+              <a id="FilterButton"
+                on-tap="toggleFilterDisplay">
+                <paper-icon-button icon="filter-list"></paper-icon-button>
+              </a>
+              <!--<a data-route="/edit-package/profile"
                  href="/edit-package/profile"
                  id="ProfileButton">
                 <paper-icon-button icon="social:people"></paper-icon-button>
@@ -196,7 +204,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                  href="/edit-package/data-grid/Document"
                  id="SourceButton">
                 <paper-icon-button icon="description"></paper-icon-button>
-              </a>
+              </a>-->
             </div>
           </div>
 
@@ -304,6 +312,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </paper-scroll-header-panel>
     </paper-drawer-panel>
 
+    <!-- Filter Drawer -->
+    <epe-filters
+      id="Filters"
+      class="filters"
+      show-filters="{{showFilters}}"></epe-filters>
+
     <!-- Dialogs -->
     <paper-dialog id="SuccessDialog" modal>
       <h2>Presentation successfully saved</h2>
@@ -372,6 +386,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       sectionTitle: {
         type: String
+      },
+
+      // Whether filters editor is shown
+      showFilters: {
+        type: Boolean
       }
     },
 
@@ -712,6 +731,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.$.MainScrollHeader.scroll(128, false);
         }
       }
+    },
+
+    // Show/Hide Filter Display
+    toggleFilterDisplay: function() {
+
     }
   });
 })();
