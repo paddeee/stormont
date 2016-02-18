@@ -22,8 +22,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       height: 100%;
       right: 0;
       min-height: 300px;
-      background-color: white;
-      width: 0;
+      background-color: var(--primary-background-color);
+      width: 30vw;
       position: absolute;
       margin: 0px;
       overflow: hidden;
@@ -33,117 +33,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       transition-duration: 100ms;
       -webkit-transition-timing-function: ease-in;
       transition-timing-function: ease-in;
-      -ms-transform: translatex(0);
-      -webkit-transform: translatex(0);
-      transform: translatex(0);
+      -ms-transform: translatex(31vw);
+      -webkit-transform: translatex(31vw);
+      transform: translatex(31vw);
       z-index: 1000;
     }
 
     .filters--enabled {
-      width: 210px;
+      -ms-transform: translatex(0);
+      -webkit-transform: translatex(0);
+      transform: translatex(0);
     }
 
-    .editor-header {
+    .filters-header {
       position: relative;
       height: 40px;
       background-color: var(--default-primary-color);
+      color: var(--text-primary-color);
       box-sizing: border-box;
     }
 
-    .editor-interior {
-      padding: 20px 20px 8vh;
+    .filters-main {
+      padding: 0 2vw 8vh;
       overflow: auto;
       position: relative;
       right: 0px;
       height: 100%;
       box-sizing: border-box;
-    }
-
-    .editor-label-container {
-      margin-bottom: 2vh;
-    }
-
-    .editor-label {
-      width: 100px;
-      display: block;
-      font-size: medium;
-    }
-
-    .editor-input {
-      height: 30px;
-      margin-bottom: 5px;
-      padding-left: 10px;
-      background: #fff;
-      border: 1px solid rgba(0, 0, 0, 0.1);
-      outline: none;
-      width: 150px;
-    }
-
-    .editor-button {
-      border: 0px;
-      display: inline-block;
-      padding: 10px 20px;
-      background-color: var(--default-primary-color);
-      height: 40px;
-      margin-left: 0px;
-      transition: background-color .25s ease-in-out;
-      letter-spacing: 2px;
-      text-decoration: none;
-      text-transform: uppercase;
-      font-size: 15px;
-      font-weight: 600;
-      color: #FFFFFF;
-      cursor: pointer;
-    }
-
-    .editor-button--next {
-      background-image: url('../../images/annotation-editor-sprite.png');
-      float: right;
-      margin-right: 0px;
-      background-position: 10px -31px;
-    }
-
-    .editor-button:hover {
-      background-color: #00ad87;
-    }
-
-    .editor-button:active {
-      background-color: #20e1b6;
-    }
-
-    .editor-colour-picker {
-      margin-bottom: 2vh;
-      width: 160px;
-      display: inline-block;
-    }
-
-    .editor-colour {
-      height: 35px;
-      width: 30px;
-      float: left;
-      border: 1px solid white;
-      cursor: pointer;
-    }
-
-    .editor-colour:hover {
-      border:1px solid black;
-    }
-
-    .editor-line-stroke-container {
-      margin-bottom: 2vh;
-    }
-
-    .editor-stroke {
-      height: 20px;
-      width: 150px;
-      background-repeat: no-repeat;
-      border: 1px solid white;
-      background-image: url('../../images/annotation-editor-sprite.png');
-      cursor: pointer;
-    }
-
-    .editor-stroke:hover {
-      border: 1px solid black;
     }
 
     paper-input {
@@ -152,22 +68,62 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       --paper-input-container-input-color: var(--secondary-text-color);
     }
 
-    paper-slider {
-      cursor: pointer;
-      width: 160px;
+    .filters__custom-search {
+      padding: 2vh 0 0;
+    }
+
+    h1 {
+      font-size: 1.8vw;
+    }
+
+    .filter__button-add {
+      font-size: 1.5vw;
+    }
+
+    .add-button {
+      position: absolute;
+      top: 20px;
+      right: 1vw;
+      color: var(--primary-text-color);
+    }
+
+    .search-button {
+      background-color: var(--default-primary-color);
+      position: absolute;
+      bottom: 2vh;
+      right: 1vw;
     }
   </style>
   <template>
 
     <div id="Filters" class="filters">
-      <div class="editor-header">
-        <button class="editor-button editor-button--next"
-                title="Choose a different annotation to style"
-                on-tap="hideFilters"></button>
+      <div class="filters-header">
+        <paper-icon-button
+          id="MenuButton"
+          class="menu-button"
+          icon="close"
+          on-tap="hideFilters"></paper-icon-button>
       </div>
-      <div class="editor-interior">
+      <div class="filters-main">
 
+        <div class="filters__global-search">
+          <paper-input id="GlobalSearch"
+                       type="search"
+                       placeholder="Global search">
+          </paper-input>
+        </div>
+
+        <div class="filters__custom-search">
+          <h1>Custom Filters</h1>
+        </div>
       </div>
+
+      <paper-fab class="add-button"
+                 icon="add"
+                 mini></paper-fab>
+
+      <paper-fab class="search-button"
+                 icon="search"></paper-fab>
     </div>
 
   </template>
