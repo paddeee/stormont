@@ -22,18 +22,37 @@ module.exports = Reflux.createStore({
   // Set the filteredData Object
   dataSourceChanged: function (dataSourceStore) {
 
-    console.log('Datasource changed');
-  },
+    var queryCollection = dataSourceStore.dataSource.getCollection(config.QueriesCollection);
 
-  // Set search filter on our collectionTransform
-  filterStateChanged: function(filterTransformBroadcast) {
+    // Create/Update a GeoJSON collection in the database
+    if (queryCollection) {
+      this.getQuery();
+    } else {
+      dataSourceStore.dataSource.addCollection(config.QueriesCollection);
+      this.createDefaultQuery();
+    }
 
-    console.log('Filterstate changed');
+    this.trigger(this);
   },
 
   // Listener to changes on Presentations Store
   presentationsStoreChanged: function() {
 
     console.log('Presentations Store changed');
+  },
+
+  // Create a default query if none exist
+  createDefaultQuery: function() {
+
+    this.queryObject = {
+      packageName: 'ViewingFilter',
+      globalSearchValue: '',
+      filters: []
+    }
+  },
+
+  // Retrieve a query based on the transform name
+  getQuery: function() {
+
   }
 });

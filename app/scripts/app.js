@@ -13,6 +13,8 @@ var config = require('./config/config.js');
 var CSVParser = require('./vendor/harb-customised.js');
 var VerEx = require('verbal-expressions');
 var dataSourceActions = require('./actions/dataSource.js');
+var queryBuilderActions = require('./actions/queryBuilder.js');
+var queryBuilderStore = require('./stores/queryBuilder.js');
 var filterStateActions = require('./actions/filterState.js');
 var filterStateStore = require('./stores/filterState.js');
 var eventsStore = require('./stores/events.js');
@@ -30,7 +32,7 @@ var exportActions = require('./actions/export.js');
 var exportStore = global.packagedApp ? require('./stores/export.js') : null;
 var mapGeoJSONStore = require('./stores/mapGeoJSON.js');
 
-(function(document, reflux, moment, config, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJSONStore) {
+(function(document, reflux, moment, config, sourceActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJSONStore) {
   'use strict';
 
   // Call checkForLDAP action when in browser
@@ -54,6 +56,8 @@ var mapGeoJSONStore = require('./stores/mapGeoJSON.js');
   app.userStore = userStore;
   app.presentationsActions = presentationsActions;
   app.presentationsStore = presentationsStore;
+  app.queryBuilderActions = queryBuilderActions;
+  app.queryBuilderStore = queryBuilderStore;
   app.importActions = importActions;
   app.importStore = importStore;
   app.exportActions = exportActions;
@@ -82,7 +86,7 @@ var mapGeoJSONStore = require('./stores/mapGeoJSON.js');
   // See https://github.com/Polymer/polymer/issues/1381
   window.addEventListener('WebComponentsReady', function() {
 
-    // Set the correct path for leaflet images due to it breking with the build
+    // Set the correct path for leaflet images due to it breaking with the build
     window.L.Icon.Default.imagePath = './images/leaflet/';
     console.log('components ready');
   });
@@ -99,4 +103,4 @@ var mapGeoJSONStore = require('./stores/mapGeoJSON.js');
   // Maybe dangerous but can change for different approach if needed
   NodeList.prototype.forEach = Array.prototype.forEach;
 
-})(document, reflux, moment, config, sourceActions, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJSONStore);
+})(document, reflux, moment, config, sourceActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJSONStore);
