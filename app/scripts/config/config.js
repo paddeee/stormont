@@ -253,6 +253,7 @@ var config = {
       filter: 'none'
     }]
   },
+  QueriesCollection: 'Queries',
   MapGeoJSONCollection: 'MapGeoJSON'
 };
 

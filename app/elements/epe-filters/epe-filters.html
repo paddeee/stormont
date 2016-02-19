@@ -19,7 +19,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .filters {
       box-shadow: 0 1px 7px rgba(0, 0, 0, 0.65);
-      height: 100%;
+      padding: 50px 0 0;
+      height: calc(100% - 50px);
       right: 0;
       min-height: 300px;
       background-color: var(--primary-background-color);
@@ -46,11 +47,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .filters-header {
-      position: relative;
+      position: absolute;
+      left: 0;
+      top: 0;
       height: 40px;
       background-color: var(--default-primary-color);
       color: var(--text-primary-color);
       box-sizing: border-box;
+      width: 100%;
     }
 
     .filters-main {
@@ -69,7 +73,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .filters__custom-search {
-      padding: 2vh 0 0;
+      padding: 1vh 0;
     }
 
     h1 {
@@ -93,6 +97,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       bottom: 2vh;
       right: 1vw;
     }
+
+    .filters__no-filters {
+      font-size: 1.6vw;
+    }
   </style>
   <template>
 
@@ -103,28 +111,126 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           class="menu-button"
           icon="close"
           on-tap="hideFilters"></paper-icon-button>
+        <paper-tooltip for="MenuButton" position="right">
+          Hide Filters
+        </paper-tooltip>
       </div>
       <div class="filters-main">
 
         <div class="filters__global-search">
           <paper-input id="GlobalSearch"
                        type="search"
-                       placeholder="Global search">
+                       placeholder="Global search"
+                       value="[[globalSearchValue]]">
           </paper-input>
         </div>
 
-        <div class="filters__custom-search">
-          <h1>Custom Filters</h1>
+        <div class="filters__custom-search layout vertical center-justified">
+          <h1 class="self-center">Custom Filters</h1>
+          <div class="filters__custom-container"
+            hidden$="[[hideCustomFilters]]">
+            <template id="FiltersTemplate" is="dom-repeat" items="[[customFilters]]">
+              <div class="filter-item">
+
+                <!-- Data Type -->
+                <paper-dropdown-menu label="Search on..">
+                  <paper-listbox>
+                    <paper-item>Events</paper-item>
+                    <paper-item>Places</paper-item>
+                    <paper-item>People</paper-item>
+                    <paper-item>Source Material</paper-item>
+                  </paper-listbox>
+                </paper-dropdown-menu>
+
+                <!-- Input -->
+                <div class="filter-type  filter-type--input">
+                  <paper-input type="search"
+                               placeholder="[[item.name]]"
+                               value="[[item.value]]">
+                  </paper-input>
+                </div>
+
+                <!-- Select -->
+
+
+                <!-- DateTime -->
+
+
+              </div>
+            </template>
+          </div>
+
+          <!-- No filters message -->
+          <div class="filters__no-filters"
+               hidden$="[[!hideCustomFilters]]">
+            Press the yellow add button above to add a custom filter.
+          </div>
         </div>
       </div>
 
-      <paper-fab class="add-button"
+      <paper-fab id="AddButton"
+                 class="add-button"
                  icon="add"
-                 mini></paper-fab>
+                 mini
+                 on-tap="addFilter"></paper-fab>
 
-      <paper-fab class="search-button"
+      <paper-fab id="SearchButton"
+                 class="search-button"
                  icon="search"></paper-fab>
+
+      <!-- Tooltips -->
+      <paper-tooltip for="AddButton">
+        Add a Custom Filter
+      </paper-tooltip>
+      <paper-tooltip for="SearchButton" position="top">
+        Perform Filtered Search
+      </paper-tooltip>
+
+      <!-- Data Type -->
+      <paper-dropdown-menu id="AddFilterDataType" label="Search on..">
+        <paper-listbox>
+          <paper-item>Events</paper-item>
+          <paper-item>Places</paper-item>
+          <paper-item>People</paper-item>
+          <paper-item>Source Material</paper-item>
+        </paper-listbox>
+      </paper-dropdown-menu>
     </div>
+
+    <!-- Add Filter Dialog -->
+    <paper-dialog id="AddFilterDialog" modal>
+      <h2>Add filter</h2>
+      <paper-dialog-scrollable>
+
+        <!-- Data Type -->
+        <paper-dropdown-menu id="AddFilterDataType" label="Search on..">
+          <paper-listbox>
+            <paper-item>Events</paper-item>
+            <paper-item>Places</paper-item>
+            <paper-item>People</paper-item>
+            <paper-item>Source Material</paper-item>
+          </paper-listbox>
+        </paper-dropdown-menu>
+
+        <p>dsdssdsdsd</p>
+        <p>dsdssdsdsd</p>
+        <p>dsdssdsdsd</p>
+        <p>dsdssdsdsd</p>
+        <p>dsdssdsdsd</p>
+        <p>dsdssdsdsd</p>
+        <p>dsdssdsdsd</p>
+
+
+
+
+
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Cancel</paper-button>
+        <paper-button dialog-confirm
+          on-tap="filterAdded">Accept</paper-button>
+      </div>
+    </paper-dialog>
 
   </template>
 </dom-module>
@@ -141,6 +247,39 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           value: false,
           notify: true,
           observer: 'toggleFilters'
+        },
+
+        globalSearchValue:  {
+          type: String,
+          value: ''
+        },
+
+        customFilters:  {
+          type: Array,
+          value: [],
+          observer: 'containsFilters'
+        },
+
+        hideCustomFilters: {
+          type: Boolean,
+          value: true
+        }
+      },
+
+      ready: function() {
+
+        if (this.queryBuilderStore) {
+
+          // When the presentations data is updated
+          this.queryBuilderStore.listen(function(queryBuilderStore) {
+
+            // Set Global Search Value
+            this.globalSearchValue = queryBuilderStore.queryObject.globalSearchValue;
+
+            // Set Custom Filters
+            this.customFilters = queryBuilderStore.queryObject.filters;
+
+          }.bind(this));
         }
       },
 
@@ -159,6 +298,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         } else {
           $filters.classList.remove('filters--enabled');
         }
+      },
+
+      // OBSERVER ON CUSTOMFILTERS
+      containsFilters: function() {
+
+        if (this.customFilters && this.customFilters.length > 0) {
+          this.hideCustomFilters = false;
+        } else {
+          this.hideCustomFilters = true;
+        }
+      },
+
+      // Add filter button tapped
+      addFilter: function() {
+        this.$.AddFilterDialog.open();
       }
     });
   })();
