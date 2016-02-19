@@ -37,7 +37,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       -ms-transform: translatex(31vw);
       -webkit-transform: translatex(31vw);
       transform: translatex(31vw);
-      z-index: 1000;
+      z-index: 10;
     }
 
     .filters--enabled {
@@ -72,6 +72,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       --paper-input-container-input-color: var(--secondary-text-color);
     }
 
+    paper-dropdown-menu {
+
+      --paper-input-container-color: var(--primary-text-color);
+      --paper-input-container-focus-color: var(--dark-primary-color);
+
+      --paper-input-container-label: {
+         color: var(--secondary-text-color);
+       };
+
+      --paper-input-container-input: {
+         color: var(--primary-text-color);
+       };
+    }
+
     .filters__custom-search {
       padding: 1vh 0;
     }
@@ -100,6 +114,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .filters__no-filters {
       font-size: 1.6vw;
+    }
+
+    paper-dialog paper-button {
+      color: var(--dark-primary-color);
     }
   </style>
   <template>
@@ -188,7 +206,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <!-- Data Type -->
       <paper-dropdown-menu id="AddFilterDataType" label="Search on..">
-        <paper-listbox>
+        <paper-listbox class="dropdown-content">
           <paper-item>Events</paper-item>
           <paper-item>Places</paper-item>
           <paper-item>People</paper-item>
@@ -202,33 +220,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <h2>Add filter</h2>
       <paper-dialog-scrollable>
 
+        <div class="layout vertical">
+
         <!-- Data Type -->
         <paper-dropdown-menu id="AddFilterDataType" label="Search on..">
-          <paper-listbox>
-            <paper-item>Events</paper-item>
+          <paper-listbox class="dropdown-content"
+                         on-iron-select="dataTypeSelected">
+            <paper-item data-epe-type="Events">Events</paper-item>
             <paper-item>Places</paper-item>
             <paper-item>People</paper-item>
             <paper-item>Source Material</paper-item>
           </paper-listbox>
         </paper-dropdown-menu>
 
-        <p>dsdssdsdsd</p>
-        <p>dsdssdsdsd</p>
-        <p>dsdssdsdsd</p>
-        <p>dsdssdsdsd</p>
-        <p>dsdssdsdsd</p>
-        <p>dsdssdsdsd</p>
-        <p>dsdssdsdsd</p>
+        <paper-dropdown-menu id="AddField" label="in.." disabled>
+          <paper-listbox id="AddFieldList" class="dropdown-content">
+            <template id="FiltersTemplate" is="dom-repeat" items="[[fields]]">
+              <paper-item>[[item.name]]</paper-item>
+            </template>
+          </paper-listbox>
+        </paper-dropdown-menu>
 
-
-
-
+        </div>
 
       </paper-dialog-scrollable>
       <div class="buttons">
         <paper-button dialog-dismiss>Cancel</paper-button>
         <paper-button dialog-confirm
-          on-tap="filterAdded">Accept</paper-button>
+          on-tap="filterAdded">Add Filter</paper-button>
       </div>
     </paper-dialog>
 
@@ -263,6 +282,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         hideCustomFilters: {
           type: Boolean,
           value: true
+        },
+
+        fields: {
+          type: Array,
+          value: []
         }
       },
 
@@ -313,6 +337,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Add filter button tapped
       addFilter: function() {
         this.$.AddFilterDialog.open();
+      },
+
+      // Select Data Type dropdown changed
+      dataTypeSelected: function(event) {
+
+        this.deselectField(this.$.AddFieldList);
+
+        switch (event.detail.item.innerText) {
+          case 'Events':
+            this.fields = app.config.EventsCollection.fields.filter(function(item) {
+              return item.display === 'true';
+            });
+            break;
+          case 'Places':
+            this.fields = app.config.PlacesCollection.fields.filter(function(item) {
+              return item.display === 'true';
+            });
+            break;
+          case 'People':
+            this.fields = app.config.PeopleCollection.fields.filter(function(item) {
+              return item.display === 'true';
+            });
+            break;
+          case 'Source Material':
+            this.fields = app.config.SourcesCollection.fields.filter(function(item) {
+              return item.display === 'true';
+            });
+            break;
+          default:
+            console.error('InnerText of selected item does not match any of these cases');
+        }
+
+        this.$.AddField.disabled = false;
+      },
+
+      // Deselect selected item in field dropdown
+      deselectField: function(dropdown) {
+        dropdown.selected = undefined;
       }
     });
   })();
