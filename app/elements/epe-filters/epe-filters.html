@@ -23,7 +23,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       height: calc(100% - 50px);
       right: 0;
       min-height: 300px;
-      background-color: var(--primary-background-color);
+      background-color: rgba(247, 247, 247, 1);
       width: 30vw;
       position: absolute;
       margin: 0px;
@@ -126,6 +126,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       margin: 3vh 0 0;
     }
 
+    .filter-type,
+    .include-exclude{
+      display: none;
+    }
+
+    .filter-type[showing],
+    .include-exclude[showing] {
+      display: block;
+    }
+
+    paper-material {
+      margin: 1vh 0 2vh;
+      padding: 2vh 2vw;
+      background: var(--primary-background-color);
+    }
+
+    .filter-info {
+      font-size: 1.7vw;
+    }
+
+    .include-exclude-data-type {
+      font-style: italic;
+    }
+
   </style>
   <template>
 
@@ -156,13 +180,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             hidden$="[[hideCustomFilters]]">
             <template id="FiltersTemplate" is="dom-repeat" items="[[customFilters]]">
 
-              <div class="filter-item">
-
-                <!-- Data Type -->
-                <div><span>[[item.collectionName]]</span></div>
+              <paper-material class="filter-item">
 
                 <!-- Input -->
-                <div class="filter-type  filter-type--input">
+                <div class="filter-type  filter-type--input"
+                  showing$="[[showFilterType('regex',item.filter)]]">
                   <paper-input type="search"
                                placeholder="[[item.fieldName]]"
                                value="[[item.value]]">
@@ -170,10 +192,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </div>
 
                 <!-- Select -->
-                <paper-dropdown-menu label="[[item.fieldName]]">
-                  <paper-listbox class="dropdown-content">
-                    <paper-item value$="">Select&nbsp;<span> [[item.fieldName]]</span></paper-item>
-                    <template id="FilterValuesTemplate" is="dom-repeat" items="[[item.filterValues]]" as="filterValue">
+                <paper-dropdown-menu class="filter-type  filter-type--select"
+                                     label="[[item.fieldName]]"
+                                     showing$="[[showFilterType('select',item.filter)]]">
+                  <paper-listbox class="dropdown-content"
+                                 attr-for-selected="value"
+                                 selected="[[item.value]]">
+                    <paper-item value="">Select&nbsp;<span> [[item.fieldName]]</span></paper-item>
+                    <template id="FilterValuesTemplate"
+                              is="dom-repeat"
+                              items="[[item.filterValues]]"
+                              as="filterValue">
                       <paper-item value$="[[filterValue]]">[[filterValue]]</paper-item>
                     </template>
                   </paper-listbox>
@@ -182,8 +211,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 <!-- DateTime -->
 
-
-              </div>
+                <div class="filter-info horizontal layout">
+                  <span showing$="[[showIncludeExcludeFilter('include',item.includeExclude)]]"
+                        class="include-exclude">in&nbsp;</span>
+                  <span showing$="[[showIncludeExcludeFilter('exclude',item.includeExclude)]]"
+                        class="include-exclude">not in&nbsp;</span>
+                  "<span class="include-exclude-data-type">[[item.collectionDisplayName]]</span>"
+                </div>
+              </paper-material>
             </template>
           </div>
 
@@ -242,7 +277,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </paper-listbox>
         </paper-dropdown-menu>
 
-        <paper-radio-group selected="include">
+        <paper-radio-group id="IncludeExclude" selected="include">
           <paper-radio-button name="include">Include in search</paper-radio-button>
           <paper-radio-button name="exclude">Exclude from search</paper-radio-button>
         </paper-radio-group>
@@ -455,9 +490,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           var filterObject = {
             collectionName: this.$.AddFilterDataTypeList.selectedItem.getAttribute("value"),
+            collectionDisplayName: this.$.AddFilterDataTypeList.selectedItem.innerText,
             fieldName: item.name,
             filter: item.filter,
             filterValues: item.filterValues,
+            includeExclude: this.$.IncludeExclude.selected,
             value: ''
           };
 
@@ -467,6 +504,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           this.queryBuilderActions.queryFiltersChanged(filterObject, 'add');
         }
+      },
+
+      // CALLED IN TEMPLATE TO HIDE NON RELEVANT FILTER ELEMENTS
+      showFilterType: function(elementType, filterType) {
+
+        if (elementType === filterType) {
+          return true;
+        }
+        return false;
+      },
+
+      // CALLED IN TEMPLATE TO HIDE NON RELEVANT INCLUDE/EXCLUDE FILTER MESSAGES
+      showIncludeExcludeFilter: function(elementType, includeExcludeType) {
+
+        if (elementType === includeExcludeType) {
+          return true;
+        }
+        return false;
       }
     });
   })();
