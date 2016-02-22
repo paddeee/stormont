@@ -78,6 +78,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       --paper-input-container-color: var(--primary-text-color);
       --paper-input-container-focus-color: var(--dark-primary-color);
+      --paper-input-container-invalid-color: var(--paper-red-500);
 
       --paper-input-container-label: {
          color: var(--secondary-text-color);
@@ -278,7 +279,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div class="layout vertical">
 
         <!-- Data Type -->
-        <paper-dropdown-menu id="AddFilterDataType" label="Search on..">
+        <paper-dropdown-menu id="AddFilterDataType"
+                             label="Search on.."
+                             error-message="Please select a data type to search on.">
           <paper-listbox id="AddFilterDataTypeList"
                          class="dropdown-content"
                          on-iron-select="dataTypeSelected">
@@ -289,7 +292,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </paper-listbox>
         </paper-dropdown-menu>
 
-        <paper-dropdown-menu id="AddField" label="in field.." disabled>
+        <paper-dropdown-menu id="AddField"
+                             label="in field.."
+                             error-message="Please select a field to search on."
+                             disabled
+                             on-iron-select="fieldSelected">
           <paper-listbox id="AddFieldList"
                          class="dropdown-content">
             <template id="AddFieldTemplate" is="dom-repeat" items="[[fields]]">
@@ -313,25 +320,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
     </paper-dialog>
 
-    <!-- Invalid filter dialog -->
-    <paper-dialog id="InvalidFilterAddedDialog" modal>
-      <h2>Invalid Filter</h2>
-      <div>[[invalidFilterMessage]]</div>
-      <div class="layout horizontal end-justified">
-        <paper-button dialog-dismiss>OK</paper-button>
-      </div>
-      </paper-dialog>
-
   </template>
 </dom-module>
 <script>
   (function() {
     Polymer({
       is: 'epe-filters',
-
-      behaviours: [
-        Polymer.IronValidatorBehaviour
-      ],
 
       properties: {
 
@@ -432,6 +426,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Select Data Type dropdown changed
       dataTypeSelected: function(event) {
 
+        this.$.AddFilterDataType.invalid = false;
+
         this.deselectField(this.$.AddFieldList);
 
         switch (event.detail.item.innerText) {
@@ -462,6 +458,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.AddField.disabled = false;
       },
 
+      // Select Field dropdown changed
+      fieldSelected: function() {
+        this.$.AddField.invalid = false;
+      },
+
       // Deselect selected item in field dropdown
       deselectField: function(dropdown) {
         dropdown.selected = undefined;
@@ -475,11 +476,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.AddField.disabled = true;
       },
 
-      // ToDo: Use Iron Validators instead of dialog to validate the form
-      validateDataType: function(value) {
-        console.log(value);
-      },
-
       // Check filter to be added is valid
       filterValidate: function() {
 
@@ -489,14 +485,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (!this.$.AddFilterDataTypeList.selectedItem) {
           valid = false;
           this.invalidFilterMessage = 'Please select a data type to search on.'
-          this.$.InvalidFilterAddedDialog.open();
+          this.$.AddFilterDataType.invalid = true;
         }
 
         // If no data field has been selected
         else if (!this.$.AddFieldList.selectedItem) {
           valid = false;
           this.invalidFilterMessage = 'Please select a field to search on.'
-          this.$.InvalidFilterAddedDialog.open();
+          this.$.AddField.invalid = true;
         }
 
         return valid;
