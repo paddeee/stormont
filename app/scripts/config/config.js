@@ -101,11 +101,13 @@ var config = {
     {
       name: 'Ethnicity',
       display: 'true',
+      filter: 'select',
       filterValues: ['White', 'Black', 'Asian']
     },
     {
       name: 'Affiliation',
       display: 'true',
+      filter: 'select',
       filterValues: ['Army Unit', 'Other']
     },
     {

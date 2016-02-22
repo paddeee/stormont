@@ -131,9 +131,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       display: none;
     }
 
-    .filter-type[showing],
-    .include-exclude[showing] {
+    .filter-type[showing] {
       display: block;
+    }
+
+    .include-exclude[showing] {
+      display: inline;
     }
 
     paper-material {
@@ -148,6 +151,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .include-exclude-data-type {
       font-style: italic;
+    }
+
+    .remove-filter {
+      color: var(--paper-red-500);
+      position: absolute;
+      top: 0;
+      right: 0;
     }
 
   </style>
@@ -169,7 +179,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div class="filters__global-search">
           <paper-input id="GlobalSearch"
                        type="search"
-                       placeholder="Global search"
+                       label="Global search"
                        value="[[globalSearchValue]]">
           </paper-input>
         </div>
@@ -186,7 +196,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <div class="filter-type  filter-type--input"
                   showing$="[[showFilterType('regex',item.filter)]]">
                   <paper-input type="search"
-                               placeholder="[[item.fieldName]]"
+                               label="[[item.fieldName]]"
                                value="[[item.value]]">
                   </paper-input>
                 </div>
@@ -211,13 +221,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 <!-- DateTime -->
 
-                <div class="filter-info horizontal layout">
+                <div class="filter-info">
                   <span showing$="[[showIncludeExcludeFilter('include',item.includeExclude)]]"
-                        class="include-exclude">in&nbsp;</span>
+                        class="include-exclude">In </span>
                   <span showing$="[[showIncludeExcludeFilter('exclude',item.includeExclude)]]"
-                        class="include-exclude">not in&nbsp;</span>
-                  "<span class="include-exclude-data-type">[[item.collectionDisplayName]]</span>"
+                        class="include-exclude">Not in </span>
+                  <span class="include-exclude-data-type">[[item.fieldName]]</span>
+                  <span>field of </span>
+                  <span class="include-exclude-data-type">[[item.collectionDisplayName]]</span>
+                  <span> table.</span>
                 </div>
+
+                <paper-icon-button class="remove-filter"
+                                   icon="remove-circle"
+                                   on-tap="removeFilter"
+                                   data-index$="[[index]]"></paper-icon-button>
+                <paper-tooltip position="top">
+                  Remove Filter
+                </paper-tooltip>
               </paper-material>
             </template>
           </div>
@@ -450,6 +471,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       addFilterCancelled: function() {
         this.deselectField(this.$.AddFilterDataTypeList);
         this.deselectField(this.$.AddFieldList);
+        this.$.IncludeExclude.selected = 'include';
         this.$.AddField.disabled = true;
       },
 
@@ -490,7 +512,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           var filterObject = {
             collectionName: this.$.AddFilterDataTypeList.selectedItem.getAttribute("value"),
-            collectionDisplayName: this.$.AddFilterDataTypeList.selectedItem.innerText,
+            collectionDisplayName: this.$.AddFilterDataTypeList.selectedItem.innerText.trim(),
             fieldName: item.name,
             filter: item.filter,
             filterValues: item.filterValues,
@@ -522,6 +544,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           return true;
         }
         return false;
+      },
+
+      // Remove filter from collection
+      removeFilter: function(event) {
+
+        var index = JSON.parse(event.currentTarget.dataset.index);
+
+        this.queryBuilderActions.queryFiltersChanged(index, 'remove');
       }
     });
   })();
