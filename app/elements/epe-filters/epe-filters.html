@@ -154,24 +154,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <h1 class="self-center">Custom Filters</h1>
           <div class="filters__custom-container"
             hidden$="[[hideCustomFilters]]">
-            <template id="FiltersTemplate" is="dom-repeat" items="[[customFilters]]" as="item">
+            <template id="FiltersTemplate" is="dom-repeat" items="[[customFilters]]">
+
               <div class="filter-item">
 
                 <!-- Data Type -->
-                <div>[[item.collectionName]]</div>
+                <div><span>[[item.collectionName]]</span></div>
 
                 <!-- Input -->
                 <div class="filter-type  filter-type--input">
                   <paper-input type="search"
-                               placeholder="[[item.name]]"
+                               placeholder="[[item.fieldName]]"
                                value="[[item.value]]">
                   </paper-input>
                 </div>
 
                 <!-- Select -->
-                <paper-dropdown-menu label="[[item.name]]">
+                <paper-dropdown-menu label="[[item.fieldName]]">
                   <paper-listbox class="dropdown-content">
-                    <template id="FiltersTemplate" is="dom-repeat" items="[[item.filterValues]]" as="filterValue">
+                    <paper-item value$="">Select&nbsp;<span> [[item.fieldName]]</span></paper-item>
+                    <template id="FilterValuesTemplate" is="dom-repeat" items="[[item.filterValues]]" as="filterValue">
                       <paper-item value$="[[filterValue]]">[[filterValue]]</paper-item>
                     </template>
                   </paper-listbox>
@@ -291,9 +293,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
 
         customFilters:  {
-          type: Array,
-          value: [],
-          observer: 'showHideCustomFilters'
+          type: Array
         },
 
         hideCustomFilters: {
@@ -329,7 +329,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             // Set Custom Filters - Need to set array to empty so observable will pick up change to customFilters array
             this.customFilters = [];
-            this.customFilters = queryBuilderStore.queryObject.filters;
+
+            queryBuilderStore.queryObject.filters.forEach(function(queryObject) {
+              this.push('customFilters', queryObject);
+            }.bind(this));
+
+            // Decide whether to show No custom filters message
+            this.showHideCustomFilters();
 
           }.bind(this));
         }
@@ -449,7 +455,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           var filterObject = {
             collectionName: this.$.AddFilterDataTypeList.selectedItem.getAttribute("value"),
-            name: item.name,
+            fieldName: item.name,
             filter: item.filter,
             filterValues: item.filterValues,
             value: ''
