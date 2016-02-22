@@ -1,11 +1,15 @@
 'use strict';
 
 var Reflux = require('reflux');
+var QueryBuilderActions = require('../actions/queryBuilder.js');
 var dataSourceStore = require('../stores/dataSource.js');
 var config = require('../config/config.js');
 var presentationsStore = require('../stores/presentations.js');
 
 module.exports = Reflux.createStore({
+
+  // this will set up listeners to all publishers in QueryBuilderActions, using onKeyname (or keyname) as callbacks
+  listenables: [QueryBuilderActions],
 
   // Data storage for all collections
   dataSource: null,
@@ -24,7 +28,7 @@ module.exports = Reflux.createStore({
 
     var queryCollection = dataSourceStore.dataSource.getCollection(config.QueriesCollection);
 
-    // Create/Update a GeoJSON collection in the database
+    // Create/Update a QueriesCollection collection in the database
     if (queryCollection) {
       this.getQuery();
     } else {
@@ -54,5 +58,14 @@ module.exports = Reflux.createStore({
   // Retrieve a query based on the transform name
   getQuery: function() {
 
+  },
+
+  queryFiltersChanged: function(customQueryObject, action) {
+
+    if (action === 'add') {
+      this.queryObject.filters.push(customQueryObject);
+    }
+
+    this.trigger(this);
   }
 });
