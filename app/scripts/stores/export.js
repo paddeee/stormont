@@ -9,7 +9,7 @@ var encryptor = window.electronRequire('file-encryptor');
 
 module.exports = Reflux.createStore({
 
-  // this will set up listeners to all publishers in ImportActions, using onKeyname (or keyname) as callbacks
+  // this will set up listeners to all publishers in ExportActions, using onKeyname (or keyname) as callbacks
   listenables: [ExportActions],
 
   packagePassword: '',

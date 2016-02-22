@@ -86,7 +86,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       --paper-input-container-input: {
          color: var(--primary-text-color);
        };
-
     }
 
     .filters__custom-search {
@@ -122,6 +121,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     paper-dialog paper-button {
       color: var(--dark-primary-color);
     }
+
+    paper-radio-group {
+      margin: 3vh 0 0;
+    }
+
   </style>
   <template>
 
@@ -150,18 +154,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <h1 class="self-center">Custom Filters</h1>
           <div class="filters__custom-container"
             hidden$="[[hideCustomFilters]]">
-            <template id="FiltersTemplate" is="dom-repeat" items="[[customFilters]]">
+            <template id="FiltersTemplate" is="dom-repeat" items="[[customFilters]]" as="item">
               <div class="filter-item">
 
                 <!-- Data Type -->
-                <paper-dropdown-menu label="Search on..">
-                  <paper-listbox>
-                    <paper-item>Events</paper-item>
-                    <paper-item>Places</paper-item>
-                    <paper-item>People</paper-item>
-                    <paper-item>Source Material</paper-item>
-                  </paper-listbox>
-                </paper-dropdown-menu>
+                <div>[[item.collectionName]]</div>
 
                 <!-- Input -->
                 <div class="filter-type  filter-type--input">
@@ -172,6 +169,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </div>
 
                 <!-- Select -->
+                <paper-dropdown-menu label="[[item.name]]">
+                  <paper-listbox class="dropdown-content">
+                    <template id="FiltersTemplate" is="dom-repeat" items="[[item.filterValues]]" as="filterValue">
+                      <paper-item value$="[[filterValue]]">[[filterValue]]</paper-item>
+                    </template>
+                  </paper-listbox>
+                </paper-dropdown-menu>
 
 
                 <!-- DateTime -->
@@ -206,16 +210,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <paper-tooltip for="SearchButton" position="top">
         Perform Filtered Search
       </paper-tooltip>
-
-      <!-- Data Type -->
-      <paper-dropdown-menu id="AddFilterDataType" label="Search on..">
-        <paper-listbox class="dropdown-content">
-          <paper-item>Events</paper-item>
-          <paper-item>Places</paper-item>
-          <paper-item>People</paper-item>
-          <paper-item>Source Material</paper-item>
-        </paper-listbox>
-      </paper-dropdown-menu>
     </div>
 
     <!-- Add Filter Dialog -->
@@ -227,32 +221,48 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <!-- Data Type -->
         <paper-dropdown-menu id="AddFilterDataType" label="Search on..">
-          <paper-listbox class="dropdown-content"
+          <paper-listbox id="AddFilterDataTypeList"
+                         class="dropdown-content"
                          on-iron-select="dataTypeSelected">
-            <paper-item data-epe-type="Events">Events</paper-item>
-            <paper-item>Places</paper-item>
-            <paper-item>People</paper-item>
-            <paper-item>Source Material</paper-item>
+            <paper-item value$="[[eventsName]]">Events</paper-item>
+            <paper-item value$="[[placesName]]">Places</paper-item>
+            <paper-item value$="[[peopleName]]">People</paper-item>
+            <paper-item value$="[[sourcesName]]">Source Material</paper-item>
           </paper-listbox>
         </paper-dropdown-menu>
 
-        <paper-dropdown-menu id="AddField" label="in.." disabled>
-          <paper-listbox id="AddFieldList" class="dropdown-content">
-            <template id="FiltersTemplate" is="dom-repeat" items="[[fields]]">
-              <paper-item>[[item.name]]</paper-item>
+        <paper-dropdown-menu id="AddField" label="in field.." disabled>
+          <paper-listbox id="AddFieldList"
+                         class="dropdown-content">
+            <template id="AddFieldTemplate" is="dom-repeat" items="[[fields]]">
+              <paper-item value$="[[item]]">[[item.name]]</paper-item>
             </template>
           </paper-listbox>
         </paper-dropdown-menu>
+
+        <paper-radio-group selected="include">
+          <paper-radio-button name="include">Include in search</paper-radio-button>
+          <paper-radio-button name="exclude">Exclude from search</paper-radio-button>
+        </paper-radio-group>
 
         </div>
 
       </paper-dialog-scrollable>
       <div class="buttons">
-        <paper-button dialog-dismiss>Cancel</paper-button>
-        <paper-button dialog-confirm
-          on-tap="filterAdded">Add Filter</paper-button>
+        <paper-button dialog-dismiss
+                      on-tap="addFilterCancelled">Cancel</paper-button>
+        <paper-button on-tap="filterAdded">Add Filter</paper-button>
       </div>
     </paper-dialog>
+
+    <!-- Invalid filter dialog -->
+    <paper-dialog id="InvalidFilterAddedDialog" modal>
+      <h2>Invalid Filter</h2>
+      <div>[[invalidFilterMessage]]</div>
+      <div class="layout horizontal end-justified">
+        <paper-button dialog-dismiss>OK</paper-button>
+      </div>
+      </paper-dialog>
 
   </template>
 </dom-module>
@@ -260,6 +270,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   (function() {
     Polymer({
       is: 'epe-filters',
+
+      behaviours: [
+        Polymer.IronValidatorBehaviour
+      ],
 
       properties: {
 
@@ -279,7 +293,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         customFilters:  {
           type: Array,
           value: [],
-          observer: 'containsFilters'
+          observer: 'showHideCustomFilters'
         },
 
         hideCustomFilters: {
@@ -290,10 +304,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         fields: {
           type: Array,
           value: []
+        },
+
+        invalidFilterMessage: {
+          type: String
         }
       },
 
       ready: function() {
+
+        // Set properties on this element so we can use the values in the template
+        this.eventsName = app.config.EventsCollection.name;
+        this.placesName = app.config.PlacesCollection.name;
+        this.peopleName = app.config.PeopleCollection.name;
+        this.sourcesName = app.config.SourcesCollection.name;
 
         if (this.queryBuilderStore) {
 
@@ -303,7 +327,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             // Set Global Search Value
             this.globalSearchValue = queryBuilderStore.queryObject.globalSearchValue;
 
-            // Set Custom Filters
+            // Set Custom Filters - Need to set array to empty so observable will pick up change to customFilters array
+            this.customFilters = [];
             this.customFilters = queryBuilderStore.queryObject.filters;
 
           }.bind(this));
@@ -327,8 +352,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       },
 
-      // OBSERVER ON CUSTOMFILTERS
-      containsFilters: function() {
+      // If custom filters is empty set hideCustomFilters to false
+      showHideCustomFilters: function() {
 
         if (this.customFilters && this.customFilters.length > 0) {
           this.hideCustomFilters = false;
@@ -378,6 +403,64 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Deselect selected item in field dropdown
       deselectField: function(dropdown) {
         dropdown.selected = undefined;
+      },
+
+      // Reset Add filter Dialog form
+      addFilterCancelled: function() {
+        this.deselectField(this.$.AddFilterDataTypeList);
+        this.deselectField(this.$.AddFieldList);
+        this.$.AddField.disabled = true;
+      },
+
+      // ToDo: Use Iron Validators instead of dialog to validate the form
+      validateDataType: function(value) {
+        console.log(value);
+      },
+
+      // Check filter to be added is valid
+      filterValidate: function() {
+
+        var valid = true;
+
+        // If no data type has been selected
+        if (!this.$.AddFilterDataTypeList.selectedItem) {
+          valid = false;
+          this.invalidFilterMessage = 'Please select a data type to search on.'
+          this.$.InvalidFilterAddedDialog.open();
+        }
+
+        // If no data field has been selected
+        else if (!this.$.AddFieldList.selectedItem) {
+          valid = false;
+          this.invalidFilterMessage = 'Please select a field to search on.'
+          this.$.InvalidFilterAddedDialog.open();
+        }
+
+        return valid;
+      },
+
+      // Add a filter and pass filters Object via 'queryFiltersChanged' action
+      filterAdded: function() {
+
+        // If filter to be added is valid
+        if (this.filterValidate()) {
+
+          var item = JSON.parse(this.$.AddFieldList.selectedItem.getAttribute("value"));
+
+          var filterObject = {
+            collectionName: this.$.AddFilterDataTypeList.selectedItem.getAttribute("value"),
+            name: item.name,
+            filter: item.filter,
+            filterValues: item.filterValues,
+            value: ''
+          };
+
+          this.$.AddFilterDialog.close();
+
+          this.addFilterCancelled();
+
+          this.queryBuilderActions.queryFiltersChanged(filterObject, 'add');
+        }
       }
     });
   })();
