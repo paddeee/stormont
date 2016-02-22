@@ -60,10 +60,12 @@ module.exports = Reflux.createStore({
 
   },
 
-  queryFiltersChanged: function(customQueryObject, action) {
+  queryFiltersChanged: function(arg, action) {
 
     if (action === 'add') {
-      this.queryObject.filters.push(customQueryObject);
+      this.queryObject.filters.push(arg);
+    } else if (action === 'remove') {
+      this.queryObject.filters.splice(arg, 1);
     }
 
     this.trigger(this);
