@@ -23,9 +23,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .label {
       color: var(--secondary-text-color);
-      font-size: 0.8em;
-      margin: -8px 0 16px;
-      text-align: center;
+      font-size: 1.7vw;
+      margin: 0 0 2vh;
     }
 
     paper-button {
@@ -41,71 +40,77 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     paper-dialog {
       position: absolute;
     }
+
+    .picker-container {
+      margin: 0 0 1vh;
+    }
+
+    .picker-section {
+      cursor: pointer;
+      font-size: 1.5vw;
+      margin: 1vh 0;
+    }
+
+    iron-icon {
+      margin: 0 1vw 0 0;
+    }
   </style>
   <template>
-    <div class="layout vertical">
+    <div class="layout vertical picker-container">
+
       <div class="label">[[label]]</div>
-      <div class="layout horizontal">
 
-        <!-- Date Picker -->
-        <section
-          class="flex layout horizontal center"
-          on-tap="showDateDialog">
-          <paper-button
-            class="btn"
-            raised><span>[[displayDate]]</span>
-          </paper-button>
+      <!-- Date Picker -->
+      <section on-tap="showDateDialog"
+        class="picker-section layout horizontal center">
+        <iron-icon
+          icon="today"></iron-icon>
+        <div class="flex">
+          <span>[[displayDate]]</span>
+        </div>
+      </section>
 
-          <iron-icon
-            icon="today"></iron-icon>
-        </section>
+      <paper-dialog
+        id="DateDialog"
+        class="paper-date-picker-dialog"
+        modal
+        on-iron-overlay-closed="dismissDateDialog">
 
-        <paper-dialog
-          id="DateDialog"
-          class="paper-date-picker-dialog"
-          modal
-          on-iron-overlay-closed="dismissDateDialog">
+        <paper-date-picker
+          id="DatePicker"
+          responsive-width="1023px"></paper-date-picker>
 
-          <paper-date-picker
-            id="DatePicker"
-            responsive-width="1023px"></paper-date-picker>
+        <div class="buttons">
+          <paper-button dialog-dismiss>Cancel</paper-button>
+          <paper-button dialog-confirm>OK</paper-button>
+        </div>
+      </paper-dialog>
 
-          <div class="buttons">
-            <paper-button dialog-dismiss>Cancel</paper-button>
-            <paper-button dialog-confirm>OK</paper-button>
-          </div>
-        </paper-dialog>
+      <!-- Time Picker -->
+      <section on-tap="showTimeDialog"
+               class="picker-section layout horizontal center">
+        <iron-icon
+          icon="device:access-time"></iron-icon>
+        <div class="flex">
+          <span>[[displayTime]]</span>
+        </div>
+      </section>
 
-        <!-- Time Picker -->
-        <section
-          class="flex layout horizontal center"
-          on-tap="showTimeDialog">
-          <paper-button
-            class="btn"
-            raised><span>[[displayTime]]</span>
-          </paper-button>
+      <paper-dialog
+        id="TimeDialog"
+        class="paper-time-picker-dialog"
+        modal
+        on-iron-overlay-closed="dismissTimeDialog">
 
-          <iron-icon
-            icon="device:access-time"></iron-icon>
-        </section>
+        <paper-time-picker
+          id="TimePicker"
+          responsive-width="1023px"></paper-time-picker>
 
-        <paper-dialog
-          id="TimeDialog"
-          class="paper-time-picker-dialog"
-          modal
-          on-iron-overlay-closed="dismissTimeDialog">
-
-          <paper-time-picker
-            id="TimePicker"
-            responsive-width="1023px"></paper-time-picker>
-
-          <div class="buttons">
-            <paper-button dialog-dismiss>Cancel</paper-button>
-            <paper-button dialog-confirm>OK</paper-button>
-          </div>
-        </paper-dialog>
-
-      </div>
+        <div class="buttons">
+          <paper-button dialog-dismiss>Cancel</paper-button>
+          <paper-button dialog-confirm>OK</paper-button>
+        </div>
+      </paper-dialog>
     </div>
 
   </template>
