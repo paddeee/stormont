@@ -93,12 +93,14 @@ var config = {
     {
       name: 'Date of birth',
       display: 'true',
-      filter: 'gte'
+      filter: 'gte',
+      value: '1900-01-01 00:00:00'
     },
     {
       name: 'Date of death',
       display: 'true',
-      filter: 'lte'
+      filter: 'lte',
+      value: '2100-12-31 00:00:00'
     },
     {
       name: 'Ethnicity',
@@ -192,12 +194,14 @@ var config = {
     {
       name: 'Time Range Start',
       display: 'true',
-      filter: 'gte'
+      filter: 'gte',
+      value: '1900-01-01 00:00:00'
     },
     {
       name: 'Time Range End',
       display: 'true',
-      filter: 'lte'
+      filter: 'lte',
+      value: '2100-12-31 00:00:00'
     },
     { name: 'Supporting Documents',
       display: 'true',

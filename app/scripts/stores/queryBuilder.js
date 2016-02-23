@@ -47,7 +47,7 @@ module.exports = Reflux.createStore({
       packageName: this.packageName,
       globalSearchValue: '',
       filters: []
-    }
+    };
   },
 
   // Retrieve a query based on the transform name

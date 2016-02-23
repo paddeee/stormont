@@ -128,7 +128,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .filter-type,
-    .include-exclude{
+    .include-exclude {
       display: none;
     }
 
@@ -224,13 +224,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 <!-- DateTime -->
                 <epe-date-time-picker
-                  class="date-time-picker"
+                  class="filter-type filter-type--date-time-picker"
                   id="[[item.fieldName]]"
                   label="[[item.fieldName]]"
                   query-type="[[[item.filter]]"
                   date="[[getFilterDate(item.value)]]"
                   time="[[getFilterTime(item.value)]]"
-                  on-user-entered-date-time="userFilterOccurred"></epe-date-time-picker>
+                  on-user-entered-date-time="userFilterOccurred"
+                  showing$="[[showFilterType('date',item.filter)]]"></epe-date-time-picker>
 
                 <div class="filter-info">
                   <span showing$="[[showIncludeExcludeFilter('include',item.includeExclude)]]"
@@ -547,8 +548,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // CALLED IN TEMPLATE TO HIDE NON RELEVANT FILTER ELEMENTS
       showFilterType: function(elementType, filterType) {
 
-        if (elementType === filterType) {
-          return true;
+        if (elementType === 'date') {
+
+          if (filterType === 'lte' || filterType === 'gte') {
+            return true;
+          }
+        } else {
+
+          if (elementType === filterType) {
+            return true;
+          }
         }
         return false;
       },
