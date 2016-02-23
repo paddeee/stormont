@@ -26,10 +26,15 @@ module.exports = Reflux.createStore({
 
     // Create/Update a QueriesCollection collection in the database
     if (queryCollection) {
-      this.getQuery();
+
+      if (queryCollection.data.length > 0) {
+        this.getQuery();
+      } else {
+        this.createDefaultQuery(queryCollection);
+      }
     } else {
-      dataSourceStore.dataSource.addCollection(config.QueriesCollection);
-      this.createDefaultQuery();
+      queryCollection = dataSourceStore.dataSource.addCollection(config.QueriesCollection);
+      this.createDefaultQuery(queryCollection);
     }
 
     this.trigger(this);
@@ -41,20 +46,25 @@ module.exports = Reflux.createStore({
   },
 
   // Create a default query if none exist
-  createDefaultQuery: function() {
+  createDefaultQuery: function(queryCollection) {
 
     this.queryObject = {
       packageName: this.packageName,
       globalSearchValue: '',
       filters: []
     };
+
+    queryCollection.insert(this.queryObject);
   },
 
   // Retrieve a query based on the transform name
   getQuery: function() {
 
     var queryCollection = dataSourceStore.dataSource.getCollection(config.QueriesCollection);
-    console.log(queryCollection);
+
+    this.queryObject = queryCollection.find({
+      packageName: this.packageName
+    })[0];
   },
 
   queryFiltersChanged: function(arg, action) {
@@ -64,6 +74,8 @@ module.exports = Reflux.createStore({
     } else if (action === 'remove') {
       this.queryObject.filters.splice(arg, 1);
     }
+
+
 
     this.trigger(this);
   }
