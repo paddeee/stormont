@@ -84,7 +84,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
 
-    <!-- All the attributes are to try and prevent the bug where menu drags out when clicking near edge of screen. None work -->
     <paper-drawer-panel id="paperDrawerPanel"
                         force-narrow
                         disable-edge-swipe="true">
@@ -281,6 +280,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               presentations-store="[[presentationsStore]]"
               export-actions="[[exportActions]]"
               export-store="[[exportStore]]"
+              query-builder-actions="[[queryBuilderActions]]"
               on-show-dialog="showDialog"></epe-view-packages>
           </section>
         </iron-pages>

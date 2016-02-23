@@ -154,11 +154,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       font-style: italic;
     }
 
-    .remove-filter {
-      color: var(--paper-red-500);
+    .remove-filter-container {
       position: absolute;
       top: 0;
       right: 0;
+    }
+
+    .remove-filter {
+      color: var(--paper-red-500);
     }
 
   </style>
@@ -219,8 +222,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   </paper-listbox>
                 </paper-dropdown-menu>
 
-
                 <!-- DateTime -->
+                <epe-date-time-picker
+                  class="date-time-picker"
+                  id="[[item.fieldName]]"
+                  label="[[item.fieldName]]"
+                  query-type="[[[item.filter]]"
+                  date="[[getFilterDate(item.value)]]"
+                  time="[[getFilterTime(item.value)]]"
+                  on-user-entered-date-time="userFilterOccurred"></epe-date-time-picker>
 
                 <div class="filter-info">
                   <span showing$="[[showIncludeExcludeFilter('include',item.includeExclude)]]"
@@ -233,13 +243,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   <span> table.</span>
                 </div>
 
-                <paper-icon-button class="remove-filter"
-                                   icon="remove-circle"
-                                   on-tap="removeFilter"
-                                   data-index$="[[index]]"></paper-icon-button>
-                <paper-tooltip position="top">
-                  Remove Filter
-                </paper-tooltip>
+                <div class="remove-filter-container">
+                  <paper-icon-button class="remove-filter"
+                                     icon="remove-circle"
+                                     on-tap="removeFilter"
+                                     data-index$="[[index]]"></paper-icon-button>
+                  <paper-tooltip position="top">
+                    Remove Filter
+                  </paper-tooltip>
+                </div>
               </paper-material>
             </template>
           </div>
@@ -375,20 +387,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.queryBuilderStore.listen(function(queryBuilderStore) {
 
             // Set Global Search Value
-            this.globalSearchValue = queryBuilderStore.queryObject.globalSearchValue;
+            if (queryBuilderStore.queryObject) {
+              this.globalSearchValue = queryBuilderStore.queryObject.globalSearchValue;
 
-            // Set Custom Filters - Need to set array to empty so observable will pick up change to customFilters array
-            this.customFilters = [];
+              // Set Custom Filters - Need to set array to empty so observable will pick up change to customFilters array
+              this.customFilters = [];
 
-            queryBuilderStore.queryObject.filters.forEach(function(queryObject) {
-              this.push('customFilters', queryObject);
-            }.bind(this));
+              queryBuilderStore.queryObject.filters.forEach(function(queryObject) {
+                this.push('customFilters', queryObject);
+              }.bind(this));
 
-            // Decide whether to show No custom filters message
-            this.showHideCustomFilters();
-
+              // Decide whether to show No custom filters message
+              this.showHideCustomFilters();
+            }
           }.bind(this));
         }
+      },
+
+      // Iterate through keys of an object and return key/value pair
+      toArray: function(obj) {
+        return Object.keys(obj).map(function(key) {
+          return {name: key, value: obj[key]};
+        });
       },
 
       // Hide filters editor
@@ -548,7 +568,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var index = JSON.parse(event.currentTarget.dataset.index);
 
         this.queryBuilderActions.queryFiltersChanged(index, 'remove');
-      }
+      },
+
+      // Get date for date picker
+      getFilterDate: function(value) {
+        if (value) {
+          return this.toArray(value)[0].value.split(' ')[0];
+        } else {
+          return '1900-01-01';
+        }
+      },
+
+      // Get time for date picker
+      getFilterTime: function(value) {
+        if (value) {
+          return this.toArray(value)[0].value.split(' ')[1];
+        } else {
+          return '00:00:00'
+        }
+      },
     });
   })();
 </script>
