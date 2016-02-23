@@ -22,14 +22,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       border-bottom: 1px var(--primary-text-color) solid;
     }
 
-    .data-grid-container {
-      opacity: 1;
-    }
-
-    .data-grid-container.fade-out {
-      opacity: 0;
-    }
-
     .data-grid {
       font-size: 1.1vw;
     }
@@ -64,25 +56,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       color: var(--secondary-text-color);
       font-size: 3vh;
       height: 30vh;
-    }
-
-    .progress-section {
-      height: 100%;
-      position: absolute;
-      top: 0;
-      width: 80%;
-      padding: 0 10%;
-      pointer-events: none;
-      background-color: var(--primary-background-color);
-    }
-
-    paper-progress {
-      --paper-progress-active-color: var(--dark-primary-color);
-      --paper-progress-transition-duration: 0.04s;
-      --paper-progress-transition-timing-function: ease;
-      --paper-progress-transition-transition-delay: 0s;
-      margin-top: 30vh;
-      width: 100%;
     }
 
     .main-content,
@@ -171,9 +144,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <!-- Container Area For DataGrid and Filters -->
         <div class="relative">
 
-          <div id="DataGridContainer" class="fade-out data-grid-container">
+          <div id="DataGridContainer" class="data-grid-container">
 
-            <!-- Filters -->
+            <!-- Filters-->
             <div class="filter-container layout vertical"
                  hidden$="[[hideDataGrid]]">
               <div class="filters-title horizontal layout">
@@ -214,11 +187,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             hidden$="[[!hideDataGrid]]"
             class="no-data horizontal layout center center-justified">
             <p>There is no data available for '<span>[[collectionName]]</span>'.</p>
-          </div>
-
-          <!-- Progress Bar -->
-          <div id="ProgressBarContainer" class="progress-section" hidden>
-            <paper-progress id="ProgressBar" max="60"></paper-progress>
           </div>
 
         </section>
@@ -420,22 +388,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       this.collectionName = tabChosen;
 
-      // Fade out the current view
-      this.fadeOut($dataGridContainer);
-
-      // Show Progress Bar
-      this.startProgress();
-
       // Set the title in the header
       this.setSectionTitle('data-grid');
 
-      // Add delay due to tabs locking up due to date picker and time pickers
-      // Delay can be masked with transition and progress bar
-      this.async(function() {
-
-        this.setUpGrid(tabChosen);
-
-      }, 1000);
+      this.setUpGrid(tabChosen);
     },
 
     // Return Boolean based on gridData
@@ -445,34 +401,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return false;
       }
       return true;
-    },
-
-    // Return Boolean based on gridData
-    fadeOut: function($el) {
-      $el.classList.add('fade-out');
-    },
-
-    // Show and start the progress of the progress bar
-    startProgress: function () {
-
-      var $progressBarContainer = this.$.ProgressBarContainer;
-      var $progressBar = this.$.ProgressBar;
-
-      $progressBarContainer.hidden = false;
-
-      if ($progressBar.value < $progressBar.max) {
-        $progressBar.value += $progressBar.step;
-      } else {
-
-        // Show Data Grid
-        this.$.DataGridContainer.classList.remove('fade-out');
-
-        $progressBarContainer.hidden = true;
-        $progressBar.value = $progressBar.min;
-        return;
-      }
-
-      requestAnimationFrame(this.startProgress.bind(this));
     },
 
     // Set the gridData and Filter Search boxes

@@ -106,6 +106,8 @@ module.exports = Reflux.createStore({
     // Try to save database
     } else {
 
+      this.resetShowFilterProperties();
+
       this.manageCollectionTransformNames(presentationObject);
 
       // Create Presentation meta info such as user and date created
@@ -134,6 +136,8 @@ module.exports = Reflux.createStore({
 
       // Try to save database
     } else {
+
+      this.resetShowFilterProperties();
 
       this.updateCollectionTransformNames(presentationObject);
 
@@ -185,6 +189,23 @@ module.exports = Reflux.createStore({
       }
     }
     return false;
+  },
+
+  // Remove showRecord and selectedByEvent properties from each record in each collection so records aren't saved
+  // in collection data stores when creating a new package with these properties already set
+  resetShowFilterProperties: function() {
+
+    this.dataSource.collections.forEach(function (collection) {
+
+      collection.data.forEach(function(object) {
+        if (object.showRecord) {
+          delete object.showRecord;
+        }
+        if (object.selectedByEvent) {
+          delete object.selectedByEvent;
+        }
+      });
+    });
   },
 
   // Iterate through all collections and set the transform names to the user created
