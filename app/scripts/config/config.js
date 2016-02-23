@@ -47,12 +47,14 @@ var config = {
     {
       name: 'Begin Date and Time',
       display: 'true',
-      filter: 'gte'
+      filter: 'gte',
+      value: '1900-01-01 00:00:00'
     },
     {
       name: 'End Date and Time',
       display: 'true',
-      filter: 'lte'
+      filter: 'lte',
+      value: '2100-12-31 00:00:00'
     },
     {
       name: 'Description',

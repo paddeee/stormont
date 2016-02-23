@@ -148,6 +148,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
+    ready: function() {
+      this.appendPickerToBody();
+    },
+
+    // Due to issues with position fixed not working reliably with parents with Transforms etc, the Pickers are going
+    // to be moved to be appended to the body to make sure they display.
+    appendPickerToBody: function() {
+
+      var $dateDialog = this.$.DateDialog;
+      var $timeDialog = this.$.TimeDialog;
+      var $body = document.getElementsByTagName('body')[0];
+
+      // Remove from DOM
+      $dateDialog.parentNode.removeChild($dateDialog);
+      $timeDialog.parentNode.removeChild($timeDialog);
+      $body.appendChild($dateDialog);
+      $body.appendChild($timeDialog);
+    },
+
     // When a date dialog is dismissed
     dismissDateDialog: function(event) {
 

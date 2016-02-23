@@ -4,23 +4,19 @@ var Reflux = require('reflux');
 var QueryBuilderActions = require('../actions/queryBuilder.js');
 var dataSourceStore = require('../stores/dataSource.js');
 var config = require('../config/config.js');
-var presentationsStore = require('../stores/presentations.js');
 
 module.exports = Reflux.createStore({
 
   // this will set up listeners to all publishers in QueryBuilderActions, using onKeyname (or keyname) as callbacks
   listenables: [QueryBuilderActions],
 
-  // Data storage for all collections
-  dataSource: null,
+  packageName: 'ViewingFilter',
 
   // Called on Store initialisation
   init: function() {
 
     // Register dataSourceStores's changes
     this.listenTo(dataSourceStore, this.dataSourceChanged);
-
-    this.listenTo(presentationsStore, this.presentationsStoreChanged);
   },
 
   // Set the filteredData Object
@@ -39,17 +35,16 @@ module.exports = Reflux.createStore({
     this.trigger(this);
   },
 
-  // Listener to changes on Presentations Store
-  presentationsStoreChanged: function() {
-
-    console.log('Presentations Store changed');
+  // Triggered when a package is chosen to be viewed or edited
+  packageSelected: function (packageName) {
+    this.packageName = packageName;
   },
 
   // Create a default query if none exist
   createDefaultQuery: function() {
 
     this.queryObject = {
-      packageName: 'ViewingFilter',
+      packageName: this.packageName,
       globalSearchValue: '',
       filters: []
     }
@@ -58,6 +53,8 @@ module.exports = Reflux.createStore({
   // Retrieve a query based on the transform name
   getQuery: function() {
 
+    var queryCollection = dataSourceStore.dataSource.getCollection(config.QueriesCollection);
+    console.log(queryCollection);
   },
 
   queryFiltersChanged: function(arg, action) {
