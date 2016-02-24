@@ -71,7 +71,7 @@ module.exports = Reflux.createStore({
       return;
     }
 
-    var collectionTransformObject = filterTransformObject[this.collectionName];
+    var collectionTransformObject = this.filterTransform[this.collectionName];
     var collectionToAddTransformTo = this.dataSource.getCollection(this.collectionName);
 
     if (!collectionToAddTransformTo) {
