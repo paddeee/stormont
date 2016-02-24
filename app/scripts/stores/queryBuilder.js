@@ -27,7 +27,7 @@ module.exports = Reflux.createStore({
     // Create/Update a QueriesCollection collection in the database
     if (queryCollection) {
 
-      if (queryCollection.data.length > 0) {
+      if (queryCollection.data.length > 0 && this.packageName !== 'ViewingFilter') {
         this.getQuery();
       } else {
         this.createDefaultQuery(queryCollection);
@@ -39,6 +39,10 @@ module.exports = Reflux.createStore({
   },
 
   presentationSaved: function(presentationObject) {
+    this.queryObject.packageName = presentationObject.presentationName;
+  },
+
+  presentationDeleted: function(presentationObject) {
     this.queryObject.packageName = presentationObject.presentationName;
   },
 
