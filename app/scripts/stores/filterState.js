@@ -44,12 +44,7 @@ module.exports = Reflux.createStore({
 
     //this.updateFilteredData2(queryBuilderStore.queryObject);
 
-    //this.autoFilterCollections(false, false);
-
-    this.message = {
-      type: 'queryBuilderChanged'
-    };
-    this.trigger(this);
+    this.autoFilterCollections(true, true);
   },
 
   // Set the filteredData Object

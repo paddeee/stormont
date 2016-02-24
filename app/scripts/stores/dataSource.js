@@ -160,10 +160,15 @@ module.exports = Reflux.createStore({
     // Broadcast message if collection exists
     if (this.collectionExists(presentationName)) {
 
+      this.resetShowFilterProperties();
+
       this.deleteCollectionTransformNames(presentationObject);
 
       // Create Presentation meta info such as user and date created
       this.savePresentationMetaData(presentationObject, null, 'delete');
+
+      // Delete record from Queries Collection to keep everything tidy
+      this.saveQueryBuilderData(presentationObject, 'delete');
 
       // Save database
       this.dataSource.saveDatabase(function() {
@@ -282,6 +287,18 @@ module.exports = Reflux.createStore({
       presentationsCollection.update(presentationObject);
     } else if (action === 'delete') {
       presentationsCollection.remove(presentationObject);
+    }
+  },
+
+  // Create a meta object and add to presentations collection of loki db
+  saveQueryBuilderData: function (presentationObject, action) {
+
+    var queryBuilderCollection = this.dataSource.getCollection('Queries');
+
+    if (action === 'delete') {
+      queryBuilderCollection.removeWhere({
+        packageName: presentationObject.presentationName
+      });
     }
   }
 
