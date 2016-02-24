@@ -90,32 +90,11 @@ module.exports = Reflux.createStore({
   convertQueryObjectToFilterTransform: function(filters) {
     console.log(filters);
 
-    // Create template object to use for cloning for each data store
-    var filterTransform = {
-      filters: {
-        type: 'find',
-        value: {
-          '$and': [{
-            'Full Name': {
-              // Bring back Full Name for Murder OR Kidnapping BUT NOT PersonA
-              // '$regex': ['(?:(?:Murder)(?:[^PersonA]*))|(?:(?:Rape)(?:[^PersonA]*))', 'i']
-              '$regex': ['Murder', 'i']
-            }
-          }]
-        }
-      },
-      sorting: {
-        type: 'simplesort',
-        property: '$loki',
-        desc: true
-      }
-    };
-
     // Set blank transform objects for each data type
-    var eventsTransform = Object.create(filterTransform);
-    var placesTransform = Object.create(filterTransform);
-    var peopleTransform = Object.create(filterTransform);
-    var sourcesTransform = Object.create(filterTransform);
+    var eventsTransform = eventsStore.filterTransform;
+    var placesTransform = placesStore.filterTransform;
+    var peopleTransform = peopleStore.filterTransform;
+    var sourcesTransform = sourcesStore.filterTransform;
 
     // Create Group object of filters and group by field names
     var filterGroup = _.groupBy(filters, 'collectionName');
@@ -132,7 +111,7 @@ module.exports = Reflux.createStore({
     this.filterTransforms[config.PeopleCollection.name] = peopleTransform;
     this.filterTransforms[config.SourcesCollection.name] = sourcesTransform;
 
-    eventsStore.filterTransform = eventsTransform;
+    //eventsStore.filterTransform = eventsTransform;
   },
 
   // Set a field query object based on the field, type and include/exclude of a filter rules

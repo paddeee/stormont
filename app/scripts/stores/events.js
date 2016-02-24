@@ -3,7 +3,6 @@
 var Reflux = require('reflux');
 var dataSourceStore = require('../stores/dataSource.js');
 var config = require('../config/config.js');
-//var filterTransform = require('../config/filterTransforms.js');
 var presentationsStore = require('../stores/presentations.js');
 
 module.exports = Reflux.createStore({
@@ -20,8 +19,7 @@ module.exports = Reflux.createStore({
   // Called on Store initialisation
   init: function() {
 
-    // Set filterTransform property on the object from the required config data
-    //this.filterTransform = filterTransform;
+    this.setDefaultTransform();
 
     // Register dataSourceStores's changes
     this.listenTo(dataSourceStore, this.dataSourceChanged);
@@ -34,10 +32,10 @@ module.exports = Reflux.createStore({
 
     this.dataSource = dataSourceStore.dataSource;
 
-    //this.setDefaultFilter();
+    this.setDefaultTransform();
 
     // Call when the source data is updated
-    //this.createFilterTransform(this.filterTransform, dataSourceStore.message);
+    this.createFilterTransform(this.filterTransform, dataSourceStore.message);
   },
 
   // Set search filter on our collectionTransform
@@ -122,8 +120,7 @@ module.exports = Reflux.createStore({
 
     // Update this store's filterTransform so the filters will be updated when a presentation changes
     if (this.dataSource.getCollection(this.collectionName).transforms[transformName][0]) {
-      //this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
-      this.filterTransform.filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
+      this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
     }
 
     // Update the collection resulting from the transform
@@ -151,8 +148,7 @@ module.exports = Reflux.createStore({
     }
 
     // Update this store's filterTransform so the filters will be updated when a presentation changes
-    //this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
-    this.filterTransform.filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
+    this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
 
     // Update the collection resulting from the transform
     this.userFilteredCollection = collectionToAddTransformTo.chain(transformName);
@@ -161,11 +157,32 @@ module.exports = Reflux.createStore({
     this.trigger(this.userFilteredCollection.data());
   },
 
-  //
-  setDefaultFilter: function() {
+  // Set a default transform to be used immediately on the store
+  setDefaultTransform: function() {
     console.log('Events - setDefaultFilter');
 
     var collectionToAddTransformTo;
+
+    this.filterTransform = {};
+    this.filterTransform[this.collectionName] = {
+      filters: {
+        type: 'find',
+        value: {
+          '$and': [{
+            'Full Name': {
+              // Bring back Full Name for Murder OR Kidnapping BUT NOT PersonA
+              // '$regex': ['(?:(?:Murder)(?:[^PersonA]*))|(?:(?:Rape)(?:[^PersonA]*))', 'i']
+              '$regex': ['Murder', 'i']
+            }
+          }]
+        }
+      },
+      sorting: {
+        type: 'simplesort',
+        property: '$loki',
+        desc: true
+      }
+    };
 
     if (!this.dataSource) {
       return;
@@ -178,8 +195,8 @@ module.exports = Reflux.createStore({
     }
 
     this.collectionTransform = [];
-    this.collectionTransform.push(filterTransform[this.collectionName].filters);
-    this.collectionTransform.push(filterTransform[this.collectionName].sorting);
+    this.collectionTransform.push(this.filterTransform[this.collectionName].filters);
+    this.collectionTransform.push(this.filterTransform[this.collectionName].sorting);
 
     collectionToAddTransformTo.setTransform('DefaultFilter', this.collectionTransform);
   }

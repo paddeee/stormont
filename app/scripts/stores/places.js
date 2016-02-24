@@ -3,7 +3,6 @@
 var Reflux = require('reflux');
 var dataSourceStore = require('../stores/dataSource.js');
 var config = require('../config/config.js');
-var filterTransform = require('../config/filterTransforms.js');
 var presentationsStore = require('../stores/presentations.js');
 
 module.exports = Reflux.createStore({
@@ -20,8 +19,7 @@ module.exports = Reflux.createStore({
   // Called on Store initialisation
   init: function() {
 
-    // Set filterTransform property on the object from the required config data
-    this.filterTransform = filterTransform;
+    this.setDefaultTransform();
 
     // Register dataSourceStores's changes
     this.listenTo(dataSourceStore, this.dataSourceChanged);
@@ -34,7 +32,7 @@ module.exports = Reflux.createStore({
 
     this.dataSource = dataSourceStore.dataSource;
 
-    //this.setDefaultFilter();
+    this.setDefaultTransform();
 
     // Call when the source data is updated
     this.filterStateChanged(this.filterTransform);
@@ -150,10 +148,32 @@ module.exports = Reflux.createStore({
     this.trigger(this.userFilteredCollection.data());
   },
 
-  //
-  setDefaultFilter: function() {
+  // Set a default transform to be used immediately on the store
+  setDefaultTransform: function() {
+    console.log('Places - setDefaultFilter');
 
     var collectionToAddTransformTo;
+
+    this.filterTransform = {};
+    this.filterTransform[this.collectionName] = {
+      filters: {
+        type: 'find',
+        value: {
+          '$and': [{
+            'Full Name': {
+              // Bring back Full Name for Murder OR Kidnapping BUT NOT PersonA
+              // '$regex': ['(?:(?:Murder)(?:[^PersonA]*))|(?:(?:Rape)(?:[^PersonA]*))', 'i']
+              '$regex': ['', 'i']
+            }
+          }]
+        }
+      },
+      sorting: {
+        type: 'simplesort',
+        property: '$loki',
+        desc: true
+      }
+    };
 
     if (!this.dataSource) {
       return;
@@ -166,8 +186,8 @@ module.exports = Reflux.createStore({
     }
 
     this.collectionTransform = [];
-    this.collectionTransform.push(filterTransform[this.collectionName].filters);
-    this.collectionTransform.push(filterTransform[this.collectionName].sorting);
+    this.collectionTransform.push(this.filterTransform[this.collectionName].filters);
+    this.collectionTransform.push(this.filterTransform[this.collectionName].sorting);
 
     collectionToAddTransformTo.setTransform('DefaultFilter', this.collectionTransform);
   }
