@@ -42,10 +42,13 @@ module.exports = Reflux.createStore({
   },
 
   // When filter state is changed we need to update the GeoJSON object
-  filterStateChanged: function() {
+  filterStateChanged: function(filterStateStore) {
 
-    if (this.debouncedCreateGeoJSON) {
-      this.debouncedCreateGeoJSON();
+    if (filterStateStore.message.type !== 'queryBuilderChanged') {
+
+      if (this.debouncedCreateGeoJSON) {
+        this.debouncedCreateGeoJSON();
+      }
     }
   },
 

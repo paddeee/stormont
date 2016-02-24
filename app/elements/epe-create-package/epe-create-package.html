@@ -379,6 +379,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.presentationState = presentationsStore.presentationState;
         }.bind(this));
       }
+
+      if (this.filterStateStore) {
+
+        // When the filterState data is updated, can do the grid
+        this.filterStateStore.listen(function() {
+          this.setUpGrid(this.collectionName);
+        }.bind(this));
+      }
     },
 
     // When a tab is selected set the collectionData if available
@@ -410,26 +418,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       switch (collectionName) {
         case app.config.EventsCollection.name:
           this.gridData = this.eventsData;
-          this.filtersToShow = this.eventsStore.filterTransform[app.config.EventsCollection.name].filters.value.$and;
-          this.sortingState = this.eventsStore.filterTransform[app.config.EventsCollection.name].sorting;
+          if (this.eventsStore.filterTransform) {
+            this.sortingState = this.eventsStore.filterTransform.sorting;
+          }
           this.showAllSelected = this.eventsStore.showAllSelected;
           break;
         case app.config.PlacesCollection.name:
           this.gridData = this.placesData;
-          this.filtersToShow = this.placesStore.filterTransform[app.config.PlacesCollection.name].filters.value.$and;
-          this.sortingState = this.placesStore.filterTransform[app.config.PlacesCollection.name].sorting;
+          if (this.placesStore.filterTransform) {
+            this.sortingState = this.placesStore.filterTransform.sorting;
+          }
           this.showAllSelected = this.placesStore.showAllSelected;
           break;
         case app.config.PeopleCollection.name:
           this.gridData = this.peopleData;
-          this.filtersToShow = this.peopleStore.filterTransform[app.config.PeopleCollection.name].filters.value.$and;
-          this.sortingState = this.peopleStore.filterTransform[app.config.PeopleCollection.name].sorting;
+          if (this.peopleStore.filterTransform) {
+            this.sortingState = this.peopleStore.filterTransform.sorting;
+          }
           this.showAllSelected = this.peopleStore.showAllSelected;
           break;
         case app.config.SourcesCollection.name:
           this.gridData = this.sourceData;
-          this.filtersToShow = this.sourceStore.filterTransform[app.config.SourcesCollection.name].filters.value.$and;
-          this.sortingState = this.sourceStore.filterTransform[app.config.SourcesCollection.name].sorting;
+          if (this.sourceStore.filterTransform) {
+            this.sortingState = this.sourceStore.filterTransform.sorting;
+          }
           this.showAllSelected = this.sourceStore.showAllSelected;
           break;
         default:

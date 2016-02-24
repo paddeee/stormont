@@ -46,6 +46,10 @@ module.exports = Reflux.createStore({
 
     //this.autoFilterCollections(false, false);
 
+    this.message = {
+      type: 'queryBuilderChanged'
+    };
+    this.trigger(this);
   },
 
   // Set the filteredData Object
@@ -69,7 +73,7 @@ module.exports = Reflux.createStore({
 
     // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
     // method
-    this.autoFilterCollections(true, true, searchFilterObject);
+    this.autoFilterCollections(true, true);
   },
 
   // Set simpleSort on our collectionTransform
@@ -86,11 +90,18 @@ module.exports = Reflux.createStore({
   convertQueryObjectToFilterTransform: function(filters) {
     console.log(filters);
 
+    // Create template object to use for cloning for each data store
     var filterTransform = {
       filters: {
         type: 'find',
         value: {
-          '$and': []
+          '$and': [{
+            'Full Name': {
+              // Bring back Full Name for Murder OR Kidnapping BUT NOT PersonA
+              // '$regex': ['(?:(?:Murder)(?:[^PersonA]*))|(?:(?:Rape)(?:[^PersonA]*))', 'i']
+              '$regex': ['Murder', 'i']
+            }
+          }]
         }
       },
       sorting: {
@@ -106,15 +117,49 @@ module.exports = Reflux.createStore({
     var peopleTransform = Object.create(filterTransform);
     var sourcesTransform = Object.create(filterTransform);
 
-    // Create Group object of filters
+    // Create Group object of filters and group by field names
     var filterGroup = _.groupBy(filters, 'collectionName');
 
-    console.log(filterGroup[config.PeopleCollection.name]);
+    var eventsFields = _.groupBy(filterGroup[config.EventsCollection.name], 'fieldName');
+    var placesFields = _.groupBy(filterGroup[config.PlacesCollection.name], 'fieldName');
+    var peopleFields = _.groupBy(filterGroup[config.PeopleCollection.name], 'fieldName');
+    var sourcesFields = _.groupBy(filterGroup[config.SourcesCollection.name], 'fieldName');
+
+    this.createFieldQueryFromRules(eventsTransform, eventsFields);
 
     this.filterTransforms[config.EventsCollection.name] = eventsTransform;
     this.filterTransforms[config.PlacesCollection.name] = placesTransform;
     this.filterTransforms[config.PeopleCollection.name] = peopleTransform;
     this.filterTransforms[config.SourcesCollection.name] = sourcesTransform;
+
+    eventsStore.filterTransform = eventsTransform;
+  },
+
+  // Set a field query object based on the field, type and include/exclude of a filter rules
+  // ToDO: PROJECT MANAGER TO DOCUMENT THESE RULES
+  createFieldQueryFromRules: function(transformObject, fieldsObject) {
+
+    _.values(fieldsObject).forEach(function(fieldGroupArray) {
+
+      // If the field is an input or a select box
+      if (fieldGroupArray[0].filter === 'regex' || fieldGroupArray[0].filter === 'select') {
+        this.getRegexFilterQuery(fieldGroupArray);
+      } else if (fieldGroupArray[0].filter === 'lte' || fieldGroupArray[0].filter === 'gte') {
+        // ToDO: Create this.getDateFilterQuery(fieldGroupArray);
+      }
+    }.bind(this));
+
+  },
+
+  // Create a regular expression for a loki transform query based on the passed in field filters
+  getRegexFilterQuery: function(fieldGroupArray) {
+
+    var regex = ['', 'i'];
+
+    // ToDO: Set regex[0] to a string based on each field's includeExclude property
+
+    return regex;
+
   },
 
   // Update filtered data based on the collection
