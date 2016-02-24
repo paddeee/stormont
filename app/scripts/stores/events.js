@@ -3,7 +3,7 @@
 var Reflux = require('reflux');
 var dataSourceStore = require('../stores/dataSource.js');
 var config = require('../config/config.js');
-var filterTransform = require('../config/filterTransforms.js');
+//var filterTransform = require('../config/filterTransforms.js');
 var presentationsStore = require('../stores/presentations.js');
 
 module.exports = Reflux.createStore({
@@ -21,7 +21,7 @@ module.exports = Reflux.createStore({
   init: function() {
 
     // Set filterTransform property on the object from the required config data
-    this.filterTransform = filterTransform;
+    //this.filterTransform = filterTransform;
 
     // Register dataSourceStores's changes
     this.listenTo(dataSourceStore, this.dataSourceChanged);
@@ -37,7 +37,7 @@ module.exports = Reflux.createStore({
     //this.setDefaultFilter();
 
     // Call when the source data is updated
-    this.createFilterTransform(this.filterTransform, dataSourceStore.message);
+    //this.createFilterTransform(this.filterTransform, dataSourceStore.message);
   },
 
   // Set search filter on our collectionTransform
@@ -122,7 +122,8 @@ module.exports = Reflux.createStore({
 
     // Update this store's filterTransform so the filters will be updated when a presentation changes
     if (this.dataSource.getCollection(this.collectionName).transforms[transformName][0]) {
-      this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
+      //this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
+      this.filterTransform.filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
     }
 
     // Update the collection resulting from the transform
@@ -150,7 +151,8 @@ module.exports = Reflux.createStore({
     }
 
     // Update this store's filterTransform so the filters will be updated when a presentation changes
-    this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
+    //this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
+    this.filterTransform.filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
 
     // Update the collection resulting from the transform
     this.userFilteredCollection = collectionToAddTransformTo.chain(transformName);

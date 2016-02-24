@@ -63,6 +63,7 @@ var mapGeoJSONStore = require('./stores/mapGeoJSON.js');
   app.exportActions = exportActions;
   app.exportStore = exportStore;
   app.filterStateActions = filterStateActions;
+  app.filterStateStore = filterStateStore;
   app.eventsStore = eventsStore;
   app.placesStore = placesStore;
   app.peopleStore = peopleStore;
