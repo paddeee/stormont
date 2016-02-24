@@ -42,7 +42,7 @@ module.exports = Reflux.createStore({
 
     this.convertQueryObjectToFilterTransform(queryBuilderStore.queryObject.filters);
 
-    this.updateFilteredData2(queryBuilderStore.queryObject);
+    //this.updateFilteredData2(queryBuilderStore.queryObject);
 
     //this.autoFilterCollections(false, false);
 
@@ -98,12 +98,23 @@ module.exports = Reflux.createStore({
         property: '$loki',
         desc: true
       }
-    }
+    };
 
-    this.filterTransforms[config.EventsCollection.name] = filterTransform;
-    this.filterTransforms[config.PlacesCollection.name] = filterTransform;
-    this.filterTransforms[config.PeopleCollection.name] = filterTransform;
-    this.filterTransforms[config.SourcesCollection.name] = filterTransform;
+    // Set blank transform objects for each data type
+    var eventsTransform = Object.create(filterTransform);
+    var placesTransform = Object.create(filterTransform);
+    var peopleTransform = Object.create(filterTransform);
+    var sourcesTransform = Object.create(filterTransform);
+
+    // Create Group object of filters
+    var filterGroup = _.groupBy(filters, 'collectionName');
+
+    console.log(filterGroup[config.PeopleCollection.name]);
+
+    this.filterTransforms[config.EventsCollection.name] = eventsTransform;
+    this.filterTransforms[config.PlacesCollection.name] = placesTransform;
+    this.filterTransforms[config.PeopleCollection.name] = peopleTransform;
+    this.filterTransforms[config.SourcesCollection.name] = sourcesTransform;
   },
 
   // Update filtered data based on the collection
@@ -140,7 +151,6 @@ module.exports = Reflux.createStore({
 
   // Create a filter transform object from a UI Filter Object
   createFilterObject2: function (queryBuilderObject) {
-    console.log(queryBuilderObject);
 
     var transform = {
       type: 'find',

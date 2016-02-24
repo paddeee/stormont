@@ -9,7 +9,7 @@ var eventsObject = {
       '$and': [
         {
           'Full Name': {
-            // Bring back Full Name for Murder OR Kindnapping BUT NOT PersonA
+            // Bring back Full Name for Murder OR Kidnapping BUT NOT PersonA
             // '$regex': ['(?:(?:Murder)(?:[^PersonA]*))|(?:(?:Rape)(?:[^PersonA]*))', 'i']
             '$regex': ['', 'i']
           }
