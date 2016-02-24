@@ -102,13 +102,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .add-button {
-      position: absolute;
-      top: 20px;
-      right: 1vw;
-      color: var(--primary-text-color);
-    }
-
-    .search-button {
       background-color: var(--default-primary-color);
       position: absolute;
       bottom: 2vh;
@@ -261,7 +254,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <!-- No filters message -->
           <div class="filters__no-filters"
                hidden$="[[!hideCustomFilters]]">
-            Press the yellow add button above to add a custom filter.
+            Press the add button at the bottom to add a custom filter.
           </div>
         </div>
       </div>
@@ -269,19 +262,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <paper-fab id="AddButton"
                  class="add-button"
                  icon="add"
-                 mini
                  on-tap="addFilter"></paper-fab>
 
-      <paper-fab id="SearchButton"
-                 class="search-button"
-                 icon="search"></paper-fab>
-
       <!-- Tooltips -->
-      <paper-tooltip for="AddButton">
+      <paper-tooltip for="AddButton" position="top">
         Add a Custom Filter
-      </paper-tooltip>
-      <paper-tooltip for="SearchButton" position="top">
-        Perform Filtered Search
       </paper-tooltip>
     </div>
 
