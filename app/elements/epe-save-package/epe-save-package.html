@@ -269,6 +269,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           originalName: originalName
         };
 
+        // Call saveQuery action
+        this.queryBuilderActions.presentationSaved(presentationObject);
+
         // Call savePresentation action
         this.dataSourceActions.savePresentation(presentationObject);
       }
@@ -295,6 +298,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         presentationState: this.presentationState,
         originalName: originalName
       };
+
+      // Call saveQuery action
+      this.queryBuilderActions.presentationSaved(presentationObject);
 
       // Call savePresentation action
       this.dataSourceActions.updatePresentation(presentationObject);

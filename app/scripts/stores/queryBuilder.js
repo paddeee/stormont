@@ -36,17 +36,25 @@ module.exports = Reflux.createStore({
       queryCollection = dataSourceStore.dataSource.addCollection(config.QueriesCollection);
       this.createDefaultQuery(queryCollection);
     }
+  },
 
-    this.trigger(this);
+  presentationSaved: function(presentationObject) {
+    this.queryObject.packageName = presentationObject.presentationName;
   },
 
   // Triggered when a package is chosen to be viewed or edited
   packageSelected: function (packageName) {
     this.packageName = packageName;
+    this.getQuery();
   },
 
   // Create a default query if none exist
   createDefaultQuery: function(queryCollection) {
+
+    // If ViewingFilter Object already exists no need to add another one
+    if (queryCollection.find({ packageName: this.packageName }).length > 0) {
+      return;
+    }
 
     this.queryObject = {
       packageName: this.packageName,
@@ -55,6 +63,8 @@ module.exports = Reflux.createStore({
     };
 
     queryCollection.insert(this.queryObject);
+
+    this.trigger(this);
   },
 
   // Retrieve a query based on the transform name
@@ -62,9 +72,17 @@ module.exports = Reflux.createStore({
 
     var queryCollection = dataSourceStore.dataSource.getCollection(config.QueriesCollection);
 
+    // If this is a new package create a new object instead
+    if (this.packageName === 'ViewingFilter') {
+      this.createDefaultQuery(queryCollection);
+      return;
+    }
+
     this.queryObject = queryCollection.find({
       packageName: this.packageName
     })[0];
+
+    this.trigger(this);
   },
 
   queryFiltersChanged: function(arg, action) {
