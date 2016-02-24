@@ -126,7 +126,7 @@ module.exports = Reflux.createStore({
   resetFilterTransform: function() {
 
     var collectionToAddTransformTo;
-    var transformName = 'DefaultFilter';
+    var transformName = 'ViewingFilter';
 
     if (!this.dataSource) {
       return;
@@ -189,6 +189,6 @@ module.exports = Reflux.createStore({
     this.collectionTransform.push(this.filterTransform[this.collectionName].filters);
     this.collectionTransform.push(this.filterTransform[this.collectionName].sorting);
 
-    collectionToAddTransformTo.setTransform('DefaultFilter', this.collectionTransform);
+    collectionToAddTransformTo.setTransform('ViewingFilter', this.collectionTransform);
   }
 });

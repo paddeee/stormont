@@ -106,12 +106,10 @@ module.exports = Reflux.createStore({
 
     this.createFieldQueryFromRules(eventsTransform, eventsFields);
 
-    this.filterTransforms[config.EventsCollection.name] = eventsTransform;
-    this.filterTransforms[config.PlacesCollection.name] = placesTransform;
-    this.filterTransforms[config.PeopleCollection.name] = peopleTransform;
-    this.filterTransforms[config.SourcesCollection.name] = sourcesTransform;
-
-    //eventsStore.filterTransform = eventsTransform;
+    this.filterTransforms[config.EventsCollection.name] = eventsTransform[config.EventsCollection.name];
+    this.filterTransforms[config.PlacesCollection.name] = placesTransform[config.PlacesCollection.name];
+    this.filterTransforms[config.PeopleCollection.name] = peopleTransform[config.PeopleCollection.name];
+    this.filterTransforms[config.SourcesCollection.name] = sourcesTransform[config.SourcesCollection.name];
   },
 
   // Set a field query object based on the field, type and include/exclude of a filter rules
