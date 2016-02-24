@@ -189,7 +189,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <p>There is no data available for '<span>[[collectionName]]</span>'.</p>
           </div>
 
-        </section>
+      </section>
       </div>
 
       <!-- Profile View -->
@@ -234,336 +234,320 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </template>
 </dom-module>
 <script>
-(function() {
-  Polymer({
-    is: 'epe-create-package',
+  (function() {
+    Polymer({
+      is: 'epe-create-package',
 
-    behaviors: [
-      Polymer.NeonAnimationRunnerBehavior
-    ],
+      behaviors: [
+        Polymer.NeonAnimationRunnerBehavior
+      ],
 
-    properties: {
+      properties: {
 
-      message: {
-        type: String,
-        value: '',
-        notify: true
+        message: {
+          type: String,
+          value: '',
+          notify: true
+        },
+
+        savePackageCardOpen: {
+          type: Boolean,
+          value: false
+        },
+
+        gridData: {
+          type: Array
+        },
+
+        collectionName: {
+          type: String,
+          value: ''
+        },
+
+        hideDataGrid: {
+          type: Boolean,
+          computed: 'isGridEmpty(gridData)',
+          value: true
+        },
+
+        editState: {
+          type: String,
+          value: 'creating'
+        },
+
+        showAllSelected: {
+          type: Boolean,
+          value: false
+        },
+
+        animationConfig: {
+          value: function() {
+            return {
+              'entry': {
+                name: 'transform-animation',
+                node: this.$.SavePackage,
+                transformFrom: 'translateY(100%)',
+                transformTo: 'translateY(0)'
+              },
+              'exit': {
+                name: 'transform-animation',
+                node: this.$.SavePackage,
+                transformFrom: 'translateY(0)',
+                transformTo: 'translateY(100%)'
+              }
+            };
+          }
+        }
       },
 
-      savePackageCardOpen: {
-        type: Boolean,
-        value: false
+      listeners: {
+        'neon-animation-finish': 'onSlideAnimationFinish'
       },
 
-      gridData: {
-        type: Array
-      },
+      // ToDo: Must be a DRYer way of doing this when not rushing
+      ready: function() {
 
-      collectionName: {
-        type: String,
-        value: ''
-      },
+        if (this.eventsStore) {
 
-      hideDataGrid: {
-        type: Boolean,
-        computed: 'isGridEmpty(gridData)',
-        value: true
-      },
+          // When the events data is updated, update our grid data
+          this.eventsStore.listen(function(eventsData) {
 
-      editState: {
-        type: String,
-        value: 'creating'
-      },
+            this.eventsData = eventsData;
 
-      showAllSelected: {
-        type: Boolean,
-        value: false
-      },
+            if (this.params) {
 
-      animationConfig: {
-        value: function() {
-          return {
-            'entry': {
-              name: 'transform-animation',
-              node: this.$.SavePackage,
-              transformFrom: 'translateY(100%)',
-              transformTo: 'translateY(0)'
-            },
-            'exit': {
-              name: 'transform-animation',
-              node: this.$.SavePackage,
-              transformFrom: 'translateY(0)',
-              transformTo: 'translateY(100%)'
+              this.collectionName = this.params.name;
+
+              this.setUpGrid(this.collectionName);
             }
-          };
+          }.bind(this));
         }
-      }
-    },
 
-    listeners: {
-      'neon-animation-finish': 'onSlideAnimationFinish'
-    },
+        if (this.placesStore) {
 
-    // ToDo: Must be a DRYer way of doing this when not rushing
-    ready: function() {
+          // When the places data is updated, update our grid data
+          this.placesStore.listen(function (placesData) {
 
-      if (this.eventsStore) {
+            this.placesData = placesData;
 
-        // When the events data is updated, update our grid data
-        this.eventsStore.listen(function(eventsData) {
+            if (this.params) {
 
-          this.eventsData = eventsData;
+              this.collectionName = this.params.name;
 
-          if (this.params) {
+              this.setUpGrid(this.collectionName);
+            }
+          }.bind(this));
+        }
 
-            this.collectionName = this.params.name;
+        if (this.peopleStore) {
 
-            this.setUpGrid(this.collectionName);
-          }
-        }.bind(this));
-      }
+          // When the people data is updated, update our grid data
+          this.peopleStore.listen(function (peopleData) {
 
-      if (this.placesStore) {
+            this.peopleData = peopleData;
 
-        // When the places data is updated, update our grid data
-        this.placesStore.listen(function (placesData) {
+            if (this.params) {
 
-          this.placesData = placesData;
+              this.collectionName = this.params.name;
 
-          if (this.params) {
+              this.setUpGrid(this.collectionName);
+            }
+          }.bind(this));
+        }
 
-            this.collectionName = this.params.name;
+        if (this.sourceStore) {
 
-            this.setUpGrid(this.collectionName);
-          }
-        }.bind(this));
-      }
+          // When the source data is updated, update our grid data
+          this.sourceStore.listen(function (sourceData) {
 
-      if (this.peopleStore) {
+            this.sourceData = sourceData.userFilteredCollection.data();
 
-        // When the people data is updated, update our grid data
-        this.peopleStore.listen(function (peopleData) {
+            if (this.params) {
 
-          this.peopleData = peopleData;
+              this.collectionName = this.params.name;
 
-          if (this.params) {
+              this.setUpGrid(this.collectionName);
+            }
+          }.bind(this));
+        }
 
-            this.collectionName = this.params.name;
+        if (this.presentationsStore) {
 
-            this.setUpGrid(this.collectionName);
-          }
-        }.bind(this));
-      }
+          // When the presentations data is updated, set this view's presentationsData
+          this.presentationsStore.listen(function(presentationsStore) {
+            this.presentationName = presentationsStore.presentationName;
+            this.presentationState = presentationsStore.presentationState;
+          }.bind(this));
+        }
+      },
 
-      if (this.sourceStore) {
+      // When a tab is selected set the collectionData if available
+      tabSelected: function(event) {
 
-        // When the source data is updated, update our grid data
-        this.sourceStore.listen(function (sourceData) {
+        var tabChosen = event.detail.item.getAttribute('name');
+        var $dataGridContainer = this.$.DataGridContainer;
 
-          this.sourceData = sourceData.userFilteredCollection.data();
+        this.collectionName = tabChosen;
 
-          if (this.params) {
+        // Set the title in the header
+        this.setSectionTitle('data-grid');
 
-            this.collectionName = this.params.name;
+        this.setUpGrid(tabChosen);
+      },
 
-            this.setUpGrid(this.collectionName);
-          }
-        }.bind(this));
-      }
+      // Return Boolean based on gridData
+      isGridEmpty: function(gridData) {
 
-      if (this.presentationsStore) {
+        if (gridData) {
+          return false;
+        }
+        return true;
+      },
 
-        // When the presentations data is updated, set this view's presentationsData
-        this.presentationsStore.listen(function(presentationsStore) {
-          this.presentationName = presentationsStore.presentationName;
-          this.presentationState = presentationsStore.presentationState;
-        }.bind(this));
-      }
+      // Set the gridData and Filter Search boxes
+      setUpGrid: function(collectionName) {
 
-      if (this.filterStateStore) {
-
-        // When the filterState data is updated, can do the grid
-        this.filterStateStore.listen(function() {
-          this.setUpGrid(this.collectionName);
-        }.bind(this));
-      }
-    },
-
-    // When a tab is selected set the collectionData if available
-    tabSelected: function(event) {
-
-      var tabChosen = event.detail.item.getAttribute('name');
-      var $dataGridContainer = this.$.DataGridContainer;
-
-      this.collectionName = tabChosen;
-
-      // Set the title in the header
-      this.setSectionTitle('data-grid');
-
-      this.setUpGrid(tabChosen);
-    },
-
-    // Return Boolean based on gridData
-    isGridEmpty: function(gridData) {
-
-      if (gridData) {
-        return false;
-      }
-      return true;
-    },
-
-    // Set the gridData and Filter Search boxes
-    setUpGrid: function(collectionName) {
-
-      switch (collectionName) {
-        case app.config.EventsCollection.name:
-          this.gridData = this.eventsData;
-          if (this.eventsStore.filterTransform) {
+        switch (collectionName) {
+          case app.config.EventsCollection.name:
+            this.gridData = this.eventsData;
             this.sortingState = this.eventsStore.filterTransform.sorting;
-          }
-          this.showAllSelected = this.eventsStore.showAllSelected;
-          break;
-        case app.config.PlacesCollection.name:
-          this.gridData = this.placesData;
-          if (this.placesStore.filterTransform) {
+            this.showAllSelected = this.eventsStore.showAllSelected;
+            break;
+          case app.config.PlacesCollection.name:
+            this.gridData = this.placesData;
             this.sortingState = this.placesStore.filterTransform.sorting;
-          }
-          this.showAllSelected = this.placesStore.showAllSelected;
-          break;
-        case app.config.PeopleCollection.name:
-          this.gridData = this.peopleData;
-          if (this.peopleStore.filterTransform) {
+            this.showAllSelected = this.placesStore.showAllSelected;
+            break;
+          case app.config.PeopleCollection.name:
+            this.gridData = this.peopleData;
             this.sortingState = this.peopleStore.filterTransform.sorting;
-          }
-          this.showAllSelected = this.peopleStore.showAllSelected;
-          break;
-        case app.config.SourcesCollection.name:
-          this.gridData = this.sourceData;
-          if (this.sourceStore.filterTransform) {
+            this.showAllSelected = this.peopleStore.showAllSelected;
+            break;
+          case app.config.SourcesCollection.name:
+            this.gridData = this.sourceData;
             this.sortingState = this.sourceStore.filterTransform.sorting;
-          }
-          this.showAllSelected = this.sourceStore.showAllSelected;
-          break;
-        default:
-          console.log('Sorry, no collectionName set for grid data');
-      }
-    },
-
-    // EPE-SEARCH-FILTER LISTENER
-    filtersChanged: function (event) {
-
-      var searchFilterObject = event.detail;
-
-      this.userFilterOccurred();
-
-      // Call fileImported action
-      this.filterStateActions.searchFilterChanged(searchFilterObject);
-    },
-
-    // EPE-SEARCH-FILTER LISTENER
-    userFilterOccurred: function() {
-
-      if (this.presentationState === 'viewing') {
-
-        // Call presentationStateChanged presentations action
-        this.presentationsActions.presentationStateChanged({
-          presentationName: this.presentationName,
-          presentationState: 'cloning'
-        });
-      }
-    },
-
-    // FIRED BY IRON-PAGES ON-IRON-SELECTED EVENT
-    // ** IS ALSO TRIGGERED BY THE EVENT CARD ANIMATION
-    createPackageViewSelected: function(event) {
-
-      var route = event.detail.item.dataset.route;
-
-      // Check for route as if this is triggered via the neon-animated-pages in event card
-      // we don't want to do anything
-      if (route) {
-
-        // Set the section title
-        this.setSectionTitle(route);
-
-        this.$.Map.resizeMap();
-      }
-    },
-
-    // Update header section title based on where we are and fire event
-    setSectionTitle: function(route) {
-
-      this.fire('package-view-changed', {
-        packageRoute: route
-      });
-    },
-
-    // Show the save presentation card.
-    savePresentation: function() {
-
-      this.savePackageCardOpen = true;
-
-      // run slide-up-animation
-      this.$.SavePackageOverlay.classList.add('save-package-overlay--showing');
-      this.$.SavePackage.classList.add('save-package--showing');
-      this.playAnimation('entry');
-    },
-
-    // Close the save package card
-    closeCard: function() {
-
-      this.savePackageCardOpen = false;
-
-      // run slide-down-animation
-      this.$.SavePackageOverlay.classList.remove('save-package-overlay--showing');
-      this.playAnimation('exit');
-    },
-
-    // Listener when animation finishes
-    onSlideAnimationFinish: function() {
-
-      if (!this.savePackageCardOpen) {
-        this.$.SavePackage.classList.remove('save-package--showing');
-      }
-    },
-
-    // Fired from epe-save-package element
-    showDialog: function(event) {
-
-      event.preventDefault();
-      this.fire('show-dialog', {
-        type: event.detail.type
-      });
-    },
-
-    // Used by template to set tab links depending on whether user is creating or editing
-    tabNavigate: function(event) {
-
-      if (this.editState === 'creating' && this.presentationState === 'creating') {
-        page('/create-package' + event.currentTarget.dataset.path);
-      } else if (this.editState === 'editing' && this.presentationState !== 'creating') {
-        page('/edit-package' + event.currentTarget.dataset.path);
-      }
-    },
-
-    // FIRED BY EPE-SOURCE-VIEWER ELEMENT: Navigate to the relevant source viewer
-    navigateToSourceViewer: function(event) {
-
-      if (event.detail.viewingSource) {
-
-        // ToDo: Fix this weirdness caused by having two epe-create-package elements
-        if (this.editState === 'creating' && this.presentationState === 'creating') {
-          page('/create-package/source/' + event.detail.selectedSourceRoute);
-        } else if (this.editState === 'editing' && this.presentationState !== 'creating') {
-          page('/edit-package/source/' + event.detail.selectedSourceRoute);
+            this.showAllSelected = this.sourceStore.showAllSelected;
+            break;
+          default:
+            console.log('Sorry, no collectionName set for grid data');
         }
-      }
-    },
+      },
 
-    // Navigate back
-    navigateBack: function() {
-      history.back();
-    }
-  });
-})();
+      // EPE-SEARCH-FILTER LISTENER
+      filtersChanged: function (event) {
+
+        var searchFilterObject = event.detail;
+
+        this.userFilterOccurred();
+
+        // Call fileImported action
+        this.filterStateActions.searchFilterChanged(searchFilterObject);
+      },
+
+      // EPE-SEARCH-FILTER LISTENER
+      userFilterOccurred: function() {
+
+        if (this.presentationState === 'viewing') {
+
+          // Call presentationStateChanged presentations action
+          this.presentationsActions.presentationStateChanged({
+            presentationName: this.presentationName,
+            presentationState: 'cloning'
+          });
+        }
+      },
+
+      // FIRED BY IRON-PAGES ON-IRON-SELECTED EVENT
+      // ** IS ALSO TRIGGERED BY THE EVENT CARD ANIMATION
+      createPackageViewSelected: function(event) {
+
+        var route = event.detail.item.dataset.route;
+
+        // Check for route as if this is triggered via the neon-animated-pages in event card
+        // we don't want to do anything
+        if (route) {
+
+          // Set the section title
+          this.setSectionTitle(route);
+
+          this.$.Map.resizeMap();
+        }
+      },
+
+      // Update header section title based on where we are and fire event
+      setSectionTitle: function(route) {
+
+        this.fire('package-view-changed', {
+          packageRoute: route
+        });
+      },
+
+      // Show the save presentation card.
+      savePresentation: function() {
+
+        this.savePackageCardOpen = true;
+
+        // run slide-up-animation
+        this.$.SavePackageOverlay.classList.add('save-package-overlay--showing');
+        this.$.SavePackage.classList.add('save-package--showing');
+        this.playAnimation('entry');
+      },
+
+      // Close the save package card
+      closeCard: function() {
+
+        this.savePackageCardOpen = false;
+
+        // run slide-down-animation
+        this.$.SavePackageOverlay.classList.remove('save-package-overlay--showing');
+        this.playAnimation('exit');
+      },
+
+      // Listener when animation finishes
+      onSlideAnimationFinish: function() {
+
+        if (!this.savePackageCardOpen) {
+          this.$.SavePackage.classList.remove('save-package--showing');
+        }
+      },
+
+      // Fired from epe-save-package element
+      showDialog: function(event) {
+
+        event.preventDefault();
+        this.fire('show-dialog', {
+          type: event.detail.type
+        });
+      },
+
+      // Used by template to set tab links depending on whether user is creating or editing
+      tabNavigate: function(event) {
+
+        if (this.editState === 'creating' && this.presentationState === 'creating') {
+          page('/create-package' + event.currentTarget.dataset.path);
+        } else if (this.editState === 'editing' && this.presentationState !== 'creating') {
+          page('/edit-package' + event.currentTarget.dataset.path);
+        }
+      },
+
+      // FIRED BY EPE-SOURCE-VIEWER ELEMENT: Navigate to the relevant source viewer
+      navigateToSourceViewer: function(event) {
+
+        if (event.detail.viewingSource) {
+
+          // ToDo: Fix this weirdness caused by having two epe-create-package elements
+          if (this.editState === 'creating' && this.presentationState === 'creating') {
+            page('/create-package/source/' + event.detail.selectedSourceRoute);
+          } else if (this.editState === 'editing' && this.presentationState !== 'creating') {
+            page('/edit-package/source/' + event.detail.selectedSourceRoute);
+          }
+        }
+      },
+
+      // Navigate back
+      navigateBack: function() {
+        history.back();
+      }
+    });
+  })();
 </script>
