@@ -2,13 +2,14 @@
 
 var Reflux = require('reflux');
 var config = require('../config/config.js');
-var filterTransforms = require('../config/filterTransforms.js');
+//var filterTransforms = require('../config/filterTransforms.js');
 var FilterStateActions = require('../actions/filterState.js');
 var dataSourceStore = require('../stores/dataSource.js');
 var eventsStore = require('../stores/events.js');
 var placesStore = require('../stores/places.js');
 var peopleStore = require('../stores/people.js');
 var sourcesStore = require('../stores/source.js');
+var queryBuilderStore = require('../stores/queryBuilder.js');
 
 module.exports = Reflux.createStore({
 
@@ -17,6 +18,7 @@ module.exports = Reflux.createStore({
   listenables: [FilterStateActions],
 
   init: function () {
+
     this.transformName = 'ViewingFilter';
 
     // Arrays to keep track of selected related documents in each data store
@@ -24,12 +26,31 @@ module.exports = Reflux.createStore({
     this.selectedPeopleDocuments = [];
     this.selectedPlaceDocuments = [];
 
+    // Initialise filterTransforms object
+    this.filterTransforms = {};
+
+    // Register queryBuilderStores's changes
+    this.listenTo(queryBuilderStore, this.queryBuilderChanged);
+
     // Register dataSourceStores's changes
     this.listenTo(dataSourceStore, this.dataSourceChanged);
   },
 
+  // Set search filter on our collectionTransform
+  queryBuilderChanged: function (queryBuilderStore) {
+    console.log('filterState - queryBuilderChanged');
+
+    this.convertQueryObjectToFilterTransform(queryBuilderStore.queryObject.filters);
+
+    this.updateFilteredData2(queryBuilderStore.queryObject);
+
+    //this.autoFilterCollections(false, false);
+
+  },
+
   // Set the filteredData Object
   dataSourceChanged: function (dataSourceBroadcast) {
+    console.log('filterState - dataSourceChanged');
 
     // Don't do this on load or import
     if (dataSourceBroadcast.dataSource.message.type !== 'collectionImported') {
@@ -61,8 +82,31 @@ module.exports = Reflux.createStore({
     this.autoFilterCollections(false, false);
   },
 
+  // Convert a queryBuilder object into one that can be used by loki to apply a transform on the data
+  convertQueryObjectToFilterTransform: function(filters) {
+    console.log(filters);
+
+    var filterTransform = {
+      filters: {
+        type: 'find',
+        value: {
+          '$and': []
+        }
+      },
+      sorting: {
+        type: 'simplesort',
+        property: '$loki',
+        desc: true
+      }
+    }
+
+    this.filterTransforms[config.EventsCollection.name] = filterTransform;
+    this.filterTransforms[config.PlacesCollection.name] = filterTransform;
+    this.filterTransforms[config.PeopleCollection.name] = filterTransform;
+    this.filterTransforms[config.SourcesCollection.name] = filterTransform;
+  },
+
   // Update filtered data based on the collection
-  // ToDo: Need to make this dynamic based on passed in fields
   updateFilteredData: function (searchFilterObject) {
     console.log('filterState - updateFilteredData');
 
@@ -84,32 +128,49 @@ module.exports = Reflux.createStore({
     }
   },
 
-  // Update sorted data based on the collection
-  // ToDo: Need to make this dynamic based on passed in fields
-  updateSortedData: function (sortingObject) {
+  // Update filtered data based on the collection
+  updateFilteredData2: function (queryBuilderObject) {
+    console.log('filterState - updateFilteredData2');
 
-    switch (sortingObject.collectionName) {
-      case config.EventsCollection.name:
-        filterTransforms[config.EventsCollection.name].sorting = this.createSortingObject(sortingObject);
-        break;
-      case config.PlacesCollection.name:
-        filterTransforms[config.PlacesCollection.name].sorting = this.createSortingObject(sortingObject);
-        break;
-      case config.PeopleCollection.name:
-        filterTransforms[config.PeopleCollection.name].sorting = this.createSortingObject(sortingObject);
-        break;
-      case config.SourcesCollection.name:
-        filterTransforms[config.SourcesCollection.name].sorting = this.createSortingObject(sortingObject);
-        break;
-      default:
-        console.error('No collection Name');
-    }
+    this.filterTransforms[config.EventsCollection.name].filters = this.createFilterObject2(queryBuilderObject);
+    this.filterTransforms[config.PlacesCollection.name].filters = this.createFilterObject2(queryBuilderObject);
+    this.filterTransforms[config.PeopleCollection.name].filters = this.createFilterObject2(queryBuilderObject);
+    this.filterTransforms[config.SourcesCollection.name].filters = this.createFilterObject2(queryBuilderObject);
+  },
+
+  // Create a filter transform object from a UI Filter Object
+  createFilterObject2: function (queryBuilderObject) {
+    console.log(queryBuilderObject);
+
+    var transform = {
+      type: 'find',
+      value: {
+        $and: []
+      }
+    };
+
+    /*queryBuilderObject.fields.forEach(function (field) {
+
+      var fieldObject = {};
+      var queryObject = {};
+
+      if (field.queryType !== 'regex') {
+        queryObject[field.queryType] = field.value;
+      } else {
+        queryObject.$regex = [field.value, 'i'];
+      }
+
+      fieldObject[field.name] = queryObject;
+
+      transform.value.$and.push(fieldObject);
+    });*/
+
+    return transform;
   },
 
   // Create a filter transform object from a filter Object
   createFilterObject: function (searchFilterObject) {
     console.log('filterState - createFilterObject');
-
 
     var transform = {
       type: 'find',
@@ -135,6 +196,28 @@ module.exports = Reflux.createStore({
     });
 
     return transform;
+  },
+
+  // Update sorted data based on the collection
+  // ToDo: Need to make this dynamic based on passed in fields
+  updateSortedData: function (sortingObject) {
+
+    switch (sortingObject.collectionName) {
+      case config.EventsCollection.name:
+        this.filterTransforms[config.EventsCollection.name].sorting = this.createSortingObject(sortingObject);
+        break;
+      case config.PlacesCollection.name:
+        this.filterTransforms[config.PlacesCollection.name].sorting = this.createSortingObject(sortingObject);
+        break;
+      case config.PeopleCollection.name:
+        this.filterTransforms[config.PeopleCollection.name].sorting = this.createSortingObject(sortingObject);
+        break;
+      case config.SourcesCollection.name:
+        this.filterTransforms[config.SourcesCollection.name].sorting = this.createSortingObject(sortingObject);
+        break;
+      default:
+        console.error('No collection Name');
+    }
   },
 
   // Create a sorting transform object from a sorting Object
@@ -166,19 +249,19 @@ module.exports = Reflux.createStore({
 
     var eventsCollection = dataSourceStore.dataSource.getCollection(config.EventsCollection.name);
 
-    if (!eventsCollection) {
+    if (!eventsCollection || !eventsStore.userFilteredCollection) {
       return;
     }
 
     // Manage the filter transform name in this store and listening collection
     // stores can use it when broadcasted
-    filterTransforms.transformName = this.transformName;
+    this.filterTransforms.transformName = this.transformName;
 
     // Call filterStateChanged on each data store to ensure each store's userFilteredCollection is up to date
-    eventsStore.filterStateChanged(filterTransforms);
-    placesStore.filterStateChanged(filterTransforms);
-    peopleStore.filterStateChanged(filterTransforms);
-    sourcesStore.filterStateChanged(filterTransforms);
+    eventsStore.filterStateChanged(this.filterTransforms);
+    placesStore.filterStateChanged(this.filterTransforms);
+    peopleStore.filterStateChanged(this.filterTransforms);
+    sourcesStore.filterStateChanged(this.filterTransforms);
 
     // Set all event record's 'showRecord' properties that have been filtered out, to false
     eventsStore.setFilteredOutItemsToNotSelected(eventsCollection.data, eventsStore.userFilteredCollection.data());

@@ -72,12 +72,6 @@ module.exports = Reflux.createStore({
 
     var queryCollection = dataSourceStore.dataSource.getCollection(config.QueriesCollection);
 
-    // If this is a new package create a new object instead
-    if (this.packageName === 'ViewingFilter') {
-      this.createDefaultQuery(queryCollection);
-      return;
-    }
-
     this.queryObject = queryCollection.find({
       packageName: this.packageName
     })[0];
