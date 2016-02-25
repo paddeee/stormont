@@ -24,6 +24,10 @@ module.exports = Reflux.createStore({
 
     var queryCollection = dataSourceStore.dataSource.getCollection(config.QueriesCollection);
 
+    if (dataSourceStore.message === 'presentationDeleted') {
+      return;
+    };
+
     // Create/Update a QueriesCollection collection in the database
     if (queryCollection) {
 
@@ -57,7 +61,9 @@ module.exports = Reflux.createStore({
 
     // If ViewingFilter Object already exists no need to add another one
     if (queryCollection.find({ packageName: this.packageName }).length > 0) {
-      return;
+      //if (this.packageName !== 'ViewingFilter') {
+        return;
+      //}
     }
 
     this.queryObject = {
