@@ -111,6 +111,7 @@ module.exports = Reflux.createStore({
       // If the field is an input or a select box
       if (fieldGroupArray[0].filter === 'regex' || fieldGroupArray[0].filter === 'select') {
         this.getRegexFilterQuery(fieldGroupArray);
+        console.log(transformObject);
       } else if (fieldGroupArray[0].filter === 'lte' || fieldGroupArray[0].filter === 'gte') {
         // ToDO: Create this.getDateFilterQuery(fieldGroupArray);
       }
