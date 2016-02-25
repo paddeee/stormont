@@ -24,26 +24,34 @@ module.exports = Reflux.createStore({
 
     var queryCollection = dataSourceStore.dataSource.getCollection(config.QueriesCollection);
 
-    if (dataSourceStore.message === 'presentationDeleted') {
-      return;
-    };
+    if (dataSourceStore.dataSource.message.type === 'dataBaseLoaded') {
 
-    // Create/Update a QueriesCollection collection in the database
-    if (queryCollection) {
-
-      if (queryCollection.data.length > 0 && this.packageName !== 'ViewingFilter') {
-        this.getQuery();
-      } else {
-        this.createDefaultQuery(queryCollection);
+      if (!queryCollection) {
+        queryCollection = dataSourceStore.dataSource.addCollection(config.QueriesCollection);
       }
-    } else {
-      queryCollection = dataSourceStore.dataSource.addCollection(config.QueriesCollection);
+
       this.createDefaultQuery(queryCollection);
-    }
+
+    } /*else if (dataSourceStore.dataSource.message.type === 'collectionImported') {
+      this.getQuery();
+    }*/
   },
 
+  // When a presentation is saved
   presentationSaved: function(presentationObject) {
-    this.queryObject.packageName = presentationObject.presentationName;
+
+    var queryObjectToSave;
+
+    this.packageName = presentationObject.presentationName;
+
+    // If this presentation is a new one create a new object so we don't overwrite the one already in the collection
+    if (this.packageName !== this.queryObject.packageName) {
+      //queryObjectToSave = Object.assign({}, this.queryObject);
+      queryObjectToSave = _.cloneDeep(this.queryObject);
+      queryObjectToSave.packageName = this.packageName;
+      this.insertQueryObject(queryObjectToSave);
+    }
+
   },
 
   presentationDeleted: function(presentationObject) {
@@ -57,14 +65,9 @@ module.exports = Reflux.createStore({
   },
 
   // Create a default query if none exist
-  createDefaultQuery: function(queryCollection) {
+  createDefaultQuery: function() {
 
-    // If ViewingFilter Object already exists no need to add another one
-    if (queryCollection.find({ packageName: this.packageName }).length > 0) {
-      //if (this.packageName !== 'ViewingFilter') {
-        return;
-      //}
-    }
+    var queryObjectToCreate;
 
     this.queryObject = {
       packageName: this.packageName,
@@ -72,7 +75,10 @@ module.exports = Reflux.createStore({
       filters: []
     };
 
-    queryCollection.insert(this.queryObject);
+    //queryObjectToCreate = Object.assign({}, this.queryObject);
+    queryObjectToCreate = _.cloneDeep(this.queryObject);
+
+    this.insertQueryObject(queryObjectToCreate);
 
     this.trigger(this);
   },
@@ -89,6 +95,25 @@ module.exports = Reflux.createStore({
     this.trigger(this);
   },
 
+  // Insert query object into collection
+  insertQueryObject: function(queryObject) {
+
+    var queryCollection = dataSourceStore.dataSource.getCollection(config.QueriesCollection);
+
+    // Insert queryObject for this filter if it doesn't already exist
+    if (queryCollection.find({ packageName: this.packageName }).length === 0) {
+      queryCollection.insert(queryObject);
+    }
+
+    this.queryObject.packageName = queryObject.packageName;
+  },
+
+  // Update query object in collection
+  updateQueryObject: function(queryObject) {
+
+
+  },
+
   queryFiltersChanged: function(arg, action) {
 
     if (action === 'add') {
@@ -96,8 +121,6 @@ module.exports = Reflux.createStore({
     } else if (action === 'remove') {
       this.queryObject.filters.splice(arg, 1);
     }
-
-
 
     this.trigger(this);
   }
