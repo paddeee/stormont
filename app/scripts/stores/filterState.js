@@ -86,10 +86,10 @@ module.exports = Reflux.createStore({
     console.log(filters);
 
     // Set blank transform objects for each data type
-    var eventsTransform = eventsStore.filterTransform;
-    var placesTransform = placesStore.filterTransform;
-    var peopleTransform = peopleStore.filterTransform;
-    var sourcesTransform = sourcesStore.filterTransform;
+    var eventsTransform = eventsStore.filterTransform[config.EventsCollection.name];
+    var placesTransform = placesStore.filterTransform[config.PlacesCollection.name];
+    var peopleTransform = peopleStore.filterTransform[config.PeopleCollection.name];
+    var sourcesTransform = sourcesStore.filterTransform[config.SourcesCollection.name];
 
     // Create Group object of filters and group by field names
     var filterGroup = _.groupBy(filters, 'collectionName');
@@ -108,21 +108,36 @@ module.exports = Reflux.createStore({
 
     _.values(fieldsObject).forEach(function(fieldGroupArray) {
 
-      // If the field is an input or a select box
-      if (fieldGroupArray[0].filter === 'regex' || fieldGroupArray[0].filter === 'select') {
-        this.getRegexFilterQuery(fieldGroupArray);
-        console.log(transformObject);
-      } else if (fieldGroupArray[0].filter === 'lte' || fieldGroupArray[0].filter === 'gte') {
-        // ToDO: Create this.getDateFilterQuery(fieldGroupArray);
-      }
+      transformObject.filters.value.$and.push(this.getFieldObject(fieldGroupArray));
+      console.log(transformObject);
+
     }.bind(this));
 
+  },
+
+  // Create a field object used within a loki transform
+  getFieldObject: function(fieldGroupArray) {
+
+    var fieldObject = {};
+    var fieldType = {};
+
+    // If the field is an input or a select box
+    if (fieldGroupArray[0].filter === 'regex' || fieldGroupArray[0].filter === 'select') {
+      fieldType['$regex'] = this.getRegexFilterQuery(fieldGroupArray);
+      //console.log(transformObject.filters.value.$and.push(fieldGroupArray[0].fieldName));
+    } else if (fieldGroupArray[0].filter === 'lte' || fieldGroupArray[0].filter === 'gte') {
+      // ToDO: Create this.getDateFilterQuery(fieldGroupArray);
+    }
+
+    fieldObject[fieldGroupArray[0].fieldName] = fieldType;
+
+    return fieldObject;
   },
 
   // Create a regular expression for a loki transform query based on the passed in field filters
   getRegexFilterQuery: function(fieldGroupArray) {
 
-    var regex = ['', 'i'];
+    var regex = ['Kidnapping', 'i'];
 
     // ToDO: Set regex[0] to a string based on each field's includeExclude property
 
