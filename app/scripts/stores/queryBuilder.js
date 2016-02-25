@@ -24,6 +24,10 @@ module.exports = Reflux.createStore({
 
     var queryCollection = dataSourceStore.dataSource.getCollection(config.QueriesCollection);
 
+    if (dataSourceStore.message === 'presentationSaved') {
+      return;
+    }
+
     if (dataSourceStore.dataSource.message.type === 'dataBaseLoaded') {
 
       if (!queryCollection) {
@@ -32,9 +36,7 @@ module.exports = Reflux.createStore({
 
       this.createDefaultQuery(queryCollection);
 
-    } /*else if (dataSourceStore.dataSource.message.type === 'collectionImported') {
-      this.getQuery();
-    }*/
+    }
   },
 
   // When a presentation is saved
@@ -42,19 +44,16 @@ module.exports = Reflux.createStore({
 
     var queryObjectToSave;
 
-    /*if (presentationObject.presentationState === 'creating') {
-      this.packageName = 'ViewingFilter';
-    } else {*/
-      this.packageName = presentationObject.presentationName;
-    //}
+    this.queryObject.packageName = this.packageName;
+    this.packageName = presentationObject.presentationName;
 
-
-    // If this presentation is a new one create a new object so we don't overwrite the one already in the collection
-    if (this.packageName !== this.queryObject.packageName) {
-      queryObjectToSave = this.cloneDocument(this.queryObject);
-      queryObjectToSave.packageName = this.packageName;
+    // If this presentation is a new one
+    if (presentationObject.presentationState === 'creating') {
+      queryObjectToSave = this.cloneDocument(this.queryObject, true);
       this.insertQueryObject(queryObjectToSave);
-      this.queryObject.packageName = this.packageName;
+    } else if (presentationObject.presentationState === 'editing') {
+      queryObjectToSave = this.cloneDocument(this.queryObject, false);
+      this.updateQueryObject(queryObjectToSave);
     }
   },
 
@@ -79,7 +78,7 @@ module.exports = Reflux.createStore({
       filters: []
     };
 
-    queryObjectToClone = this.cloneDocument(this.queryObject);
+    queryObjectToClone = this.cloneDocument(this.queryObject, false);
 
     this.insertQueryObject(queryObjectToClone);
 
@@ -95,7 +94,7 @@ module.exports = Reflux.createStore({
       packageName: this.packageName
     })[0];
 
-    this.queryObject = this.cloneDocument(queryObject);
+    this.queryObject = this.cloneDocument(queryObject, false);
 
     this.trigger(this);
   },
@@ -114,14 +113,21 @@ module.exports = Reflux.createStore({
   // Update query object in collection
   updateQueryObject: function(queryObject) {
 
+    var queryCollection = dataSourceStore.dataSource.getCollection(config.QueriesCollection);
 
+    queryCollection.update(queryObject);
   },
 
   // Deep Clone Query Object and remove $loki property
-  cloneDocument: function(queryObject) {
+  cloneDocument: function(queryObject, removeLoki) {
 
     var queryObjectToClone = _.cloneDeep(queryObject);
-    delete queryObjectToClone.$loki;
+    queryObjectToClone.packageName = this.packageName;
+
+    if (removeLoki) {
+      delete queryObjectToClone.$loki;
+    }
+
     return queryObjectToClone;
   },
 
