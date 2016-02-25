@@ -83,7 +83,9 @@ module.exports = Reflux.createStore({
 
   // Convert a queryBuilder object into one that can be used by loki to apply a transform on the data
   convertQueryObjectToFilterTransform: function(filters) {
-    console.log(filters);
+
+    // Create Group object of filters and group by field names
+    var filterGroup = _.groupBy(filters, 'collectionName');
 
     // Set blank transform objects for each data type
     var eventsTransform = eventsStore.filterTransform[config.EventsCollection.name];
@@ -91,15 +93,15 @@ module.exports = Reflux.createStore({
     var peopleTransform = peopleStore.filterTransform[config.PeopleCollection.name];
     var sourcesTransform = sourcesStore.filterTransform[config.SourcesCollection.name];
 
-    // Create Group object of filters and group by field names
-    var filterGroup = _.groupBy(filters, 'collectionName');
-
     var eventsFields = _.groupBy(filterGroup[config.EventsCollection.name], 'fieldName');
     var placesFields = _.groupBy(filterGroup[config.PlacesCollection.name], 'fieldName');
     var peopleFields = _.groupBy(filterGroup[config.PeopleCollection.name], 'fieldName');
     var sourcesFields = _.groupBy(filterGroup[config.SourcesCollection.name], 'fieldName');
 
     this.createFieldQueryFromRules(eventsTransform, eventsFields);
+    this.createFieldQueryFromRules(placesTransform, placesFields);
+    this.createFieldQueryFromRules(peopleTransform, peopleFields);
+    this.createFieldQueryFromRules(sourcesTransform, sourcesFields);
   },
 
   // Set a field query object based on the field, type and include/exclude of a filter rules
@@ -108,11 +110,25 @@ module.exports = Reflux.createStore({
 
     _.values(fieldsObject).forEach(function(fieldGroupArray) {
 
-      transformObject.filters.value.$and.push(this.getFieldObject(fieldGroupArray));
+      // ToDo: Tidy up.
+      // It needs to push the field object onto $and array if doesn't exist or replace it if it does exist
+      var fieldExistsInTransform = transformObject.filters.value.$and.filter(function(filterObject) {
+        return fieldGroupArray[0].fieldName === _.keys(filterObject)[0];
+      });
+
+      if (fieldExistsInTransform.length === 0) {
+        transformObject.filters.value.$and.push(this.getFieldObject(fieldGroupArray));
+      } else if (fieldExistsInTransform.length > 0) {
+        transformObject.filters.value.$and.forEach(function(filterObject) {
+          if (fieldGroupArray[0].fieldName === _.keys(filterObject)[0]) {
+            filterObject[fieldGroupArray[0].fieldName] = this.getFieldObject(fieldGroupArray)[fieldGroupArray[0].fieldName];
+          }
+        }.bind(this));
+      }
+
       console.log(transformObject);
 
     }.bind(this));
-
   },
 
   // Create a field object used within a loki transform
@@ -124,7 +140,6 @@ module.exports = Reflux.createStore({
     // If the field is an input or a select box
     if (fieldGroupArray[0].filter === 'regex' || fieldGroupArray[0].filter === 'select') {
       fieldType['$regex'] = this.getRegexFilterQuery(fieldGroupArray);
-      //console.log(transformObject.filters.value.$and.push(fieldGroupArray[0].fieldName));
     } else if (fieldGroupArray[0].filter === 'lte' || fieldGroupArray[0].filter === 'gte') {
       // ToDO: Create this.getDateFilterQuery(fieldGroupArray);
     }
@@ -137,12 +152,41 @@ module.exports = Reflux.createStore({
   // Create a regular expression for a loki transform query based on the passed in field filters
   getRegexFilterQuery: function(fieldGroupArray) {
 
-    var regex = ['Kidnapping', 'i'];
+    // Murder                                                 ^(.*Murder)
+    // NOT PersonA:                                           ^(?!.*PersonA)(.*)
+    // Murder AND NOT PersonA:                                ^(?!.*PersonA)(.*Murder)
+    // Murder OR Kidnapping AND NOT PersonA                   ^(?!.*PersonA)((.*Murder)|(.*Kidnapping))
+    // Murder OR Kidnapping AND NOT PersonA AND NOT PersonB   ^(?!.*PersonA)(?!.*PersonB)((.*Murder)|(.*Kidnapping))
 
-    // ToDO: Set regex[0] to a string based on each field's includeExclude property
+    var regexString = '^';
+    var includeCounter = 0;
 
-    return regex;
+    // Create an exclude and include array from the fieldGroupArray
+    var includeExclude = _.groupBy(fieldGroupArray, 'includeExclude');
 
+    if (includeExclude.exclude) {
+      includeExclude.exclude.forEach(function(filterObject) {
+        regexString = regexString + '(?!.*' + filterObject.value + ')';
+      });
+    }
+
+    if (includeExclude.include) {
+      includeExclude.include.forEach(function (filterObject) {
+
+        var orPipe;
+
+        includeCounter++;
+
+        if (includeCounter > 1) {
+          orPipe = '|';
+        } else {
+          orPipe = '';
+        }
+        regexString = regexString + orPipe + '(.*' + filterObject.value + ')';
+      });
+    }
+
+    return [regexString, 'i'];;
   },
 
   // Update filtered data based on the collection
