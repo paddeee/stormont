@@ -168,13 +168,7 @@ module.exports = Reflux.createStore({
       filters: {
         type: 'find',
         value: {
-          '$and': [{
-            'Full Name': {
-              // Bring back Full Name for Murder OR Kidnapping BUT NOT PersonA
-              // '$regex': ['(?:(?:Murder)(?:[^PersonA]*))|(?:(?:Rape)(?:[^PersonA]*))', 'i']
-              '$regex': ['Murder', 'i']
-            }
-          }]
+          '$and': []
         }
       },
       sorting: {
