@@ -46,12 +46,10 @@ module.exports = Reflux.createStore({
 
     // If this presentation is a new one create a new object so we don't overwrite the one already in the collection
     if (this.packageName !== this.queryObject.packageName) {
-      //queryObjectToSave = Object.assign({}, this.queryObject);
-      queryObjectToSave = _.cloneDeep(this.queryObject);
+      queryObjectToSave = this.cloneDocument();
       queryObjectToSave.packageName = this.packageName;
       this.insertQueryObject(queryObjectToSave);
     }
-
   },
 
   presentationDeleted: function(presentationObject) {
@@ -67,7 +65,7 @@ module.exports = Reflux.createStore({
   // Create a default query if none exist
   createDefaultQuery: function() {
 
-    var queryObjectToCreate;
+    var queryObjectToClone;
 
     this.queryObject = {
       packageName: this.packageName,
@@ -75,10 +73,9 @@ module.exports = Reflux.createStore({
       filters: []
     };
 
-    //queryObjectToCreate = Object.assign({}, this.queryObject);
-    queryObjectToCreate = _.cloneDeep(this.queryObject);
+    queryObjectToClone = this.cloneDocument();
 
-    this.insertQueryObject(queryObjectToCreate);
+    this.insertQueryObject(queryObjectToClone);
 
     this.trigger(this);
   },
@@ -112,6 +109,14 @@ module.exports = Reflux.createStore({
   updateQueryObject: function(queryObject) {
 
 
+  },
+
+  // Deep Clone Query Object and remove $loki property
+  cloneDocument: function() {
+
+    var queryObjectToClone = _.cloneDeep(this.queryObject);
+    delete queryObjectToClone.$loki;
+    return queryObjectToClone;
   },
 
   queryFiltersChanged: function(arg, action) {
