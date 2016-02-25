@@ -42,13 +42,19 @@ module.exports = Reflux.createStore({
 
     var queryObjectToSave;
 
-    this.packageName = presentationObject.presentationName;
+    /*if (presentationObject.presentationState === 'creating') {
+      this.packageName = 'ViewingFilter';
+    } else {*/
+      this.packageName = presentationObject.presentationName;
+    //}
+
 
     // If this presentation is a new one create a new object so we don't overwrite the one already in the collection
     if (this.packageName !== this.queryObject.packageName) {
-      queryObjectToSave = this.cloneDocument();
+      queryObjectToSave = this.cloneDocument(this.queryObject);
       queryObjectToSave.packageName = this.packageName;
       this.insertQueryObject(queryObjectToSave);
+      this.queryObject.packageName = this.packageName;
     }
   },
 
@@ -73,7 +79,7 @@ module.exports = Reflux.createStore({
       filters: []
     };
 
-    queryObjectToClone = this.cloneDocument();
+    queryObjectToClone = this.cloneDocument(this.queryObject);
 
     this.insertQueryObject(queryObjectToClone);
 
@@ -85,9 +91,11 @@ module.exports = Reflux.createStore({
 
     var queryCollection = dataSourceStore.dataSource.getCollection(config.QueriesCollection);
 
-    this.queryObject = queryCollection.find({
+    var queryObject = queryCollection.find({
       packageName: this.packageName
     })[0];
+
+    this.queryObject = this.cloneDocument(queryObject);
 
     this.trigger(this);
   },
@@ -101,8 +109,6 @@ module.exports = Reflux.createStore({
     if (queryCollection.find({ packageName: this.packageName }).length === 0) {
       queryCollection.insert(queryObject);
     }
-
-    this.queryObject.packageName = queryObject.packageName;
   },
 
   // Update query object in collection
@@ -112,9 +118,9 @@ module.exports = Reflux.createStore({
   },
 
   // Deep Clone Query Object and remove $loki property
-  cloneDocument: function() {
+  cloneDocument: function(queryObject) {
 
-    var queryObjectToClone = _.cloneDeep(this.queryObject);
+    var queryObjectToClone = _.cloneDeep(queryObject);
     delete queryObjectToClone.$loki;
     return queryObjectToClone;
   },
