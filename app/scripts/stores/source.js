@@ -92,12 +92,12 @@ module.exports = Reflux.createStore({
         collectionToAddTransformTo.addTransform(filterTransformObject.transformName, this.collectionTransform);
       }
 
-      this.userFilteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).copy();
+      this.userFilteredCollection = collectionToAddTransformTo.chain(collectionToAddTransformTo.transforms[filterTransformObject.transformName][0]).copy();
     } else {
 
       // Set the branched collection if saving a presentation.
       if (message !== 'presentationSaved') {
-        this.userFilteredCollection = collectionToAddTransformTo.chain(filterTransformObject.transformName).copy();
+        this.userFilteredCollection = collectionToAddTransformTo.chain().copy();
       }
     }
 
@@ -122,7 +122,7 @@ module.exports = Reflux.createStore({
     this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
 
     // Update the collection resulting from the transform
-    this.userFilteredCollection = collectionToAddTransformTo.chain(transformName);
+    this.userFilteredCollection = collectionToAddTransformTo.chain(collectionToAddTransformTo.transforms[transformName][0]);
 
     // Set viewingSource property to false
     this.viewingSource = false;
@@ -151,7 +151,7 @@ module.exports = Reflux.createStore({
     this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
 
     // Update the collection resulting from the transform
-    this.userFilteredCollection = collectionToAddTransformTo.chain(transformName);
+    this.userFilteredCollection = collectionToAddTransformTo.chain(collectionToAddTransformTo.transforms[transformName][0]);
 
     // Set viewingSource property to false
     this.viewingSource = false;
@@ -168,18 +168,18 @@ module.exports = Reflux.createStore({
 
     this.filterTransform = {};
     this.filterTransform[this.collectionName] = {
-      filters: {
+      filters: [{
         type: 'find',
         value: {
-          '$and': [{
-            'Full Name': {
-              // Bring back Full Name for Murder OR Kidnapping BUT NOT PersonA
-              // '$regex': ['(?:(?:Murder)(?:[^PersonA]*))|(?:(?:Rape)(?:[^PersonA]*))', 'i']
-              '$regex': ['', 'i']
-            }
-          }]
+          '$and': []
         }
       },
+        {
+          type: 'find',
+          value: {
+            '$or': []
+          }
+        }],
       sorting: {
         type: 'simplesort',
         property: '$loki',
