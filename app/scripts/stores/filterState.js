@@ -172,7 +172,13 @@ module.exports = Reflux.createStore({
 
     if (includeExclude.exclude) {
       includeExclude.exclude.forEach(function(filterObject) {
-        regexString = regexString + '(?!.*' + filterObject.value + ')';
+
+        // If value is empty
+        if (!filterObject.value) {
+          regexString = '';
+        } else {
+          regexString = regexString + '(?!.*' + filterObject.value + ')';
+        }
       });
     }
 
@@ -192,7 +198,7 @@ module.exports = Reflux.createStore({
       });
     }
 
-    return [regexString, 'i'];;
+    return [regexString, 'i'];
   },
 
   // Update filtered data based on the collection
