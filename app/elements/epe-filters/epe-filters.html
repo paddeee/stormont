@@ -25,7 +25,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       min-height: 300px;
       background-color: rgba(247, 247, 247, 1);
       width: 30vw;
-      position: absolute;
+      position: fixed;
       margin: 0px;
       overflow: hidden;
       -webkit-transition-property: -webkit-transform, width;
@@ -195,7 +195,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   showing$="[[showFilterType('regex',item.filter)]]">
                   <paper-input type="search"
                                label="[[item.fieldName]]"
-                               value="[[item.value]]">
+                               value="[[item.value]]"
+                               on-keyup="userFilterChanged"
+                               on-search="userFilterChanged">
                   </paper-input>
                 </div>
 
@@ -582,6 +584,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           return '00:00:00'
         }
       },
+
+      // FIRED FROM SEARCH INPUT ELEMENT, SELECT OR DATE-TIME PICKER
+      userFilterChanged: function(event) {
+
+        var filterObject = event.model.item;
+
+        // Set the model value to what is in the element
+        filterObject.value = event.target.value;
+
+        this.queryBuilderActions.queryFiltersChanged(filterObject, 'update');
+      }
     });
   })();
 </script>
