@@ -110,7 +110,8 @@ module.exports = Reflux.createStore({
 
     // If this is the last field to be removed from a transform
     if (_.values(fieldsObject).length < 1) {
-      transformObject.filters.value.$and = [];
+      //transformObject.filters[0].value.$and = [];
+      //transformObject.filters[1].value.$or = [];
     } else {
 
       _.values(fieldsObject).forEach(function(fieldGroupArray) {
