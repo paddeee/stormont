@@ -137,6 +137,9 @@ module.exports = Reflux.createStore({
       this.queryObject.filters.push(arg);
     } else if (action === 'remove') {
       this.queryObject.filters.splice(arg, 1);
+    } else if (action === 'update') {
+      // Don't actually need to do anything here as the model has been updated directly in the filter view
+      // Leaving this here in case need to work out how this happens without seemingly doing anything.
     }
 
     this.trigger(this);
