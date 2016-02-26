@@ -147,7 +147,7 @@ module.exports = Reflux.createStore({
     if (fieldGroupArray[0].filter === 'regex' || fieldGroupArray[0].filter === 'select') {
       fieldType['$regex'] = this.getRegexFilterQuery(fieldGroupArray);
     } else if (fieldGroupArray[0].filter === 'lte' || fieldGroupArray[0].filter === 'gte') {
-      // ToDO: Create this.getDateFilterQuery(fieldGroupArray);
+      fieldType = {'$gte': '1999-05-05 00:00:00'};
     }
 
     fieldObject[fieldGroupArray[0].fieldName] = fieldType;
@@ -199,6 +199,11 @@ module.exports = Reflux.createStore({
     }
 
     return [regexString, 'i'];
+  },
+
+  // Create a date object for a loki transform query based on the passed in field filters
+  getDateFilterQuery: function (fieldGroupArray) {
+
   },
 
   // Update filtered data based on the collection
