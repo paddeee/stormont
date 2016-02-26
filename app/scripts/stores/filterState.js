@@ -108,27 +108,33 @@ module.exports = Reflux.createStore({
   // ToDO: PROJECT MANAGER TO DOCUMENT THESE RULES
   createFieldQueryFromRules: function(transformObject, fieldsObject) {
 
-    _.values(fieldsObject).forEach(function(fieldGroupArray) {
+    // If this is the last field to be removed from a transform
+    if (_.values(fieldsObject).length < 1) {
+      transformObject.filters.value.$and = [];
+    } else {
 
-      // ToDo: Tidy up.
-      // It needs to push the field object onto $and array if doesn't exist or replace it if it does exist
-      var fieldExistsInTransform = transformObject.filters.value.$and.filter(function(filterObject) {
-        return fieldGroupArray[0].fieldName === _.keys(filterObject)[0];
-      });
+      _.values(fieldsObject).forEach(function(fieldGroupArray) {
 
-      if (fieldExistsInTransform.length === 0) {
-        transformObject.filters.value.$and.push(this.getFieldObject(fieldGroupArray));
-      } else if (fieldExistsInTransform.length > 0) {
-        transformObject.filters.value.$and.forEach(function(filterObject) {
-          if (fieldGroupArray[0].fieldName === _.keys(filterObject)[0]) {
-            filterObject[fieldGroupArray[0].fieldName] = this.getFieldObject(fieldGroupArray)[fieldGroupArray[0].fieldName];
-          }
-        }.bind(this));
-      }
+        // ToDo: Tidy up.
+        // It needs to push the field object onto $and array if doesn't exist or replace it if it does exist
+        var fieldExistsInTransform = transformObject.filters.value.$and.filter(function(filterObject) {
+          return fieldGroupArray[0].fieldName === _.keys(filterObject)[0];
+        });
 
-      console.log(transformObject);
+        if (fieldExistsInTransform.length === 0) {
+          transformObject.filters.value.$and.push(this.getFieldObject(fieldGroupArray));
+        } else if (fieldExistsInTransform.length > 0) {
+          transformObject.filters.value.$and.forEach(function(filterObject) {
+            if (fieldGroupArray[0].fieldName === _.keys(filterObject)[0]) {
+              filterObject[fieldGroupArray[0].fieldName] = this.getFieldObject(fieldGroupArray)[fieldGroupArray[0].fieldName];
+            }
+          }.bind(this));
+        }
 
-    }.bind(this));
+        console.log(transformObject);
+
+      }.bind(this));
+    }
   },
 
   // Create a field object used within a loki transform
