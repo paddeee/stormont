@@ -196,8 +196,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   <paper-input type="search"
                                label="[[item.fieldName]]"
                                value="[[item.value]]"
-                               on-keyup="userFilterChanged"
-                               on-search="userFilterChanged">
+                               on-keyup="userInputChanged"
+                               on-search="userInputChanged">
                   </paper-input>
                 </div>
 
@@ -207,7 +207,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                      showing$="[[showFilterType('select',item.filter)]]">
                   <paper-listbox class="dropdown-content"
                                  attr-for-selected="value"
-                                 selected="[[item.value]]">
+                                 selected="[[item.value]]"
+                                 on-iron-select="userSelectChanged">
                     <paper-item value="">Select&nbsp;<span> [[item.fieldName]]</span></paper-item>
                     <template id="FilterValuesTemplate"
                               is="dom-repeat"
@@ -226,7 +227,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   query-type="[[[item.filter]]"
                   date="[[getFilterDate(item.value)]]"
                   time="[[getFilterTime(item.value)]]"
-                  on-user-entered-date-time="userFilterOccurred"
                   showing$="[[showFilterType('date',item.filter)]]"></epe-date-time-picker>
 
                 <div class="filter-info">
@@ -493,7 +493,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // If no data type has been selected
         if (!this.$.AddFilterDataTypeList.selectedItem) {
           valid = false;
-          this.invalidFilterMessage = 'Please select a data type to search on.'
+          this.invalidFilterMessage = 'Please select a data type to search on.';
           this.$.AddFilterDataType.invalid = true;
         }
 
@@ -585,8 +585,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       },
 
-      // FIRED FROM SEARCH INPUT ELEMENT, SELECT OR DATE-TIME PICKER
-      userFilterChanged: function(event) {
+      // FIRED FROM SEARCH INPUT ELEMENT
+      userInputChanged: function(event) {
 
         var filterObject = event.model.item;
 
@@ -594,6 +594,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         filterObject.value = event.target.value;
 
         this.queryBuilderActions.queryFiltersChanged(filterObject, 'update');
+      },
+
+      // FIRED FROM SEARCH SELECT
+      userSelectChanged: function(event) {
+
+        var filterObject = event.model.item;
+
+        // Set the model value to what is in the element
+        filterObject.value = event.target.selected;
+
+        this.queryBuilderActions.queryFiltersChanged(filterObject, 'update');
+      },
+
+      // FIRED FROM SEARCH SELECT
+      userDateChanged: function(event) {
+
+        var filterObject = event.model.item;
+
+        // Set the model value to what is in the element
+        //filterObject.value = event.target.selected;
+
+        //this.queryBuilderActions.queryFiltersChanged(filterObject, 'update');
       }
     });
   })();
