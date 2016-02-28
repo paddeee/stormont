@@ -160,13 +160,7 @@ module.exports = Reflux.createStore({
         value: {
           '$and': []
         }
-      },
-        {
-          type: 'find',
-          value: {
-            '$or': []
-          }
-        }],
+      }],
       sorting: {
         type: 'simplesort',
         property: '$loki',

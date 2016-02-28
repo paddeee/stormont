@@ -41,6 +41,8 @@ module.exports = Reflux.createStore({
   // Set search filter on our collectionTransform
   filterStateChanged: function(filterTransformBroadcast) {
 
+    this.setDatesTransform();
+
     // If the incoming parameter is a string, we are setting the transform from a pre-existing one
     // (i.e viewing an existing package)
     if (typeof filterTransformBroadcast === 'string') {
@@ -88,7 +90,7 @@ module.exports = Reflux.createStore({
         collectionToAddTransformTo.addTransform(filterTransformObject.transformName, this.collectionTransform);
       }
 
-      this.userFilteredCollection = collectionToAddTransformTo.chain(collectionToAddTransformTo.transforms[filterTransformObject.transformName][0]).copy();
+      this.userFilteredCollection = collectionToAddTransformTo.chain(collectionToAddTransformTo.transforms[filterTransformObject.transformName][0], this.params).copy();
 
     } else {
 
@@ -169,42 +171,55 @@ module.exports = Reflux.createStore({
         value: {
           '$and': [ {
             'Full Name': {
-              // Bring back Full Name for Murder OR Kidnapping BUT NOT PersonA
-              // '$regex': ['(?:(?:Murder)(?:[^PersonA]*))|(?:(?:Rape)(?:[^PersonA]*))', 'i']
-              '$regex': ['murd', 'i']
+              '$regex': ['', 'i']
             }
           }]
         }
       },
       {
+        type: 'where',
+        value: '[%lktxp]filterDates'
+      }
+        /*{
         type: 'find',
         value: {
           '$or': [
-            /*{
-              'Begin Date and Time': {
-                $lte: 10
-              }
-            },*/
             {
               'Begin Date and Time': {
-                $gte: '1999-03-06 00:00:00',
-                $lte: '1999-07-06'
+                $lte: '1999-03-07 00:00:00',
+                $gte: '1999-12-06 00:00:00'
               }
-            }/*,
+            },
+            {
+              'End Date and Time': {
+                $lte: '2001-12-07 00:00:00'
+              }
+            },
             {
               'Begin Date and Time': {
-                $gte: 30
+                $gte: '1998-03-06 00:00:00'
               }
-            }*/
+            },
+            {
+              'End Date and Time': {
+                $lte: '2001-12-07 00:00:00'
+              }
+            }
           ]
         }
-      }],
+      }*/],
       sorting: {
         type: 'simplesort',
         property: '$loki',
         desc: true
+      },
+      dateQueries: {
+        include: [],
+        exclude: []
       }
     };
+
+    this.setDatesTransform();
 
     if (!this.dataSource) {
       return;
@@ -221,5 +236,29 @@ module.exports = Reflux.createStore({
     this.collectionTransform.push(this.filterTransform[this.collectionName].sorting);
 
     collectionToAddTransformTo.setTransform('ViewingFilter', this.collectionTransform);
+  },
+
+  // Set up functionality to perform a 'where' query on selected Date filters
+  setDatesTransform: function() {
+
+    // Get name of Field with a filter type of 'gte'
+    config.EventsCollection.forEach(function(filter) {
+      if (filter.filter === 'gte') {
+        this.fromFilterName = filter.name;
+      } else if (filter.filter === 'lte') {
+        this.toFilterName = filter.name;
+      }
+    }.bind(this));
+
+    // Transform Params to be used in collection chain transforms
+    this.params = {
+      filterDates: this.filterDates
+    };
+  },
+
+  // Used by the lokijs 'where' query to filter on dates in a transform
+  filterDates: function (obj) {
+    console.log(obj, this.filterTransform[this.collectionName].dateQueries);
+    return obj[this.fromFilterName] > '1999-03-06';
   }
 });
