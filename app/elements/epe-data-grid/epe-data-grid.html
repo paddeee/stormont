@@ -239,7 +239,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
 
         <div class="records">
-          <template id="ListTemplate" is="dom-repeat" items="[[paginatedData]]">
+          <template id="ListTemplate"
+                    is="dom-repeat"
+                    items="[[paginatedData]]">
             <div class="list-item layout horizontal">
               <div class="checkbox-holder">
                 <paper-checkbox class="record-checkbox"
@@ -260,7 +262,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <iron-icon icon="check"
                            class="selected-by-event__icon"
                            hidden$="[[!item.highlightAsRelatedToEvent]]"></iron-icon></div>
-              <div class="field__source layout horizontal center center-justified" hidden$="[[hideViewSourceButton]]">
+              <div class="field__source layout horizontal center center-justified"
+                   hidden$="[[hideViewSourceButton]]">
                 <paper-button
                   class="field__button"
                   raised
@@ -495,9 +498,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // This is the column headings
         this.gridDataFirstRecord = this.gridData[0];
 
+        // Force template-repeat to show checkboxes in correct state after the
+        // show record property has changed
+        this.updateCheckboxes();
+
         // Reset Pagination to first page on grid data changing
         //this.$.Paginator.currentpage = 0;
       }
+    },
+
+    // Force template-repeat to show checkboxes in correct state after the
+    // show record property has changed
+    updateCheckboxes: function() {
+
+      this.gridData.forEach(function(item, index) {
+
+        this.$.ListTemplate.set('items.' + index + '.showRecord', item.showRecord);
+      }.bind(this));
     },
 
     // CALLED BY OBSERVABLE ON SORTINGSTATE
