@@ -152,7 +152,7 @@ module.exports = Reflux.createStore({
     this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
 
     // Update the collection resulting from the transform
-    this.userFilteredCollection = collectionToAddTransformTo.chain(collectionToAddTransformTo.transforms[transformName][0]);
+    this.userFilteredCollection = collectionToAddTransformTo.chain(transformName);
 
     // Send collection object out to all listeners
     this.trigger(this.userFilteredCollection.data());
@@ -242,7 +242,7 @@ module.exports = Reflux.createStore({
   setDatesTransform: function() {
 
     // Get name of Field with a filter type of 'gte'
-    config.EventsCollection.forEach(function(filter) {
+    config.EventsCollection.fields.forEach(function(filter) {
       if (filter.filter === 'gte') {
         this.fromFilterName = filter.name;
       } else if (filter.filter === 'lte') {
