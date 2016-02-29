@@ -227,7 +227,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   query-type="[[[item.filter]]"
                   date="[[getFilterDate(item.value)]]"
                   time="[[getFilterTime(item.value)]]"
-                  showing$="[[showFilterType('date',item.filter)]]"></epe-date-time-picker>
+                  showing$="[[showFilterType('date',item.filter)]]"
+                  on-user-entered-date-time="userDateChanged"></epe-date-time-picker>
 
                 <div class="filter-info">
                   <span showing$="[[showIncludeExcludeFilter('include',item.includeExclude)]]"
@@ -614,9 +615,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var filterObject = event.model.item;
 
         // Set the model value to what is in the element
-        //filterObject.value = event.target.selected;
+        filterObject.value = event.currentTarget.dateTime;
 
-        //this.queryBuilderActions.queryFiltersChanged(filterObject, 'update');
+        this.queryBuilderActions.queryFiltersChanged(filterObject, 'update');
       }
     });
   })();

@@ -165,6 +165,7 @@ module.exports = Reflux.createStore({
     var collectionToAddTransformTo;
 
     this.filterTransform = {};
+
     this.filterTransform[this.collectionName] = {
       filters: [{
         type: 'find',
@@ -179,43 +180,15 @@ module.exports = Reflux.createStore({
       {
         type: 'where',
         value: '[%lktxp]filterDates'
-      }
-        /*{
-        type: 'find',
-        value: {
-          '$or': [
-            {
-              'Begin Date and Time': {
-                $lte: '1999-03-07 00:00:00',
-                $gte: '1999-12-06 00:00:00'
-              }
-            },
-            {
-              'End Date and Time': {
-                $lte: '2001-12-07 00:00:00'
-              }
-            },
-            {
-              'Begin Date and Time': {
-                $gte: '1998-03-06 00:00:00'
-              }
-            },
-            {
-              'End Date and Time': {
-                $lte: '2001-12-07 00:00:00'
-              }
-            }
-          ]
-        }
-      }*/],
+      }],
       sorting: {
         type: 'simplesort',
         property: '$loki',
         desc: true
       },
       dateQueries: {
-        include: [],
-        exclude: []
+        from: ['1999-05-07 00:00:00', '2000-02-01 00:00:00'],
+        to: ['1999-05-30 00:00:00', '2020-01-01 00:00:00']
       }
     };
 
@@ -258,7 +231,30 @@ module.exports = Reflux.createStore({
 
   // Used by the lokijs 'where' query to filter on dates in a transform
   filterDates: function (obj) {
-    console.log(obj, this.filterTransform[this.collectionName].dateQueries);
-    return obj[this.fromFilterName] > '1999-03-06';
+
+    var validItem;
+    var fromArray = this.filterTransform[this.collectionName].dateQueries.from;
+    var toArray = this.filterTransform[this.collectionName].dateQueries.to;
+
+    // If more From filters than To filters
+    if (fromArray.length >= toArray.length) {
+
+      fromArray.forEach(function(fromDate, index) {
+
+        var toDate = toArray[index];
+
+        // If no corresponding To Date, set it to a far future date
+        if (!toDate) {
+          toDate = '2100-01-01 00:00:00';
+        }
+
+        // Set validItem to true if it matches the query
+        if (obj[this.fromFilterName] > fromDate && obj[this.toFilterName] < toDate) {
+          validItem = true;
+        }
+      }.bind(this));
+    }
+
+    return validItem;
   }
 });

@@ -111,23 +111,24 @@ module.exports = Reflux.createStore({
   // ToDO: PROJECT MANAGER TO DOCUMENT THESE RULES
   createFieldQueryFromRules: function(transformObject, fieldsObject) {
 
-    // If this is the last field to be removed from a transform
-    if (_.values(fieldsObject).length < 1) {
-      transformObject.filters[0].value.$and = [];
-    } else {
+    // Reset transform filters array
+    transformObject.filters[0].value.$and = [];
 
-      _.values(fieldsObject).forEach(function(fieldGroupArray) {
+    _.values(fieldsObject).forEach(function (fieldGroupArray) {
+
+      // If the field is an input or a select box
+      if (fieldGroupArray[0].filter === 'regex' || fieldGroupArray[0].filter === 'select') {
 
         // ToDo: Tidy up.
         // It needs to push the field object onto $and array if doesn't exist or replace it if it does exist
-        var fieldExistsInTransform = transformObject.filters[0].value.$and.filter(function(filterObject) {
+        var fieldExistsInTransform = transformObject.filters[0].value.$and.filter(function (filterObject) {
           return fieldGroupArray[0].fieldName === _.keys(filterObject)[0];
         });
 
         if (fieldExistsInTransform.length === 0) {
           transformObject.filters[0].value.$and.push(this.getFieldObject(fieldGroupArray));
         } else if (fieldExistsInTransform.length > 0) {
-          transformObject.filters[0].value.$and.forEach(function(filterObject) {
+          transformObject.filters[0].value.$and.forEach(function (filterObject) {
             if (fieldGroupArray[0].fieldName === _.keys(filterObject)[0]) {
               filterObject[fieldGroupArray[0].fieldName] = this.getFieldObject(fieldGroupArray)[fieldGroupArray[0].fieldName];
             }
@@ -136,8 +137,12 @@ module.exports = Reflux.createStore({
 
         console.log(transformObject);
 
-      }.bind(this));
-    }
+      // If field is a date
+      } else if (fieldGroupArray[0].filter === 'lte' || fieldGroupArray[0].filter === 'gte') {
+
+        this.setDateArrays(fieldGroupArray);
+      }
+    }.bind(this));
   },
 
   // Create a field object used within a loki transform
@@ -147,15 +152,17 @@ module.exports = Reflux.createStore({
     var fieldType = {};
 
     // If the field is an input or a select box
-    if (fieldGroupArray[0].filter === 'regex' || fieldGroupArray[0].filter === 'select') {
-      fieldType['$regex'] = this.getRegexFilterQuery(fieldGroupArray);
-    } else if (fieldGroupArray[0].filter === 'lte' || fieldGroupArray[0].filter === 'gte') {
-      fieldType = {'$gte': '1999-05-05 00:00:00'};
-    }
+    fieldType['$regex'] = this.getRegexFilterQuery(fieldGroupArray);
 
     fieldObject[fieldGroupArray[0].fieldName] = fieldType;
 
     return fieldObject;
+  },
+
+  // Populate and e set a loki transform
+  setDateArrays: function(fieldGroupArray) {
+console.log(fieldGroupArray);
+
   },
 
   // Create a regular expression for a loki transform query based on the passed in field filters
