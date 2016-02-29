@@ -179,9 +179,9 @@ module.exports = Reflux.createStore({
         this.filtersWithValues.push(filter);
       }
     // If date filters
-    } else if (filter.filter === 'gte' && filter.value !== '1900-01-01 00:00:00') {
+    } else if (filter.filter === 'gte' && filter.value !== '') {
       this.filtersWithValues.push(filter);
-    } else if (filter.filter === 'lte' && filter.value !== '2100-12-31 00:00:00') {
+    } else if (filter.filter === 'lte' && filter.value !== '') {
       this.filtersWithValues.push(filter);
     }
 
