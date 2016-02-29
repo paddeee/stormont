@@ -95,7 +95,6 @@ module.exports = Reflux.createStore({
       this.userFilteredCollection = collectionToAddTransformTo.chain(collectionToAddTransformTo.transforms[filterTransformObject.transformName][0], this.params).copy();
     } else {
 
-      // Set the branched collection if saving a presentation.
       if (message !== 'presentationSaved') {
         this.userFilteredCollection = collectionToAddTransformTo.chain().copy();
       }
@@ -151,7 +150,7 @@ module.exports = Reflux.createStore({
     this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
 
     // Update the collection resulting from the transform
-    this.userFilteredCollection = collectionToAddTransformTo.chain(collectionToAddTransformTo.transforms[transformName][0]);
+    this.userFilteredCollection = collectionToAddTransformTo.chain(transformName);
 
     // Set viewingSource property to false
     this.viewingSource = false;
@@ -232,23 +231,81 @@ module.exports = Reflux.createStore({
     var validItem;
     var fromArray = this.filterTransform[this.collectionName].dateQueries.from;
     var toArray = this.filterTransform[this.collectionName].dateQueries.to;
+    var fromDefaultObject = {
+      includeExclude: 'include',
+      value: '1900-01-01 00:00:00'
+    };
+    var toDefaultObject = {
+      includeExclude: 'include',
+      value: '2100-01-01 00:00:00'
+    };
+
+    if (!fromArray.length) {
+      fromArray.push(fromDefaultObject);
+    } else if (!toArray.length) {
+      toArray.push(toDefaultObject);
+    }
+
+    // Sort arrays so dates are in order in each array
+    fromArray = _.sortBy(fromArray, function(object) {
+      return object.value;
+    });
+
+    toArray = _.sortBy(toArray, function(object) {
+      return object.value;
+    });
 
     // If more From filters than To filters
     if (fromArray.length >= toArray.length) {
 
-      fromArray.forEach(function(fromDate, index) {
+      fromArray.forEach(function(fromObject, index) {
 
-        var toDate = toArray[index];
+        var toObject = toArray[index];
 
         // If no corresponding To Date, set it to a far future date
-        if (!toDate) {
-          toDate = '2100-01-01 00:00:00';
+        if (!toObject) {
+          toObject = toDefaultObject;
         }
 
-        // Set validItem to true if it matches the query
-        if (obj[this.fromFilterName] > fromDate && obj[this.toFilterName] < toDate) {
-          validItem = true;
+        // If the date filter is an include
+        if (toObject.includeExclude === 'include') {
+
+          if (obj[this.fromFilterName] > fromObject.value && obj[this.toFilterName] < toObject.value) {
+            validItem = true;
+          }
+        } else if (toObject.includeExclude === 'exclude') {
+
+          if (obj[this.fromFilterName] > fromObject.value && obj[this.fromFilterName] < toObject.value) {
+            validItem = true;
+          }
         }
+      }.bind(this));
+
+      // Catch-all in case user adds more to filters than from filters which would be wrong anyway
+    } else {
+
+      toArray.forEach(function(toObject, index) {
+
+        var fromObject = fromArray[index];
+
+        // If no corresponding From Date, set it to a far past date
+        if (!fromObject) {
+          fromObject = fromDefaultObject;
+        }
+
+        // If the date filter is an include
+        if (fromObject.includeExclude === 'include') {
+
+          if (obj[this.fromFilterName] > fromObject.value && obj[this.fromFilterName] < toObject.value) {
+            validItem = true;
+          }
+        } else if (fromObject.includeExclude === 'exclude') {
+
+          if (obj[this.fromFilterName] > fromObject.value && obj[this.toFilterName] < toObject.value) {
+            validItem = true;
+          }
+        }
+
       }.bind(this));
     }
 
