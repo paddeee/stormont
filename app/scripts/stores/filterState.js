@@ -40,11 +40,14 @@ module.exports = Reflux.createStore({
   queryBuilderChanged: function (queryBuilderStore) {
     console.log('filterState - queryBuilderChanged');
 
-    this.convertQueryObjectToFilterTransform(queryBuilderStore.queryObject.filters);
-
     //this.updateFilteredData2(queryBuilderStore.queryObject);
 
-    this.autoFilterCollections(true, true);
+    if (queryBuilderStore.filtersWithValues.length) {
+
+      this.convertQueryObjectToFilterTransform(queryBuilderStore.queryObject.filters);
+
+      this.autoFilterCollections(true, true);
+    }
   },
 
   // Set the filteredData Object
@@ -365,8 +368,8 @@ module.exports = Reflux.createStore({
     // Set all event record's 'showRecord' properties that have been filtered out, to false
     eventsStore.setFilteredOutItemsToNotSelected(eventsCollection.data, eventsStore.userFilteredCollection.data());
 
-    // Update all Checkboxes
-    if (selectAllCheckBoxes) {
+    // Update all Checkboxes if query contains events filter/filters with a value selected by the user
+    if (selectAllCheckBoxes && queryBuilderStore.containsEvents) {
       this.selectAllCheckboxes(eventsStore, true);
     }
 

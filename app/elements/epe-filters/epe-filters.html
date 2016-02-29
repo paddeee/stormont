@@ -604,6 +604,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Set the model value to what is in the element
         filterObject.value = event.target.selected;
 
+        // Don't update if the value has been changed by the filter just being added
         this.queryBuilderActions.queryFiltersChanged(filterObject, 'update');
       },
 
