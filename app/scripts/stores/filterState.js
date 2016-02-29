@@ -140,7 +140,7 @@ module.exports = Reflux.createStore({
       // If field is a date
       } else if (fieldGroupArray[0].filter === 'lte' || fieldGroupArray[0].filter === 'gte') {
 
-        this.setDateArrays(fieldGroupArray);
+        this.setDateArrays(transformObject, fieldGroupArray);
       }
     }.bind(this));
   },
@@ -160,9 +160,31 @@ module.exports = Reflux.createStore({
   },
 
   // Populate and e set a loki transform
-  setDateArrays: function(fieldGroupArray) {
-console.log(fieldGroupArray);
+  setDateArrays: function(transformObject, fieldGroupArray) {
 
+    // Populate to and from arrays
+    fieldGroupArray.forEach(function(field) {
+
+      // If date is populated
+      if (field.value) {
+
+        if (field.includeExclude === 'include') {
+
+          if (field.filter === 'gte') {
+            transformObject.dateQueries.from.push(field);
+          } else if (field.filter === 'lte') {
+            transformObject.dateQueries.to.push(field);
+          }
+        } else if (field.includeExclude === 'exclude') {
+
+          if (field.filter === 'gte') {
+            transformObject.dateQueries.to.push(field);
+          } else if (field.filter === 'lte') {
+            transformObject.dateQueries.from.push(field);
+          }
+        }
+      }
+    });
   },
 
   // Create a regular expression for a loki transform query based on the passed in field filters
@@ -209,11 +231,6 @@ console.log(fieldGroupArray);
     }
 
     return [regexString, 'i'];
-  },
-
-  // Create a date object for a loki transform query based on the passed in field filters
-  getDateFilterQuery: function (fieldGroupArray) {
-
   },
 
   // Update filtered data based on the collection
