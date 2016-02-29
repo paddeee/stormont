@@ -111,8 +111,10 @@ module.exports = Reflux.createStore({
   // ToDO: PROJECT MANAGER TO DOCUMENT THESE RULES
   createFieldQueryFromRules: function(transformObject, fieldsObject) {
 
-    // Reset transform filters array
+    // Reset transform filters array and date arrays
     transformObject.filters[0].value.$and = [];
+    transformObject.dateQueries.from = [];
+    transformObject.dateQueries.to = [];
 
     _.values(fieldsObject).forEach(function (fieldGroupArray) {
 
@@ -134,8 +136,6 @@ module.exports = Reflux.createStore({
             }
           }.bind(this));
         }
-
-        console.log(transformObject);
 
       // If field is a date
       } else if (fieldGroupArray[0].filter === 'lte' || fieldGroupArray[0].filter === 'gte') {

@@ -87,7 +87,7 @@ module.exports = Reflux.createStore({
         collectionToAddTransformTo.addTransform(filterTransformObject.transformName, this.collectionTransform);
       }
 
-      this.userFilteredCollection = collectionToAddTransformTo.chain(collectionToAddTransformTo.transforms[filterTransformObject.transformName][0]).copy();
+      this.userFilteredCollection = collectionToAddTransformTo.chain(collectionToAddTransformTo.transforms[filterTransformObject.transformName][0], this.params).copy();
 
     } else {
 
@@ -160,13 +160,23 @@ module.exports = Reflux.createStore({
         value: {
           '$and': []
         }
+      },
+      {
+        type: 'where',
+        value: '[%lktxp]filterDates'
       }],
       sorting: {
         type: 'simplesort',
         property: '$loki',
         desc: true
+      },
+      dateQueries: {
+        from: ['1999-05-07 00:00:00', '2000-02-01 00:00:00'],
+        to: ['1999-05-30 00:00:00', '2020-01-01 00:00:00']
       }
     };
+
+    this.setDatesTransform();
 
     if (!this.dataSource) {
       return;
@@ -183,5 +193,52 @@ module.exports = Reflux.createStore({
     this.collectionTransform.push(this.filterTransform[this.collectionName].sorting);
 
     collectionToAddTransformTo.setTransform('ViewingFilter', this.collectionTransform);
+  },
+
+  // Set up functionality to perform a 'where' query on selected Date filters
+  setDatesTransform: function() {
+
+    // Get name of Field with a filter type of 'gte'
+    config.EventsCollection.fields.forEach(function(filter) {
+      if (filter.filter === 'gte') {
+        this.fromFilterName = filter.name;
+      } else if (filter.filter === 'lte') {
+        this.toFilterName = filter.name;
+      }
+    }.bind(this));
+
+    // Transform Params to be used in collection chain transforms
+    this.params = {
+      filterDates: this.filterDates
+    };
+  },
+
+  // Used by the lokijs 'where' query to filter on dates in a transform
+  filterDates: function (obj) {
+
+    var validItem;
+    var fromArray = this.filterTransform[this.collectionName].dateQueries.from;
+    var toArray = this.filterTransform[this.collectionName].dateQueries.to;
+
+    // If more From filters than To filters
+    if (fromArray.length >= toArray.length) {
+
+      fromArray.forEach(function(fromDate, index) {
+
+        var toDate = toArray[index];
+
+        // If no corresponding To Date, set it to a far future date
+        if (!toDate) {
+          toDate = '2100-01-01 00:00:00';
+        }
+
+        // Set validItem to true if it matches the query
+        if (obj[this.fromFilterName] > fromDate && obj[this.toFilterName] < toDate) {
+          validItem = true;
+        }
+      }.bind(this));
+    }
+
+    return validItem;
   }
 });
