@@ -150,9 +150,9 @@ module.exports = Reflux.createStore({
       };
     } else if (action === 'remove') {
 
-      this.queryObject.filters.splice(arg, 1);
+      var deletedFilter = this.queryObject.filters.splice(arg, 1)[0];
 
-      this.manageFiltersWithValues(arg, 'remove');
+      this.manageFiltersWithValues(deletedFilter, 'remove');
 
       this.message = {
         type: 'queryRemoved'
@@ -170,27 +170,61 @@ module.exports = Reflux.createStore({
   },
 
   // Used to prevent Checkboxes being displayed when none of the filters have values
-  manageFiltersWithValues: function(filter) {
+  manageFiltersWithValues: function(filter, action) {
 
-    // If an input or select filter
-    if (filter.filter === 'regex' || filter.filter === 'select') {
+    var tempFilterWithValues;
+    var filterExists;
 
-      if (filter.value !== '') {
+    if (action === 'add') {
+
+      // Check to see if filter already exists
+      this.filtersWithValues.forEach(function(filterObject) {
+
+        if (filter.collectionName === filterObject.collectionName && filter.fieldName === filterObject.fieldName && filter.value === filterObject.value) {
+          filterExists = true;
+        }
+      }.bind(this));
+
+      if (filterExists) {
+        return;
+      }
+
+      // If an input or select filter
+      if (filter.filter === 'regex' || filter.filter === 'select') {
+
+        if (filter.value !== '') {
+          this.filtersWithValues.push(filter);
+        }
+        // If date filters
+      } else if (filter.filter === 'gte' && filter.value !== '') {
+        this.filtersWithValues.push(filter);
+      } else if (filter.filter === 'lte' && filter.value !== '') {
         this.filtersWithValues.push(filter);
       }
-    // If date filters
-    } else if (filter.filter === 'gte' && filter.value !== '') {
-      this.filtersWithValues.push(filter);
-    } else if (filter.filter === 'lte' && filter.value !== '') {
-      this.filtersWithValues.push(filter);
+    } else if (action === 'remove') {
+
+      tempFilterWithValues = this.filtersWithValues.filter(function(filterObject) {
+
+        var validItem = false;
+
+        if (filter.collectionName !== filterObject.collectionName || filter.fieldName !== filterObject.fieldName || filter.value !== filterObject.value) {
+          validItem = true;
+        }
+
+        return validItem;
+      }.bind(this));
+
+      this.filtersWithValues = tempFilterWithValues;
     }
+
+
 
     this.manageContainsEventFilters();
   },
 
   // Manage property to indicate if there are any event filters. Because if not, the application shouldn't select all
   // event checkboxes if a filter is added to a different data type. Otherwise a filter on people will select all
-  // events which will select more people which wiould be confusing to user.
+  // events which will select more people which would be confusing to user.
   manageContainsEventFilters: function() {
 
     var containsEvents = false;

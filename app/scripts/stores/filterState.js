@@ -42,11 +42,12 @@ module.exports = Reflux.createStore({
 
     //this.updateFilteredData2(queryBuilderStore.queryObject);
 
-    if (queryBuilderStore.filtersWithValues.length) {
+    this.convertQueryObjectToFilterTransform(queryBuilderStore.queryObject.filters);
 
-      this.convertQueryObjectToFilterTransform(queryBuilderStore.queryObject.filters);
-
+    if (!queryBuilderStore.containsEvents) {
       this.autoFilterCollections(true, true);
+    } else {
+      this.autoFilterCollections(false, false);
     }
   },
 
