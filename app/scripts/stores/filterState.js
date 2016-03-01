@@ -44,11 +44,11 @@ module.exports = Reflux.createStore({
 
     this.convertQueryObjectToFilterTransform(queryBuilderStore.queryObject.filters);
 
-    if (!queryBuilderStore.containsEvents) {
+    //if (!queryBuilderStore.containsEvents) {
       this.autoFilterCollections(true, true);
-    } else {
+    /*} else {
       this.autoFilterCollections(false, false);
-    }
+    }*/
   },
 
   // Set the filteredData Object

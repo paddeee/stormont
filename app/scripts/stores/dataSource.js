@@ -219,16 +219,8 @@ module.exports = Reflux.createStore({
 
     this.dataSource.collections.forEach(function (collection) {
 
-      if (collection.transforms.hasOwnProperty('ViewingFilter')) {
-        collection.transforms[presentationObject.presentationName] = collection.transforms.ViewingFilter;
-        //delete collection.transforms.ViewingFilter;
-
-      // Could hit this condition if user is editing but haven't changed filters before saving.
-      // If so, just use the transform from the package that's being created from.
-      } else {
-        if (collection.transforms[presentationObject.originalName]) {
-          collection.transforms[presentationObject.presentationName] = collection.transforms[presentationObject.originalName];
-        }
+      if (collection.transforms[presentationObject.originalName]) {
+        collection.transforms[presentationObject.presentationName] = collection.transforms[presentationObject.originalName];
       }
     });
   },
@@ -239,17 +231,10 @@ module.exports = Reflux.createStore({
 
     this.dataSource.collections.forEach(function (collection) {
 
-      if (collection.transforms.hasOwnProperty('ViewingFilter')) {
-        collection.transforms[presentationObject.presentationName] = collection.transforms.ViewingFilter;
-        delete collection.transforms.ViewingFilter;
-
-      } else {
-
-        // Don't need to do anything if Presentation name hasn't changed
-        if (collection.transforms[presentationObject.originalName] && presentationObject.presentationName !== presentationObject.originalName) {
-          collection.transforms[presentationObject.presentationName] = collection.transforms[presentationObject.originalName];
-          delete collection.transforms[presentationObject.originalName];
-        }
+      // Don't need to do anything if Presentation name hasn't changed
+      if (collection.transforms[presentationObject.originalName] && presentationObject.presentationName !== presentationObject.originalName) {
+        collection.transforms[presentationObject.presentationName] = collection.transforms[presentationObject.originalName];
+        delete collection.transforms[presentationObject.originalName];
       }
     });
   },
