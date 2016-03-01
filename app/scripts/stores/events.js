@@ -90,7 +90,11 @@ module.exports = Reflux.createStore({
         collectionToAddTransformTo.addTransform(filterTransformObject.transformName, this.collectionTransform);
       }
 
+      // Apply the filter
       this.userFilteredCollection = collectionToAddTransformTo.chain(collectionToAddTransformTo.transforms[filterTransformObject.transformName][0], this.params).copy();
+
+      // Apply the sort
+      this.userFilteredCollection.simplesort(collectionTransformObject.sorting.property, collectionTransformObject.sorting.desc);
 
     } else {
 
@@ -125,7 +129,7 @@ module.exports = Reflux.createStore({
     }
 
     // Update the collection resulting from the transform
-    this.userFilteredCollection = collectionToAddTransformTo.chain(collectionToAddTransformTo.transforms[transformName][0]);
+    this.userFilteredCollection = collectionToAddTransformTo.chain(collectionToAddTransformTo.transforms[transformName][0]).copy();
 
     // Send collection object out to all listeners
     this.trigger(this.userFilteredCollection.data());
@@ -152,7 +156,7 @@ module.exports = Reflux.createStore({
     this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
 
     // Update the collection resulting from the transform
-    this.userFilteredCollection = collectionToAddTransformTo.chain(transformNametransformName);
+    this.userFilteredCollection = collectionToAddTransformTo.chain(transformName);
 
     // Send collection object out to all listeners
     this.trigger(this.userFilteredCollection.data());
