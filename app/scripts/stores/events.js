@@ -129,7 +129,7 @@ module.exports = Reflux.createStore({
     }
 
     // Update the collection resulting from the transform
-    this.userFilteredCollection = collectionToAddTransformTo.chain(collectionToAddTransformTo.transforms[transformName][0]).copy();
+    this.userFilteredCollection = collectionToAddTransformTo.chain(collectionToAddTransformTo.transforms[transformName][0], this.params).copy();
 
     // Send collection object out to all listeners
     this.trigger(this.userFilteredCollection.data());

@@ -55,8 +55,8 @@ module.exports = Reflux.createStore({
   dataSourceChanged: function (dataSourceBroadcast) {
     console.log('filterState - dataSourceChanged');
 
-    // Don't do this on load or import
-    if (dataSourceBroadcast.dataSource.message.type !== 'collectionImported') {
+    // Don't do this on load or import or when presentation saved
+    if (dataSourceBroadcast.dataSource.message.type !== 'collectionImported' && dataSourceBroadcast.message !== 'presentationSaved') {
 
       // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
       // method
