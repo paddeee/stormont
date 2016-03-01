@@ -63,17 +63,6 @@ module.exports = Reflux.createStore({
     }
   },
 
-  // Set search filter on our collectionTransform
-  searchFilterChanged: function (searchFilterObject) {
-    console.log('filterState - searchFilterChanged');
-
-    this.updateFilteredData(searchFilterObject);
-
-    // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
-    // method
-    this.autoFilterCollections(true, true);
-  },
-
   // Set simpleSort on our collectionTransform
   sortingChanged: function (sortingObject) {
 
@@ -231,97 +220,6 @@ module.exports = Reflux.createStore({
     }
 
     return [regexString, 'i'];
-  },
-
-  // Update filtered data based on the collection
-  updateFilteredData: function (searchFilterObject) {
-    console.log('filterState - updateFilteredData');
-
-    switch (searchFilterObject.collectionName) {
-      case config.EventsCollection.name:
-        filterTransforms[config.EventsCollection.name].filters = this.createFilterObject(searchFilterObject);
-        break;
-      case config.PlacesCollection.name:
-        filterTransforms[config.PlacesCollection.name].filters = this.createFilterObject(searchFilterObject);
-        break;
-      case config.PeopleCollection.name:
-        filterTransforms[config.PeopleCollection.name].filters = this.createFilterObject(searchFilterObject);
-        break;
-      case config.SourcesCollection.name:
-        filterTransforms[config.SourcesCollection.name].filters = this.createFilterObject(searchFilterObject);
-        break;
-      default:
-        console.error('No collection Name');
-    }
-  },
-
-  // Update filtered data based on the collection
-  updateFilteredData2: function (queryBuilderObject) {
-    console.log('filterState - updateFilteredData2');
-
-    this.filterTransforms[config.EventsCollection.name].filters = this.createFilterObject2(queryBuilderObject);
-    this.filterTransforms[config.PlacesCollection.name].filters = this.createFilterObject2(queryBuilderObject);
-    this.filterTransforms[config.PeopleCollection.name].filters = this.createFilterObject2(queryBuilderObject);
-    this.filterTransforms[config.SourcesCollection.name].filters = this.createFilterObject2(queryBuilderObject);
-  },
-
-  // Create a filter transform object from a UI Filter Object
-  createFilterObject2: function (queryBuilderObject) {
-
-    var transform = {
-      type: 'find',
-      value: {
-        $and: []
-      }
-    };
-
-    /*queryBuilderObject.fields.forEach(function (field) {
-
-      var fieldObject = {};
-      var queryObject = {};
-
-      if (field.queryType !== 'regex') {
-        queryObject[field.queryType] = field.value;
-      } else {
-        queryObject.$regex = [field.value, 'i'];
-      }
-
-      fieldObject[field.name] = queryObject;
-
-      transform.value.$and.push(fieldObject);
-    });*/
-
-    return transform;
-  },
-
-  // Create a filter transform object from a filter Object
-  createFilterObject: function (searchFilterObject) {
-    console.log('filterState - createFilterObject');
-
-    var transform = {
-      type: 'find',
-      value: {
-        $and: []
-      }
-    };
-
-    searchFilterObject.fields.forEach(function (field) {
-
-      var fieldObject = {};
-      var queryObject = {};
-
-      if (field.queryType !== 'regex') {
-        queryObject[field.queryType] = field.value;
-      } else {
-        queryObject.$regex = [field.value, 'i'];
-      }
-
-      fieldObject[field.name] = queryObject;
-
-      transform.value.$and.push(fieldObject);
-    });
-
-    return transform;
   },
 
   // Update sorted data based on the collection

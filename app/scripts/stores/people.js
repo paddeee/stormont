@@ -171,8 +171,8 @@ module.exports = Reflux.createStore({
         desc: true
       },
       dateQueries: {
-        from: ['1999-05-07 00:00:00', '2000-02-01 00:00:00'],
-        to: ['1999-05-30 00:00:00', '2020-01-01 00:00:00']
+        from: [],
+        to: []
       }
     };
 
@@ -199,7 +199,7 @@ module.exports = Reflux.createStore({
   setDatesTransform: function() {
 
     // Get name of Field with a filter type of 'gte'
-    config.EventsCollection.fields.forEach(function(filter) {
+    config.PeopleCollection.fields.forEach(function(filter) {
       if (filter.filter === 'gte') {
         this.fromFilterName = filter.name;
       } else if (filter.filter === 'lte') {
