@@ -241,17 +241,33 @@ module.exports = Reflux.createStore({
     var toArray = this.filterTransform[this.collectionName].dateQueries.to;
     var fromDefaultObject = {
       includeExclude: 'include',
-      value: '1900-01-01 00:00:00'
+      value: '1800-01-01 00:00:00'
     };
     var toDefaultObject = {
       includeExclude: 'include',
-      value: '2100-01-01 00:00:00'
+      value: '3000-01-01 00:00:00'
     };
+    var fromDate = obj[this.fromFilterName];
+    var toDate = obj[this.toFilterName];
+
+    // If datastore has no date filters return
+    if (!this.fromFilterName) {
+      return true;
+    }
 
     if (!fromArray.length) {
       fromArray.push(fromDefaultObject);
     } else if (!toArray.length) {
       toArray.push(toDefaultObject);
+    }
+
+    // Parse invalid dates
+    if (fromDate === '' || fromDate === 'TBD') {
+      fromDate = fromDefaultObject.value;
+    }
+
+    if (toDate === '' || toDate === 'TBD') {
+      toDate = toDefaultObject.value;
     }
 
     // Sort arrays so dates are in order in each array
@@ -278,18 +294,18 @@ module.exports = Reflux.createStore({
         // If the date filter is an include
         if (toObject.includeExclude === 'include') {
 
-          if (obj[this.fromFilterName] > fromObject.value && obj[this.toFilterName] < toObject.value) {
+          if (fromDate >= fromObject.value && toDate <= toObject.value) {
             validItem = true;
           }
         } else if (toObject.includeExclude === 'exclude') {
 
-          if (obj[this.fromFilterName] > fromObject.value && obj[this.fromFilterName] < toObject.value) {
+          if (fromDate >= fromObject.value && toDate <= toObject.value) {
             validItem = true;
           }
         }
       }.bind(this));
 
-    // Catch-all in case user adds more to filters than from filters which would be wrong anyway
+      // Catch-all in case user adds more to filters than from filters which would be wrong anyway
     } else {
 
       toArray.forEach(function(toObject, index) {
@@ -304,12 +320,12 @@ module.exports = Reflux.createStore({
         // If the date filter is an include
         if (fromObject.includeExclude === 'include') {
 
-          if (obj[this.fromFilterName] > fromObject.value && obj[this.fromFilterName] < toObject.value) {
+          if (fromDate > fromObject.value && fromDate < toObject.value) {
             validItem = true;
           }
         } else if (fromObject.includeExclude === 'exclude') {
 
-          if (obj[this.fromFilterName] > fromObject.value && obj[this.toFilterName] < toObject.value) {
+          if (fromDate > fromObject.value && toDate < toObject.value) {
             validItem = true;
           }
         }
