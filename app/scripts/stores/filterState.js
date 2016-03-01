@@ -226,18 +226,24 @@ module.exports = Reflux.createStore({
   // ToDo: Need to make this dynamic based on passed in fields
   updateSortedData: function (sortingObject) {
 
+    // Set blank transform objects for each data type
+    var eventsTransform = eventsStore.filterTransform[config.EventsCollection.name];
+    var placesTransform = placesStore.filterTransform[config.PlacesCollection.name];
+    var peopleTransform = peopleStore.filterTransform[config.PeopleCollection.name];
+    var sourcesTransform = sourcesStore.filterTransform[config.SourcesCollection.name];
+
     switch (sortingObject.collectionName) {
       case config.EventsCollection.name:
-        this.filterTransforms[config.EventsCollection.name].sorting = this.createSortingObject(sortingObject);
+        eventsTransform.sorting = this.createSortingObject(sortingObject);
         break;
       case config.PlacesCollection.name:
-        this.filterTransforms[config.PlacesCollection.name].sorting = this.createSortingObject(sortingObject);
+        placesTransform.sorting = this.createSortingObject(sortingObject);
         break;
       case config.PeopleCollection.name:
-        this.filterTransforms[config.PeopleCollection.name].sorting = this.createSortingObject(sortingObject);
+        peopleTransform.sorting = this.createSortingObject(sortingObject);
         break;
       case config.SourcesCollection.name:
-        this.filterTransforms[config.SourcesCollection.name].sorting = this.createSortingObject(sortingObject);
+        sourcesTransform.sorting = this.createSortingObject(sortingObject);
         break;
       default:
         console.error('No collection Name');
