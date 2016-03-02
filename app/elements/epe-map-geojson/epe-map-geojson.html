@@ -305,6 +305,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         if (this.container && this.data) {
 
+          if (this.container && this.clusterLayer) {
+            this.container.removeLayer(this.clusterLayer);
+          }
+
+          if (this.container && this.geoJSONLayer) {
+            this.container.removeLayer(this.geoJSONLayer);
+          }
+
           this.setUpLeafletCluster();
 
           this.setUpFeaturesLayer();
@@ -334,7 +342,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.markers.forEach(function(marker) {
           this.geoJSONLayer.removeLayer(marker);
         }.bind(this));
-      },
+      }/*,
 
       detached: function() {
 
@@ -345,7 +353,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (this.container && this.clusterLayer) {
           this.container.removeLayer(this.clusterLayer);
         }
-      }
+      }*/
     });
   })();
 </script>
