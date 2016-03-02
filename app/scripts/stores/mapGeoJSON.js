@@ -33,12 +33,18 @@ module.exports = Reflux.createStore({
     this.selectedPeople = selectedRecordsStore.selectedRecords[config.PeopleCollection.name];
     this.selectedSources = selectedRecordsStore.selectedRecords[config.SourcesCollection.name];
 
-    // Push a feature object for each Event record
-    this.selectedEvents.data().forEach(function(selectedEvent) {
+    // If no selected events
+    if (!this.selectedEvents.data().length) {
+      geoJSONObject = defaultGeoJSONObject;
+    } else {
 
-      geoJSONObject = this.getFeatureObject(selectedEvent, defaultGeoJSONObject);
+      // Push a feature object for each Event record
+      this.selectedEvents.data().forEach(function(selectedEvent) {
 
-    }.bind(this));
+        geoJSONObject = this.getFeatureObject(selectedEvent, defaultGeoJSONObject);
+
+      }.bind(this));
+    }
 
     this.trigger(geoJSONObject);
   },
@@ -67,7 +73,7 @@ module.exports = Reflux.createStore({
 
     // Don't add to GeoJSON if no related place exists
     if (!this.addPlaceDataToGeoJSON(featureObject, selectedEvent)) {
-      return;
+      return geoJSONObject;
     }
 
     this.addRelatedPeopleDataToGeoJSON(featureObject);
