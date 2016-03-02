@@ -2,7 +2,6 @@
 
 var Reflux = require('reflux');
 var config = require('../config/config.js');
-//var filterTransforms = require('../config/filterTransforms.js');
 var FilterStateActions = require('../actions/filterState.js');
 var dataSourceStore = require('../stores/dataSource.js');
 var eventsStore = require('../stores/events.js');
