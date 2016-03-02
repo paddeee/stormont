@@ -43,13 +43,7 @@ module.exports = Reflux.createStore({
 
     this.setDatesTransform();
 
-    // If the incoming parameter is a string, we are setting the transform from a pre-existing one
-    // (i.e viewing an existing package)
-    if (typeof filterTransformBroadcast === 'string') {
-      this.updateFilterTransform(filterTransformBroadcast);
-    } else {
-      this.createFilterTransform(filterTransformBroadcast);
-    }
+    this.createFilterTransform(filterTransformBroadcast);
   },
 
   // Listener to changes on Presentations Store
@@ -111,28 +105,6 @@ module.exports = Reflux.createStore({
     _.difference(eventsCollection, filteredEventsCollection).forEach(function(eventObject) {
       eventObject.showRecord = false;
     });
-  },
-
-  // Retrieve a transform from the db using a transform name
-  updateFilterTransform: function(transformName) {
-    console.log('Events - updateFilterTransform');
-
-    var collectionToAddTransformTo = this.dataSource.getCollection(this.collectionName);
-
-    if (!collectionToAddTransformTo) {
-      return;
-    }
-
-    // Update this store's filterTransform so the filters will be updated when a presentation changes
-    if (this.dataSource.getCollection(this.collectionName).transforms[transformName][0]) {
-      this.filterTransform[this.collectionName].filters = this.dataSource.getCollection(this.collectionName).transforms[transformName][0];
-    }
-
-    // Update the collection resulting from the transform
-    this.userFilteredCollection = collectionToAddTransformTo.chain(collectionToAddTransformTo.transforms[transformName][0], this.params).copy();
-
-    // Send collection object out to all listeners
-    this.trigger(this.userFilteredCollection.data());
   },
 
   // Reset a transform on this collection
