@@ -234,7 +234,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <epe-create-package
               id="EpeCreatePackage"
               edit-state="creating"
-              user-store="[[userStore]]"
               data-source-actions="[[dataSourceActions]]"
               filter-state-actions="[[filterStateActions]]"
               filter-state-store="[[filterStateStore]]"
@@ -247,8 +246,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               presentations-actions="[[presentationsActions]]"
               presentations-store="[[presentationsStore]]"
               query-builder-actions="[[queryBuilderActions]]"
-              on-package-view-changed="packageViewChanged"
-              on-show-dialog="showDialog"></epe-create-package>
+              on-package-view-changed="packageViewChanged"></epe-create-package>
           </section>
 
           <!-- Edit Package Section -->
@@ -256,7 +254,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <epe-create-package
               id="EpeEditPackage"
               edit-state="editing"
-              user-store="[[userStore]]"
               data-source-actions="[[dataSourceActions]]"
               filter-state-actions="[[filterStateActions]]"
               filter-state-store="[[filterStateStore]]"
@@ -269,8 +266,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               presentations-actions="[[presentationsActions]]"
               presentations-store="[[presentationsStore]]"
               query-builder-actions="[[queryBuilderActions]]"
-              on-package-view-changed="packageViewChanged"
-              on-show-dialog="showDialog"></epe-create-package>
+              on-package-view-changed="packageViewChanged"></epe-create-package>
           </section>
 
           <!-- View Packages Section -->
@@ -298,7 +294,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       class="filters"
       show-filters="{{showFilters}}"
       query-builder-actions="[[queryBuilderActions]]"
-      query-builder-store="[[queryBuilderStore]]"></epe-filters>
+      query-builder-store="[[queryBuilderStore]]"
+      presentations-store="[[presentationsStore]]"
+      data-source-actions="[[dataSourceActions]]"
+      user-store="[[userStore]]"
+      on-show-dialog="showDialog"></epe-filters>
 
     <!-- Dialogs -->
     <paper-dialog id="SuccessDialog" modal>
@@ -689,10 +689,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       },
 
-      // Close the save presentation overlay on the epe-create-package elements
+      // Close the save presentation overlay on the epe-filters element
       closeCard: function () {
-        this.$.EpeCreatePackage.closeCard();
-        this.$.EpeEditPackage.closeCard();
+        this.$.Filters.hideFilters();
+        this.$.Filters.closeCard();
       },
 
       // Keep header small and fixed in certain conditions

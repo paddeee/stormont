@@ -102,10 +102,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .add-button {
+      position: absolute;
+      top: 20px;
+      right: 1vw;
+      color: var(--primary-text-color);
+    }
+
+    .save-button {
       background-color: var(--default-primary-color);
       position: absolute;
       bottom: 2vh;
       right: 1vw;
+    }
+
+    .no-save-message {
+      position: absolute;
+      bottom: 2vh;
+      right: 1vw;
+      font-size: 1.6vw;
+      padding: 2vh 2vw;
+      font-weight: bold;
+      text-align: center;
     }
 
     .filters__no-filters {
@@ -158,6 +175,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       color: var(--paper-red-500);
     }
 
+    .save-package {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      z-index: 11;
+      display:none;
+    }
+
+    .save-package.save-package--showing {
+      display:block;
+    }
+
+    .save-package__card {
+      height: 85vh;
+      background-color: var(--primary-background-color);
+      max-width: 70vw;
+      margin: 15vh auto 0;
+    }
+
+    .save-package-overlay {
+      background-color: rgba(0, 0, 0, 0.3);
+      display: none;
+      opacity: 0;
+      height: calc(100% + 128px);
+      position: fixed;
+    }
+
+    .save-package-overlay.save-package-overlay--showing {
+      display: block;
+      opacity: 1;
+      transition: opacity 0.5s ease-in-out;
+      z-index: 10;
+    }
+
   </style>
   <template>
 
@@ -174,13 +229,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
       <div class="filters-main">
 
-        <div class="filters__global-search">
+        <!--<div class="filters__global-search">
           <paper-input id="GlobalSearch"
                        type="search"
                        label="Global search"
                        value="[[globalSearchValue]]">
           </paper-input>
-        </div>
+        </div>-->
 
         <div class="filters__custom-search layout vertical center-justified">
           <h1 class="self-center">Custom Filters</h1>
@@ -257,7 +312,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <!-- No filters message -->
           <div class="filters__no-filters"
                hidden$="[[!hideCustomFilters]]">
-            Press the add button at the bottom to add a custom filter.
+            Press the add button above to add a custom filter.
           </div>
         </div>
       </div>
@@ -265,11 +320,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <paper-fab id="AddButton"
                  class="add-button"
                  icon="add"
+                 mini
                  on-tap="addFilter"></paper-fab>
 
+      <paper-fab id="SavePackageButton"
+                 class="save-button"
+                 icon="save"
+                 on-tap="savePresentation"
+                 hidden$="[[hideSaveButton]]"></paper-fab>
+
+      <div class="no-save-message" hidden$="[[hideNoSaveMessage]]">
+        This package is awaiting authorisation so cannot currently be saved.
+      </div>
+
       <!-- Tooltips -->
-      <paper-tooltip for="AddButton" position="top">
+      <paper-tooltip for="AddButton">
         Add a Custom Filter
+      </paper-tooltip>
+      <paper-tooltip for="SavePackageButton" position="top">
+        Perform Filtered Search
+      </paper-tooltip>
       </paper-tooltip>
     </div>
 
@@ -322,12 +392,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
     </paper-dialog>
 
+    <!-- Save Package Overlay card -->
+    <div id="SavePackage" class="save-package">
+      <paper-material
+        class="save-package__card"
+        elevation="3">
+        <epe-save-package
+          user-store="[[userStore]]"
+          message="{{message}}"
+          presentations-store="[[presentationsStore]]"
+          data-source-actions="[[dataSourceActions]]"
+          query-builder-actions="[[queryBuilderActions]]"
+          on-close-card="closeCard"
+          on-show-dialog="showDialog"></epe-save-package>
+      </paper-material>
+    </div>
+
+    <div id="SavePackageOverlay" class="save-package-overlay fit"></div>
+
   </template>
 </dom-module>
 <script>
   (function() {
     Polymer({
       is: 'epe-filters',
+
+      behaviors: [
+        Polymer.NeonAnimationRunnerBehavior
+      ],
 
       properties: {
 
@@ -339,12 +431,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           observer: 'toggleFilters'
         },
 
+        savePackageCardOpen: {
+          type: Boolean,
+          value: false
+        },
+
         globalSearchValue:  {
           type: String,
           value: ''
         },
 
-        customFilters:  {
+        customFilters: {
           type: Array
         },
 
@@ -360,7 +457,40 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         invalidFilterMessage: {
           type: String
+        },
+
+        hideSaveButton: {
+          type: Boolean,
+          value: false
+        },
+
+        hideNoSaveMessage: {
+          type: Boolean,
+          value: true
+        },
+
+        animationConfig: {
+          value: function() {
+            return {
+              'entry': {
+                name: 'transform-animation',
+                node: this.$.SavePackage,
+                transformFrom: 'translateY(100%)',
+                transformTo: 'translateY(0)'
+              },
+              'exit': {
+                name: 'transform-animation',
+                node: this.$.SavePackage,
+                transformFrom: 'translateY(0)',
+                transformTo: 'translateY(100%)'
+              }
+            };
+          }
         }
+      },
+
+      listeners: {
+        'neon-animation-finish': 'onSlideAnimationFinish'
       },
 
       ready: function() {
@@ -392,6 +522,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
           }.bind(this));
         }
+
+        if (this.presentationsStore) {
+
+          // When the presentations data is updated
+          this.presentationsStore.listen(function(presentationsStore) {
+
+            // Manage the Save Button depending on presentation state
+            this.manageSaveButton(presentationsStore.presentationState);
+
+            // Manage the footer message depending on presentation state
+            this.manageSaveMessage(presentationsStore.presentationState);
+
+          }.bind(this));
+        }
+      },
+
+      // Iterate through keys of an object and return key/value pair
+      toArray: function(obj) {
+        return Object.keys(obj).map(function(key) {
+          return {name: key, value: obj[key]};
+        });
       },
 
       // Hide filters editor
@@ -564,7 +715,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Get date for date picker
       getFilterDate: function(value) {
         if (value) {
-          return value.split(' ')[0];
+          return this.toArray(value)[0].value.split(' ')[0];
         } else {
           return '1900-01-01';
         }
@@ -573,7 +724,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Get time for date picker
       getFilterTime: function(value) {
         if (value) {
-          return value.split(' ')[1];
+          return this.toArray(value)[0].value.split(' ')[1];
         } else {
           return '00:00:00'
         }
@@ -611,7 +762,65 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         filterObject.value = event.currentTarget.dateTime;
 
         this.queryBuilderActions.queryFiltersChanged(filterObject, 'update');
-      }
+      },
+
+      // Show the save presentation card.
+      savePresentation: function() {
+
+        this.savePackageCardOpen = true;
+
+        // run slide-up-animation
+        this.$.SavePackageOverlay.classList.add('save-package-overlay--showing');
+        this.$.SavePackage.classList.add('save-package--showing');
+        this.playAnimation('entry');
+      },
+
+      // Close the save package card
+      closeCard: function() {
+
+        this.savePackageCardOpen = false;
+
+        // run slide-down-animation
+        this.$.SavePackageOverlay.classList.remove('save-package-overlay--showing');
+        this.playAnimation('exit');
+      },
+
+      // Listener when animation finishes
+      onSlideAnimationFinish: function() {
+
+        if (!this.savePackageCardOpen) {
+          this.$.SavePackage.classList.remove('save-package--showing');
+        }
+      },
+
+      // Fired from epe-save-package element
+      showDialog: function(event) {
+
+        event.preventDefault();
+        this.fire('show-dialog', {
+          type: event.detail.type
+        });
+      },
+
+      // Set state of hideSaveButton depending on presentation state
+      manageSaveButton: function(presentationState) {
+
+        if (presentationState === 'viewing' || presentationState === 'viewingLocked') {
+          this.hideSaveButton = true;
+        } else {
+          this.hideSaveButton = false;
+        }
+      },
+
+      // Set state of message depending on presentation state
+      manageSaveMessage: function(presentationState) {
+
+        if (presentationState === 'viewingLocked') {
+          this.hideNoSaveMessage = false;
+        } else {
+          this.hideNoSaveMessage = true;
+        }
+      },
     });
   })();
 </script>

@@ -128,16 +128,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       text-align: center;
     }
 
-    .save-container {
-      position: absolute;
-      top: 5.8vh;
-      right: 16px;
-    }
-
-    .save-container__btn {
-      font-size: 2vh;
-    }
-
     .no-records {
       font-size: 2vh;
     }
@@ -157,21 +147,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     }
 
-    .fab-container {
-      position: absolute;
-      top: 5vh;
-      right: 16px;
-    }
-
     paper-fab {
       background-color: var(--default-primary-color);
-    }
-
-    .no-save-message {
-      position: absolute;
-      top: 6vh;
-      right: 1vw;
-      width: 30vw;
     }
 
     .blank,
@@ -297,17 +274,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             show-first="true"
             show-last="true"></epe-paginator>
         </div>
-
-        <div class="fab-container" hidden$="[[hideSaveButton]]">
-          <paper-fab id="SavePackageButton" icon="save" on-tap="savePresentationSelected"></paper-fab>
-          <paper-tooltip for="SavePackageButton" position="top" offset="0">
-            Save Package
-          </paper-tooltip>
-        </div>
-
-        <div class="no-save-message" hidden$="[[hideNoSaveMessage]]">
-          This presentation is awaiting authorisation so cannot currently be saved.
-        </div>
       </div>
     </div>
 
@@ -332,16 +298,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       gridData: {
         type: Array,
         observer: 'gridDataChanged'
-      },
-
-      hideSaveButton: {
-        type: Boolean,
-        value: false
-      },
-
-      hideNoSaveMessage: {
-        type: Boolean,
-        value: true
       },
 
       // Used to get the headings
@@ -386,23 +342,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         type: Boolean,
         value: false,
         notify: true
-      }
-    },
-
-    ready: function() {
-
-      if (this.presentationsStore) {
-
-        // When the presentations data is updated
-        this.presentationsStore.listen(function(presentationsStore) {
-
-          // Manage the Save Button depending on presentation state
-          this.manageSaveButton(presentationsStore.presentationState);
-
-          // Manage the footer message depending on presentation state
-          this.manageFooterMessage(presentationsStore.presentationState);
-
-        }.bind(this));
       }
     },
 
@@ -501,9 +440,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Force template-repeat to show checkboxes in correct state after the
         // show record property has changed
         this.updateCheckboxes();
-
-        // Reset Pagination to first page on grid data changing
-        //this.$.Paginator.currentpage = 0;
       }
     },
 
@@ -642,31 +578,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         checkBoxSelected: checkBoxSelected,
         userSelected: event.type === 'change'
       });
-    },
-
-    // Called when Save Presentation button is tapped
-    savePresentationSelected: function() {
-      this.fire('save-presentation');
-    },
-
-    // set state of hideSaveButton depending on presentation state
-    manageSaveButton: function(presentationState) {
-
-      if (presentationState === 'viewing' || presentationState === 'viewingLocked') {
-        this.hideSaveButton = true;
-      } else {
-        this.hideSaveButton = false;
-      }
-    },
-
-    // set state of footer message depending on presentation state
-    manageFooterMessage: function(presentationState) {
-
-      if (presentationState === 'viewingLocked') {
-        this.hideNoSaveMessage = false;
-      } else {
-        this.hideNoSaveMessage = true;
-      }
     },
 
     // FIRED WHEN USER TAPS VIEW SOURCE BUTTON

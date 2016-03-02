@@ -33,21 +33,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     }
 
-    .filters-title {
-      color: var(--secondary-text-color);
-      font-size: 1.5vw;
-      padding: 16px 16px 8px;
-    }
-
-    .filter-container {
-      margin-right: 1vw;
-    }
-
-    .filter-container[hidden],
-    epe-data-grid[hidden] {
-      display: none !important;
-    }
-
     .no-data[hidden] {
       display: none !important;
     }
@@ -72,44 +57,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     epe-source-viewer {
       background-color: var(--primary-background-color);
       height: calc(100% + 128px);
-    }
-
-    .save-package {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 100%;
-      width: 100%;
-      margin: 0;
-      z-index: 2;
-      display:none;
-    }
-
-    .save-package.save-package--showing {
-      display:block;
-    }
-
-    .save-package__card {
-      height: 85vh;
-      background-color: var(--primary-background-color);
-      max-width: 70vw;
-      margin: 15vh auto 0;
-    }
-
-    .save-package-overlay {
-      background-color: rgba(0, 0, 0, 0.3);
-      display: none;
-      opacity: 0;
-      height: calc(100% + 128px);
-      position: fixed;
-    }
-
-    .save-package-overlay.save-package-overlay--showing {
-      display: block;
-      opacity: 1;
-      transition: opacity 0.5s ease-in-out;
-      z-index: 1;
     }
 
   </style>
@@ -175,8 +122,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   hidden$="[[hideDataGrid]]"
                   class="data-grid fit"
                   grid-data="[[gridData]]"
-                  show-all-selected="{{showAllSelected}}"
-                  on-save-presentation="savePresentation"></epe-data-grid>
+                  show-all-selected="{{showAllSelected}}"></epe-data-grid>
               </section>
             </iron-pages>
 
@@ -213,24 +159,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           on-navigate-to-source-viewer="navigateToSourceViewer"></epe-source-viewer>
       </section>
     </iron-pages>
-
-    <!-- Save Package Overlay card -->
-    <div id="SavePackage" class="save-package">
-      <paper-material
-        class="save-package__card"
-        elevation="3">
-        <epe-save-package
-          user-store="[[userStore]]"
-          message="{{message}}"
-          presentations-store="[[presentationsStore]]"
-          data-source-actions="[[dataSourceActions]]"
-          query-builder-actions="[[queryBuilderActions]]"
-          on-close-card="closeCard"
-          on-show-dialog="showDialog"></epe-save-package>
-      </paper-material>
-    </div>
-
-    <div id="SavePackageOverlay" class="save-package-overlay fit"></div>
   </template>
 </dom-module>
 <script>
@@ -238,21 +166,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     Polymer({
       is: 'epe-create-package',
 
-      behaviors: [
-        Polymer.NeonAnimationRunnerBehavior
-      ],
-
       properties: {
 
         message: {
           type: String,
           value: '',
           notify: true
-        },
-
-        savePackageCardOpen: {
-          type: Boolean,
-          value: false
         },
 
         gridData: {
@@ -278,30 +197,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         showAllSelected: {
           type: Boolean,
           value: false
-        },
-
-        animationConfig: {
-          value: function() {
-            return {
-              'entry': {
-                name: 'transform-animation',
-                node: this.$.SavePackage,
-                transformFrom: 'translateY(100%)',
-                transformTo: 'translateY(0)'
-              },
-              'exit': {
-                name: 'transform-animation',
-                node: this.$.SavePackage,
-                transformFrom: 'translateY(0)',
-                transformTo: 'translateY(100%)'
-              }
-            };
-          }
         }
-      },
-
-      listeners: {
-        'neon-animation-finish': 'onSlideAnimationFinish'
       },
 
       // ToDo: Must be a DRYer way of doing this when not rushing
@@ -385,7 +281,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       tabSelected: function(event) {
 
         var tabChosen = event.detail.item.getAttribute('name');
-        var $dataGridContainer = this.$.DataGridContainer;
 
         this.collectionName = tabChosen;
 
@@ -458,20 +353,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       // FIRED BY IRON-PAGES ON-IRON-SELECTED EVENT
-      // ** IS ALSO TRIGGERED BY THE EVENT CARD ANIMATION
       createPackageViewSelected: function(event) {
 
         var route = event.detail.item.dataset.route;
 
-        // Check for route as if this is triggered via the neon-animated-pages in event card
-        // we don't want to do anything
-        if (route) {
+        // Set the section title
+        this.setSectionTitle(route);
 
-          // Set the section title
-          this.setSectionTitle(route);
-
-          this.$.Map.resizeMap();
-        }
+        this.$.Map.resizeMap();
       },
 
       // Update header section title based on where we are and fire event
@@ -479,44 +368,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         this.fire('package-view-changed', {
           packageRoute: route
-        });
-      },
-
-      // Show the save presentation card.
-      savePresentation: function() {
-
-        this.savePackageCardOpen = true;
-
-        // run slide-up-animation
-        this.$.SavePackageOverlay.classList.add('save-package-overlay--showing');
-        this.$.SavePackage.classList.add('save-package--showing');
-        this.playAnimation('entry');
-      },
-
-      // Close the save package card
-      closeCard: function() {
-
-        this.savePackageCardOpen = false;
-
-        // run slide-down-animation
-        this.$.SavePackageOverlay.classList.remove('save-package-overlay--showing');
-        this.playAnimation('exit');
-      },
-
-      // Listener when animation finishes
-      onSlideAnimationFinish: function() {
-
-        if (!this.savePackageCardOpen) {
-          this.$.SavePackage.classList.remove('save-package--showing');
-        }
-      },
-
-      // Fired from epe-save-package element
-      showDialog: function(event) {
-
-        event.preventDefault();
-        this.fire('show-dialog', {
-          type: event.detail.type
         });
       },
 
