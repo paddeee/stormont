@@ -358,10 +358,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         var route = event.detail.item.dataset.route;
 
-        // Set the section title
-        this.setSectionTitle(route);
+        // Check for route as if this is triggered via the neon-animated-pages in event card
+        // we don't want to do anything
+        if (route) {
 
-        this.$.Map.resizeMap();
+          // Set the section title
+          this.setSectionTitle(route);
+
+          this.$.Map.resizeMap();
+        }
       },
 
       // Update header section title based on where we are and fire event
