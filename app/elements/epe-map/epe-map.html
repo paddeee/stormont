@@ -109,9 +109,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (this.mapGeoJsonStore) {
 
         // When the events data is updated, update our grid data
-        this.mapGeoJsonStore.listen(function(mapGeoJsonStore) {
+        this.mapGeoJsonStore.listen(function(geoJSONObject) {
 
-          this.geoJSON = mapGeoJsonStore.geoJSONObject;
+          this.geoJSON = geoJSONObject;
 
         }.bind(this));
       }
