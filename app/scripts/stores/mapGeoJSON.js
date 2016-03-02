@@ -19,8 +19,10 @@ module.exports = Reflux.createStore({
   // Create a GeoJSON Object that can be used by the Map and Timeline to visualise data
   createGeoJSON: function() {
 
+    var geoJSONObject;
+
     // Create an empty GeoJSON object
-    var geoJSONObject = {
+    var defaultGeoJSONObject = {
       'type': 'FeatureCollection',
       'features': []
     };
@@ -34,7 +36,7 @@ module.exports = Reflux.createStore({
     // Push a feature object for each Event record
     this.selectedEvents.data().forEach(function(selectedEvent) {
 
-      geoJSONObject = this.getFeatureObject(selectedEvent, geoJSONObject);
+      geoJSONObject = this.getFeatureObject(selectedEvent, defaultGeoJSONObject);
 
     }.bind(this));
 
