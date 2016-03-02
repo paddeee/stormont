@@ -14,19 +14,16 @@ module.exports = Reflux.createStore({
 
     // Register dataSourceStores's changes
     this.listenTo(selectedRecordsStore, this.createGeoJSON);
-
-    // Create an empty GeoJSON object
-    this.geoJSONObject = {
-      'type': 'FeatureCollection',
-      'features': []
-    };
   },
 
   // Create a GeoJSON Object that can be used by the Map and Timeline to visualise data
   createGeoJSON: function() {
 
-    // Empty features array
-    this.geoJSONObject.features = [];
+    // Create an empty GeoJSON object
+    var geoJSONObject = {
+      'type': 'FeatureCollection',
+      'features': []
+    };
 
     // Assign selected events from each store
     this.selectedEvents = selectedRecordsStore.selectedRecords[config.EventsCollection.name];
@@ -37,15 +34,15 @@ module.exports = Reflux.createStore({
     // Push a feature object for each Event record
     this.selectedEvents.data().forEach(function(selectedEvent) {
 
-      this.getFeatureObject(selectedEvent);
+      geoJSONObject = this.getFeatureObject(selectedEvent, geoJSONObject);
 
     }.bind(this));
 
-    this.trigger(this);
+    this.trigger(geoJSONObject);
   },
 
   // Return a GeoJSON Feature Object if event has related place selected
-  getFeatureObject: function(selectedEvent) {
+  getFeatureObject: function(selectedEvent, geoJSONObject) {
 
     var featureObject = {
       'type': 'Feature',
@@ -74,7 +71,9 @@ module.exports = Reflux.createStore({
     this.addRelatedPeopleDataToGeoJSON(featureObject);
 
     // Push features onto the GeoJSON Object
-    this.geoJSONObject.features.push(featureObject);
+    geoJSONObject.features.push(featureObject);
+
+    return geoJSONObject;
   },
 
   // Add Place data to the geoJSON Object
