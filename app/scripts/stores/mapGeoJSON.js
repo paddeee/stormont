@@ -22,18 +22,119 @@ module.exports = Reflux.createStore({
     // Create an empty GeoJSON object
     var geoJSONObject = {
       type: Object,
-        value: {
+      value: {
         'type': 'FeatureCollection',
         'features': []
       }
     };
 
     // Assign selected events from each store
-    var selectedEvents = selectedRecordsStore.selectedRecords[config.EventsCollection.name].data();
-    var selectedPlaces = selectedRecordsStore.selectedRecords[config.PlacesCollection.name].data();
-    var selectedPeople = selectedRecordsStore.selectedRecords[config.PeopleCollection.name].data();
-    var selectedSources = selectedRecordsStore.selectedRecords[config.SourcesCollection.name].data();
+    this.selectedEvents = selectedRecordsStore.selectedRecords[config.EventsCollection.name];
+    this.selectedPlaces = selectedRecordsStore.selectedRecords[config.PlacesCollection.name];
+    this.selectedPeople = selectedRecordsStore.selectedRecords[config.PeopleCollection.name];
+    this.selectedSources = selectedRecordsStore.selectedRecords[config.SourcesCollection.name];
 
+    // Push a feature object for each Event record
+    this.selectedEvents.data().forEach(function(selectedEvent) {
 
+      geoJSONObject = this.getFeatureObject(geoJSONObject, selectedEvent);
+
+    }.bind(this));
+
+    console.log(geoJSONObject);
+  },
+
+  // Return a GeoJSON Feature Object if event has related place selected
+  getFeatureObject: function(geoJSONObject, selectedEvent) {
+
+    var featureObject = {
+      'type': 'Feature',
+      'properties': {
+        'id': selectedEvent.$loki,
+        'eventName': selectedEvent['Full Name'],
+        'eventDescription': selectedEvent['Description'],
+        'type': selectedEvent['Type'],
+        'relatedPeople': [
+          {
+            name: 'Person B'
+          },
+          {
+            name: 'Person D'
+          }
+        ],
+        'supportingDocuments': []
+      }
+    };
+
+    this.addPlaceDataToGeoJSON(featureObject, selectedEvent)
+      .then(function(featureObject) {
+        console.log(featureObject);
+
+        this.addRelatedPeopleDataToGeoJSON(featureObject);
+
+        // Push features onto the GeoJSON Object
+        geoJSONObject.value.features.push(featureObject);
+
+      }.bind(this));
+
+    return geoJSONObject;
+  },
+
+  // Add Place data to the geoJSON Object
+  addPlaceDataToGeoJSON: function(featureObject, selectedEvent) {
+
+    return new Promise(function (resolve, reject) {
+
+      var relatedPlace = this.selectedPlaces.copy().find({
+        'Short Name': {
+          '$eq': selectedEvent.Place
+        }
+      }).data()[0];
+
+      // If the event has no related place selected
+      if (!relatedPlace) {
+        reject('No related places');
+      } else {
+
+        // Assign Geometry
+        featureObject.geometry = this.getGeometryObject(relatedPlace);
+
+        // Assign values
+        featureObject.properties.placeName = relatedPlace['Full Name'];
+
+        resolve(featureObject);
+      }
+
+    }.bind(this));
+  },
+
+  // Return a Geometry object based off the placeObject's
+  getGeometryObject: function(placeObject) {
+
+    var mapLocation = JSON.parse(placeObject['Map location']);
+
+    var geometryObject = {
+      coordinates: mapLocation
+    };
+
+    if (typeof mapLocation[0] === 'number') {
+      geometryObject.type = 'Point';
+    } else if (typeof mapLocation[0][0] === 'number') {
+      geometryObject.type = 'LineString';
+    } else if (typeof mapLocation[0][0][0] === 'number') {
+      geometryObject.type = 'Polygon';
+    }
+
+    return geometryObject;
+  },
+
+  // Add Related People data to the geoJSON Object
+  addRelatedPeopleDataToGeoJSON: function(featureObject) {
+
+    return new Promise(function (resolve, reject) {
+
+      resolve(featureObject);
+
+    }.bind(this));
   }
 });
