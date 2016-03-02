@@ -208,6 +208,11 @@ module.exports = Reflux.createStore({
 
         var orPipe;
 
+        // If value is empty
+        if (!filterObject.value) {
+          return;
+        }
+
         includeCounter++;
 
         if (includeCounter > 1) {
