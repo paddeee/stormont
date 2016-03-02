@@ -98,15 +98,6 @@ module.exports = Reflux.createStore({
     }
   },
 
-  // When a collection is filtered, the removed records need to be set to not selected.
-  // Otherwise, any records in the other data types will still be selected even though the record which made
-  // them selected has been filtered out
-  setFilteredOutItemsToNotSelected: function(eventsCollection, filteredEventsCollection) {
-    _.difference(eventsCollection, filteredEventsCollection).forEach(function(eventObject) {
-      eventObject.showRecord = false;
-    });
-  },
-
   // Reset a transform on this collection
   resetFilterTransform: function() {
     console.log('Events - resetFilterTransform');
@@ -132,6 +123,15 @@ module.exports = Reflux.createStore({
 
     // Send collection object out to all listeners
     this.trigger(this.userFilteredCollection.data());
+  },
+
+  // When a collection is filtered, the removed records need to be set to not selected.
+  // Otherwise, any records in the other data types will still be selected even though the record which made
+  // them selected has been filtered out
+  setFilteredOutItemsToNotSelected: function(eventsCollection, filteredEventsCollection) {
+    _.difference(eventsCollection, filteredEventsCollection).forEach(function(eventObject) {
+      eventObject.showRecord = false;
+    });
   },
 
   // Set a default transform to be used immediately on the store
