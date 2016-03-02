@@ -14,19 +14,19 @@ module.exports = Reflux.createStore({
 
     // Register dataSourceStores's changes
     this.listenTo(selectedRecordsStore, this.createGeoJSON);
+
+    // Create an empty GeoJSON object
+    this.geoJSONObject = {
+      'type': 'FeatureCollection',
+      'features': []
+    };
   },
 
   // Create a GeoJSON Object that can be used by the Map and Timeline to visualise data
   createGeoJSON: function() {
 
-    // Create an empty GeoJSON object
-    var geoJSONObject = {
-      type: Object,
-      value: {
-        'type': 'FeatureCollection',
-        'features': []
-      }
-    };
+    // Empty features array
+    this.geoJSONObject.features = [];
 
     // Assign selected events from each store
     this.selectedEvents = selectedRecordsStore.selectedRecords[config.EventsCollection.name];
@@ -37,7 +37,7 @@ module.exports = Reflux.createStore({
     // Push a feature object for each Event record
     this.selectedEvents.data().forEach(function(selectedEvent) {
 
-      this.geoJSONObject = this.getFeatureObject(geoJSONObject, selectedEvent);
+      this.getFeatureObject(selectedEvent);
 
     }.bind(this));
 
@@ -45,7 +45,7 @@ module.exports = Reflux.createStore({
   },
 
   // Return a GeoJSON Feature Object if event has related place selected
-  getFeatureObject: function(geoJSONObject, selectedEvent) {
+  getFeatureObject: function(selectedEvent) {
 
     var featureObject = {
       'type': 'Feature',
@@ -66,44 +66,39 @@ module.exports = Reflux.createStore({
       }
     };
 
-    this.addPlaceDataToGeoJSON(featureObject, selectedEvent)
-      .then(function(featureObject) {
-        console.log(featureObject);
+    // Don't add to GeoJSON if no related place exists
+    if (!this.addPlaceDataToGeoJSON(featureObject, selectedEvent)) {
+      return;
+    }
 
-        this.addRelatedPeopleDataToGeoJSON(featureObject);
+    this.addRelatedPeopleDataToGeoJSON(featureObject);
 
-        // Push features onto the GeoJSON Object
-        geoJSONObject.value.features.push(featureObject);
-
-      }.bind(this));
-
-    return geoJSONObject;
+    // Push features onto the GeoJSON Object
+    this.geoJSONObject.features.push(featureObject);
   },
 
   // Add Place data to the geoJSON Object
   addPlaceDataToGeoJSON: function(featureObject, selectedEvent) {
 
-    return new Promise(function (resolve) {
-
-      var relatedPlace = this.selectedPlaces.copy().find({
-        'Short Name': {
-          '$eq': selectedEvent.Place
-        }
-      }).data()[0];
-
-      // If the event has no related place selected
-      if (relatedPlace) {
-
-        // Assign Geometry
-        featureObject.geometry = this.getGeometryObject(relatedPlace);
-
-        // Assign values
-        featureObject.properties.placeName = relatedPlace['Full Name'];
-
-        resolve(featureObject);
+    var relatedPlace = this.selectedPlaces.copy().find({
+      'Short Name': {
+        '$eq': selectedEvent.Place
       }
+    }).data()[0];
 
-    }.bind(this));
+    // If the event has no related place selected
+    if (relatedPlace) {
+
+      // Assign Geometry
+      featureObject.geometry = this.getGeometryObject(relatedPlace);
+
+      // Assign values
+      featureObject.properties.placeName = relatedPlace['Full Name'];
+
+      return featureObject;
+    } else {
+      return false;
+    }
   },
 
   // Return a Geometry object based off the placeObject's
