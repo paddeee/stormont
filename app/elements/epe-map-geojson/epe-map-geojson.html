@@ -213,7 +213,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           window.location.hash = "#" + i.toString();
         });*/
 
-        // Using new ECMAScript templates. Note ` character enclosing the value not '.
+        // Using ECMAScript 6 templates. Note ` character enclosing the value not '.
         // eventData is a stringified object that can be parsed into a JS Object inside epe-event-card.
         marker.bindPopup(`<epe-event-card event-data='${eventData}'></epe-event-card>`, {
           autoPan: false,

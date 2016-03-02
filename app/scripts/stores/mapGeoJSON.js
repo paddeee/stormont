@@ -76,11 +76,20 @@ module.exports = Reflux.createStore({
   // Create a ResultSet on each store's userFilteredCollection
   createSelectedCollections: function() {
 
+    var sortByField;
+
+    // Get name of Field with a filter type of 'gte' to use as the sort field for Events
+    config.EventsCollection.fields.forEach(function(filter) {
+      if (filter.filter === 'gte') {
+        sortByField = filter.name;
+      }
+    }.bind(this));
+
     this.selectedEvents = eventsStore.userFilteredCollection.copy().find({
       'showRecord': {
         '$eq': true
       }
-    }).simplesort('Begin Date and Time');
+    }).simplesort(sortByField);
 
     this.selectedPlaces = placesStore.userFilteredCollection.copy().find({
       'showRecord': {
