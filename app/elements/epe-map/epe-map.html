@@ -80,7 +80,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </leaflet-tilelayer>
 
       <epe-map-geojson id="MapGeoJSON"
-                       data="[[geoJSONFeature]]">
+                       data="[[geoJSON]]">
       </epe-map-geojson>
     </leaflet-map>
 
@@ -99,135 +99,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         value: false
       },
 
-      geoJSONFeature:  {
-        type: Object,
-        value: {
-          'type': 'FeatureCollection',
-          'features': [
-            {
-              'type': 'Feature',
-              'geometry': {
-                'type': 'Point',
-                'coordinates': [21.37939453125, 40.20824570152502]
-              },
-              'properties': {
-                'eventName': 'Kidnapping in Petrol Station',
-                'eventDescription': 'Senserit repudiandae ex sea. An quod porro tamquam pro, usu at habemus efficiendi necessitatibus. Id audiam detraxit vim, detracto dissentias ne pri. Eius dissentias ad vim.',
-                'placeName': 'Petrol Station',
-                'type': 'Kidnapping',
-                'relatedPeople': [
-                  {
-                    name: 'Person A'
-                  },
-                  {
-                    name: 'Person B'
-                  }
-                ]
-              }
-            },
-            {
-              'type': 'Feature',
-              'geometry': {
-                'type': 'Point',
-                'coordinates': [21.37939453125, 40.20824570152502]
-              },
-              'properties': {
-                'eventName': 'Arson at the factory',
-                'eventDescription': 'Senserit repudiandae ex sea. An quod porro tamquam pro, usu at habemus efficiendi necessitatibus. Id audiam detraxit vim, detracto dissentias ne pri. Eius dissentias ad vim.',
-                'placeName': 'Factory',
-                'type': 'Arson',
-                'relatedPeople': [
-                  {
-                    name: 'Person A'
-                  },
-                  {
-                    name: 'Person B'
-                  }
-                ]
-              }
-            },
-            {
-              'type': 'Feature',
-              'geometry': {
-                'type': 'Point',
-                'coordinates': [21.47939453129, 40.20824570152402]
-              },
-              'properties': {
-                'eventName': 'Murder at the Nightclub',
-                'eventDescription': 'Senserit repudiandae ex sea. An quod porro tamquam pro, usu at habemus efficiendi necessitatibus. Id audiam detraxit vim, detracto dissentias ne pri. Eius dissentias ad vim.',
-                'placeName': 'Nightclub',
-                'type': 'Murder',
-                'relatedPeople': [
-                  {
-                    name: 'Person B'
-                  },
-                  {
-                    name: 'Person C'
-                  }
-                ]
-              }
-            },
-            {
-              'type': 'Feature',
-              'geometry': {
-                'type': 'LineString',
-                'coordinates': [
-                  [21.846313476562496, 40.147637985391874],
-                  [22.846313476562496, 41.147637985391874],
-                  [23.846313476562496, 40.147637985391874],
-                  [24.846313476562496, 41.147637985391874]
-                ]
-              },
-              'properties': {
-                'eventName': 'Murder at the murder house',
-                'eventDescription': 'In sint constituam vim, has an dicta congue. Ei qui tale minim, has ornatus necessitatibus no. Ad eum dolorem denique propriae, est at quod hinc tation. Sit enim graeco id. Ne percipit definitionem conclusionemque ius, pro no etiam tamquam volumus. Probo erant postea id duo.An eam iisque facilisi, ad iisque noluisse detraxit his. Clita oportere ei nam. Id mei odio dicam. Has id mucius repudiandae, id noster habemus omittantur cum.',
-                'placeName': 'The Murder House',
-                'type': 'Murder',
-                'relatedPeople': [
-                  {
-                    name: 'Person B'
-                  },
-                  {
-                    name: 'Person D'
-                  }
-                ]
-              }
-            },
-            {
-              'type': 'Feature',
-              'geometry': {
-                'type': 'Polygon',
-                'coordinates': [
-                  [
-                    [20.78338623046875, 41.072104440201606],
-                    [21.78338623046875, 41.072104440201606],
-                    [21.78338623046875, 42.072104440201606],
-                    [20.78338623046875, 42.072104440201606],
-                    [20.78338623046875, 41.072104440201606]
-                  ]
-                ]
-              },
-              'properties': {
-                'eventName': 'Murder at the Shop',
-                'eventDescription': 'Lorem ipsum dolor sit amet, vim no nemore vidisse, in nec putent mentitum, in eos eros signiferumque. Ea vel quodsi alterum fastidii. Autem quando nostro ut eos, ubique eligendi at cum. Enim autem has ex. Sea nominavi dissentias ad, facilis accumsan in his, sed option indoctum ad.Argumentum interpretaris est no, ei quo suas suscipit contentiones, duo et assum conceptam. Qui natum referrentur cu. Vix an veniam tibique referrentur. His cu mollis explicari, no libris vivendo sensibus vim, nec et animal delenit. Duo no tractatos consetetur voluptatum, cu eos deserunt accusata hendrerit. Quo eu clita qualisque voluptaria, mel ex dolore petentium. Qui te vulputate voluptatum suscipiantur, ex simul argumentum mel, vim docendi salutandi dissentiunt id.',
-                'placeName': 'The Shop',
-                'type': 'Murder',
-                'relatedPeople': [
-                  {
-                    name: 'Person E'
-                  },
-                  {
-                    name: 'Person F'
-                  }
-                ]
-              }
-            }
-          ]
-        }
+      geoJSON:  {
+        type: Object
       }
     },
 
     ready: function() {
+
+      if (this.mapGeoJsonStore) {
+
+        // When the events data is updated, update our grid data
+        this.mapGeoJsonStore.listen(function(mapGeoJsonStore) {
+
+          this.geoJSON = mapGeoJsonStore.geoJSONObject;
+
+        }.bind(this));
+      }
 
     },
 

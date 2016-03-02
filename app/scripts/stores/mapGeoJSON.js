@@ -37,11 +37,11 @@ module.exports = Reflux.createStore({
     // Push a feature object for each Event record
     this.selectedEvents.data().forEach(function(selectedEvent) {
 
-      geoJSONObject = this.getFeatureObject(geoJSONObject, selectedEvent);
+      this.geoJSONObject = this.getFeatureObject(geoJSONObject, selectedEvent);
 
     }.bind(this));
 
-    console.log(geoJSONObject);
+    this.trigger(this);
   },
 
   // Return a GeoJSON Feature Object if event has related place selected
@@ -83,7 +83,7 @@ module.exports = Reflux.createStore({
   // Add Place data to the geoJSON Object
   addPlaceDataToGeoJSON: function(featureObject, selectedEvent) {
 
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve) {
 
       var relatedPlace = this.selectedPlaces.copy().find({
         'Short Name': {
@@ -92,9 +92,7 @@ module.exports = Reflux.createStore({
       }).data()[0];
 
       // If the event has no related place selected
-      if (!relatedPlace) {
-        reject('No related places');
-      } else {
+      if (relatedPlace) {
 
         // Assign Geometry
         featureObject.geometry = this.getGeometryObject(relatedPlace);

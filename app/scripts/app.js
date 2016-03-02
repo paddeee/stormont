@@ -30,9 +30,9 @@ var importActions = require('./actions/import.js');
 var importStore = require('./stores/import.js');
 var exportActions = require('./actions/export.js');
 var exportStore = global.packagedApp ? require('./stores/export.js') : null;
-var mapGeoJSONStore = require('./stores/mapGeoJSON.js');
+var mapGeoJsonStore = require('./stores/mapGeoJSON.js');
 
-(function(document, reflux, moment, config, sourceActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJSONStore) {
+(function(document, reflux, moment, config, sourceActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore) {
   'use strict';
 
   // Call checkForLDAP action when in browser
@@ -70,7 +70,8 @@ var mapGeoJSONStore = require('./stores/mapGeoJSON.js');
   app.sourceStore = sourceStore;
   app.sourceActions = sourceActions;
   app.packagedApp = global.packagedApp ? true : false;
-  app.VerEx = VerEx;
+  app.sourceStore = sourceStore;
+  app.mapGeoJsonStore = mapGeoJsonStore;
 
   app.displayInstalledToast = function() {
     document.querySelector('#caching-complete').show();
@@ -104,4 +105,4 @@ var mapGeoJSONStore = require('./stores/mapGeoJSON.js');
   // Maybe dangerous but can change for different approach if needed
   NodeList.prototype.forEach = Array.prototype.forEach;
 
-})(document, reflux, moment, config, sourceActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJSONStore);
+})(document, reflux, moment, config, sourceActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore);
