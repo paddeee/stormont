@@ -81,6 +81,8 @@ module.exports = Reflux.createStore({
 
     this.addRelatedPeopleDataToGeoJSON(featureObject, selectedEvent);
 
+    this.addRelatedSourceDataToGeoJSON(featureObject, selectedEvent);
+
     // Push features onto the GeoJSON Object
     geoJSONObject.features.push(featureObject);
 
@@ -141,13 +143,13 @@ module.exports = Reflux.createStore({
   // Add Related People data to the geoJSON Object
   addRelatedPeopleDataToGeoJSON: function(featureObject, selectedEvent) {
 
-    var suspectsArray = selectedEvent.Suspects.split(',');
-    var victimsArray = selectedEvent.Victims.split(',')
-    var witnessesArray = selectedEvent.Witnesses.split(',');
-
     var trim = function (item) {
       return item.trim();
     };
+
+    var suspectsArray = selectedEvent.Suspects.split(',');
+    var victimsArray = selectedEvent.Victims.split(',');
+    var witnessesArray = selectedEvent.Witnesses.split(',');
 
     var relatedSuspects = _.map(suspectsArray, trim);
     var relatedVictims = _.map(victimsArray, trim);
@@ -156,6 +158,12 @@ module.exports = Reflux.createStore({
     this.addRelatedPersonToArray(relatedSuspects, featureObject.properties.relatedPeople.suspects);
     this.addRelatedPersonToArray(relatedVictims, featureObject.properties.relatedPeople.victims);
     this.addRelatedPersonToArray(relatedWitnesses, featureObject.properties.relatedPeople.witnesses);
+  },
+
+  // Add Related Source data to the geoJSON Object
+  addRelatedSourceDataToGeoJSON: function(featureObject, selectedEvent) {
+
+    //
   },
 
   // Push a person Object onto the relevant array
