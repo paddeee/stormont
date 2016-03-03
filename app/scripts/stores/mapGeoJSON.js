@@ -59,15 +59,16 @@ module.exports = Reflux.createStore({
         'eventName': selectedEvent['Full Name'],
         'eventDescription': selectedEvent['Description'],
         'type': selectedEvent['Type'],
-        'relatedPeople': [
-          {
-            name: 'Person B'
-          },
-          {
-            name: 'Person D'
-          }
-        ],
-        'supportingDocuments': []
+        'relatedEvents': [],
+        'relatedPeople': {
+          suspects: [],
+          victims: [],
+          witnesses: []
+        },
+        'supportingEvidence': [{
+          eventsEvidence: [],
+          placeEvidence: []
+        }]
       }
     };
 
@@ -76,7 +77,9 @@ module.exports = Reflux.createStore({
       return geoJSONObject;
     }
 
-    this.addRelatedPeopleDataToGeoJSON(featureObject);
+    this.addRelatedEventsDataToGeoJSON(featureObject, selectedEvent);
+
+    this.addRelatedPeopleDataToGeoJSON(featureObject, selectedEvent);
 
     // Push features onto the GeoJSON Object
     geoJSONObject.features.push(featureObject);
@@ -108,6 +111,74 @@ module.exports = Reflux.createStore({
     }
   },
 
+  // Add Related Events data to the geoJSON Object
+  addRelatedEventsDataToGeoJSON: function(featureObject, selectedEvent) {
+
+    var relatedEvents = selectedEvent['Linked events'].split(',');
+
+    relatedEvents = _.map(relatedEvents, function(relatedEvent) {
+      return relatedEvent.trim();
+    });
+
+    var eventDetails = this.selectedEvents.copy().find({
+      'Short Name': {
+        '$in': relatedEvents
+      }
+    }).data();
+
+    eventDetails.forEach(function(eventObject) {
+
+      var newEventObject = {
+        id: eventObject.$loki,
+        name: eventObject['Full Name'],
+        description: eventObject['Description']
+      };
+
+      featureObject.properties.relatedEvents.push(newEventObject);
+    });
+  },
+
+  // Add Related People data to the geoJSON Object
+  addRelatedPeopleDataToGeoJSON: function(featureObject, selectedEvent) {
+
+    var suspectsArray = selectedEvent.Suspects.split(',');
+    var victimsArray = selectedEvent.Victims.split(',')
+    var witnessesArray = selectedEvent.Witnesses.split(',');
+
+    var trim = function (item) {
+      return item.trim();
+    };
+
+    var relatedSuspects = _.map(suspectsArray, trim);
+    var relatedVictims = _.map(victimsArray, trim);
+    var relatedWitnesses = _.map(witnessesArray, trim);
+
+    this.addRelatedPersonToArray(relatedSuspects, featureObject.properties.relatedPeople.suspects);
+    this.addRelatedPersonToArray(relatedVictims, featureObject.properties.relatedPeople.victims);
+    this.addRelatedPersonToArray(relatedWitnesses, featureObject.properties.relatedPeople.witnesses);
+  },
+
+  // Push a person Object onto the relevant array
+  addRelatedPersonToArray: function(personArray, arrayToPushTo) {
+
+    var personDetails = this.selectedPeople.copy().find({
+      'Short Name': {
+        '$in': personArray
+      }
+    }).data();
+
+    personDetails.forEach(function(object) {
+
+      var newObject = {
+        id: object.$loki,
+        name: object['Full Name'],
+        description: object['Description']
+      };
+
+      arrayToPushTo.push(newObject);
+    });
+  },
+
   // Return a Geometry object based off the placeObject's
   getGeometryObject: function(placeObject) {
 
@@ -126,15 +197,5 @@ module.exports = Reflux.createStore({
     }
 
     return geometryObject;
-  },
-
-  // Add Related People data to the geoJSON Object
-  addRelatedPeopleDataToGeoJSON: function(featureObject) {
-
-    return new Promise(function (resolve, reject) {
-
-      resolve(featureObject);
-
-    }.bind(this));
   }
 });
