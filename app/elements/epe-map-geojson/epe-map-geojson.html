@@ -162,6 +162,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           value: []
         },
 
+        features: {
+          type: Array,
+          value: []
+        },
+
         // Options to use for the Leaflet GeoJSON Layer
         geoJsonLayerOptions: {
           type: Object,
@@ -180,7 +185,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Assign functions to the geoJsonLayerOptions Object
         this.geoJsonLayerOptions = {
           pointToLayer: this._pointToLayer.bind(this),
-          onEachFeature: this._onEachFeature,
+          onEachFeature: this._onEachFeature.bind(this),
           filter: this._filterFeature,
           style: this._setFeatureStyle.bind(this)
         };
@@ -247,6 +252,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             offset: new window.L.point(230, -4),
             autoPanPadding: new window.L.point(230, 28)
         });
+
+        // Add feature to features array
+        this.features.push(layer);
       },
 
       // Function that will be used to decide whether to show a feature or not.
