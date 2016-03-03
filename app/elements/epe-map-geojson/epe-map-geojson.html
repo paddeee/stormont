@@ -232,10 +232,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return marker;
       },
 
-      /* Function to pass to Leaflet to handle display of all features on the map
+      // Function to pass to Leaflet to handle display of all features on the map
       _onEachFeature: function(feature, layer) {
-        //layer.bindPopup(feature.properties.name);
-      },*/
+
+        // Need to pass an object into leaflet popup so will stringify and parse inside element on the
+        // other side.
+        var eventData = JSON.stringify(feature.properties);
+
+        layer.bindPopup(`<epe-event-card event-data='${eventData}'></epe-event-card>`, {
+          autoPan: false,
+            keepInView: true,
+            minWidth: 400,
+            maxWidth: 400,
+            offset: new window.L.point(230, -4),
+            autoPanPadding: new window.L.point(230, 28)
+        });
+      },
 
       // Function that will be used to decide whether to show a feature or not.
       filterFeature: function(feature/*, layer*/) {
