@@ -189,7 +189,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <template is="dom-repeat"
                       items="[[toArray(gridDataFirstRecord)]]">
               <div class="field-heading flex layout horizontal"
-                   hidden="[[!showField(item.name)]]"
+                   hidden$="[[!showField(item.name)]]"
                    sort-status="neutral"
                    heading-name$="[[item.name]]"
                    on-mouseover="showFullText"
