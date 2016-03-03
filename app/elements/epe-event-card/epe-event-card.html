@@ -390,24 +390,47 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var eventToJumpToID = event.model.item.id;
       var $map = this.closest('#LeafletMap');
-      var mapMarkers = $map.querySelector('#MapGeoJSON').markers;
+      var $geoJSON = $map.querySelector('#MapGeoJSON');
+      var features = $geoJSON.features;
+      var clusterLayer = $geoJSON.clusterLayer;
+      var geoJSONLayer = $geoJSON.geoJSONLayer;
 
       // Maybe because the element is created through an ECMAScript6 template, the event bubbles up to
       // paper-panel-drawer and throws an error. Stop propagation as not needed anyway.
       event.stopPropagation();
 
-      mapMarkers.forEach(function(marker) {
+      features.forEach(function(feature) {
 
         // If marker to jump to exists as marker on the map
-        if (eventToJumpToID === marker.feature.properties.id) {
+        if (eventToJumpToID === feature.feature.properties.id) {
 
-          // Pan to marker
-          $map.map.setView(marker.getLatLng());
+          // If a marker
+          if (feature.feature.geometry.type === 'Point') {
 
-          // Open marker popup
-          marker.openPopup();
+            if (clusterLayer.hasLayer(feature)) {
+
+              // Pan and zoom into the cluster or just to a marker if zoomed in enough already
+              clusterLayer.zoomToShowLayer(feature, function () {
+
+                // Open marker popup
+                feature.openPopup();
+              });
+            }
+
+          // If a Line or Polygon
+          } else {
+
+            if (geoJSONLayer.hasLayer(feature)) {
+
+              // Pan to feature
+              $map.map.fitBounds(feature.getBounds());
+
+              // Open marker popup
+              feature.openPopup();
+            }
+          }
         }
-      });
+      }.bind(this));
 
       // ToDo: Add functionality to handle places not on the map
     },
