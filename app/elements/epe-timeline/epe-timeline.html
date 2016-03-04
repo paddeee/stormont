@@ -11,13 +11,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
 <dom-module id="epe-timeline">
+
+  <link rel="stylesheet" href="../../styles/vendor/timeline/timeline.css">
+
   <style>
+
     :host {
       display: block;
     }
+
+    .timeline {
+      height: 100%;
+    }
+
+    .tl-storyslider {
+      display: none;
+    }
+
+    .tl-timemarker-content-container {
+      border-top-left-radius: 0 !important;
+      border-top-right-radius: 0 !important;
+      border-bottom-right-radius: 0 !important;
+    }
   </style>
+
+  <script src="../../scripts/vendor/timeline/timeline.js"></script>
+
   <template>
-    <div>Hello from <span>{{foo}}</span></div>
+    <div id='TimeLine' class="timeline"></div>
   </template>
 </dom-module>
 <script>
@@ -26,11 +47,244 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     is: 'epe-timeline',
 
     properties: {
-      foo: {
-        type: String,
-        value: 'bar',
-        notify: true
+
+      timeLine: {
+        type: Object
+      },
+
+      timelineData: {
+        type: Object,
+        value: {
+          "title": {
+            "text": {
+              "headline": "Revolutionary User Interfaces",
+              "text": "<p>The human computer interface helps to define computing at any one time. As computers have become more mainstream the interfaces have become more intimate. This is the journey of computer technology and how it has come to touch all of our lives.</p>"
+            }
+          },
+          "events": [
+            {
+              "start_date": {
+                "year": "1600"
+              },
+              "text": {
+                "headline": "The Antikythera",
+                "text": "In the year 1900, sponge divers discovered the Antikythera Mechanism, a remarkable mechanical computer used to track the cycles of the solar system dated to as early as 89 B.C. There was no input however. All computations were carried out by the intricate system of clockwork like plates and wheels.."
+              }
+            },
+            {
+              "start_date": {
+                "year": "1642"
+              },
+              "text": {
+                "headline": "Pascal's Calculator",
+                "text": "<p>Blaise Pascal invented this calculator to help his father reorganize the French tax system. It could add and subtract in one step and multiply and divide by repetition.</p><p>Input was achieved by spinning the little wheels: inspiration for the iPod click wheel?</p>"
+              }
+            },
+            {
+              "start_date": {
+                "year": "1820"
+              },
+              "text": {
+                "headline": "Thomas Arithometer",
+                "text": "This is the first mass-produced calculator that could add, subtract, multiply and divide. Numbers were  input with all of the little knobs and dials and then the handle was twisted to perform the calculation."
+              }
+            },
+            {
+              "start_date": {
+                "year": "1801"
+              },
+              "text": {
+                "headline": "Jacquard Loom",
+                "text": "A loom is not a computer. It is the first machine however to use punch-cards as a means of input into a machine. By changing the arrangement of the holes in the card, the loom would weave different patterns. "
+              }
+            },
+            {
+              "start_date": {
+                "year": "1833"
+              },
+              "text": {
+                "headline": "The Analytical Engine",
+                "text": "Charles Babbage designed but was never able to produce a working model but it is significant in that it relied upon punched cards for data and programs and would employ a language similar to modern assembly language complete with loops and conditional branching (for the nerds out there)."
+              }
+            },
+            {
+              "start_date": {
+                "year": "1868"
+              },
+              "text": {
+                "headline": "The Typewriter",
+                "text": "Again, not a computer but an important step forward in user interfaces. Invented by Christopher Sholes, An American engineer, the typewriter was layed out in the familiar QWERTY style."
+              }
+            },
+            {
+              "start_date": {
+                "year": "1890"
+              },
+              "text": {
+                "headline": "Herman Hollerith",
+                "text": "In 1890, Hollerith introduced his tabulating machine to be used in the census. He also later invented a key punch, a machine that punched the holes into cards operated by a keyboard. His company was one of the companies that later merged to form IBM."
+              }
+            },
+            {
+              "start_date": {
+                "year": "1940"
+              },
+              "text": {
+                "headline": "Remote Access Computing",
+                "text": "George Stibitz demonstrated the Complex Number Calculator (CNC) at Dartmouth College. The astonishing part was that the CNC was in New York City."
+              }
+            },
+            {
+              "start_date": {
+                "year": "1946"
+              },
+              "text": {
+                "headline": "ENIAC",
+                "text": "Weighing 30 tons, and containing over 18,000 vacuum tubes, the ENIAC was the first truly modern computer. It could be programmed for many complex programs and used an early keyboard as its input."
+              }
+            },
+            {
+              "start_date": {
+                "year": "1951"
+              },
+              "text": {
+                "headline": "UNIVAC I",
+                "text": "The Universal Automatic Computer I weighed in at 13 tons and sold for over one million dollars. It was the first mass produced computer, selling 46 units. The massive cockpit of a console featured a keyboard"
+              }
+            },
+            {
+              "start_date": {
+                "year": "1964"
+              },
+              "text": {
+                "headline": "Multics",
+                "text": "A collaboration between MIT, Bell Laboratories and General Electric created the Multics system. It was a multi-user, time sharing system that spurred along the use of a new interface, a monitor."
+              }
+            },
+            {
+              "start_date": {
+                "year": "1968"
+              },
+              "text": {
+                "headline": "Minicomputer",
+                "text": "Data General introduces the Nova Minicomputer which served as an inspiration for Steve Wozniak's design of the Apple I."
+              }
+            },
+            {
+              "start_date": {
+                "month": "12",
+                "day": "9",
+                "year": "1968"
+              },
+              "text": {
+                "headline": "The Mouse",
+                "text": "Douglas C. Engelbart and his team demonstrated an online system featuring a mouse, hypertext and the first graphical user interface, a \"windows\" system. The mouse was encased in a wood body and had only one button."
+              }
+            },
+            {
+              "start_date": {
+                "year": "1974"
+              },
+              "text": {
+                "headline": "Xerox Alto",
+                "text": "The Xerox Alto was the first workstation with a built in mouse with three buttons."
+              }
+            },
+            {
+              "start_date": {
+                "year": "1976"
+              },
+              "text": {
+                "headline": "Apple I",
+                "text": "Steve Wozniak designed the Apple I, a single-board computer that he and Steve Jobs sold for $500 each. Thus began Apple Inc. and the Personal Computer."
+              }
+            },
+            {
+              "start_date": {
+                "year": "1976"
+              },
+              "text": {
+                "headline": "The Osborne I",
+                "text": "Weighing 24 pounds and costing under $2,000, the Osborne I was the first portable computer, although you probably couldn't use it in your lap for too long."
+              }
+            },
+            {
+              "start_date": {
+                "year": "1982"
+              },
+              "text": {
+                "headline": "Windows 1.0",
+                "text": "Microsoft unveils what will become the dominant operating system for the next several decades."
+              }
+            },
+            {
+              "start_date": {
+                "year": "1984"
+              },
+              "text": {
+                "headline": "The Macintosh",
+                "text": "Apple introduced the Macintosh which was the first commercially successful computer with a mouse and a Graphical User Interface. Apple's Think Different Superbowl commercial also plays this year."
+              }
+            },
+            {
+              "start_date": {
+                "year": "1997"
+              },
+              "text": {
+                "headline": "The Stylus",
+                "text": "Personal digital assistants introduce the touch screen with the use of a stylus. Handwriting recognition was hit or miss but some companies developed simplified alphabet input strokes to improve recognition."
+              }
+            },
+            {
+              "start_date": {
+                "month": "10",
+                "day": "23",
+                "year": "2001"
+              },
+              "text": {
+                "headline": "Continuous Scrolling",
+                "text": "The first iPod introduces the wheel as a user interface. It allowed users to continuously scroll through thousands of songs seemlessly. This interface helped Apple dominate the music player business and eventually the music content business through its iTunes ecosystem."
+              }
+            },
+            {
+              "start_date": {
+                "year": "2007"
+              },
+              "text": {
+                "headline": "Multi Touch",
+                "text": "Steve Jobs unveils the iPhone and the multi touch interface."
+              }
+            },
+            {
+              "start_date": {
+                "year": "2012"
+              },
+              "text": {
+                "headline": "Speech Recognition",
+                "text": "<p>Speech recognition has been tested and improved upon for years in military cockpits in the U.S. France and U.K. In fact, Siri, the speech recognition engine used in the iPhone 4S was developed first by DARPA, the Defense Advanced Research Projects Agency.</p>"
+              }
+            }
+          ]
+        }
+      },
+
+      timeLineOptions: {
+        type: Object,
+        value: {
+          initial_zoom: 3,
+          hash_bookmark: false,
+          timenav_height: 115
+        }
       }
+    },
+
+    ready: function() {
+
+      this.scopeSubtree(this.$.TimeLine, true);
+
+      this.timeLineOptions.height = this.$.TimeLine.offsetHeight;
+
+      this.timeLine = new TL.Timeline(this.$.TimeLine, this.timelineData, this.timeLineOptions);
     }
   });
 })();

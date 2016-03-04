@@ -27,41 +27,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       z-index: 0;
     }
 
-    leaflet-map /deep/ .leaflet-control-attribution.leaflet-control {
+    .leaflet-control-attribution.leaflet-control {
       display: none;
     }
 
-    leaflet-map /deep/ .leaflet-container a.leaflet-popup-close-button {
+    l.leaflet-container a.leaflet-popup-close-button {
       color: var(--text-primary-color);
     }
 
-    leaflet-map /deep/ .leaflet-container a.leaflet-popup-close-button:hover {
+    .leaflet-container a.leaflet-popup-close-button:hover {
       color: var(--accent-color);
     }
 
-    leaflet-map /deep/ .leaflet-popup-content-wrapper {
+    .leaflet-popup-content-wrapper {
       border-radius: 0;
       padding: 0;
     }
 
-    leaflet-map /deep/ .leaflet-popup-content {
+    .leaflet-popup-content {
       margin: 0;
     }
 
-    leaflet-map /deep/ .leaflet-popup-tip-container {
+    .leaflet-popup-tip-container {
       position: absolute;
       left: -30px;
       top: 16px;
       transform: rotate(90deg);
     }
 
-    leaflet-map /deep/ .leaflet-popup-tip {
+    .leaflet-popup-tip {
       background-color: var(--paper-deep-orange-700);
       color: var(--text-primary-color);
     }
 
-    leaflet-map /deep/ .leaflet-bar a,
-    leaflet-map /deep/ .leaflet-bar a:hover {
+    .leaflet-bar a,
+    .leaflet-bar a:hover {
       width: 29px;
       height: 29px;
       line-height: 29px;
@@ -114,7 +114,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       display: block;
       margin: 0;
       box-shadow: 0 1px 7px rgba(0, 0, 0, 0.65);
-      height: 100%;
+      height: 161px;
      }
 
   </style>
@@ -164,7 +164,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                      on-tap="toggleTimeline"></iron-icon>
         </div>
       </paper-material>
-      <paper-tooltip for="TimeLineControl" offset="0">Toggle Timeline</paper-tooltip>
+      <paper-tooltip for="TimeLineControl"
+                     offset="0">Toggle Timeline</paper-tooltip>
 
       <!-- Timeline element -->
       <epe-timeline></epe-timeline>
@@ -196,6 +197,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     ready: function() {
+
+
+      this.scopeSubtree(this.$.LeafletMap, true);
 
       if (this.mapGeoJsonStore) {
 
