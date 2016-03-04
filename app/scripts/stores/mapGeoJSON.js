@@ -59,6 +59,7 @@ module.exports = Reflux.createStore({
         'eventName': selectedEvent['Full Name'],
         'eventDescription': selectedEvent['Description'],
         'type': selectedEvent['Type'],
+        'placeInfo': {},
         'relatedEvents': [],
         'relatedPeople': {
           suspects: [],
@@ -105,7 +106,15 @@ module.exports = Reflux.createStore({
       featureObject.geometry = this.getGeometryObject(relatedPlace);
 
       // Assign values
-      featureObject.properties.placeName = relatedPlace['Full Name'];
+      featureObject.properties.placeInfo.placeName = relatedPlace['Full Name'];
+      featureObject.properties.placeInfo.type = relatedPlace['Type'];
+      featureObject.properties.placeInfo.kforArea = relatedPlace['AOR_KFOR'];
+      featureObject.properties.placeInfo.klaArea = relatedPlace['AOR_KLA'];
+      featureObject.properties.placeInfo.kumanavoRegion = relatedPlace['AOR_Kumanovo'];
+      featureObject.properties.placeInfo.country = relatedPlace['Country'];
+      featureObject.properties.placeInfo.region = relatedPlace['Region'];
+      featureObject.properties.placeInfo.municipality = relatedPlace['Municipality'];
+      featureObject.properties.placeInfo.description = relatedPlace['Description'];
 
       return featureObject;
     } else {
