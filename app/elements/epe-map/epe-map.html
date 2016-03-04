@@ -60,6 +60,63 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       color: var(--text-primary-color);
     }
 
+    leaflet-map /deep/ .leaflet-bar a,
+    leaflet-map /deep/ .leaflet-bar a:hover {
+      width: 29px;
+      height: 29px;
+      line-height: 29px;
+    }
+
+    .timeline-control-section {
+      background-color: var(--primary-background-color);
+      height: 29px;
+      margin: 0 0 14px calc(100% - 76px);
+      width: 60px;
+    }
+
+    .timeline-control {
+      cursor: pointer;
+      height: 29px;
+      width: 29px;
+    }
+
+    .timeline-toggle:hover {
+      background-color: var(--map-control-hover-colour);
+    }
+
+    .timeline {
+      bottom: 0;
+      width: 100%;
+      background-color: transparent;
+      height: 190px;
+      position: fixed;
+      overflow: hidden;
+      -webkit-transition-property: -webkit-transform, height;
+      transition-property: transform, height;
+      -webkit-transition-duration: 300ms;
+      transition-duration: 300ms;
+      -webkit-transition-timing-function: ease-in-out;
+      transition-timing-function: ease-in-out;
+      -ms-transform: translateY(148px);
+      -webkit-transform: translateY(148px);
+      transform: translateY(148px);
+      z-index: 10;
+    }
+
+    .timeline.timeline--showing {
+      -ms-transform: translateY(0);
+      -webkit-transform: translateY(0);
+      transform: translateY(0);
+    }
+
+    epe-timeline {
+      background-color: var(--primary-background-color);
+      display: block;
+      margin: 0;
+      box-shadow: 0 1px 7px rgba(0, 0, 0, 0.65);
+      height: 100%;
+     }
+
   </style>
   <script src="../../scripts/vendor/leaflet/leaflet-draw.js"></script>
   <script src="../../scripts/vendor/leaflet/leaflet-style-forms.js"></script>
@@ -84,6 +141,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </epe-map-geojson>
     </leaflet-map>
 
+    <!-- TimeLine -->
+    <section id="TimeLine" class="timeline">
+
+      <!-- Toggle control -->
+      <paper-material id="TimeLineControl" class="timeline-control-section layout horizontal">
+        <div class="timeline-control layout horizontal center center-justified">
+          <iron-icon class="toggle-timeline"
+                     icon="timeline"
+                     on-tap="toggleTimeline"></iron-icon>
+        </div>
+        <div class="timeline-control timeline-toggle layout horizontal center center-justified"
+             hidden$="[[timelineShowing]]">
+          <iron-icon class="toggle-timeline"
+                     icon="expand-less"
+                     on-tap="toggleTimeline"></iron-icon>
+        </div>
+        <div class="timeline-control timeline-toggle layout horizontal center center-justified"
+             hidden$="[[!timelineShowing]]">
+          <iron-icon class="toggle-timeline"
+                     icon="expand-more"
+                     on-tap="toggleTimeline"></iron-icon>
+        </div>
+      </paper-material>
+      <paper-tooltip for="TimeLineControl" offset="0">Toggle Timeline</paper-tooltip>
+
+      <!-- Timeline element -->
+      <epe-timeline></epe-timeline>
+    </section>
+
   </template>
 </dom-module>
 <script>
@@ -101,6 +187,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       geoJSON:  {
         type: Object
+      },
+
+      timelineShowing: {
+        type: Boolean,
+        value: false
       }
     },
 
@@ -226,6 +317,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
 
       this.drawFunctionalityAdded = true;
+    },
+
+    // Show/Hide Timeline
+    toggleTimeline: function() {
+
+      this.timelineShowing = !this.timelineShowing;
+
+      if (this.timelineShowing) {
+        this.$.TimeLine.classList.add('timeline--showing');
+      } else {
+        this.$.TimeLine.classList.remove('timeline--showing');
+      }
     }
   });
 })();
