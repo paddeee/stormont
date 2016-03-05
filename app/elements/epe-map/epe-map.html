@@ -88,7 +88,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       bottom: 0;
       width: 100%;
       background-color: transparent;
-      height: 190px;
+      height: 225px;
       position: fixed;
       overflow: hidden;
       -webkit-transition-property: -webkit-transform, height;
@@ -97,9 +97,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       transition-duration: 300ms;
       -webkit-transition-timing-function: ease-in-out;
       transition-timing-function: ease-in-out;
-      -ms-transform: translateY(148px);
-      -webkit-transform: translateY(148px);
-      transform: translateY(148px);
+      -ms-transform: translateY(183px);
+      -webkit-transform: translateY(183px);
+      transform: translateY(183px);
       z-index: 10;
     }
 
@@ -114,7 +114,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       display: block;
       margin: 0;
       box-shadow: 0 1px 7px rgba(0, 0, 0, 0.65);
-      height: 161px;
+      height: 196px;
      }
 
   </style>
@@ -145,7 +145,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <section id="TimeLine" class="timeline">
 
       <!-- Toggle control -->
-      <paper-material id="TimeLineControl" class="timeline-control-section layout horizontal">
+      <paper-material id="TimeLineControl" class="timeline-control-section layout horizontal"
+        hidden$="[[!timeLineControlsShow]]">
         <div class="timeline-control layout horizontal center center-justified">
           <iron-icon class="toggle-timeline"
                      icon="timeline"
@@ -168,7 +169,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                      offset="0">Toggle Timeline</paper-tooltip>
 
       <!-- Timeline element -->
-      <epe-timeline></epe-timeline>
+      <epe-timeline
+        on-timeline-complete="showTimeLineControls"></epe-timeline>
     </section>
 
   </template>
@@ -182,6 +184,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Remember state so draw controls are only added once
       drawFunctionalityAdded: {
+        type: Boolean,
+        value: false
+      },
+
+      timeLineControlsShow: {
         type: Boolean,
         value: false
       },
@@ -333,6 +340,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       } else {
         this.$.TimeLine.classList.remove('timeline--showing');
       }
+    },
+
+    // // FIRED FROM TIMELINE ELEMENT
+    showTimeLineControls: function() {
+      this.timeLineControlsShow = true;
     }
   });
 })();
