@@ -72,6 +72,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       height: 29px;
       margin: 0 0 14px calc(100% - 76px);
       width: 60px;
+      -webkit-transition-property: -webkit-transform, width;
+      transition-property: transform, width;
+      -webkit-transition-duration: 300ms;
+      transition-duration: 300ms;
+      -webkit-transition-timing-function: ease-in-out;
+      transition-timing-function: ease-in-out;
+      -ms-transform: translateX(0px);
+      -webkit-transform: translateX(0px);
+      transform: translateX(0px);
+    }
+
+    .timeline-control-section--hide {
+      -ms-transform: translateX(100px);
+      -webkit-transform: translateX(100px);
+      transform: translateX(100px);
     }
 
     .timeline-control {
@@ -145,7 +160,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <section id="TimeLine" class="timeline">
 
       <!-- Toggle control -->
-      <paper-material id="TimeLineControl" class="timeline-control-section layout horizontal">
+      <paper-material id="TimeLineControl"
+                      class="timeline-control-section timeline-control-section--hide layout horizontal">
         <div class="timeline-control layout horizontal center center-justified">
           <iron-icon class="toggle-timeline"
                      icon="timeline"
@@ -168,8 +184,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                      position="left">Toggle Timeline</paper-tooltip>
 
       <!-- Timeline element -->
-      <epe-timeline
-        id="TimeLineElement"></epe-timeline>
+      <epe-timeline id="TimeLineElement"
+                    on-timeline-events-changed="showTimeLineControls"></epe-timeline>
     </section>
 
   </template>
@@ -337,6 +353,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.TimeLine.classList.add('timeline--showing');
       } else {
         this.$.TimeLine.classList.remove('timeline--showing');
+      }
+    },
+
+    // FIRED FROM TIMELINE ELEMENT
+    showTimeLineControls: function(event) {
+
+      if (event.showControls) {
+        this.$.TimeLineControl.classList.remove('timeline-control-section--hide');
+      } else {
+        this.$.TimeLineControl.classList.add('timeline-control-section--hide');
       }
     }
   });
