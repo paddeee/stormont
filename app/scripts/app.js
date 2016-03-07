@@ -31,8 +31,9 @@ var importStore = require('./stores/import.js');
 var exportActions = require('./actions/export.js');
 var exportStore = global.packagedApp ? require('./stores/export.js') : null;
 var mapGeoJsonStore = require('./stores/mapGeoJSON.js');
+var timeLineStore = require('./stores/timeLine.js');
 
-(function(document, reflux, moment, config, sourceActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore) {
+(function(document, reflux, moment, config, sourceActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore, timeLineStore) {
   'use strict';
 
   // Call checkForLDAP action when in browser
@@ -72,6 +73,7 @@ var mapGeoJsonStore = require('./stores/mapGeoJSON.js');
   app.packagedApp = global.packagedApp ? true : false;
   app.sourceStore = sourceStore;
   app.mapGeoJsonStore = mapGeoJsonStore;
+  app.timeLineStore = timeLineStore;
 
   app.displayInstalledToast = function() {
     document.querySelector('#caching-complete').show();
@@ -105,4 +107,4 @@ var mapGeoJsonStore = require('./stores/mapGeoJSON.js');
   // Maybe dangerous but can change for different approach if needed
   NodeList.prototype.forEach = Array.prototype.forEach;
 
-})(document, reflux, moment, config, sourceActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore);
+})(document, reflux, moment, config, sourceActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore, timeLineStore);
