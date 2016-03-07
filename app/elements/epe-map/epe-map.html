@@ -31,7 +31,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       display: none;
     }
 
-    l.leaflet-container a.leaflet-popup-close-button {
+    .leaflet-container a.leaflet-popup-close-button {
       color: var(--text-primary-color);
     }
 
@@ -100,7 +100,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       -ms-transform: translateY(183px);
       -webkit-transform: translateY(183px);
       transform: translateY(183px);
-      z-index: 10;
+      z-index: 2;
     }
 
     .timeline.timeline--showing {
@@ -145,8 +145,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <section id="TimeLine" class="timeline">
 
       <!-- Toggle control -->
-      <paper-material id="TimeLineControl" class="timeline-control-section layout horizontal"
-        hidden$="[[!timeLineControlsShow]]">
+      <paper-material id="TimeLineControl" class="timeline-control-section layout horizontal">
         <div class="timeline-control layout horizontal center center-justified">
           <iron-icon class="toggle-timeline"
                      icon="timeline"
@@ -170,8 +169,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <!-- Timeline element -->
       <epe-timeline
-        id="TimeLineElement"
-        on-timeline-complete="showTimeLineControls"></epe-timeline>
+        id="TimeLineElement"></epe-timeline>
     </section>
 
   </template>
@@ -185,11 +183,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Remember state so draw controls are only added once
       drawFunctionalityAdded: {
-        type: Boolean,
-        value: false
-      },
-
-      timeLineControlsShow: {
         type: Boolean,
         value: false
       },
@@ -345,11 +338,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       } else {
         this.$.TimeLine.classList.remove('timeline--showing');
       }
-    },
-
-    // // FIRED FROM TIMELINE ELEMENT
-    showTimeLineControls: function() {
-      this.timeLineControlsShow = true;
     }
   });
 })();

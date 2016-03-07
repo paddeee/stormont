@@ -52,6 +52,10 @@
   background-color: #E64A19;
 }
 
+.tl-timemarker:hover .tl-timemarker-timespan .tl-timemarker-line-left:after, .tl-timemarker:hover .tl-timemarker-timespan .tl-timemarker-line-right:after {
+  background-color: #FFF;
+}
+
 .tl-timemarker.tl-timemarker-active .tl-timemarker-content-container .tl-timemarker-content .tl-timemarker-text h2.tl-headline {
   color: #FFF;
 }
