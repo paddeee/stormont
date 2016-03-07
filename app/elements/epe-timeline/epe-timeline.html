@@ -28,12 +28,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .timeline-controls {
       border-right: 1px solid #D8D8D8;
       height: inherit;
-      width: 60px;
+      width: 50px;
     }
 
     .timeline-controls paper-icon-button {
-      height: 36px;
-      width: 36px;
+      height: 32px;
+      width: 32px;
     }
 
   </style>
@@ -88,14 +88,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       selectedEvent: {
-        type: Number,
-        value: 0,
+        type: String,
+        value: "0",
         observer: 'selectedEventChanged'
       },
 
-      timelineData: {
+      timeLineData: {
         type: Object,
-        observer: 'timelineDataChanged',
+        observer: 'timeLineDataChanged',
         value: {
           "title": {
             "unique_id": "0",
@@ -342,17 +342,86 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     ready: function() {
 
-      // TimeLine.js doesn't handle no events without error so only create it if there are events
-      if (this.timelineData.events.length) {
+      if (this.timeLineStore) {
 
-        // Initialise Timeline
-        this.timeLine = new TL.Timeline(this.$.TimeLine, this.timelineData, this.timeLineOptions);
+        // When the events data is updated, update our grid data
+        this.timeLineStore.listen(function(timeLineJSONObject) {
 
-        this.timeLine.on('change', function(eventData) {
-          this.selectedTimeLineEventChanged(eventData);
+          var previousEvents = this.timeLineData.events;
+
+          this.timeLineData = timeLineJSONObject;
+
+          // If there are selected events
+          if (this.timeLineData.events.length) {
+
+            // Keep first and last events up to date
+            this.setFirstAndLast();
+
+            // If the TimeLine has not been created
+            if (!this.timeLine) {
+
+              // Initialise Timeline
+              this.createTimeLine();
+            } else {
+              this.updateTimeLine(previousEvents);
+            }
+          }
+
+        }.bind(this));
+      }
+    },
+
+    // Create a new instance of the timeLine
+    createTimeLine: function() {
+
+      // Initialise Timeline
+      this.timeLine = new TL.Timeline(this.$.TimeLine, this.timeLineData, this.timeLineOptions);
+
+      this.timeLine.on('change', function(eventData) {
+        this.selectedTimeLineEventChanged(eventData);
+      }.bind(this));
+
+      this.fire('timeline-events-changed', {
+        showControls: true
+      });
+    },
+
+    // Remove all data and then add each record
+    updateTimeLine: function(previousEvents) {
+
+      var allEventIds;
+      var previousEventIds;
+      var eventIdsToAdd;
+      var eventIdsToRemove;
+
+      allEventIds = _.map(this.timeLineData.events, 'unique_id');
+      previousEventIds = _.map(previousEvents, 'unique_id');
+
+      // If events have been added
+      if (this.timeLineData.events.length > previousEvents.length) {
+
+        // Get array of new event ids
+        eventIdsToAdd = _.difference(allEventIds, previousEventIds);
+
+        this.timeLineData.events.forEach(function(eventObject) {
+
+          if (_.includes(eventIdsToAdd, eventObject.unique_id)) {
+            this.timeLine.add(eventObject);
+          }
         }.bind(this));
 
-        this.fire('timeline-events-changed', { showControls: true });
+      // If events have been removed
+      } else if (previousEvents.length > this.timeLineData.events.length) {
+
+        // Get array of removed event ids
+        eventIdsToRemove = _.difference(previousEventIds, allEventIds);
+
+        previousEvents.forEach(function(eventObject) {
+
+          if (_.includes(eventIdsToRemove, eventObject.unique_id)) {
+            this.timeLine.removeId(eventObject.unique_id);
+          }
+        }.bind(this));
       }
     },
 
@@ -368,6 +437,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Got to start of TimeLine
     goToStart: function() {
+      this.selectedEvent = "0";
+      this.$.PreviousButton.disabled = true;
       this.timeLine.goToStart();
     },
 
@@ -409,18 +480,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
+    // Set the ids of the first and last events so we can disable buttons
+    setFirstAndLast: function() {
+      this.firstEventId = this.timeLineData.events[0].unique_id;
+      this.lastEventId = this.timeLineData.events[this.timeLineData.events.length - 1].unique_id;
+    },
+
     // CALLED BY OBSERVABLE ON SELECTEDEVENT
     selectedEventChanged: function() {
 
-      if (this.timelineData) {
+      if (this.timeLineData) {
 
-        if (this.selectedEvent <= 1) {
+        if (this.selectedEvent === 0 || this.selectedEvent === this.firstEventId) {
           this.$.PreviousButton.disabled = true;
         } else {
           this.$.PreviousButton.disabled = false;
         }
 
-        if (this.selectedEvent === this.timelineData.events.length) {
+        if (this.selectedEvent === this.lastEventId) {
           this.$.NextButton.disabled = true;
         } else {
           this.$.NextButton.disabled = false;
@@ -430,12 +507,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Called when a selected event is changed via Timeline.js
     selectedTimeLineEventChanged: function(eventData) {
-      this.selectedEvent = parseInt(eventData.unique_id, 10);
+      this.selectedEvent = eventData.unique_id;
     },
 
     // CALLED BY OBSERVABLE ON TIMELINEDATA
-    timelineDataChanged: function() {
-
+    timeLineDataChanged: function() {
+      console.log('Timeline data changed');
     }
   });
 })();

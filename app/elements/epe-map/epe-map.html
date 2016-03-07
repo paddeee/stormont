@@ -90,9 +90,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       transition-duration: 300ms;
       -webkit-transition-timing-function: ease-in-out;
       transition-timing-function: ease-in-out;
-      -ms-transform: translateY(-186px);
-      -webkit-transform: translateY(-186px);
-      transform: translateY(-186px);
+      -ms-transform: translateY(-164px);
+      -webkit-transform: translateY(-164px);
+      transform: translateY(-164px);
     }
 
     .timeline-control-section--hide {
@@ -115,11 +115,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       bottom: 0;
       width: 100%;
       background-color: transparent;
-      height: 181px;
+      height: 161px;
       position: fixed;
       overflow: hidden;
-      -webkit-transition-property: -webkit-transform, height;
-      transition-property: transform, height;
       -webkit-transition-duration: 300ms;
       transition-duration: 300ms;
       -webkit-transition-timing-function: ease-in-out;
@@ -192,12 +190,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <paper-tooltip for="TimeLineControl"
                    position="left">Toggle Timeline</paper-tooltip>
 
-    <section id="TimeLine" class="timeline">
+    <paper-material id="TimeLine"
+                    class="timeline"
+                    elevation="2">
 
       <!-- Timeline Element -->
       <epe-timeline id="TimeLineElement"
+                    time-line-store="[[timeLineStore]]"
                     on-timeline-events-changed="toggleTimeLineEnabled"></epe-timeline>
-    </section>
+    </paper-material>
 
   </template>
 </dom-module>
@@ -237,7 +238,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         }.bind(this));
       }
-
     },
 
     // CALLED FROM LEAFLET MAP LOAD EVENT FIRING
@@ -372,7 +372,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // FIRED FROM TIMELINE ELEMENT
     toggleTimeLineEnabled: function(event) {
 
-      if (event.showControls) {
+      if (event.detail.showControls) {
         this.$.TimeLineControl.classList.remove('timeline-control-section--hide');
       } else {
         this.$.TimeLine.classList.remove('timeline--showing');

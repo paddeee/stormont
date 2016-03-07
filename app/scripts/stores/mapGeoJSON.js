@@ -6,9 +6,6 @@ var selectedRecordsStore = require('../stores/selectedRecords.js');
 
 module.exports = Reflux.createStore({
 
-  // Name to use for this collection
-  collectionName: config.MapGeoJSONCollection,
-
   // Called on Store initialisation
   init: function() {
 
@@ -16,7 +13,7 @@ module.exports = Reflux.createStore({
     this.listenTo(selectedRecordsStore, this.createGeoJSON);
   },
 
-  // Create a GeoJSON Object that can be used by the Map and Timeline to visualise data
+  // Create a GeoJSON Object that can be used by the Map to visualise data
   createGeoJSON: function() {
 
     var geoJSONObject;
