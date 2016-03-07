@@ -41,7 +41,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script src="../../scripts/vendor/timeline/timeline.js"></script>
 
   <template>
-    <div class="layout horizontal">
+    <div class="timeline-container layout horizontal">
       <div class="timeline-controls layout vertical  center center-justified">
         <paper-icon-button id="StartButton"
                            icon="av:fast-rewind"
@@ -95,15 +95,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       timelineData: {
         type: Object,
+        observer: 'timelineDataChanged',
         value: {
           "title": {
             "unique_id": "0",
             "text": {
-              "headline": "Revolutionary User Interfaces",
-              "text": "<p>The human computer interface helps to define computing at any one time. As computers have become more mainstream the interfaces have become more intimate. This is the journey of computer technology and how it has come to touch all of our lives.</p>"
+              "headline": "No Selected Events"
             }
           },
-          "events": [
+          "events": [/*
             {
               "unique_id": "1",
               "start_date": {
@@ -327,7 +327,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 "headline": "Speech Recognition",
                 "text": "<p>Speech recognition has been tested and improved upon for years in military cockpits in the U.S. France and U.K. In fact, Siri, the speech recognition engine used in the iPhone 4S was developed first by DARPA, the Defense Advanced Research Projects Agency.</p>"
               }
-            }
+            }*/
           ]
         }
       },
@@ -342,23 +342,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     ready: function() {
 
-      // Initialise Timeline
-      this.timeLine = new TL.Timeline(this.$.TimeLine, this.timelineData, this.timeLineOptions);
+      // TimeLine.js doesn't handle no events without error so only create it if there are events
+      if (this.timelineData.events.length) {
 
-      this.timeLine.on('change', function(eventData) {
-        this.selectedTimeLineEventChanged(eventData);
-      }.bind(this));
+        // Initialise Timeline
+        this.timeLine = new TL.Timeline(this.$.TimeLine, this.timelineData, this.timeLineOptions);
 
-      // Zoom in after delay as Timeline is corrupted when intialised for some reason
-      //this.initialiseTimelineUI();
+        this.timeLine.on('change', function(eventData) {
+          this.selectedTimeLineEventChanged(eventData);
+        }.bind(this));
+
+        this.fire('timeline-events-changed', { showControls: true });
+      }
     },
 
     // Timeline seems a bit buggy. Having to do hacky things like zoom twice to make sure the time axis appear
     initialiseTimelineUI: function() {
 
+      if (this.timeLine) {
         this.timeLine.setZoom(this.zoom + 3);
         this.timeLine.setZoom(this.zoom);
         this.timeLine.updateDisplay();
+      }
     },
 
     // Got to start of TimeLine
@@ -426,6 +431,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Called when a selected event is changed via Timeline.js
     selectedTimeLineEventChanged: function(eventData) {
       this.selectedEvent = parseInt(eventData.unique_id, 10);
+    },
+
+    // CALLED BY OBSERVABLE ON TIMELINEDATA
+    timelineDataChanged: function() {
+
     }
   });
 })();
