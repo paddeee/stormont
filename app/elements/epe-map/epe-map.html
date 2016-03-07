@@ -70,8 +70,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .timeline-control-section {
       background-color: var(--primary-background-color);
       height: 29px;
-      margin: 0 0 14px calc(100% - 76px);
       width: 60px;
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
       -webkit-transition-property: -webkit-transform, width;
       transition-property: transform, width;
       -webkit-transition-duration: 300ms;
@@ -81,6 +83,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       -ms-transform: translateX(0px);
       -webkit-transform: translateX(0px);
       transform: translateX(0px);
+    }
+
+    .timeline-control-section.timeline--showing {
+      -webkit-transition-duration: 300ms;
+      transition-duration: 300ms;
+      -webkit-transition-timing-function: ease-in-out;
+      transition-timing-function: ease-in-out;
+      -ms-transform: translateY(-186px);
+      -webkit-transform: translateY(-186px);
+      transform: translateY(-186px);
     }
 
     .timeline-control-section--hide {
@@ -103,7 +115,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       bottom: 0;
       width: 100%;
       background-color: transparent;
-      height: 225px;
+      height: 181px;
       position: fixed;
       overflow: hidden;
       -webkit-transition-property: -webkit-transform, height;
@@ -112,9 +124,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       transition-duration: 300ms;
       -webkit-transition-timing-function: ease-in-out;
       transition-timing-function: ease-in-out;
-      -ms-transform: translateY(183px);
-      -webkit-transform: translateY(183px);
-      transform: translateY(183px);
+      -ms-transform: translateY(240px);
+      -webkit-transform: translateY(240px);
+      transform: translateY(240px);
       z-index: 2;
     }
 
@@ -156,36 +168,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </epe-map-geojson>
     </leaflet-map>
 
-    <!-- TimeLine -->
+    <!-- TimeLine Toggle control -->
+    <paper-material id="TimeLineControl"
+                    class="timeline-control-section timeline-control-section--hide layout horizontal">
+      <div class="timeline-control layout horizontal center center-justified">
+        <iron-icon class="toggle-timeline"
+                   icon="timeline"
+                   on-tap="toggleTimeline"></iron-icon>
+      </div>
+      <div class="timeline-control timeline-toggle layout horizontal center center-justified"
+           hidden$="[[timelineShowing]]">
+        <iron-icon class="toggle-timeline"
+                   icon="expand-less"
+                   on-tap="toggleTimeline"></iron-icon>
+      </div>
+      <div class="timeline-control timeline-toggle layout horizontal center center-justified"
+           hidden$="[[!timelineShowing]]">
+        <iron-icon class="toggle-timeline"
+                   icon="expand-more"
+                   on-tap="toggleTimeline"></iron-icon>
+      </div>
+    </paper-material>
+    <paper-tooltip for="TimeLineControl"
+                   position="left">Toggle Timeline</paper-tooltip>
+
     <section id="TimeLine" class="timeline">
 
-      <!-- Toggle control -->
-      <paper-material id="TimeLineControl"
-                      class="timeline-control-section timeline-control-section--hide layout horizontal">
-        <div class="timeline-control layout horizontal center center-justified">
-          <iron-icon class="toggle-timeline"
-                     icon="timeline"
-                     on-tap="toggleTimeline"></iron-icon>
-        </div>
-        <div class="timeline-control timeline-toggle layout horizontal center center-justified"
-             hidden$="[[timelineShowing]]">
-          <iron-icon class="toggle-timeline"
-                     icon="expand-less"
-                     on-tap="toggleTimeline"></iron-icon>
-        </div>
-        <div class="timeline-control timeline-toggle layout horizontal center center-justified"
-             hidden$="[[!timelineShowing]]">
-          <iron-icon class="toggle-timeline"
-                     icon="expand-more"
-                     on-tap="toggleTimeline"></iron-icon>
-        </div>
-      </paper-material>
-      <paper-tooltip for="TimeLineControl"
-                     position="left">Toggle Timeline</paper-tooltip>
-
-      <!-- Timeline element -->
+      <!-- Timeline Element -->
       <epe-timeline id="TimeLineElement"
-                    on-timeline-events-changed="showTimeLineControls"></epe-timeline>
+                    on-timeline-events-changed="toggleTimeLineEnabled"></epe-timeline>
     </section>
 
   </template>
@@ -351,17 +362,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       if (this.timelineShowing) {
         this.$.TimeLine.classList.add('timeline--showing');
+        this.$.TimeLineControl.classList.add('timeline--showing');
       } else {
         this.$.TimeLine.classList.remove('timeline--showing');
+        this.$.TimeLineControl.classList.remove('timeline--showing');
       }
     },
 
     // FIRED FROM TIMELINE ELEMENT
-    showTimeLineControls: function(event) {
+    toggleTimeLineEnabled: function(event) {
 
       if (event.showControls) {
         this.$.TimeLineControl.classList.remove('timeline-control-section--hide');
       } else {
+        this.$.TimeLine.classList.remove('timeline--showing');
+        this.$.TimeLineControl.classList.remove('timeline--showing');
         this.$.TimeLineControl.classList.add('timeline-control-section--hide');
       }
     }
