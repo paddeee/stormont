@@ -13,6 +13,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <dom-module id="epe-timeline">
 
   <link rel="stylesheet" href="../../styles/vendor/timeline/timeline.css">
+  <link rel="stylesheet" href="../../styles/vendor/timeline/timeline-override.css">
 
   <style>
 
@@ -21,60 +22,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .timeline {
-      height: 100%;
+       height: 100%;
+     }
+
+    .timeline-controls {
+      border-right: 1px solid #D8D8D8;
+      height: inherit;
+      width: 60px;
     }
 
-    .tl-storyslider {
-      display: none;
-    }
-
-    .tl-timenav {
-      background-color: var(--primary-background-color);
-      border: 0 none;
-    }
-
-    .tl-timemarker-content-container {
-      border-radius: 0 !important;
-    }
-
-    .tl-attribution {
-      display: none !important;
-    }
-
-    .tl-timeaxis-background {
-      background-color: rgb(55, 64, 70);
-    }
-
-    .tl-timemarker .tl-timemarker-content-container {
-      box-shadow: none;
-      background-color: var(--default-primary-color);
-      border: 1px solid var(--default-primary-color);
-    }
-
-    .tl-timemarker.tl-timemarker-active .tl-timemarker-content-container {
-      box-shadow: none;
-      background-color: var(--paper-deep-orange-700);
-      border: 1px solid var(--paper-deep-orange-700);
-      color: var(--text-primary-color);
-    }
-
-    .tl-timemarker .tl-timemarker-content-container .tl-timemarker-content .tl-timemarker-text h2.tl-headline {
-      color: var(--text-primary-color);
-    }
-
-    .tl-timemarker .tl-timemarker-line-left:after, .tl-timemarker .tl-timemarker-line-right:after {
-      background-color: var(--default-primary-color);
-    }
-
-    .tl-timemarker.tl-timemarker-active .tl-timemarker-line-left:after, .tl-timemarker.tl-timemarker-active .tl-timemarker-line-right:after {
-      background-color: var(--paper-deep-orange-700);
-    }
   </style>
 
   <script src="../../scripts/vendor/timeline/timeline.js"></script>
 
   <template>
-    <div id='TimeLine' class="timeline"></div>
+    <div class="layout horizontal">
+      <div class="timeline-controls layout vertical  center center-justified">
+        <paper-icon-button id="PreviousButton" disabled icon="arrow-back"></paper-icon-button>
+        <paper-icon-button id="NextButton" icon="arrow-forward"></paper-icon-button>
+        <paper-icon-button id="ZoomInButton" icon="zoom-in"></paper-icon-button>
+        <paper-icon-button id="ZoomOutButton" icon="zoom-out"></paper-icon-button>
+
+        <paper-tooltip for="PreviousButton" position="right">Previous Event</paper-tooltip>
+        <paper-tooltip for="NextButton" position="right">Next Event</paper-tooltip>
+        <paper-tooltip for="ZoomInButton" position="right">Zoom In</paper-tooltip>
+        <paper-tooltip for="ZoomOutButton" position="right">Zoom Out</paper-tooltip>
+      </div>
+      <div id='TimeLine' class="timeline"></div>
+    </div>
   </template>
 </dom-module>
 <script>
@@ -318,33 +293,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.timeLine = new TL.Timeline(this.$.TimeLine, this.timelineData, this.timeLineOptions);
 
       this.timeLine.on('change', function(data) {
-
-        // polymer method to style dynamically added DOM that don't exist when this element is created
-        this.scopeSubtree(this.$.TimeLine, true);
-
-      }.bind(this));
-
-      this.timeLine.on('zoom_in', function(data) {
-
-        // polymer method to style dynamically added DOM that don't exist when this element is created
-        this.scopeSubtree(this.$.TimeLine, true);
-
-      }.bind(this));
-
-      this.timeLine.on('zoom_out', function(data) {
-
-        // polymer method to style dynamically added DOM that don't exist when this element is created
-        this.scopeSubtree(this.$.TimeLine, true);
-
-      }.bind(this));
+        console.log('Change', data);
+      });
 
       // Zoom in after delay as Timeline is corrupted when intialised for some reason
+      //this.initialiseTimelineUI();
+    },
+
+    // Zoom in after delay as Timeline is corrupted when intialised for some reason
+    initialiseTimelineUI: function() {
+
       this.async(function() {
 
-        this.timeLine.setZoom(5);
-
-        // polymer method to style dynamically added DOM that don't exist when this element is created
-        this.scopeSubtree(this.$.TimeLine, true);
+        // Timeline seems a bit buggy. Having to do hacky things like zoom twice to make sure the time axis appear
+        this.timeLine.setZoom(6);
+        this.timeLine.setZoom(3);
+        this.timeLine.updateDisplay();
 
         this.fire('timeline-complete');
       }, 100);

@@ -37,7 +37,6 @@ module.exports = Reflux.createStore({
 
   // Set search filter on our collectionTransform
   queryBuilderChanged: function (queryBuilderStore) {
-    console.log('filterState - queryBuilderChanged');
 
     //this.updateFilteredData2(queryBuilderStore.queryObject);
 
@@ -52,7 +51,6 @@ module.exports = Reflux.createStore({
 
   // Set the filteredData Object
   dataSourceChanged: function (dataSourceBroadcast) {
-    console.log('filterState - dataSourceChanged');
 
     // Don't do this on load or import or when presentation saved
     if (dataSourceBroadcast.dataSource.message.type !== 'collectionImported' && dataSourceBroadcast.message !== 'presentationSaved') {

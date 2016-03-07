@@ -136,7 +136,6 @@ module.exports = Reflux.createStore({
 
   // Set a default transform to be used immediately on the store
   setDefaultTransform: function() {
-    console.log('Sources - setDefaultFilter');
 
     var collectionToAddTransformTo;
 

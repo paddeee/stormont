@@ -166,10 +166,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
       </paper-material>
       <paper-tooltip for="TimeLineControl"
-                     offset="0">Toggle Timeline</paper-tooltip>
+                     position="left">Toggle Timeline</paper-tooltip>
 
       <!-- Timeline element -->
       <epe-timeline
+        id="TimeLineElement"
         on-timeline-complete="showTimeLineControls"></epe-timeline>
     </section>
 
@@ -204,7 +205,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     ready: function() {
-
 
       this.scopeSubtree(this.$.LeafletMap, true);
 
@@ -255,6 +255,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Leaflet seems to need a kick to resize tiles when navigating to and from a map view
     resizeMap: function() {
       this.$.LeafletMap.fire('resize');
+    },
+
+    // TimeLine needs a kick to not position events on top of each other
+    initialiseTimelineUI: function() {
+      this.$.TimeLineElement.initialiseTimelineUI();
     },
 
     // Set up the annotation functionality
