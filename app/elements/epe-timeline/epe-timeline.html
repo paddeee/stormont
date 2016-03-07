@@ -31,6 +31,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       width: 60px;
     }
 
+    .timeline-controls paper-icon-button {
+      height: 36px;
+      width: 36px;
+    }
+
   </style>
 
   <script src="../../scripts/vendor/timeline/timeline.js"></script>
@@ -38,11 +43,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <template>
     <div class="layout horizontal">
       <div class="timeline-controls layout vertical  center center-justified">
-        <paper-icon-button id="PreviousButton" disabled icon="arrow-back"></paper-icon-button>
-        <paper-icon-button id="NextButton" icon="arrow-forward"></paper-icon-button>
-        <paper-icon-button id="ZoomInButton" icon="zoom-in"></paper-icon-button>
-        <paper-icon-button id="ZoomOutButton" icon="zoom-out"></paper-icon-button>
+        <paper-icon-button id="StartButton"
+                           icon="av:fast-rewind"
+                           on-tap="goToStart"></paper-icon-button>
+        <paper-icon-button id="PreviousButton"
+                           disabled
+                           icon="arrow-back"
+                           on-tap="goToPrevious"></paper-icon-button>
+        <paper-icon-button id="NextButton"
+                           icon="arrow-forward"
+                           on-tap="goToNext"></paper-icon-button>
+        <paper-icon-button id="ZoomInButton"
+                           icon="zoom-in"
+                           on-tap="zoomIn"></paper-icon-button>
+        <paper-icon-button id="ZoomOutButton"
+                           icon="zoom-out"
+                           on-tap="zoomOut"></paper-icon-button>
 
+        <paper-tooltip for="StartButton" position="right">Back To Start</paper-tooltip>
         <paper-tooltip for="PreviousButton" position="right">Previous Event</paper-tooltip>
         <paper-tooltip for="NextButton" position="right">Next Event</paper-tooltip>
         <paper-tooltip for="ZoomInButton" position="right">Zoom In</paper-tooltip>
@@ -63,10 +81,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         type: Object
       },
 
+      zoom: {
+        type: Number,
+        value: 3,
+        observer: 'zoomChanged'
+      },
+
+      selectedEvent: {
+        type: Number,
+        value: 0,
+        observer: 'selectedEventChanged'
+      },
+
       timelineData: {
         type: Object,
         value: {
           "title": {
+            "unique_id": "0",
             "text": {
               "headline": "Revolutionary User Interfaces",
               "text": "<p>The human computer interface helps to define computing at any one time. As computers have become more mainstream the interfaces have become more intimate. This is the journey of computer technology and how it has come to touch all of our lives.</p>"
@@ -74,6 +105,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           },
           "events": [
             {
+              "unique_id": "1",
               "start_date": {
                 "year": "1600"
               },
@@ -83,6 +115,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }
             },
             {
+              "unique_id": "2",
               "start_date": {
                 "year": "1642"
               },
@@ -92,6 +125,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }
             },
             {
+              "unique_id": "3",
               "start_date": {
                 "year": "1820"
               },
@@ -101,6 +135,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }
             },
             {
+              "unique_id": "4",
               "start_date": {
                 "year": "1801"
               },
@@ -110,6 +145,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }
             },
             {
+              "unique_id": "5",
               "start_date": {
                 "year": "1833"
               },
@@ -119,6 +155,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }
             },
             {
+              "unique_id": "6",
               "start_date": {
                 "year": "1868"
               },
@@ -128,6 +165,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }
             },
             {
+              "unique_id": "7",
               "start_date": {
                 "year": "1890"
               },
@@ -137,6 +175,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }
             },
             {
+              "unique_id": "8",
               "start_date": {
                 "year": "1940"
               },
@@ -146,6 +185,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }
             },
             {
+              "unique_id": "9",
               "start_date": {
                 "year": "1946"
               },
@@ -155,6 +195,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }
             },
             {
+              "unique_id": "10",
               "start_date": {
                 "year": "1951"
               },
@@ -164,6 +205,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }
             },
             {
+              "unique_id": "11",
               "start_date": {
                 "year": "1964"
               },
@@ -173,6 +215,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }
             },
             {
+              "unique_id": "12",
               "start_date": {
                 "year": "1968"
               },
@@ -182,6 +225,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }
             },
             {
+              "unique_id": "13",
               "start_date": {
                 "month": "12",
                 "day": "9",
@@ -193,6 +237,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }
             },
             {
+              "unique_id": "14",
               "start_date": {
                 "year": "1974"
               },
@@ -202,6 +247,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }
             },
             {
+              "unique_id": "15",
               "start_date": {
                 "year": "1976"
               },
@@ -211,6 +257,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }
             },
             {
+              "unique_id": "16",
               "start_date": {
                 "year": "1976"
               },
@@ -220,6 +267,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }
             },
             {
+              "unique_id": "17",
               "start_date": {
                 "year": "1982"
               },
@@ -229,6 +277,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }
             },
             {
+              "unique_id": "18",
               "start_date": {
                 "year": "1984"
               },
@@ -238,6 +287,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }
             },
             {
+              "unique_id": "19",
               "start_date": {
                 "year": "1997"
               },
@@ -247,6 +297,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }
             },
             {
+              "unique_id": "20",
               "start_date": {
                 "month": "10",
                 "day": "23",
@@ -258,6 +309,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }
             },
             {
+              "unique_id": "21",
               "start_date": {
                 "year": "2007"
               },
@@ -267,6 +319,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }
             },
             {
+              "unique_id": "22",
               "start_date": {
                 "year": "2012"
               },
@@ -292,26 +345,87 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Initialise Timeline
       this.timeLine = new TL.Timeline(this.$.TimeLine, this.timelineData, this.timeLineOptions);
 
-      this.timeLine.on('change', function(data) {
-        console.log('Change', data);
-      });
+      this.timeLine.on('change', function(eventData) {
+        this.selectedTimeLineEventChanged(eventData);
+      }.bind(this));
 
       // Zoom in after delay as Timeline is corrupted when intialised for some reason
       //this.initialiseTimelineUI();
     },
 
-    // Zoom in after delay as Timeline is corrupted when intialised for some reason
+    // Timeline seems a bit buggy. Having to do hacky things like zoom twice to make sure the time axis appear
     initialiseTimelineUI: function() {
 
-      this.async(function() {
-
-        // Timeline seems a bit buggy. Having to do hacky things like zoom twice to make sure the time axis appear
-        this.timeLine.setZoom(6);
-        this.timeLine.setZoom(3);
+        this.timeLine.setZoom(this.zoom + 3);
+        this.timeLine.setZoom(this.zoom);
         this.timeLine.updateDisplay();
+    },
 
-        this.fire('timeline-complete');
-      }, 100);
+    // Got to start of TimeLine
+    goToStart: function() {
+      this.timeLine.goToStart();
+    },
+
+    // Got to previous event
+    goToPrevious: function() {
+      this.timeLine.goToPrev();
+    },
+
+    // Got to next event
+    goToNext: function() {
+      this.timeLine.goToNext();
+    },
+
+    // Zoom In
+    zoomIn: function() {
+      this.zoom++;
+      this.timeLine.setZoom(this.zoom);
+    },
+
+    // Zoom Out
+    zoomOut: function() {
+      this.zoom--;
+      this.timeLine.setZoom(this.zoom);
+    },
+
+    // CALLED BY OBSERVABLE ON ZOOM
+    zoomChanged: function() {
+
+      if (this.zoom === 0) {
+        this.$.ZoomOutButton.disabled = true;
+      } else {
+        this.$.ZoomOutButton.disabled = false;
+      }
+
+      if (this.zoom === 10) {
+        this.$.ZoomInButton.disabled = true;
+      } else {
+        this.$.ZoomInButton.disabled = false;
+      }
+    },
+
+    // CALLED BY OBSERVABLE ON SELECTEDEVENT
+    selectedEventChanged: function() {
+
+      if (this.timelineData) {
+
+        if (this.selectedEvent <= 1) {
+          this.$.PreviousButton.disabled = true;
+        } else {
+          this.$.PreviousButton.disabled = false;
+        }
+
+        if (this.selectedEvent === this.timelineData.events.length) {
+          this.$.NextButton.disabled = true;
+        } else {
+          this.$.NextButton.disabled = false;
+        }
+      }
+    },
+
+    // Called when a selected event is changed via Timeline.js
+    selectedTimeLineEventChanged: function(eventData) {
+      this.selectedEvent = parseInt(eventData.unique_id, 10);
     }
   });
 })();
