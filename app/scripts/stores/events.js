@@ -57,7 +57,6 @@ module.exports = Reflux.createStore({
 
   // Create a transform from the passed in object and save it on the collection
   createFilterTransform: function(filterTransformObject, message) {
-    console.log('Events - createFilterTransform');
 
     if (!this.dataSource) {
       return;
@@ -136,7 +135,6 @@ module.exports = Reflux.createStore({
 
   // Set a default transform to be used immediately on the store
   setDefaultTransform: function() {
-    console.log('Events - setDefaultFilter');
 
     var collectionToAddTransformTo;
 

@@ -365,7 +365,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // Set the section title
           this.setSectionTitle(route);
 
-          this.$.Map.resizeMap();
+          if (route === 'map') {
+            this.mapViewSelected();
+          }
         }
       },
 
@@ -375,6 +377,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.fire('package-view-changed', {
           packageRoute: route
         });
+      },
+
+      // When the Map view is selected manage the third party components like Leaflet and Timeline
+      mapViewSelected: function() {
+
+        this.$.Map.resizeMap();
+
+        this.$.Map.initialiseTimelineUI();
       },
 
       // Used by template to set tab links depending on whether user is creating or editing

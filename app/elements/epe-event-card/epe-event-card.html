@@ -375,8 +375,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.cardViewSelected = 0;
           break;
         case 'PlaceInfo':
-          this.slideEntryAnimation = 'slide-from-right-animation';
-          this.slideExitAnimation = 'slide-left-animation';
+          // Set animation to slide correct way
+          if (this.cardViewSelected > 0) {
+            this.slideEntryAnimation = 'slide-from-left-animation';
+            this.slideExitAnimation = 'slide-right-animation';
+          } else {
+            this.slideEntryAnimation = 'slide-from-right-animation';
+            this.slideExitAnimation = 'slide-left-animation';
+          }
 
           this.cardViewSelected = 1;
           break;
