@@ -15,9 +15,13 @@ module.exports = Reflux.createStore({
   },
 
   // Create a TimeLine JSON Object that can be used by the Timeline to visualise data
-  createTimeLineJSON: function() {
+  createTimeLineJSON: function(selectedRecordsStore) {
 
     var timeLineJSONObject;
+
+    if (selectedRecordsStore.message.type === 'timeLineSelectedRecord') {
+      return;
+    }
 
     // Create an empty GeoJSON object
     var defaultTimeLineJSONObject = {
