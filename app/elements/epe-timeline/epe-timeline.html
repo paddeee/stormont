@@ -199,11 +199,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // would not let us remove due to its limitations
       if (this.idOfLastEventToBeRemoved.length) {
 
-        //
-        if (!_.includes(eventIdsToAdd, this.idOfLastEventToBeRemoved)) {
-          this.timeLine.removeId(this.idOfLastEventToBeRemoved[0]);
+        if (this.timeLine.config.events.length > 1) {
+
+          if (!_.includes(eventIdsToAdd, this.idOfLastEventToBeRemoved)) {
+            this.timeLine.removeId(this.idOfLastEventToBeRemoved[0]);
+            this.idOfLastEventToBeRemoved = [];
+          }
         }
-        this.idOfLastEventToBeRemoved = [];
       }
 
       // Remove old events
