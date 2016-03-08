@@ -13,6 +13,7 @@ var config = require('./config/config.js');
 var CSVParser = require('./vendor/harb-customised.js');
 var VerEx = require('verbal-expressions');
 var dataSourceActions = require('./actions/dataSource.js');
+var selectedRecordsActions = require('./actions/selectedRecords.js');
 var queryBuilderActions = require('./actions/queryBuilder.js');
 var queryBuilderStore = require('./stores/queryBuilder.js');
 var filterStateActions = require('./actions/filterState.js');
@@ -33,7 +34,7 @@ var exportStore = global.packagedApp ? require('./stores/export.js') : null;
 var mapGeoJsonStore = require('./stores/mapGeoJSON.js');
 var timeLineStore = require('./stores/timeLine.js');
 
-(function(document, reflux, moment, config, sourceActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore, timeLineStore) {
+(function(document, reflux, moment, config, sourceActions, selectedRecordsActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore, timeLineStore) {
   'use strict';
 
   // Call checkForLDAP action when in browser
@@ -53,6 +54,7 @@ var timeLineStore = require('./stores/timeLine.js');
   app.config = config;
   app.CSVParser = CSVParser;
   app.dataSourceActions = dataSourceActions;
+  app.selectedRecordsActions = selectedRecordsActions;
   app.userActions = userActions;
   app.userStore = userStore;
   app.presentationsActions = presentationsActions;
@@ -107,4 +109,4 @@ var timeLineStore = require('./stores/timeLine.js');
   // Maybe dangerous but can change for different approach if needed
   NodeList.prototype.forEach = Array.prototype.forEach;
 
-})(document, reflux, moment, config, sourceActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore, timeLineStore);
+})(document, reflux, moment, config, sourceActions, selectedRecordsActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore, timeLineStore);

@@ -171,6 +171,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         geoJsonLayerOptions: {
           type: Object,
           value: null
+        },
+
+        //
+        activeEvent: {
+          type: String,
+          observer: 'activeEventChanged'
         }
       },
 
@@ -370,6 +376,48 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (this.container && this.clusterLayer) {
           this.container.removeLayer(this.clusterLayer);
         }
+      },
+
+      // OBSERVER ON ACTIVEEVENT
+      activeEventChanged: function() {
+
+        var $map = this.closest('#LeafletMap');
+        var features = this.features;
+        var clusterLayer = this.clusterLayer;
+        var geoJSONLayer = this.geoJSONLayer;
+
+        features.forEach(function(feature) {
+
+          // If marker to jump to exists as marker on the map
+          if (this.activeEvent.eventId === feature.feature.properties.id.toString()) {
+
+            // If a marker
+            if (feature.feature.geometry.type === 'Point') {
+
+              if (clusterLayer.hasLayer(feature)) {
+
+                // Pan and zoom into the cluster or just to a marker if zoomed in enough already
+                clusterLayer.zoomToShowLayer(feature, function () {
+
+                  // Open marker popup
+                  feature.openPopup();
+                });
+              }
+
+              // If a Line or Polygon
+            } else {
+
+              if (geoJSONLayer.hasLayer(feature)) {
+
+                // Pan to feature
+                $map.map.fitBounds(feature.getBounds());
+
+                // Open marker popup
+                feature.openPopup();
+              }
+            }
+          }
+        }.bind(this));
       }
     });
   })();
