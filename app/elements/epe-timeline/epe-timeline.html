@@ -198,7 +198,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // If the selected events were previously cleared we can now remove the last event that TimeLine.js
       // would not let us remove due to its limitations
       if (this.idOfLastEventToBeRemoved.length) {
-        this.timeLine.removeId(this.idOfLastEventToBeRemoved[0]);
+
+        //
+        if (!_.includes(eventIdsToAdd, this.idOfLastEventToBeRemoved)) {
+          this.timeLine.removeId(this.idOfLastEventToBeRemoved[0]);
+        }
         this.idOfLastEventToBeRemoved = [];
       }
 
