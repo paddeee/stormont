@@ -81,7 +81,7 @@ module.exports = Reflux.createStore({
     };
 
     // Set an end date object if one exists
-    //this.setEndDateObject(selectedEvent, endDateName, timeLineObject);
+    this.setEndDateObject(selectedEvent, endDateName, timeLineObject);
 
     // Push features onto the GeoJSON Object
     timeLineJSONObject.events.push(timeLineObject);
