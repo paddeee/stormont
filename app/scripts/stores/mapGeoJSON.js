@@ -10,7 +10,27 @@ module.exports = Reflux.createStore({
   init: function() {
 
     // Register dataSourceStores's changes
-    this.listenTo(selectedRecordsStore, this.createGeoJSON);
+    this.listenTo(selectedRecordsStore, this.selectedRecordStoreUpdated);
+  },
+
+  // Triggered by updates to selectedRecords store
+  selectedRecordStoreUpdated: function(selectedRecordStore) {
+
+    // If selected records is changed
+    if (selectedRecordStore.message.type === 'selectedRecordsUpdated') {
+      this.createGeoJSON();
+
+    // If event selected has changed
+    } else if (selectedRecordStore.message.type === 'timeLineSelectedRecord') {
+
+      this.activeEvent = selectedRecordStore.activeEvent;
+
+      this.message = {
+        type: 'timeLineSelectedRecord'
+      };
+
+      this.trigger(this);
+    }
   },
 
   // Create a GeoJSON Object that can be used by the Map to visualise data
@@ -32,18 +52,22 @@ module.exports = Reflux.createStore({
 
     // If no selected events
     if (!this.selectedEvents.data().length) {
-      geoJSONObject = defaultGeoJSONObject;
+      this.geoJSONObject = defaultGeoJSONObject;
     } else {
 
       // Push a feature object for each Event record
       this.selectedEvents.data().forEach(function(selectedEvent) {
 
-        geoJSONObject = this.getFeatureObject(selectedEvent, defaultGeoJSONObject);
+        this.geoJSONObject = this.getFeatureObject(selectedEvent, defaultGeoJSONObject);
 
       }.bind(this));
     }
 
-    this.trigger(geoJSONObject);
+    this.message = {
+      type: 'geoJSONCreated'
+    };
+
+    this.trigger(this);
   },
 
   // Return a GeoJSON Feature Object if event has related place selected

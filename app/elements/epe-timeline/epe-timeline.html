@@ -309,6 +309,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Called when a selected event is changed via Timeline.js
     selectedTimeLineEventChanged: function(eventData) {
       this.selectedEvent = eventData.unique_id;
+
+      // Call exportPresentation export action
+      this.selectedRecordsActions.timeLineEventSelected({
+        eventId: this.selectedEvent
+      });
     },
 
     // Show Controls if there are selected events

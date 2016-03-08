@@ -2,6 +2,7 @@
 
 var Reflux = require('reflux');
 var config = require('../config/config.js');
+var SelectedRecordsActions = require('../actions/selectedRecords.js');
 var dataSourceStore = require('../stores/dataSource.js');
 var filterStateStore = require('../stores/filterState.js');
 var eventsStore = require('../stores/events.js');
@@ -10,6 +11,10 @@ var peopleStore = require('../stores/people.js');
 var sourcesStore = require('../stores/source.js');
 
 module.exports = Reflux.createStore({
+
+  // this will set up listeners to all publishers in SelectedRecordsActions,
+  // using onKeyname (or keyname) as callbacks
+  listenables: [SelectedRecordsActions],
 
   // Called on Store initialisation
   init: function() {
@@ -70,6 +75,22 @@ module.exports = Reflux.createStore({
         '$eq': true
       }
     });
+
+    this.message = {
+      type: 'selectedRecordsUpdated'
+    };
+
+    this.trigger(this);
+  },
+
+  // Time Line Event Selected
+  timeLineEventSelected: function(eventId) {
+
+    this.activeEvent = eventId;
+
+    this.message = {
+      type: 'timeLineSelectedRecord'
+    };
 
     this.trigger(this);
   }

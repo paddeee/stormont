@@ -161,7 +161,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </leaflet-tilelayer>
 
       <epe-map-geojson id="MapGeoJSON"
-                       data="[[geoJSON]]">
+                       data="[[geoJSON]]"
+                       active-event="[[activeEvent]]">
       </epe-map-geojson>
     </leaflet-map>
 
@@ -196,6 +197,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <!-- Timeline Element -->
       <epe-timeline id="TimeLineElement"
                     time-line-store="[[timeLineStore]]"
+                    selected-records-actions="[[selectedRecordsActions]]"
                     on-timeline-events-changed="toggleTimeLineEnabled"></epe-timeline>
     </paper-material>
 
@@ -221,6 +223,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       timelineShowing: {
         type: Boolean,
         value: false
+      },
+
+      activeEvent: {
+        type: String,
+        value: ''
       }
     },
 
@@ -231,9 +238,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (this.mapGeoJsonStore) {
 
         // When the events data is updated, update our grid data
-        this.mapGeoJsonStore.listen(function(geoJSONObject) {
+        this.mapGeoJsonStore.listen(function(mapBroadcast) {
 
-          this.geoJSON = geoJSONObject;
+          if (mapBroadcast.message.type === 'geoJSONCreated') {
+            this.geoJSON = mapBroadcast.geoJSONObject;
+          } else if (mapBroadcast.message.type === 'timeLineSelectedRecord') {
+            this.activeEvent = mapBroadcast.activeEvent;
+          }
 
         }.bind(this));
       }
