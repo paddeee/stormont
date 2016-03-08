@@ -52,16 +52,18 @@ module.exports = Reflux.createStore({
 
     // If no selected events
     if (!this.selectedEvents.data().length) {
-      this.geoJSONObject = defaultGeoJSONObject;
+      geoJSONObject = defaultGeoJSONObject;
     } else {
 
       // Push a feature object for each Event record
       this.selectedEvents.data().forEach(function(selectedEvent) {
 
-        this.geoJSONObject = this.getFeatureObject(selectedEvent, defaultGeoJSONObject);
+        geoJSONObject = this.getFeatureObject(selectedEvent, defaultGeoJSONObject);
 
       }.bind(this));
     }
+
+    this.geoJSONObject = _.cloneDeep(geoJSONObject);
 
     this.message = {
       type: 'geoJSONCreated'
