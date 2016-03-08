@@ -72,8 +72,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       height: 29px;
       width: 60px;
       position: fixed;
-      bottom: 16px;
-      right: 16px;
+      bottom: 10px;
+      left: 10px;
       -webkit-transition-property: -webkit-transform, width;
       transition-property: transform, width;
       -webkit-transition-duration: 300ms;
@@ -90,15 +90,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       transition-duration: 300ms;
       -webkit-transition-timing-function: ease-in-out;
       transition-timing-function: ease-in-out;
-      -ms-transform: translateY(-188px);
-      -webkit-transform: translateY(-188px);
-      transform: translateY(-188px);
+      -ms-transform: translateY(-216px);
+      -webkit-transform: translateY(-216px);
+      transform: translateY(-216px);
     }
 
     .timeline-control-section--hide {
-      -ms-transform: translateX(100px);
-      -webkit-transform: translateX(100px);
-      transform: translateX(100px);
+      -ms-transform: translateX(-100px);
+      -webkit-transform: translateX(-100px);
+      transform: translateX(-100px);
     }
 
     .timeline-control {
@@ -115,7 +115,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       bottom: 0;
       width: 100%;
       background-color: transparent;
-      height: 185px;
+      height: 215px;
       position: fixed;
       overflow: hidden;
       -webkit-transition-duration: 300ms;
@@ -139,7 +139,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       display: block;
       margin: 0;
       box-shadow: 0 1px 7px rgba(0, 0, 0, 0.65);
-      height: 196px;
      }
 
   </style>
@@ -192,7 +191,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <paper-material id="TimeLine"
                     class="timeline"
-                    elevation="2">
+                    elevation="3">
 
       <!-- Timeline Element -->
       <epe-timeline id="TimeLineElement"
@@ -378,6 +377,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.TimeLine.classList.remove('timeline--showing');
         this.$.TimeLineControl.classList.remove('timeline--showing');
         this.$.TimeLineControl.classList.add('timeline-control-section--hide');
+        this.timelineShowing = false;
       }
     }
   });
