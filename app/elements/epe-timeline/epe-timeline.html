@@ -87,10 +87,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         observer: 'zoomChanged'
       },
 
-      selectedEvent: {
+      activeEvent: {
         type: String,
         value: '0',
-        observer: 'selectedEventChanged'
+        observer: 'activeEventChanged'
       },
 
       timeLineData: {
@@ -127,37 +127,59 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (this.timeLineStore) {
 
         // When the events data is updated, update our grid data
-        this.timeLineStore.listen(function(timeLineJSONObject) {
+        this.timeLineStore.listen(function(timeLineBroadcast) {
 
-          var previousEvents = this.timeLineData.events;
-
-          this.timeLineData = timeLineJSONObject;
-
-          // If the TimeLine has not been created
-          if (!this.timeLine) {
-
-            if (this.timeLineData.events.length) {
-
-              // Keep first and last events up to date
-              this.setFirstAndLast();
-
-              // Initialise Timeline
-              this.createTimeLine();
-            }
-
-          } else {
-
-            if (this.timeLineData.events.length) {
-              this.setFirstAndLast();
-            }
-
-            this.updateTimeLine(previousEvents);
+          if (timeLineBroadcast.message.type === 'timeLineJSONCreated') {
+            this.timeLineJSONUpdated(timeLineBroadcast.timeLineJSONObject);
+          } else if (timeLineBroadcast.message.type === 'mapSelectedRecord') {
+            this.mapSelectedRecord(timeLineBroadcast.activeEvent.eventId);
           }
-
-          this.toggleTimeLineControls();
 
         }.bind(this));
       }
+    },
+
+    // TimeLine JSON Updated
+    timeLineJSONUpdated: function(timeLineJSONObject) {
+
+      var previousEvents;
+
+      previousEvents = this.timeLineData.events;
+
+      this.timeLineData = timeLineJSONObject;
+
+      // If the TimeLine has not been created
+      if (!this.timeLine) {
+
+        if (this.timeLineData.events.length) {
+
+          // Keep first and last events up to date
+          this.setFirstAndLast();
+
+          // Initialise Timeline
+          this.createTimeLine();
+        }
+
+      } else {
+
+        if (this.timeLineData.events.length) {
+          this.setFirstAndLast();
+        }
+
+        this.updateTimeLine(previousEvents);
+      }
+
+      this.toggleTimeLineControls();
+    },
+
+    // When an event is selected on the map, select relevant slide on timeline
+    mapSelectedRecord: function(eventId) {
+
+      // Keep activeEvent property in sync
+      this.activeEvent = eventId.toString();
+
+      // Navigate to event on Timeline
+      this.goToId(this.activeEvent);
     },
 
     // Create a new instance of the timeLine
@@ -187,7 +209,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       eventIdsToRemove = _.difference(previousEventIds, allEventIds);
 
-      // If this method has been called because a user has updated a filter but selectedRcords remain the same
+      // If this method has been called because a user has updated a filter but selectedRecords remain the same
       if (!eventIdsToAdd.length && !eventIdsToRemove.length) {
         return;
       }
@@ -243,14 +265,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Got to start of TimeLine
     goToStart: function() {
-      this.selectedEvent = '0';
+      this.activeEvent = '0';
       this.$.PreviousButton.disabled = true;
       this.timeLine.goToStart();
 
       // Call exportPresentation export action
       this.selectedRecordsActions.timeLineEventSelected({
-        eventId: this.selectedEvent
+        eventId: this.activeEvent
       });
+    },
+
+    // Got to previous event
+    goToId: function(id) {
+      this.timeLine.goToId(id);
     },
 
     // Got to previous event
@@ -295,22 +322,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     setFirstAndLast: function() {
       this.firstEventId = this.timeLineData.events[0].unique_id;
       this.lastEventId = this.timeLineData.events[this.timeLineData.events.length - 1].unique_id;
-      this.selectedEventChanged();
+      this.activeEventChanged();
     },
 
-    // CALLED BY OBSERVABLE ON SELECTEDEVENT
+    // CALLED BY OBSERVABLE ON ACTIVEEVENT
     // Also called by setFirstAndLast method
-    selectedEventChanged: function() {
+    activeEventChanged: function() {
 
       if (this.timeLineData) {
 
-        if (this.selectedEvent === '0' || this.selectedEvent === this.firstEventId) {
+        if (this.activeEvent === '0' || this.activeEvent === this.firstEventId) {
           this.$.PreviousButton.disabled = true;
         } else {
           this.$.PreviousButton.disabled = false;
         }
 
-        if (this.selectedEvent === this.lastEventId) {
+        if (this.activeEvent === this.lastEventId) {
           this.$.NextButton.disabled = true;
         } else {
           this.$.NextButton.disabled = false;
@@ -320,11 +347,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Called when a selected event is changed via Timeline.js
     selectedTimeLineEventChanged: function(eventData) {
-      this.selectedEvent = eventData.unique_id;
+      this.activeEvent = eventData.unique_id;
 
-      // Call exportPresentation export action
+      // Call timeLineEventSelected export action
       this.selectedRecordsActions.timeLineEventSelected({
-        eventId: this.selectedEvent
+        eventId: this.activeEvent
       });
     },
 

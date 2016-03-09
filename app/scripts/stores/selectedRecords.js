@@ -93,5 +93,17 @@ module.exports = Reflux.createStore({
     };
 
     this.trigger(this);
+  },
+
+  // Map Event Selected
+  mapEventSelected: function(eventId) {
+
+    this.activeEvent = eventId;
+
+    this.message = {
+      type: 'mapSelectedRecord'
+    };
+
+    this.trigger(this);
   }
 });

@@ -11,17 +11,34 @@ module.exports = Reflux.createStore({
   init: function() {
 
     // Register dataSourceStores's changes
-    this.listenTo(selectedRecordsStore, this.createTimeLineJSON);
+    this.listenTo(selectedRecordsStore, this.selectedRecordStoreUpdated);
+  },
+
+  // Triggered by updates to selectedRecords store
+  selectedRecordStoreUpdated: function(selectedRecordStore) {
+
+    // If selected records is changed
+    if (selectedRecordStore.message.type === 'selectedRecordsUpdated') {
+
+      this.createTimeLineJSON();
+
+      // If event selected has changed
+    } else if (selectedRecordStore.message.type === 'mapSelectedRecord') {
+
+      this.activeEvent = selectedRecordStore.activeEvent;
+
+      this.message = {
+        type: 'mapSelectedRecord'
+      };
+
+      this.trigger(this);
+    }
   },
 
   // Create a TimeLine JSON Object that can be used by the Timeline to visualise data
-  createTimeLineJSON: function(selectedRecordsStore) {
+  createTimeLineJSON: function() {
 
     var timeLineJSONObject;
-
-    if (selectedRecordsStore.message.type === 'timeLineSelectedRecord') {
-      return;
-    }
 
     // Create an empty GeoJSON object
     var defaultTimeLineJSONObject = {
@@ -50,7 +67,13 @@ module.exports = Reflux.createStore({
       }.bind(this));
     }
 
-    this.trigger(timeLineJSONObject);
+    this.timeLineJSONObject = _.cloneDeep(timeLineJSONObject);
+
+    this.message = {
+      type: 'timeLineJSONCreated'
+    };
+
+    this.trigger(this);
   },
 
   // Return a TimeLine Object
