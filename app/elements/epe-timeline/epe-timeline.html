@@ -187,6 +187,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       eventIdsToRemove = _.difference(previousEventIds, allEventIds);
 
+      // If this method has been called because a user has updated a filter but selectedRcords remain the same
+      if (!eventIdsToAdd.length && !eventIdsToRemove.length) {
+        return;
+      }
+
       // Add new events
       this.timeLineData.events.forEach(function(eventObject) {
 
