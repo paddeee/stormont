@@ -44,6 +44,10 @@ module.exports = Reflux.createStore({
       'features': []
     };
 
+    var noneGeoJSONObject = {
+      events: []
+    };
+
     // Assign selected events from each store
     this.selectedEvents = selectedRecordsStore.selectedRecords[config.EventsCollection.name];
     this.selectedPlaces = selectedRecordsStore.selectedRecords[config.PlacesCollection.name];
@@ -58,12 +62,13 @@ module.exports = Reflux.createStore({
       // Push a feature object for each Event record
       this.selectedEvents.data().forEach(function(selectedEvent) {
 
-        geoJSONObject = this.getFeatureObject(selectedEvent, defaultGeoJSONObject);
+        this.getFeatureObject(selectedEvent, defaultGeoJSONObject, noneGeoJSONObject);
 
       }.bind(this));
     }
 
-    this.geoJSONObject = _.cloneDeep(geoJSONObject);
+    this.geoJSONObject = _.cloneDeep(defaultGeoJSONObject);
+    this.noneGeoJSONObject = _.cloneDeep(noneGeoJSONObject);
 
     this.message = {
       type: 'geoJSONCreated'
@@ -73,7 +78,7 @@ module.exports = Reflux.createStore({
   },
 
   // Return a GeoJSON Feature Object if event has related place selected
-  getFeatureObject: function(selectedEvent, geoJSONObject) {
+  getFeatureObject: function(selectedEvent, geoJSONObject, noneGeoJSONObject) {
 
     var featureObject = {
       'type': 'Feature',
@@ -96,21 +101,20 @@ module.exports = Reflux.createStore({
       }
     };
 
-    // Don't add to GeoJSON if no related place exists
-    if (!this.addPlaceDataToGeoJSON(featureObject, selectedEvent)) {
-      return geoJSONObject;
-    }
-
     this.addRelatedEventsDataToGeoJSON(featureObject, selectedEvent);
 
     this.addRelatedPeopleDataToGeoJSON(featureObject, selectedEvent);
 
     this.addRelatedSourceDataToGeoJSON(featureObject, selectedEvent);
 
-    // Push features onto the GeoJSON Object
-    geoJSONObject.features.push(featureObject);
+    // Don't add to GeoJSON if no related place exists
+    if (this.addPlaceDataToGeoJSON(featureObject, selectedEvent)) {
 
-    return geoJSONObject;
+      // Push features onto the GeoJSON Object
+      geoJSONObject.features.push(featureObject);
+    } else {
+      noneGeoJSONObject.events.push(featureObject);
+    }
   },
 
   // Add Place data to the geoJSON Object
@@ -194,8 +198,7 @@ module.exports = Reflux.createStore({
 
   // Add Related Source data to the geoJSON Object
   addRelatedSourceDataToGeoJSON: function(featureObject, selectedEvent) {
-
-    //
+    // ToDO:
   },
 
   // Push a person Object onto the relevant array
