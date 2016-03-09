@@ -42,11 +42,7 @@ module.exports = Reflux.createStore({
 
     this.convertQueryObjectToFilterTransform(queryBuilderStore.queryObject.filters);
 
-    //if (!queryBuilderStore.containsEvents) {
-      this.autoFilterCollections(true, true);
-    /*} else {
-      this.autoFilterCollections(false, false);
-    }*/
+    this.autoFilterCollections(true, true);
   },
 
   // Set the filteredData Object
@@ -302,6 +298,8 @@ module.exports = Reflux.createStore({
     // Update all Checkboxes if query contains events filter/filters with a value selected by the user
     if (selectAllCheckBoxes && queryBuilderStore.containsEvents) {
       this.selectAllCheckboxes(eventsStore, true);
+    } else {
+      this.selectAllCheckboxes(eventsStore, false);
     }
 
     // Update all data types checkboxes to only show records from filtered records
@@ -316,7 +314,7 @@ module.exports = Reflux.createStore({
 
     store.showAllSelected = value;
 
-    // Set all records showRecord property to true
+    // Set all records showRecord property to value
     store.userFilteredCollection.update(function (item) {
       item.showRecord = value;
     });
