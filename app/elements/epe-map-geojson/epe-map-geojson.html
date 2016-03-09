@@ -388,6 +388,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         features.forEach(function(feature) {
 
+          // If no selected event, close the popup
+          if (this.activeEvent.eventId === '0') {
+
+            feature.closePopup();
+            return;
+          }
+
           // If marker to jump to exists as marker on the map
           if (this.activeEvent.eventId === feature.feature.properties.id.toString()) {
 
