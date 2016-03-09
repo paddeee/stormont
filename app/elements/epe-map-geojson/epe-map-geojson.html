@@ -390,12 +390,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var geoJSONLayer = this.geoJSONLayer;
 
         this.activeEventExistsInFeatures = false;
+        this.isPointOfInterest = false;
 
         features.forEach(function(feature) {
 
-          // If no selected event, close the popup
-          if (this.activeEvent.eventId === '0') {
+          // If feature is a point of interest no tied to event
+          if (feature.feature.properties.id === 'noEvent') {
+            this.isPointOfInterest = true;
+            return;
+          }
 
+          // If no selected event, close the popup
+          if (this.activeEvent.eventId === '0' || feature.feature.properties.id === 'noEvent') {
             feature.closePopup();
             return;
           }
@@ -441,7 +447,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }.bind(this));
 
         // The active event doesn't exist in Map so show Event Card for No Location
-        if (!this.activeEventExistsInFeatures) {
+        if (!this.activeEventExistsInFeatures && !this.isPointOfInterest) {
 
           // Close any popups
           this.features.forEach(function(layer) {

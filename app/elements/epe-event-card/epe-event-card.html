@@ -14,6 +14,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <style>
     :host {
       display: block;
+      font-family: 'Roboto';
+      font-size: 12px;
       width: 100%;
     }
 
@@ -114,7 +116,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-icon-button
           id="PlaceInfo"
           icon="maps:place"
-          on-tap="showDetail"></paper-icon-button>
+          on-tap="showDetail"
+          hidden$="[[!eventData.placeInfo]]"></paper-icon-button>
 
         <paper-icon-button
           id="RelatedEvents"
