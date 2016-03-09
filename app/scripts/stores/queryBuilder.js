@@ -158,7 +158,7 @@ module.exports = Reflux.createStore({
       };
     } else if (action === 'update') {
 
-      this.manageFiltersWithValues(arg, 'add');
+      this.manageFiltersWithValues(arg, 'update');
 
       this.message = {
         type: 'queryUpdated'
@@ -171,54 +171,62 @@ module.exports = Reflux.createStore({
   // Used to prevent Checkboxes being displayed when none of the filters have values
   manageFiltersWithValues: function(filter, action) {
 
-    var tempFilterWithValues;
-    var filterExists;
-
     if (action === 'add') {
-
-      // Check to see if filter already exists
-      this.filtersWithValues.forEach(function(filterObject) {
-
-        if (filter.collectionName === filterObject.collectionName && filter.fieldName === filterObject.fieldName && filter.value === filterObject.value) {
-          filterExists = true;
-        }
-      }.bind(this));
-
-      if (filterExists) {
-        return;
-      }
-
-      // If an input or select filter
-      if (filter.filter === 'regex' || filter.filter === 'select') {
-
-        if (filter.value !== '') {
-          this.filtersWithValues.push(filter);
-        }
-        // If date filters
-      } else if (filter.filter === 'gte' && filter.value !== '') {
-        this.filtersWithValues.push(filter);
-      } else if (filter.filter === 'lte' && filter.value !== '') {
-        this.filtersWithValues.push(filter);
-      }
+      this.addFilterWithValues(filter);
+    } else if (action === 'update') {
+      this.updateFilterWithValues(filter);
     } else if (action === 'remove') {
-
-      tempFilterWithValues = this.filtersWithValues.filter(function(filterObject) {
-
-        var validItem = false;
-
-        if (filter.collectionName !== filterObject.collectionName || filter.fieldName !== filterObject.fieldName || filter.value !== filterObject.value) {
-          validItem = true;
-        }
-
-        return validItem;
-      }.bind(this));
-
-      this.filtersWithValues = tempFilterWithValues;
+      this.removeFilterWithValues(filter);
     }
 
-
-
     this.manageContainsEventFilters();
+  },
+
+  // See whether to add an object to filtersWithValues
+  addFilterWithValues: function(filterToAdd) {
+
+    var filterExists;
+
+    // Check to see if filter already exists
+    this.filtersWithValues.forEach(function(filterObject) {
+
+      if (filterToAdd.collectionName === filterObject.collectionName && filterToAdd.fieldName === filterObject.fieldName && filterToAdd.value === filterObject.value) {
+        filterExists = true;
+      }
+    }.bind(this));
+
+    if (!filterExists && filterToAdd.value !== '') {
+      this.filtersWithValues.push(filterToAdd);
+    }
+  },
+
+  // See whether to remove an object from filtersWithValues
+  updateFilterWithValues: function(updatedFilter) {
+
+    if (updatedFilter.value === '') {
+      this.removeFilterWithValues(updatedFilter);
+    } else {
+      this.addFilterWithValues(updatedFilter);
+    }
+  },
+
+  // Remove an object from filtersWithValues
+  removeFilterWithValues: function(filterToRemove) {
+
+    var tempFilterWithValues;
+
+    tempFilterWithValues = this.filtersWithValues.filter(function(filterObject) {
+
+      var validItem = false;
+
+      if (filterToRemove.collectionName !== filterObject.collectionName || filterToRemove.fieldName !== filterObject.fieldName || filterToRemove.value !== filterObject.value) {
+        validItem = true;
+      }
+
+      return validItem;
+    }.bind(this));
+
+    this.filtersWithValues = tempFilterWithValues;
   },
 
   // Manage property to indicate if there are any event filters. Because if not, the application shouldn't select all
