@@ -177,6 +177,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         activeEvent: {
           type: String,
           observer: 'activeEventChanged'
+        },
+
+        // Used so we can close a popup without resetting timeline when necessary
+        activeEventExistsInFeatures: {
+          type: Boolean,
+          value: false
         }
       },
 
@@ -383,6 +389,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var clusterLayer = this.clusterLayer;
         var geoJSONLayer = this.geoJSONLayer;
 
+        this.activeEventExistsInFeatures = false;
+
         features.forEach(function(feature) {
 
           // If no selected event, close the popup
@@ -394,6 +402,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           // If marker to jump to exists as marker on the map
           if (this.activeEvent.eventId === feature.feature.properties.id.toString()) {
+
+            // The active event exists in Map so reset this property
+            this.activeEventExistsInFeatures = true;
 
             // If a marker
             if (feature.feature.geometry.type === 'Point') {
@@ -420,17 +431,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 feature.openPopup();
               }
             }
-          } else {
-
-            // Close if no place on map for event
-            feature.closePopup();
-
-            // Show event card
-            this.fire('toggle-event-card-no-location', {
-              activeEventId: this.activeEvent.eventId
-            });
           }
         }.bind(this));
+
+        // The active event doesn't exist in Map so show Event Card for No Location
+        if (!this.activeEventExistsInFeatures) {
+
+          // Close any popups
+          this.features.forEach(function(layer) {
+            if (layer._popup._isOpen) {
+              layer.closePopup();
+            }
+          });
+
+          // Show event card
+          this.fire('toggle-event-card-no-location', {
+            activeEventId: this.activeEvent.eventId
+          });
+        }
       },
 
       // When a popup is opened
@@ -457,14 +475,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             return feature._popup._isOpen === true;
           });
 
-          if (!openPopups.length) {
+          if (!openPopups.length && this.activeEventExistsInFeatures) {
 
             // No popups so TimeLine needs to know
             this.selectedRecordsActions.mapEventSelected({
               eventId: '0'
             });
           }
-        });
+        }, 100);
       }
     });
   })();
