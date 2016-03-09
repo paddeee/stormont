@@ -238,9 +238,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Got to start of TimeLine
     goToStart: function() {
-      this.selectedEvent = "0";
+      this.selectedEvent = '0';
       this.$.PreviousButton.disabled = true;
       this.timeLine.goToStart();
+
+      // Call exportPresentation export action
+      this.selectedRecordsActions.timeLineEventSelected({
+        eventId: this.selectedEvent
+      });
     },
 
     // Got to previous event
