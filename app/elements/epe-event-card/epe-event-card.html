@@ -23,6 +23,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .event-card.event-card__detail--show {
+      background-color: var(--primary-background-color);
       padding: 0 0 28px;
     }
 
@@ -299,17 +300,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     ready: function() {
 
-      // Deserialise Stringified eventData Object
-      this.eventData = JSON.parse(this.eventData);
+      if (this.eventData) {
 
-      // Set map
-      this.map = this.closest('#LeafletMap').map;
-
-      this.map.on('zoomend', function() {
-        if (this.cardExpanded) {
-          this.async(this.setExpandedOffset);
+        // Deserialise Stringified eventData Object
+        if (typeof this.eventData === 'string') {
+          this.eventData = JSON.parse(this.eventData);
         }
-      }.bind(this));
+
+        // Set map
+        this.map = this.closest('#LeafletMap').map;
+
+        this.map.on('zoomend', function() {
+          if (this.cardExpanded) {
+            this.async(this.setExpandedOffset);
+          }
+        }.bind(this));
+      }
     },
 
     // Set offset for and expanded card

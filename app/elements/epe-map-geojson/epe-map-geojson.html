@@ -45,12 +45,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
          */
         data: {
           type: Object,
-          observer: '_dataChanged'
+          observer: 'dataChanged'
         },
 
         container: {
           type: Object,
-          observer: '_containerChanged'
+          observer: 'containerChanged'
         },
         /**
 
@@ -190,15 +190,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Assign functions to the geoJsonLayerOptions Object
         this.geoJsonLayerOptions = {
-          pointToLayer: this._pointToLayer.bind(this),
-          onEachFeature: this._onEachFeature.bind(this),
-          filter: this._filterFeature,
-          style: this._setFeatureStyle.bind(this)
+          pointToLayer: this.pointToLayer.bind(this),
+          onEachFeature: this.onEachFeature.bind(this),
+          filter: this.filterFeature,
+          style: this.setFeatureStyle.bind(this)
         };
       },
 
       // Function to pass to Leaflet to handle display of single point features on the map
-      _pointToLayer: function(feature, latlng) {
+      pointToLayer: function(feature, latlng) {
 
         var marker = new window.L.Marker(latlng);
 
@@ -224,17 +224,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           window.location.hash = "#" + i.toString();
         });*/
 
-        // Using ECMAScript 6 templates. Note ` character enclosing the value not '.
-        // eventData is a stringified object that can be parsed into a JS Object inside epe-event-card.
-        marker.bindPopup(`<epe-event-card event-data='${eventData}'></epe-event-card>`, {
-          autoPan: false,
-          keepInView: true,
-          minWidth: 400,
-          maxWidth: 400,
-          offset: new window.L.point(230, -4),
-          autoPanPadding: new window.L.point(230, 28)
-        });
-
         this.clusterLayer.addLayer(marker);
 
         // Add marker to markers array so we can remove these from GeoJSON layer when clustering
@@ -244,14 +233,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       // Function to pass to Leaflet to handle display of all features on the map
-      _onEachFeature: function(feature, layer) {
+      onEachFeature: function(feature, layer) {
 
         // Need to pass an object into leaflet popup so will stringify and parse inside element on the
         // other side.
         var eventData = JSON.stringify(feature.properties);
 
         layer.bindPopup(`<epe-event-card event-data='${eventData}'></epe-event-card>`, {
-          autoPan: false,
+            autoPan: false,
             keepInView: true,
             minWidth: 400,
             maxWidth: 400,
@@ -259,7 +248,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             autoPanPadding: new window.L.point(230, 28)
         });
 
-        // Add feature to features array
+        // Bind click event to marker so we can update TimeLine when a feature is selected
+        layer.on('popupopen', this.popUpOpened.bind(this));
+
+        // Bind click event to marker so we can update TimeLine when a feature is selected
+        layer.on('popupclose', this.popUpClosed.bind(this));
+
+        // Add feature to features array if it doesn't exist already
         this.features.push(layer);
       },
 
@@ -272,7 +267,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       // Set the style dynamically for a feature
-      _setFeatureStyle: function(feature) {
+      setFeatureStyle: function(feature) {
 
         var stylesObject = {};
 
@@ -320,14 +315,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       // Fired by Leaflet
-      _containerChanged: function() {
+      containerChanged: function() {
         if (this.container && this.data) {
-          this._dataChanged();
+          this.dataChanged();
         }
       },
 
       // Update marker info
-      _dataChanged: function() {
+      dataChanged: function() {
 
         if (this.container && this.data) {
 
@@ -368,6 +363,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       clearMap: function() {
 
         this.markers = [];
+
+        this.features = [];
 
         if (this.container && this.geoJSONLayer) {
           this.container.removeLayer(this.geoJSONLayer);
@@ -423,8 +420,51 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 feature.openPopup();
               }
             }
+          } else {
+
+            // Close if no place on map for event
+            feature.closePopup();
+
+            // Show event card
+            this.fire('toggle-event-card-no-location', {
+              activeEventId: this.activeEvent.eventId
+            });
           }
         }.bind(this));
+      },
+
+      // When a popup is opened
+      popUpOpened: function(data) {
+
+        // if the event card has been opened
+        if (data.target._popup._isOpen) {
+
+          // Call mapEventSelected export action
+          this.selectedRecordsActions.mapEventSelected({
+            eventId: data.target.feature.properties.id
+          });
+        }
+      },
+
+      // When a popup is closed
+      popUpClosed: function() {
+
+        // Hack because data.target._popup._isOpen reports as true even though the method that fired is popupclose
+        // Blame Leaflet. Async gives Leaflet chance to update this property for us to check below
+        this.async(function() {
+
+          var openPopups = this.features.filter(function(feature) {
+            return feature._popup._isOpen === true;
+          });
+
+          if (!openPopups.length) {
+
+            // No popups so TimeLine needs to know
+            this.selectedRecordsActions.mapEventSelected({
+              eventId: '0'
+            });
+          }
+        });
       }
     });
   })();

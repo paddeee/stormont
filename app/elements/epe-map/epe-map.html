@@ -139,7 +139,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       display: block;
       margin: 0;
       box-shadow: 0 1px 7px rgba(0, 0, 0, 0.65);
-     }
+    }
+
+    .event-card-no-location {
+      position: fixed;
+      left: calc(50% - 200px);
+      top: 100px;
+      width: 400px;
+      -webkit-transition-duration: 300ms;
+      transition-duration: 300ms;
+      -webkit-transition-timing-function: ease-in-out;
+      transition-timing-function: ease-in-out;
+      -ms-transform: translateY(-120px);
+      -webkit-transform: translateY(-120px);
+      transform: translateY(-120px);
+    }
+
+    .event-card-no-location.event-card--showing {
+      -ms-transform: translateY(0);
+      -webkit-transform: translateY(0);
+      transform: translateY(0);
+    }
 
   </style>
   <script src="../../scripts/vendor/leaflet/leaflet-draw.js"></script>
@@ -162,8 +182,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <epe-map-geojson id="MapGeoJSON"
                        data="[[geoJSON]]"
-                       active-event="[[activeEvent]]">
+                       selected-records-actions="[[selectedRecordsActions]]"
+                       active-event="[[activeEvent]]"
+                       on-toggle-event-card-no-location="toggleEventCardNoLocation">
       </epe-map-geojson>
+
+      <!-- Event Card for events with no location -->
+      <epe-event-card id="EventCard"
+                      class="event-card-no-location"
+                      event-data="[[activeEventData]]"></epe-event-card>
+
     </leaflet-map>
 
     <!-- TimeLine Toggle control -->
@@ -228,6 +256,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       activeEvent: {
         type: String,
         value: ''
+      },
+
+      activeEventData: {
+        type: Object
       }
     },
 
@@ -390,6 +422,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.TimeLineControl.classList.add('timeline-control-section--hide');
         this.timelineShowing = false;
       }
+    },
+
+    // FIRED FROM EPE-MAP-GEOJSON ELEMENT
+    toggleEventCardNoLocation: function(event) {
+
+      console.log(this.geoJSON, event);
+      this.$.EventCard.classList.add('event-card--showing');
     }
   });
 })();
