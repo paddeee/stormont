@@ -403,6 +403,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // If marker to jump to exists as marker on the map
           if (this.activeEvent.eventId === feature.feature.properties.id.toString()) {
 
+            // Hide No Locations event card
+            this.fire('toggle-event-card-no-location', {
+              activeEventId: this.activeEvent.eventId,
+              show: false
+            });
+
             // The active event exists in Map so reset this property
             this.activeEventExistsInFeatures = true;
 
@@ -446,7 +452,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           // Show event card
           this.fire('toggle-event-card-no-location', {
-            activeEventId: this.activeEvent.eventId
+            activeEventId: this.activeEvent.eventId,
+            show: true
           });
         }
       },

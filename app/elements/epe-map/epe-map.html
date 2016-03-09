@@ -146,13 +146,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       left: calc(50% - 200px);
       top: 100px;
       width: 400px;
-      -webkit-transition-duration: 300ms;
-      transition-duration: 300ms;
+      -webkit-transition-duration: 600ms;
+      transition-duration: 600ms;
       -webkit-transition-timing-function: ease-in-out;
       transition-timing-function: ease-in-out;
-      -ms-transform: translateY(-120px);
-      -webkit-transform: translateY(-120px);
-      transform: translateY(-120px);
+      -ms-transform: translateY(-600px);
+      -webkit-transform: translateY(-600px);
+      transform: translateY(-600px);
     }
 
     .event-card-no-location.event-card--showing {
@@ -260,6 +260,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       activeEventData: {
         type: Object
+      },
+
+      noneGeoJSONObject: {
+        type: Object
       }
     },
 
@@ -274,6 +278,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           if (mapBroadcast.message.type === 'geoJSONCreated') {
             this.geoJSON = mapBroadcast.geoJSONObject;
+            this.noneGeoJSONObject = mapBroadcast.noneGeoJSONObject;
           } else if (mapBroadcast.message.type === 'timeLineSelectedRecord') {
             this.activeEvent = mapBroadcast.activeEvent;
           }
@@ -427,8 +432,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // FIRED FROM EPE-MAP-GEOJSON ELEMENT
     toggleEventCardNoLocation: function(event) {
 
-      console.log(this.geoJSON, event);
-      this.$.EventCard.classList.add('event-card--showing');
+      var eventData;
+
+      if (this.geoJSON) {
+
+        if (event.detail.show && event.detail.activeEventId !== '0') {
+
+          this.activeEventData = this.noneGeoJSONObject.events.filter(function(eventObject) {
+            return eventObject.properties.id.toString() === event.detail.activeEventId;
+          })[0].properties;
+
+          this.$.EventCard.classList.add('event-card--showing');
+        } else {
+          this.$.EventCard.classList.remove('event-card--showing');
+        }
+      }
     }
   });
 })();
