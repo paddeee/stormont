@@ -67,8 +67,15 @@ module.exports = Reflux.createStore({
       }.bind(this));
     }
 
-    this.geoJSONObject = _.cloneDeep(defaultGeoJSONObject);
     this.noneGeoJSONObject = _.cloneDeep(noneGeoJSONObject);
+
+    // Add selected place features that aren't related to events
+    //this.selectedPlaces.data().forEach(function(selectedPlace) {
+      this.getPointOfInterestObject(defaultGeoJSONObject);
+    //}.bind(this));
+
+
+    this.geoJSONObject = _.cloneDeep(defaultGeoJSONObject);
 
     this.message = {
       type: 'geoJSONCreated'
@@ -87,7 +94,7 @@ module.exports = Reflux.createStore({
         'eventName': selectedEvent['Full Name'],
         'eventDescription': selectedEvent['Description'],
         'type': selectedEvent['Type'],
-        'placeInfo': {},
+        'placeInfo': null,
         'relatedEvents': [],
         'relatedPeople': {
           suspects: [],
@@ -133,6 +140,7 @@ module.exports = Reflux.createStore({
       featureObject.geometry = this.getGeometryObject(relatedPlace);
 
       // Assign values
+      featureObject.properties.placeInfo = {};
       featureObject.properties.placeInfo.placeName = relatedPlace['Full Name'];
       featureObject.properties.placeInfo.type = relatedPlace['Type'];
       featureObject.properties.placeInfo.kforArea = relatedPlace['AOR_KFOR'];
@@ -240,5 +248,52 @@ module.exports = Reflux.createStore({
     }
 
     return geometryObject;
+  },
+
+  //
+  getPointOfInterestObject: function(geoJSONObject) {
+
+    var pointsOfInterest = this.selectedPlaces.copy().where(function(place) {
+      return place.showRecord === true && place.selectedByEvent !== true;
+    }).data();
+
+    // If the event has no related place selected
+    pointsOfInterest.forEach(function(pointOfInterest) {
+
+      var featureObject = {
+        'type': 'Feature',
+        'properties': {
+          'id': 'noEvent',
+          'placeInfo': null,
+          'relatedEvents': [],
+          'relatedPeople': {
+            suspects: [],
+            victims: [],
+            witnesses: []
+          },
+          'supportingEvidence': [{
+            placeEvidence: []
+          }]
+        }
+      };
+
+      // Assign Geometry
+      featureObject.geometry = this.getGeometryObject(pointOfInterest);
+
+      // Assign values
+      featureObject.properties.placeInfo = {};
+      featureObject.properties.placeInfo.placeName = pointOfInterest['Full Name'];
+      featureObject.properties.placeInfo.type = pointOfInterest['Type'];
+      featureObject.properties.placeInfo.kforArea = pointOfInterest['AOR_KFOR'];
+      featureObject.properties.placeInfo.klaArea = pointOfInterest['AOR_KLA'];
+      featureObject.properties.placeInfo.kumanavoRegion = pointOfInterest['AOR_Kumanovo'];
+      featureObject.properties.placeInfo.country = pointOfInterest['Country'];
+      featureObject.properties.placeInfo.region = pointOfInterest['Region'];
+      featureObject.properties.placeInfo.municipality = pointOfInterest['Municipality'];
+      featureObject.properties.placeInfo.description = pointOfInterest['Description'];
+      featureObject.properties.placeInfo.pointOfInterest = pointOfInterest['Description'];
+
+      geoJSONObject.features.push(featureObject);
+    }.bind(this));
   }
 });
