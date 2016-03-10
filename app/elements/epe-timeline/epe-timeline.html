@@ -178,8 +178,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Keep activeEvent property in sync
       this.activeEvent = eventId.toString();
 
-      // Navigate to event on Timeline
-      this.goToId(this.activeEvent);
+      if (this.activeEvent === 'noEvent') {
+
+        // Navigate to beginning of TimeLine
+        if (this.timeLine) {
+          this.goToStart();
+        }
+      } else {
+
+        // Navigate to event on Timeline
+        this.goToId(this.activeEvent);
+      }
     },
 
     // Create a new instance of the timeLine
