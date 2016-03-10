@@ -358,10 +358,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     selectedTimeLineEventChanged: function(eventData) {
       this.activeEvent = eventData.unique_id;
 
-      // Call timeLineEventSelected export action
-      this.selectedRecordsActions.timeLineEventSelected({
-        eventId: this.activeEvent
-      });
+      if (this.activeEvent !== '0') {
+
+        // Call timeLineEventSelected export action
+        this.selectedRecordsActions.timeLineEventSelected({
+          eventId: this.activeEvent
+        });
+      }
     },
 
     // Show Controls if there are selected events
