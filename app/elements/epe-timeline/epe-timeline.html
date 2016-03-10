@@ -180,11 +180,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       if (this.activeEvent === 'noEvent') {
 
+        this.noRelatedEvent = true;
+
         // Navigate to beginning of TimeLine
         if (this.timeLine) {
-          this.goToStart(true);
+          this.goToStart();
         }
       } else {
+
+        this.noRelatedEvent = false;
 
         // Navigate to event on Timeline
         this.goToId(this.activeEvent);
@@ -273,10 +277,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Got to start of TimeLine
-    goToStart: function(noEvent) {
+    goToStart: function() {
 
       // Set to zero if user has tapped TimeLine start button
-      if (!noEvent) {
+      if (!this.noRelatedEvent) {
         this.activeEvent = '0';
       }
 
@@ -296,11 +300,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Got to previous event
     goToPrevious: function() {
+      this.noRelatedEvent = false;
       this.timeLine.goToPrev();
     },
 
     // Got to next event
     goToNext: function() {
+      this.noRelatedEvent = false;
       this.timeLine.goToNext();
     },
 
@@ -357,11 +363,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.$.NextButton.disabled = false;
         }
       }
-    },
-
-    // Called when a selected event is changed via Timeline.js
-    selectedTimeLineEventChanged: function(eventData) {
-      this.activeEvent = eventData.unique_id;
 
       if (this.activeEvent !== '0') {
 
@@ -369,8 +370,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.selectedRecordsActions.timeLineEventSelected({
           eventId: this.activeEvent
         });
-
       }
+    },
+
+    // Called when a selected event is changed via Timeline.js
+    selectedTimeLineEventChanged: function(eventData) {
+      this.activeEvent = eventData.unique_id;
     },
 
     // Show Controls if there are selected events
