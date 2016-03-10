@@ -434,18 +434,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         features.forEach(function(feature) {
 
           // If no selected event, close the popup
-          if (this.activeEvent.eventId === '0' || feature.feature.properties.id === 'noEvent') {
+          if (this.activeEvent.eventId === '0') {
             feature.closePopup();
             return;
           }
 
+          if (this.activeEvent.eventId === 'noEvent') {
+            this.isPointOfInterest = true;
+          }
+
           // If marker to jump to exists as marker on the map
           if (this.activeEvent.eventId === feature.feature.properties.id.toString()) {
-
-            // If feature is a point of interest no tied to event
-            if (feature.feature.properties.pointOfInterest) {
-              this.isPointOfInterest = true;
-            }
 
             // Hide No Locations event card
             this.fire('toggle-event-card-no-location', {

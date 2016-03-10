@@ -69,11 +69,7 @@ module.exports = Reflux.createStore({
 
     this.noneGeoJSONObject = _.cloneDeep(noneGeoJSONObject);
 
-    // Add selected place features that aren't related to events
-    //this.selectedPlaces.data().forEach(function(selectedPlace) {
-      this.getPointOfInterestObject(defaultGeoJSONObject);
-    //}.bind(this));
-
+    this.getPointOfInterestObject(defaultGeoJSONObject);
 
     this.geoJSONObject = _.cloneDeep(defaultGeoJSONObject);
 

@@ -182,7 +182,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Navigate to beginning of TimeLine
         if (this.timeLine) {
-          this.goToStart();
+          this.goToStart(true);
         }
       } else {
 
@@ -273,8 +273,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Got to start of TimeLine
-    goToStart: function() {
-      this.activeEvent = '0';
+    goToStart: function(noEvent) {
+
+      // Set to zero if user has tapped TimeLine start button
+      if (!noEvent) {
+        this.activeEvent = '0';
+      }
+
       this.$.PreviousButton.disabled = true;
       this.timeLine.goToStart();
 
@@ -364,6 +369,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.selectedRecordsActions.timeLineEventSelected({
           eventId: this.activeEvent
         });
+
       }
     },
 
