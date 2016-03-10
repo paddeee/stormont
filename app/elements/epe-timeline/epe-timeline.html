@@ -132,7 +132,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           if (timeLineBroadcast.message.type === 'timeLineJSONCreated') {
             this.timeLineJSONUpdated(timeLineBroadcast.timeLineJSONObject);
           } else if (timeLineBroadcast.message.type === 'mapSelectedRecord') {
-            this.mapSelectedRecord(timeLineBroadcast.activeEvent.eventId);
+            this.mapSelectedRecord(timeLineBroadcast);
           }
 
         }.bind(this));
@@ -173,10 +173,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // When an event is selected on the map, select relevant slide on timeline
-    mapSelectedRecord: function(eventId) {
+    mapSelectedRecord: function(timeLineBroadcast) {
 
       // Keep activeEvent property in sync
-      this.activeEvent = eventId.toString();
+      this.activeEvent = timeLineBroadcast.activeEvent.toString();
+
+      if (timeLineBroadcast.activePlace) {
+        this.activePlace = timeLineBroadcast.activePlace.toString();
+      }
 
       if (this.activeEvent === 'noEvent') {
 
@@ -190,8 +194,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         this.noRelatedEvent = false;
 
-        // Navigate to event on Timeline
-        this.goToId(this.activeEvent);
+        if (this.timeLine) {
+
+          // Navigate to event on Timeline
+          this.goToId(this.activeEvent);
+        }
       }
     },
 
@@ -289,7 +296,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Call exportPresentation export action
       this.selectedRecordsActions.timeLineEventSelected({
-        eventId: this.activeEvent
+        eventId: this.activeEvent,
+        placeId: this.activePlace
       });
     },
 
@@ -368,7 +376,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Call timeLineEventSelected export action
         this.selectedRecordsActions.timeLineEventSelected({
-          eventId: this.activeEvent
+          eventId: this.activeEvent,
+          placeId: this.activePlace
         });
       }
     },

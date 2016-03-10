@@ -24,6 +24,7 @@ module.exports = Reflux.createStore({
     } else if (selectedRecordStore.message.type === 'timeLineSelectedRecord') {
 
       this.activeEvent = selectedRecordStore.activeEvent;
+      this.activePlace = selectedRecordStore.activePlace;
 
       this.message = {
         type: 'timeLineSelectedRecord'
@@ -278,6 +279,7 @@ module.exports = Reflux.createStore({
 
       // Assign values
       featureObject.properties.pointOfInterest = true;
+      featureObject.properties.placeId = pointOfInterest['$loki'];
       featureObject.properties.placeInfo = {};
       featureObject.properties.placeInfo.placeName = pointOfInterest['Full Name'];
       featureObject.properties.placeInfo.type = pointOfInterest['Type'];

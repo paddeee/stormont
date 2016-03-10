@@ -211,7 +211,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         var markerIcon = L.AwesomeMarkers.icon({
           icon: 'map-pin',
-          markerColor: 'orange',
+          extraClasses: 'default',
+          //markerColor: 'orange',
           prefix: 'fa'
         });
 
@@ -423,10 +424,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // OBSERVER ON ACTIVEEVENT
       activeEventChanged: function() {
 
-        var $map = this.closest('#LeafletMap');
         var features = this.features;
-        var clusterLayer = this.clusterLayer;
-        var geoJSONLayer = this.geoJSONLayer;
 
         this.activeEventExistsInFeatures = false;
         this.isPointOfInterest = false;
@@ -434,72 +432,101 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         features.forEach(function(feature) {
 
           // If no selected event, close the popup
-          if (this.activeEvent.eventId === '0') {
+          if (this.activeEvent === '0') {
             feature.closePopup();
             return;
           }
 
-          if (this.activeEvent.eventId === 'noEvent') {
-            this.isPointOfInterest = true;
+          if (this.activeEvent === 'noEvent') {
+            this.managePointOfInterest(feature);
           }
 
           // If marker to jump to exists as marker on the map
-          if (this.activeEvent.eventId === feature.feature.properties.id.toString()) {
-
-            // Hide No Locations event card
-            this.fire('toggle-event-card-no-location', {
-              activeEventId: this.activeEvent.eventId,
-              show: false
-            });
-
-            // The active event exists in Map so reset this property
-            this.activeEventExistsInFeatures = true;
-
-            // If a marker
-            if (feature.feature.geometry.type === 'Point') {
-
-              if (clusterLayer.hasLayer(feature)) {
-
-                // Pan and zoom into the cluster or just to a marker if zoomed in enough already
-                clusterLayer.zoomToShowLayer(feature, function () {
-
-                  // Open marker popup
-                  feature.openPopup();
-                });
-              }
-
-              // If a Line or Polygon
-            } else {
-
-              if (geoJSONLayer.hasLayer(feature)) {
-
-                // Pan to feature
-                $map.map.fitBounds(feature.getBounds());
-
-                // Open marker popup
-                if (!feature._popup._isOpen) {
-                  feature.openPopup();
-                }
-              }
-            }
+          if (this.activeEvent === feature.feature.properties.id.toString()) {
+            this.handlePopup(feature);
           }
         }.bind(this));
 
         // The active event doesn't exist in Map so show Event Card for No Location
         if (!this.activeEventExistsInFeatures && !this.isPointOfInterest) {
+          this.manageEventWithoutLocation();
+        }
+      },
 
-          // Close any popups
-          this.features.forEach(function(layer) {
-            if (layer._popup._isOpen) {
-              layer.closePopup();
+      // Handle popups for a Point Of Interest
+      managePointOfInterest: function(feature) {
+
+        this.isPointOfInterest = true;
+
+        // If marker to jump to exists as marker on the map
+        // In async to give this.activePlace chance to update
+        this.async(function() {
+
+          if (this.activePlace && this.activePlace === feature.feature.properties.placeId) {
+            this.handlePopup(feature);
+          }
+        });
+      },
+
+      // Handle popups for a Events without a location
+      manageEventWithoutLocation: function() {
+
+        // Close any popups
+        this.features.forEach(function(layer) {
+          if (layer._popup._isOpen) {
+            layer.closePopup();
+          }
+        });
+
+        // Show event card
+        this.fire('toggle-event-card-no-location', {
+          activeEventId: this.activeEvent,
+          show: true
+        });
+      },
+
+      // Handle opening and closing popups for different types of features
+      handlePopup: function(feature) {
+
+        var $map = this.closest('#LeafletMap');
+        var clusterLayer = this.clusterLayer;
+        var geoJSONLayer = this.geoJSONLayer;
+
+        // Hide No Locations event card
+        this.fire('toggle-event-card-no-location', {
+          activeEventId: this.activeEvent,
+          show: false
+        });
+
+        // The active event exists in Map so reset this property
+        this.activeEventExistsInFeatures = true;
+
+        // If a marker
+        if (feature.feature.geometry.type === 'Point') {
+
+          if (clusterLayer.hasLayer(feature)) {
+
+            // Pan and zoom into the cluster or just to a marker if zoomed in enough already
+            clusterLayer.zoomToShowLayer(feature, function () {
+
+              // Open marker popup
+              feature.openPopup();
+            });
+          }
+
+          // If a Line or Polygon
+        } else {
+
+          if (geoJSONLayer.hasLayer(feature)) {
+
+            // Pan to feature
+            $map.map.fitBounds(feature.getBounds());
+
+            // Open marker popup
+            if (!feature._popup._isOpen) {
+              feature.openPopup();
             }
-          });
-
-          // Show event card
-          this.fire('toggle-event-card-no-location', {
-            activeEventId: this.activeEvent.eventId,
-            show: true
-          });
+          }
         }
       },
 
@@ -511,6 +538,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           // Call mapEventSelected export action
           this.selectedRecordsActions.mapEventSelected({
+            placeId: data.target.feature.properties.placeId,
             eventId: data.target.feature.properties.id
           });
         }
@@ -520,7 +548,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       popUpClosed: function(event) {
 
         if (this.activeEventExistsInFeatures) {
-          if (event.target.feature.properties.id.toString() === this.activeEvent.eventId) {
+          if (event.target.feature.properties.id.toString() === this.activeEvent) {
 
             // No popups so TimeLine needs to know
             this.selectedRecordsActions.mapEventSelected({

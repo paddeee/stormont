@@ -195,6 +195,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                        data="[[geoJSON]]"
                        selected-records-actions="[[selectedRecordsActions]]"
                        active-event="[[activeEvent]]"
+                       active-place="[[activePlace]]"
                        on-toggle-event-card-no-location="toggleEventCardNoLocation">
       </epe-map-geojson>
 
@@ -292,6 +293,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.noneGeoJSONObject = mapBroadcast.noneGeoJSONObject;
           } else if (mapBroadcast.message.type === 'timeLineSelectedRecord') {
             this.activeEvent = mapBroadcast.activeEvent;
+            this.activePlace = mapBroadcast.activePlace;
           }
 
         }.bind(this));
@@ -449,11 +451,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         if (event.detail.show && event.detail.activeEventId !== '0') {
 
-          this.activeEventData = this.noneGeoJSONObject.events.filter(function(eventObject) {
+          eventData = this.noneGeoJSONObject.events.filter(function(eventObject) {
             return eventObject.properties.id.toString() === event.detail.activeEventId;
-          })[0].properties;
+          });
 
-          this.$.EventCard.classList.add('event-card--showing');
+          if (eventData.length) {
+            this.activeEventData = eventData[0].properties;
+            this.$.EventCard.classList.add('event-card--showing');
+          }
+
         } else {
           this.$.EventCard.classList.remove('event-card--showing');
         }

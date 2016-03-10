@@ -84,9 +84,9 @@ module.exports = Reflux.createStore({
   },
 
   // Time Line Event Selected
-  timeLineEventSelected: function(eventId) {
+  timeLineEventSelected: function(eventObject) {
 
-    this.activeEvent = eventId;
+    this.activeEvent = eventObject.eventId;
 
     this.message = {
       type: 'timeLineSelectedRecord'
@@ -96,9 +96,10 @@ module.exports = Reflux.createStore({
   },
 
   // Map Event Selected
-  mapEventSelected: function(eventId) {
+  mapEventSelected: function(eventObject) {
 
-    this.activeEvent = eventId;
+    this.activeEvent = eventObject.eventId;
+    this.activePlace = eventObject.placeId;
 
     this.message = {
       type: 'mapSelectedRecord'

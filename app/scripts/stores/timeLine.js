@@ -26,6 +26,7 @@ module.exports = Reflux.createStore({
     } else if (selectedRecordStore.message.type === 'mapSelectedRecord') {
 
       this.activeEvent = selectedRecordStore.activeEvent;
+      this.activePlace = selectedRecordStore.activePlace;
 
       this.message = {
         type: 'mapSelectedRecord'
