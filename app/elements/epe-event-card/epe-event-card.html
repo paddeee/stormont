@@ -111,7 +111,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-icon-button
           id="EventDetail"
           icon="info"
-          on-tap="showDetail"></paper-icon-button>
+          on-tap="showDetail"
+          hidden$="[[!eventData.eventName]]"></paper-icon-button>
 
         <paper-icon-button
           id="PlaceInfo"

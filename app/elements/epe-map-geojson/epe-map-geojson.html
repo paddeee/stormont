@@ -209,6 +209,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         var marker = new window.L.Marker(latlng);
 
+        var markerIcon = L.AwesomeMarkers.icon({
+          icon: 'map-pin',
+          markerColor: 'orange',
+          prefix: 'fa'
+        });
+
+        marker.setIcon(markerIcon);
+
         // Need to pass an object into leaflet popup so will stringify and parse inside element on the
         // other side.
         var eventData = JSON.stringify(feature.properties);
@@ -342,7 +350,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (pointOfInterest) {
 
           var pointOfInterestMarker = L.AwesomeMarkers.icon({
-            icon: 'coffee',
+            icon: 'info',
             markerColor: 'black',
             prefix: 'fa'
           });
@@ -526,7 +534,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               eventId: '0'
             });
           }
-        }, 100);
+        }, 1000);
       }
     });
   })();
