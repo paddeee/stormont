@@ -281,6 +281,7 @@ module.exports = Reflux.createStore({
       featureObject.geometry = this.getGeometryObject(pointOfInterest);
 
       // Assign values
+      featureObject.properties.pointOfInterest = true;
       featureObject.properties.placeInfo = {};
       featureObject.properties.placeInfo.placeName = pointOfInterest['Full Name'];
       featureObject.properties.placeInfo.type = pointOfInterest['Type'];
@@ -291,7 +292,6 @@ module.exports = Reflux.createStore({
       featureObject.properties.placeInfo.region = pointOfInterest['Region'];
       featureObject.properties.placeInfo.municipality = pointOfInterest['Municipality'];
       featureObject.properties.placeInfo.description = pointOfInterest['Description'];
-      featureObject.properties.placeInfo.pointOfInterest = pointOfInterest['Description'];
 
       geoJSONObject.features.push(featureObject);
     }.bind(this));
