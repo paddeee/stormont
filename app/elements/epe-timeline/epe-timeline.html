@@ -44,6 +44,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <div class="timeline-container layout horizontal">
       <div class="timeline-controls layout vertical  center center-justified">
         <paper-icon-button id="StartButton"
+                           disabled
                            icon="av:fast-rewind"
                            on-tap="goToStart"></paper-icon-button>
         <paper-icon-button id="PreviousButton"
@@ -360,18 +361,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     activeEventChanged: function() {
 
       if (this.timeLineData) {
-
-        if (this.activeEvent === '0' || this.activeEvent === this.firstEventId) {
-          this.$.PreviousButton.disabled = true;
-        } else {
-          this.$.PreviousButton.disabled = false;
-        }
-
-        if (this.activeEvent === this.lastEventId) {
-          this.$.NextButton.disabled = true;
-        } else {
-          this.$.NextButton.disabled = false;
-        }
+        this.manageControlButtonsState();
       }
 
       // Let Map know timeline has changed
@@ -381,6 +371,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           eventId: this.activeEvent,
           placeId: this.activePlace
         });
+      }
+    },
+
+    // Manage the control button state
+    manageControlButtonsState: function() {
+
+      if (this.activeEvent === '0') {
+        this.$.StartButton.disabled = true;
+        this.$.PreviousButton.disabled = true;
+
+      } else {
+
+        if (this.activeEvent === this.firstEventId) {
+          this.$.PreviousButton.disabled = true;
+        } else {
+          this.$.PreviousButton.disabled = false;
+        }
+        this.$.StartButton.disabled = false;
+      }
+
+      if (this.activeEvent === this.lastEventId) {
+        this.$.NextButton.disabled = true;
+      } else {
+        this.$.NextButton.disabled = false;
       }
     },
 
