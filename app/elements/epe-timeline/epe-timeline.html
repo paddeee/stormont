@@ -180,6 +180,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       if (timeLineBroadcast.activePlace) {
         this.activePlace = timeLineBroadcast.activePlace.toString();
+      } else {
+        this.activePlace = '';
       }
 
       if (this.activeEvent === 'noEvent') {
@@ -289,16 +291,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Set to zero if user has tapped TimeLine start button
       if (!this.noRelatedEvent) {
         this.activeEvent = '0';
+
+        // Call exportPresentation export action
+        this.selectedRecordsActions.timeLineEventSelected({
+          eventId: this.activeEvent,
+          placeId: this.activePlace
+        });
       }
 
       this.$.PreviousButton.disabled = true;
       this.timeLine.goToStart();
-
-      // Call exportPresentation export action
-      this.selectedRecordsActions.timeLineEventSelected({
-        eventId: this.activeEvent,
-        placeId: this.activePlace
-      });
     },
 
     // Got to previous event
@@ -372,9 +374,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       }
 
+      // Let Map know timeline has changed
       if (this.activeEvent !== '0') {
 
-        // Call timeLineEventSelected export action
         this.selectedRecordsActions.timeLineEventSelected({
           eventId: this.activeEvent,
           placeId: this.activePlace

@@ -545,14 +545,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       // When a popup is closed
-      popUpClosed: function(event) {
+      popUpClosed: function(data) {
+
+        var openPopups;
 
         if (this.activeEventExistsInFeatures) {
-          if (event.target.feature.properties.id.toString() === this.activeEvent) {
+          if (data.target.feature.properties.id.toString() === this.activeEvent) {
 
-            // No popups so TimeLine needs to know
-            this.selectedRecordsActions.mapEventSelected({
-              eventId: '0'
+            // Give popup closed time to decide if there are now no popups left open and then
+            // let Timeline go back to start. Have to do it this way as data from Leaflet's popUpClosed event says the
+            // popup is open.
+            this.async(function () {
+
+              openPopups = this.features.filter(function (feature) {
+
+                return feature._popup._isOpen === true;
+              }.bind(this));
+
+              if (!openPopups.length) {
+                // No popups so TimeLine needs to know
+                this.selectedRecordsActions.mapEventSelected({
+                  eventId: '0'
+                });
+              }
             });
           }
         }
