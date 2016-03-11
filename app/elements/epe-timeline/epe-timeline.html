@@ -214,6 +214,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.timeLine.on('change', function(eventData) {
         this.selectedTimeLineEventChanged(eventData);
       }.bind(this));
+
+      this.timeLine.on('dataloaded', function(eventData) {
+        console.log('Data loaded');
+      }.bind(this));
     },
 
     // Remove all data and then add each record

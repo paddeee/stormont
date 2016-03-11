@@ -102,9 +102,9 @@ module.exports = Reflux.createStore({
         'minute': moment(selectedEvent[startDateName]).format("mm"),
         'second': moment(selectedEvent[startDateName]).format("ss")
       },
-      "text": {
-        "headline": selectedEvent['Full Name'],
-        "text": selectedEvent['Description']
+      'text': {
+        'headline': selectedEvent['Full Name'],
+        'text': selectedEvent['Description']
       }
     };
 
