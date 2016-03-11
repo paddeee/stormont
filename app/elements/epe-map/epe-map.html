@@ -23,8 +23,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       height: 100%;
     }
 
-    leaflet-map /deep/ .leaflet-top {
+    leaflet-map .leaflet-top {
       z-index: 0;
+    }
+
+    .leaflet-popup .event-card__header {
+      background-color: var(--paper-deep-orange-700);
+      color: var(--text-primary-color);
+    }
+
+    :host .leaflet-popup.point-of-interest .event-card__header {
+      background-color: rgb(47, 47, 47);
     }
 
     .leaflet-control-attribution.leaflet-control {
@@ -46,6 +55,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .leaflet-popup-content {
       margin: 0;
+    }
+
+    .leaflet-popup.point-of-interest .leaflet-popup-tip {
+      background-color: rgb(47, 47, 47);
     }
 
     .leaflet-popup-tip-container {

@@ -237,6 +237,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // other side.
         var eventData = JSON.stringify(feature.properties);
 
+        var popUpClassName = this.getPopupClassName(feature.properties);
+
         this.setFeatureStyle(layer, feature);
 
         layer.bindPopup(`<epe-event-card event-data='${eventData}'></epe-event-card>`, {
@@ -245,7 +247,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             minWidth: 400,
             maxWidth: 400,
             offset: new window.L.point(230, -4),
-            autoPanPadding: new window.L.point(230, 28)
+            autoPanPadding: new window.L.point(230, 28),
+            className: popUpClassName
         });
 
         // Bind click event to marker so we can update TimeLine when a feature is selected
@@ -342,6 +345,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         return stylesObject;
+      },
+
+      // Get clas name to style popup based on different criteria
+      getPopupClassName: function(featureProperties) {
+
+        var className = '';
+
+        if (featureProperties.pointOfInterest) {
+          className = 'point-of-interest';
+        }
+
+        return className;
       },
 
       // Set relevant marker icon
