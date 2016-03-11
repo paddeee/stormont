@@ -99,13 +99,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
   </style>
   <template>
-    <div class="event-card" id="EventCard">
+    <div id="EventCard"
+         class="event-card">
 
       <!-- Header toolbar for event card -->
       <div class="event-card__header layout horizontal center">
 
         <div class="flex">
-          <span>[[eventData.eventName]]</span>
+          <span>[[eventCardTitle]]</span>
         </div>
 
         <paper-icon-button
@@ -299,6 +300,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       slideExitAnimation: {
         type: String,
         value: 'slide-left-animation'
+      },
+
+      eventCardTitle: {
+        type: String,
+        value: ''
       }
     },
 
@@ -480,6 +486,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Needs this check as the eventData is passed into this element at first as a string by the ECMAScript6 template
       if (typeof this.eventData === 'object') {
+
+        if (this.eventData.eventName) {
+          this.eventCardTitle = this.eventData.eventName;
+        } else {
+          this.eventCardTitle = this.eventData.placeInfo.placeName;
+        }
 
         if (this.eventData.relatedPeople.suspects.length || this.eventData.relatedPeople.victims.length || this.eventData.relatedPeople.witnesses.length) {
           this.hidePeopleIcon = false;
