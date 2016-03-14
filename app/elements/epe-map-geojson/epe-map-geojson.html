@@ -86,7 +86,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
          */
         opacity: {
           type: Number,
-          value: 0.5
+          value: 0.85
         },
 
         /**
@@ -109,17 +109,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         fillColor: {
           type: String,
           value: null
-        },
-
-        /**
-         * The attribute `fill-opacity` sets the fill opacity.
-         *
-         * @attribute fill-opacity
-         * @type number
-         */
-        fillOpacity: {
-          type: Number,
-          value: 0.2
         },
 
         /**
@@ -271,33 +260,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Set the style dynamically for a feature
       setFeatureStyle: function(layer, feature) {
 
-        var stylesObject = {};
-
         // Set Style Depending on Geometry Category
         switch (feature.properties.type) {
 
           case 'Murder':
-            stylesObject.color = this.color;
-            stylesObject.weight = this.weight;
-            stylesObject.opacity = this.opacity;
-            stylesObject.fill = this.fill;
-            stylesObject.fillColor = this.fillColor;
-            stylesObject.fillOpacity = this.fillOpacity;
-            stylesObject.dashArray = this.dashArray;
-            stylesObject.lineCap = this.lineCap;
-            stylesObject.lineJoin = this.lineJoin;
+            layer.options.color = this.color;
+            layer.options.weight = this.weight;
+            layer.options.opacity = this.opacity;
+            layer.options.fill = this.fill;
+            layer.options.fillColor = this.fillColor;
+            layer.options.dashArray = this.dashArray;
+            layer.options.lineCap = this.lineCap;
+            layer.options.lineJoin = this.lineJoin;
             break;
 
           case 'Arson':
-            stylesObject.color = '#ff0000';
-            stylesObject.weight = this.weight;
-            stylesObject.opacity = this.opacity;
-            stylesObject.fill = '#ff0000';
-            stylesObject.fillColor = '#ff0000';
-            stylesObject.fillOpacity = this.fillOpacity;
-            stylesObject.dashArray = this.dashArray;
-            stylesObject.lineCap = this.lineCap;
-            stylesObject.lineJoin = this.lineJoin;
+            layer.options.color = 'rgb(246, 151, 48)';
+            layer.options.weight = this.weight;
+            layer.options.opacity = this.opacity;
+            layer.options.fill = 'rgb(246, 151, 48)';
+            layer.options.fillColor = 'rgb(246, 151, 48)';
+            layer.options.dashArray = this.dashArray;
+            layer.options.lineCap = this.lineCap;
+            layer.options.lineJoin = this.lineJoin;
             break;
         }
 
@@ -309,15 +294,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             break;
 
           case 'LineString':
-            stylesObject.fill = false;
+            layer.options.fill = false;
             break;
 
           case 'Polygon':
-            stylesObject.fill = true;
+            layer.options.fill = true;
             break;
         }
-
-        return stylesObject;
       },
 
       // Get clas name to style popup based on different criteria
