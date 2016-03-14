@@ -17,6 +17,30 @@
   display: none !important;
 }
 
+.tl-timemarker-media-container span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.tl-timemarker-media-container span:after {
+  content: "" !important;
+}
+
+.tl-icon-image {
+  background-color: rgb(246, 151, 48);
+}
+
+.tl-icon-youtube {
+  background-color: rgb(214, 62, 42);
+}
+
+.tl-icon-flickr {
+  background-color: rgb(210, 82, 185);
+}
+
 .tl-timeaxis-background {
   background-color: rgb(55, 64, 70);
 }
@@ -25,15 +49,13 @@
 .tl-timemarker:hover .tl-timemarker-content-container {
   box-shadow: none;
   background-color: #03A9F4;
-  border: 1px solid #03A9F4;
+  border: 0 none;
+  opacity: 0.3;
 }
 
 .tl-timemarker.tl-timemarker-active .tl-timemarker-content-container,
 .tl-timemarker.tl-timemarker-active:hover .tl-timemarker-content-container {
-  box-shadow: none;
-  background-color: #E64A19;
-  border: 1px solid #E64A19;
-  color: #FFF;
+  opacity: 1;
 }
 
 .tl-timemarker .tl-timemarker-content-container .tl-timemarker-content .tl-timemarker-text h2.tl-headline {

@@ -212,7 +212,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var markerIcon = L.AwesomeMarkers.icon({
           icon: 'map-pin',
           extraClasses: 'default',
-          //markerColor: 'orange',
           prefix: 'fa'
         });
 
@@ -274,36 +273,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         var stylesObject = {};
 
-        if (feature.properties.pointOfInterest) {
-
-          // Set Style Depending on Geometry Category
-          switch (feature.geometry.type) {
-
-            case 'Point':
-              this.setMarkerIcon(layer, feature, true);
-              break;
-
-            case 'LineString':
-              stylesObject.fill = false;
-              break;
-
-            case 'Polygon':
-              stylesObject.fill = true;
-              break;
-          }
-          // Set custom icons
-          /*if (recordAttr.icon !== undefined) {
-           var eventIcon = L.icon({
-           iconUrl: recordAttr.icon,
-           iconSize:     [100, 20], // size of the icon
-           iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
-           shadowAnchor: [4, 62],  // the same for the shadow
-           popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
-           });
-           marker.setIcon(eventIcon);
-           }*/
-        }
-
         // Set Style Depending on Geometry Category
         switch (feature.properties.type) {
 
@@ -320,11 +289,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             break;
 
           case 'Arson':
-            stylesObject.color = this.color;
+            stylesObject.color = '#ff0000';
             stylesObject.weight = this.weight;
             stylesObject.opacity = this.opacity;
-            stylesObject.fill = this.fill;
-            stylesObject.fillColor = this.fillColor;
+            stylesObject.fill = '#ff0000';
+            stylesObject.fillColor = '#ff0000';
             stylesObject.fillOpacity = this.fillOpacity;
             stylesObject.dashArray = this.dashArray;
             stylesObject.lineCap = this.lineCap;
@@ -334,6 +303,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Set Style Depending on Geometry Category
         switch (feature.geometry.type) {
+
+          case 'Point':
+            this.setMarkerIcon(layer, feature, feature.properties.pointOfInterest, feature.properties.type);
+            break;
 
           case 'LineString':
             stylesObject.fill = false;
@@ -353,7 +326,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var className = '';
 
         if (featureProperties.pointOfInterest) {
-          className = 'point-of-interest';
+          return 'point-of-interest';
+        }
+
+        switch(featureProperties.type) {
+          case 'Kidnapping':
+            className = 'kidnapping';
+            break;
+          case 'Arson':
+            className = 'arson';
+            break;
+          case 'Murder':
+            className = 'murder';
+            break;
+          default:
+            className = '';
         }
 
         return className;
@@ -362,17 +349,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Set relevant marker icon
       setMarkerIcon: function(marker, feature, pointOfInterest, category) {
 
+        var markerToSet = L.AwesomeMarkers.icon({
+          icon: 'info',
+          prefix: 'fa'
+        });
+
         // If point of Interest
         if (pointOfInterest) {
-
-          var pointOfInterestMarker = L.AwesomeMarkers.icon({
-            icon: 'info',
-            markerColor: 'black',
-            prefix: 'fa'
-          });
-
-          marker.setIcon(pointOfInterestMarker);
+          markerToSet.options.markerColor = 'black';
+          marker.setIcon(markerToSet);
+          return;
         }
+
+        switch(category) {
+          case 'Kidnapping':
+            markerToSet.options.markerColor = 'purple';
+            break;
+          case 'Arson':
+            markerToSet.options.markerColor = 'orange';
+            break;
+          case 'Murder':
+            markerToSet.options.markerColor = 'red';
+            break;
+        }
+
+        marker.setIcon(markerToSet);
+        return;
       },
 
       // Fired by Leaflet

@@ -105,6 +105,9 @@ module.exports = Reflux.createStore({
       'text': {
         'headline': selectedEvent['Full Name'],
         'text': selectedEvent['Description']
+      },
+      'media': {
+        'url': this.getUrlFromCategory(selectedEvent['Type'])
       }
     };
 
@@ -132,5 +135,30 @@ module.exports = Reflux.createStore({
 
       timeLineObject.end_date = endDateObject;
     }
+  },
+
+  // Complete hack of TimeLine.js so don't have to change any TimeLine source code
+  // Based on the event category return a mapped URL which TimeLine will use to add a class
+  // to an event on the TimeLine. This can then be used to style an event according to
+  // category
+  getUrlFromCategory: function(category) {
+
+    var url;
+
+    switch(category) {
+      case 'Kidnapping':
+        url = '//www.flickr.com/photos/';
+        break;
+      case 'Arson':
+        url = '/image.jpg';
+        break;
+      case 'Murder':
+        url = '//youtube.com/';
+        break;
+      default:
+        url = '//evidential.com';
+    }
+
+    return url;
   }
 });

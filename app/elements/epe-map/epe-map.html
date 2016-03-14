@@ -27,13 +27,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       z-index: 0;
     }
 
-    .leaflet-popup .event-card__header {
+    .leaflet-marker-pane,
+    .leaflet-popup-pane {
+      opacity: 0.85;
+    }
+
+    .leaflet-popup .event-card__header,
+    .leaflet-popup-tip {
       background-color: var(--paper-deep-orange-700);
       color: var(--text-primary-color);
     }
 
-    :host .leaflet-popup.point-of-interest .event-card__header {
+    :host .leaflet-popup.point-of-interest .event-card__header,
+    .leaflet-popup.point-of-interest .leaflet-popup-tip {
       background-color: rgb(47, 47, 47);
+    }
+
+    :host .leaflet-popup.arson .event-card__header,
+    .leaflet-popup.arson .leaflet-popup-tip {
+      background-color: rgb(246, 151, 48);
+    }
+
+    :host .leaflet-popup.kidnapping .event-card__header,
+    .leaflet-popup.kidnapping .leaflet-popup-tip {
+      background-color: rgb(210, 82, 185);
+    }
+
+    :host .leaflet-popup.murder .event-card__header,
+    .leaflet-popup.murder .leaflet-popup-tip {
+      background-color: rgb(214, 62, 42);
     }
 
     .leaflet-control-attribution.leaflet-control {
@@ -57,20 +79,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       margin: 0;
     }
 
-    .leaflet-popup.point-of-interest .leaflet-popup-tip {
-      background-color: rgb(47, 47, 47);
-    }
-
     .leaflet-popup-tip-container {
       position: absolute;
       left: -30px;
       top: 16px;
       transform: rotate(90deg);
-    }
-
-    .leaflet-popup-tip {
-      background-color: var(--paper-deep-orange-700);
-      color: var(--text-primary-color);
     }
 
     .leaflet-bar a,
