@@ -48,13 +48,14 @@
 .tl-timemarker .tl-timemarker-content-container,
 .tl-timemarker:hover .tl-timemarker-content-container {
   box-shadow: none;
-  background-color: #03A9F4;
+  background-color: #E64A19;
   border: 0 none;
   opacity: 0.3;
 }
 
 .tl-timemarker.tl-timemarker-active .tl-timemarker-content-container,
 .tl-timemarker.tl-timemarker-active:hover .tl-timemarker-content-container {
+  background-color: #E64A19;
   opacity: 1;
 }
 
@@ -63,7 +64,7 @@
 }
 
 .tl-timemarker .tl-timemarker-line-left:after, .tl-timemarker .tl-timemarker-line-right:after {
-  background-color: #03A9F4 !important;
+  background-color: #E64A19 !important;
 }
 
 .tl-timemarker .tl-timemarker-line-left, .tl-timemarker .tl-timemarker-line-right {
@@ -72,7 +73,7 @@
 
 .tl-timemarker.tl-timemarker-active .tl-timemarker-line-left:after, .tl-timemarker.tl-timemarker-active .tl-timemarker-line-right:after,
 .tl-timemarker.tl-timemarker-with-end.tl-timemarker-active .tl-timemarker-line-left:after, .tl-timemarker.tl-timemarker-with-end.tl-timemarker-active .tl-timemarker-line-right:after {
-  background-color: #E64A19 !important;
+  background-color: #FFEB3B !important;
 }
 
 .tl-timemarker:hover .tl-timemarker-timespan .tl-timemarker-line-left:after, .tl-timemarker:hover .tl-timemarker-timespan .tl-timemarker-line-right:after {
