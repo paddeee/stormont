@@ -150,10 +150,10 @@ module.exports = Reflux.createStore({
         url = '//www.flickr.com/photos/';
         break;
       case 'Arson':
-        url = '/image.jpg';
+        url = 'https://en.wikipedia.org/wiki/Evidentiality';
         break;
       case 'Murder':
-        url = '//youtube.com/';
+        url = 'https://twitter.com';
         break;
       default:
         url = '//evidential.com';
