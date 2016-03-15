@@ -563,6 +563,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }.bind(this));
 
               if (!openPopups.length) {
+
+                this.selectedRecordsActions.timeLineEventSelected({
+                  eventId: '0'
+                });
+
                 // No popups so TimeLine needs to know
                 this.selectedRecordsActions.mapEventSelected({
                   eventId: '0'
