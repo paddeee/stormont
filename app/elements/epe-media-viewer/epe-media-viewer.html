@@ -268,7 +268,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // FIRED FROM OBSERVERS ON MEDIAOBJECT AND MEDIATYPE
       setUpMedia: function() {
 
-        if (this.mediaType && this.mediaObject && this.mediaObject.Src) {
+        if (this.mediaType && this.mediaObject && this.mediaObject['Linked File']) {
 
           // Set media titles
           this.mediaName = this.mediaObject.Headline;
@@ -304,7 +304,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           $videoContainer.removeAttribute('hidden');
         }
 
-        this.videoSource = window.appConfig.getSourcePath() + this.mediaObject.Src;
+        this.videoSource = window.appConfig.getSourcePath() + this.mediaObject['Linked File'];
 
         this.videoPlayer = window.videojs(this.$.Video, {
           fluid: this.fluid
@@ -364,11 +364,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Set the src file which needs to be done using a Blob if within packaged app as wavesurfer
         // XHR won't work
         if (this.fs) {
-          this.fs.readFile(window.appConfig.getSourcePath() + this.mediaObject.Src, 'utf-8', function(err, data) {
+          this.fs.readFile(window.appConfig.getSourcePath() + this.mediaObject['Linked File'], 'utf-8', function(err, data) {
             src = new Blob([data], {type : 'audio/mp3'});
           });
         } else {
-          src = window.appConfig.getSourcePath() + this.mediaObject.Src;
+          src = window.appConfig.getSourcePath() + this.mediaObject['Linked File'];
         }
 
         // Create an audio player instance
