@@ -206,16 +206,18 @@ module.exports = Reflux.createStore({
 
     var supportingEventsSource = this.splitStringByCommas(selectedEvent['Supporting Documents']);
     var supportingPlaceSource = this.splitStringByCommas(relatedPlace['Supporting Documents']);
-    var eventsEvidenceArray = featureObject.properties.supportingEvidence.eventsEvidence;
-    var placeEvidenceArray = featureObject.properties.supportingEvidence.placeEvidence;
 
     // Push supporting Events evidence
-    this.arrayToPushTo = eventsEvidenceArray;
-    supportingEventsSource.forEach(this.addSourceObject().bind(this));
+    if (supportingEventsSource) {
+      this.arrayToPushTo = featureObject.properties.supportingEvidence.eventsEvidence;
+      supportingEventsSource.forEach(this.addSourceObject.bind(this));
+    }
 
     // Push supporting Place evidence
-    this.arrayToPushTo = placeEvidenceArray;
-    supportingPlaceSource.forEach(this.addSourceObject().bind(this));
+    if (supportingPlaceSource) {
+      this.arrayToPushTo = featureObject.properties.supportingEvidence.placeEvidence;
+      supportingPlaceSource.forEach(this.addSourceObject.bind(this));
+    }
 
     // Reset
     this.arrayToPushTo = [];

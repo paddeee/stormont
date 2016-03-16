@@ -220,12 +220,12 @@ module.exports = Reflux.createStore({
         return new Promise(function(resolve, reject) {
 
           // Copy each source file to the temp directory
-          fs.copy(sourceFilePath + '/' + sourceFile.Src, tempExportDirectory + '/' + sourceFile.Src, function (err) {
+          fs.copy(sourceFilePath + '/' + sourceFile['Linked File'], tempExportDirectory + '/' + sourceFile['Linked File'], function (err) {
 
             if (err) {
               reject(err);
             } else {
-              console.log(sourceFile.Src + ' copied');
+              console.log(sourceFile['Linked File'] + ' copied');
               resolve();
             }
           });

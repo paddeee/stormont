@@ -7277,7 +7277,7 @@ function webViewerInitialized($pdfViewerElement) {
 
   var queryString = document.location.search.substring(1);
   var params = parseQueryString(queryString);
-  var file = window.appConfig.getSourcePath() + $pdfViewerElement.pdfObject.Src;
+  var file = window.appConfig.getSourcePath() + $pdfViewerElement.pdfObject['Linked File'];
   //var file =  'file' in params ? params.file : DEFAULT_URL;
 
   var fileInput = document.createElement('input');
