@@ -333,7 +333,7 @@ module.exports = Reflux.createStore({
   // Set a property on this store object to indicate the type of file
   setSelectedSourceFileType: function(sourceObject) {
 
-    var filePath = sourceObject.Src;
+    var filePath = sourceObject['Linked File'];
     var fileExtension = filePath.substr(filePath.lastIndexOf('.') + 1);
 
     switch (fileExtension) {
