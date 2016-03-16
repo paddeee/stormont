@@ -98,21 +98,27 @@ module.exports = Reflux.createStore({
           victims: [],
           witnesses: []
         },
-        'supportingEvidence': [{
+        'supportingEvidence': {
           eventsEvidence: [],
           placeEvidence: []
-        }]
+        }
       }
     };
+
+    var relatedPlace = this.selectedPlaces.copy().find({
+      'Short Name': {
+        '$eq': selectedEvent.Place
+      }
+    }).data()[0];
 
     this.addRelatedEventsDataToGeoJSON(featureObject, selectedEvent);
 
     this.addRelatedPeopleDataToGeoJSON(featureObject, selectedEvent);
 
-    this.addRelatedSourceDataToGeoJSON(featureObject, selectedEvent);
+    this.addRelatedSourceDataToGeoJSON(featureObject, selectedEvent, relatedPlace);
 
     // Don't add to GeoJSON if no related place exists
-    if (this.addPlaceDataToGeoJSON(featureObject, selectedEvent)) {
+    if (this.addPlaceDataToGeoJSON(featureObject, selectedEvent, relatedPlace)) {
 
       // Push features onto the GeoJSON Object
       geoJSONObject.features.push(featureObject);
@@ -122,13 +128,7 @@ module.exports = Reflux.createStore({
   },
 
   // Add Place data to the geoJSON Object
-  addPlaceDataToGeoJSON: function(featureObject, selectedEvent) {
-
-    var relatedPlace = this.selectedPlaces.copy().find({
-      'Short Name': {
-        '$eq': selectedEvent.Place
-      }
-    }).data()[0];
+  addPlaceDataToGeoJSON: function(featureObject, selectedEvent, relatedPlace) {
 
     // If the event has no related place selected
     if (relatedPlace) {
@@ -202,8 +202,43 @@ module.exports = Reflux.createStore({
   },
 
   // Add Related Source data to the geoJSON Object
-  addRelatedSourceDataToGeoJSON: function(featureObject, selectedEvent) {
-    // ToDO:
+  addRelatedSourceDataToGeoJSON: function(featureObject, selectedEvent, relatedPlace) {
+
+    var supportingEventsSource = this.splitStringByCommas(selectedEvent['Supporting Documents']);
+    var supportingPlaceSource = this.splitStringByCommas(relatedPlace['Supporting Documents']);
+    var eventsEvidenceArray = featureObject.properties.supportingEvidence.eventsEvidence;
+    var placeEvidenceArray = featureObject.properties.supportingEvidence.placeEvidence;
+
+    // Push supporting Events evidence
+    this.arrayToPushTo = eventsEvidenceArray;
+    supportingEventsSource.forEach(this.addSourceObject().bind(this));
+
+    // Push supporting Place evidence
+    this.arrayToPushTo = placeEvidenceArray;
+    supportingPlaceSource.forEach(this.addSourceObject().bind(this));
+
+    // Reset
+    this.arrayToPushTo = [];
+  },
+
+  // Create and add a Source Object and push onto relevant Supporting Evidence array
+  addSourceObject: function(supportingSource) {
+
+    var shortName = this.getSupportingEvidenceShortname(supportingSource);
+
+    var supportingSourceObject = this.selectedSources.copy().find({
+      'Short Name': {
+        '$eq': shortName
+      }
+    }).data()[0];
+
+    var sourceObject = {};
+    sourceObject.fullName = supportingSource.trim();
+    sourceObject.shortName = shortName;
+    sourceObject.description = this.getSupportingEvidenceDescription(supportingSource);
+    sourceObject.supportingSourceObject = supportingSourceObject;
+
+    this.arrayToPushTo.push(sourceObject);
   },
 
   // Push a person Object onto the relevant array
@@ -293,5 +328,78 @@ module.exports = Reflux.createStore({
 
       geoJSONObject.features.push(featureObject);
     }.bind(this));
+  },
+
+  // Helper to split string by commas not inside parentheses
+  splitStringByCommas: function(input) {
+
+    if (!input) {
+      return;
+    }
+
+    var out = [];
+    var iLen = input.length;
+    var parens = 0;
+    var state = "";
+    var buffer = ""; //using string for simplicity, but an array might be faster
+
+    for(var i=0; i<iLen; i++){
+      if(input[i] == ',' && !parens && !state){
+        out.push(buffer);
+        buffer = "";
+      }else{
+        buffer += input[i];
+      }
+      switch(input[i]){
+        case '(':
+        case '[':
+        case '{':
+          if(!state) parens++;
+          break;
+        case ')':
+        case ']':
+        case '}':
+          if(!state) if(!parens--)
+            throw new SyntaxError("closing paren, but no opening");
+          break;
+        case '"':
+          if(!state) state = '"';
+          else if(state === '"') state = '';
+          break;
+        case "'":
+          if(!state) state = "'";
+          else if(state === "'") state = '';
+          break;
+        case '\\':
+          buffer += input[++i];
+          break;
+      }//end of switch-input
+    }//end of for-input
+    if(state || parens)
+      throw new SyntaxError("unfinished input");
+    out.push(buffer);
+    return out;
+  },
+
+  // Helper to get Shortname part of supporting Evidence
+  getSupportingEvidenceShortname: function(supportingEvidence) {
+
+    var shortNameMatch = supportingEvidence.match(/^[^\(]+/g);
+
+    if (shortNameMatch) {
+      return shortNameMatch[0].trim();
+    }
+    return supportingEvidence;
+  },
+
+  // Helper to get Description part of supporting Evidence
+  getSupportingEvidenceDescription: function(supportingEvidence) {
+
+    var descriptionMatch = supportingEvidence.match(/\(([^)]+)\)/g);
+
+    if (descriptionMatch) {
+      return descriptionMatch[0].trim();
+    }
+    return '';
   }
 });

@@ -158,6 +158,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <div class="event-card__event-detail-description">
                 <span>[[eventData.eventDescription]]</span>
               </div>
+              <div class="event-card__event-source"
+                   hidden$="[[!eventData.supportingEvidence.eventsEvidence.length]]">
+                <h3>Supporting Evidence</h3>
+                <ul>
+                <template is="dom-repeat"
+                          items="[[eventData.supportingEvidence.eventsEvidence]]">
+                  <li on-tap="navigateToSource">
+                    <span class="event-card__name">[[item.shortName]]</span>
+                    <span>[[item.description]]</span>
+                  </li>
+                </template>
+                </ul>
+              </div>
             </div>
           </neon-animatable>
 
@@ -183,6 +196,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <li hidden$="[[!eventData.placeInfo.region]]">Region: <span>[[eventData.placeInfo.region]]</span></li>
                 <li hidden$="[[!eventData.placeInfo.country]]">Country: <span>[[eventData.placeInfo.country]]</span></li>
               </ul>
+              <div class="event-card__event-source"
+                   hidden$="[[!eventData.supportingEvidence.placeEvidence.length]]">
+                <h3>Supporting Evidence</h3>
+                <ul>
+                  <template is="dom-repeat"
+                            items="[[eventData.supportingEvidence.placeEvidence]]">
+                    <li on-tap="navigateToSource">
+                      <span class="event-card__name">[[item.shortName]]</span>
+                      <span>[[item.description]]</span>
+                    </li>
+                  </template>
+                </ul>
+              </div>
             </div>
           </neon-animatable>
 
@@ -325,6 +351,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.async(this.setExpandedOffset);
           }
         }.bind(this));
+      }
+
+      if (this.sourceActions) {
+
+        // Deserialise Stringified sourceActions Object
+        if (typeof this.sourceActions === 'string') {
+          this.sourceActions = JSON.parse(this.sourceActions);
+        }
       }
     },
 
@@ -499,6 +533,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.hidePeopleIcon = true;
         }
       }
+    },
+
+    // Navigate to source File
+    navigateToSource: function(event) {
+
+      var sourceObject = event.model.item.supportingSourceObject;
+      var $map = this.closest('#Map');
+
+      $map.viewSourceFile(sourceObject);
     }
   });
 })();
