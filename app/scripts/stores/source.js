@@ -323,6 +323,9 @@ module.exports = Reflux.createStore({
 
     // Send object out to all listeners
     this.trigger(this);
+
+    // Reset viewingSource property to false
+    this.viewingSource = false;
   },
 
   // Set a property on this store object to indicate current selected source object
