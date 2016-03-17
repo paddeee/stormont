@@ -3,7 +3,6 @@
 var Reflux = require('reflux');
 var config = require('../config/config.js');
 var SelectedRecordsActions = require('../actions/selectedRecords.js');
-var dataSourceStore = require('../stores/dataSource.js');
 var filterStateStore = require('../stores/filterState.js');
 var eventsStore = require('../stores/events.js');
 var placesStore = require('../stores/places.js');

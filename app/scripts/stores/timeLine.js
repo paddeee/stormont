@@ -98,16 +98,16 @@ module.exports = Reflux.createStore({
         'year': moment(selectedEvent[startDateName]).format('YYYY'),
         'month': moment(selectedEvent[startDateName]).format('MM'),
         'day': moment(selectedEvent[startDateName]).format('DD'),
-        'hour': moment(selectedEvent[startDateName]).format("HH"),
-        'minute': moment(selectedEvent[startDateName]).format("mm"),
-        'second': moment(selectedEvent[startDateName]).format("ss")
+        'hour': moment(selectedEvent[startDateName]).format('HH'),
+        'minute': moment(selectedEvent[startDateName]).format('mm'),
+        'second': moment(selectedEvent[startDateName]).format('ss')
       },
       'text': {
         'headline': selectedEvent['Full Name'],
-        'text': selectedEvent['Description']
+        'text': selectedEvent.Description
       },
       'media': {
-        'url': this.getUrlFromCategory(selectedEvent['Type'])
+        'url': this.getUrlFromCategory(selectedEvent.Type)
       }
     };
 

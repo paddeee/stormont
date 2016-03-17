@@ -135,7 +135,7 @@ module.exports = Reflux.createStore({
     var fieldType = {};
 
     // If the field is an input or a select box
-    fieldType['$regex'] = this.getRegexFilterQuery(fieldGroupArray);
+    fieldType.$regex = this.getRegexFilterQuery(fieldGroupArray);
 
     fieldObject[fieldGroupArray[0].fieldName] = fieldType;
 
