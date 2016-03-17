@@ -83,11 +83,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
 
-    <!--
-    <div class="import-location" hidden="{{!packagedApp}}">
-      <input id="importLocation" type="file" nwdirectory/>
-    </div>-->
-
     <div id="DropArea"
          class="drop-area layout horizontal center center-justified"
          on-drop="handleDrop"
@@ -96,17 +91,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <div class="drop-area__text  vertical layout center center-justified"
            invisible$="{{importing}}">
         <p>Drag <span>[[csvType]]</span> CaseMap files here</p>
-        <!--<input type="file"
-               id="files"
-               class="files"
-               name="files[]"
-               on-change="handleFilePick"
-               webkitdirectory>-->
       </div>
 
       <paper-spinner alt="Loading contacts list" active$="[[importing]]"></paper-spinner>
     </div>
-    </div>
+
+    <paper-dialog id="WarningDialog" modal>
+      <h2>Dropped object needs to be a directory</h2>
+      <div>
+        <span>You need to drag and drop a directory of CaseMap files, not individual files.</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
 
   </template>
 </dom-module>
@@ -177,6 +175,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // Reset array
           this.validFiles = [];
           this.sheetsArray = [];
+
           // Fire to parent element
           this.fire('import-failed', importMessage);
         }
@@ -235,7 +234,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }.bind(this));
 
         } else {
-          console.error('Dropped object needs to be a directory');
+          this.importing = false;
+          this.$.WarningDialog.open();
         }
       }
     },
