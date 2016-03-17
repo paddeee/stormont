@@ -89,8 +89,8 @@ module.exports = Reflux.createStore({
       'properties': {
         'id': selectedEvent.$loki,
         'eventName': selectedEvent['Full Name'],
-        'eventDescription': selectedEvent['Description'],
-        'type': selectedEvent['Type'],
+        'eventDescription': selectedEvent.Description,
+        'type': selectedEvent.Type,
         'placeInfo': null,
         'relatedEvents': [],
         'relatedPeople': {
@@ -139,14 +139,14 @@ module.exports = Reflux.createStore({
       // Assign values
       featureObject.properties.placeInfo = {};
       featureObject.properties.placeInfo.placeName = relatedPlace['Full Name'];
-      featureObject.properties.placeInfo.type = relatedPlace['Type'];
-      featureObject.properties.placeInfo.kforArea = relatedPlace['AOR_KFOR'];
-      featureObject.properties.placeInfo.klaArea = relatedPlace['AOR_KLA'];
-      featureObject.properties.placeInfo.kumanavoRegion = relatedPlace['AOR_Kumanovo'];
-      featureObject.properties.placeInfo.country = relatedPlace['Country'];
-      featureObject.properties.placeInfo.region = relatedPlace['Region'];
-      featureObject.properties.placeInfo.municipality = relatedPlace['Municipality'];
-      featureObject.properties.placeInfo.description = relatedPlace['Description'];
+      featureObject.properties.placeInfo.type = relatedPlace.Type;
+      featureObject.properties.placeInfo.kforArea = relatedPlace.AOR_KFOR;
+      featureObject.properties.placeInfo.klaArea = relatedPlace.AOR_KLA;
+      featureObject.properties.placeInfo.kumanavoRegion = relatedPlace.AOR_Kumanovo;
+      featureObject.properties.placeInfo.country = relatedPlace.Country;
+      featureObject.properties.placeInfo.region = relatedPlace.Region;
+      featureObject.properties.placeInfo.municipality = relatedPlace.Municipality;
+      featureObject.properties.placeInfo.description = relatedPlace.Description;
 
       return featureObject;
     } else {
@@ -174,7 +174,7 @@ module.exports = Reflux.createStore({
       var newEventObject = {
         id: eventObject.$loki,
         name: eventObject['Full Name'],
-        description: eventObject['Description']
+        description: eventObject.Description
       };
 
       featureObject.properties.relatedEvents.push(newEventObject);
@@ -209,7 +209,7 @@ module.exports = Reflux.createStore({
 
     // Event may not have related place
     if (relatedPlace) {
-      supportingPlaceSource = this.splitStringByCommas(relatedPlace['Supporting Documents'])
+      supportingPlaceSource = this.splitStringByCommas(relatedPlace['Supporting Documents']);
     }
 
     // Push supporting Events evidence
@@ -262,7 +262,7 @@ module.exports = Reflux.createStore({
       var newObject = {
         id: object.$loki,
         name: object['Full Name'],
-        description: object['Description']
+        description: object.Description
       };
 
       arrayToPushTo.push(newObject);
@@ -321,17 +321,17 @@ module.exports = Reflux.createStore({
 
       // Assign values
       featureObject.properties.pointOfInterest = true;
-      featureObject.properties.placeId = pointOfInterest['$loki'];
+      featureObject.properties.placeId = pointOfInterest.$loki;
       featureObject.properties.placeInfo = {};
       featureObject.properties.placeInfo.placeName = pointOfInterest['Full Name'];
-      featureObject.properties.placeInfo.type = pointOfInterest['Type'];
-      featureObject.properties.placeInfo.kforArea = pointOfInterest['AOR_KFOR'];
-      featureObject.properties.placeInfo.klaArea = pointOfInterest['AOR_KLA'];
-      featureObject.properties.placeInfo.kumanavoRegion = pointOfInterest['AOR_Kumanovo'];
-      featureObject.properties.placeInfo.country = pointOfInterest['Country'];
-      featureObject.properties.placeInfo.region = pointOfInterest['Region'];
-      featureObject.properties.placeInfo.municipality = pointOfInterest['Municipality'];
-      featureObject.properties.placeInfo.description = pointOfInterest['Description'];
+      featureObject.properties.placeInfo.type = pointOfInterest.Type;
+      featureObject.properties.placeInfo.kforArea = pointOfInterest.AOR_KFOR;
+      featureObject.properties.placeInfo.klaArea = pointOfInterest.AOR_KLA;
+      featureObject.properties.placeInfo.kumanavoRegion = pointOfInterest.AOR_Kumanovo;
+      featureObject.properties.placeInfo.country = pointOfInterest.Country;
+      featureObject.properties.placeInfo.region = pointOfInterest.Region;
+      featureObject.properties.placeInfo.municipality = pointOfInterest.Municipality;
+      featureObject.properties.placeInfo.description = pointOfInterest.Description;
 
       geoJSONObject.features.push(featureObject);
     }.bind(this));
@@ -347,44 +347,63 @@ module.exports = Reflux.createStore({
     var out = [];
     var iLen = input.length;
     var parens = 0;
-    var state = "";
-    var buffer = ""; //using string for simplicity, but an array might be faster
+    var state = '';
+    var buffer = ''; //using string for simplicity, but an array might be faster
 
-    for(var i=0; i<iLen; i++){
-      if(input[i] == ',' && !parens && !state){
+    for(var i=0; i<iLen; i++) {
+
+      if (input[i] === ',' && !parens && !state) {
         out.push(buffer);
-        buffer = "";
-      }else{
+        buffer = '';
+      } else {
         buffer += input[i];
       }
-      switch(input[i]){
+      switch(input[i]) {
         case '(':
         case '[':
         case '{':
-          if(!state) parens++;
+          if (!state) {
+            parens++;
+          }
           break;
         case ')':
         case ']':
         case '}':
-          if(!state) if(!parens--)
-            throw new SyntaxError("closing paren, but no opening");
+          if (!state) {
+            if (parens < 1) {
+              throw new SyntaxError('closing paren, but no opening');
+            }
+            parens--;
+          }
           break;
         case '"':
-          if(!state) state = '"';
-          else if(state === '"') state = '';
+          if (!state) {
+            state = '"';
+          }
+          else if (state === '"') {
+            state = '';
+          }
           break;
-        case "'":
-          if(!state) state = "'";
-          else if(state === "'") state = '';
+        case '\'':
+          if (!state) {
+            state = '\'';
+          }
+          else if (state === '\'') {
+            state = '';
+          }
           break;
         case '\\':
           buffer += input[++i];
           break;
       }//end of switch-input
     }//end of for-input
-    if(state || parens)
-      throw new SyntaxError("unfinished input");
+
+    if (state || parens) {
+      throw new SyntaxError('unfinished input');
+    }
+
     out.push(buffer);
+
     return out;
   },
 

@@ -11,7 +11,6 @@ var reflux = require('reflux');
 var moment = require('moment');
 var config = require('./config/config.js');
 var CSVParser = require('./vendor/harb-customised.js');
-var VerEx = require('verbal-expressions');
 var dataSourceActions = require('./actions/dataSource.js');
 var selectedRecordsActions = require('./actions/selectedRecords.js');
 var queryBuilderActions = require('./actions/queryBuilder.js');

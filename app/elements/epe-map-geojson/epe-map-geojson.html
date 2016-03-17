@@ -206,10 +206,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         marker.setIcon(markerIcon);
 
-        // Need to pass an object into leaflet popup so will stringify and parse inside element on the
-        // other side.
-        var eventData = JSON.stringify(feature.properties);
-
         this.clusterLayer.addLayer(marker);
 
         // Add marker to markers array so we can remove these from GeoJSON layer when clustering

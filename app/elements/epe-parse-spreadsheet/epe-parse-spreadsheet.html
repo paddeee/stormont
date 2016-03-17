@@ -220,7 +220,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var items = event.dataTransfer.items;
 
-      for (var i = 0, item; item = items[i]; ++i) {
+      for (var i = 0, item; (item = items[i]); ++i) {
         var entry = item.webkitGetAsEntry();
 
         // Folder? Copy the DirectoryEntry over to our local filesystem.
@@ -265,7 +265,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var reader;
 
       // Create array of only valid files
-      for (i = 0; fileEntry = files[i]; ++i) {
+      for (i = 0; (fileEntry = files[i]); ++i) {
 
         if (this.isCaseMapFile(fileEntry.name)) {
           console.log(fileEntry.name);

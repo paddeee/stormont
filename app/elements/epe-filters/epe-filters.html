@@ -645,7 +645,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // If no data field has been selected
         else if (!this.$.AddFieldList.selectedItem) {
           valid = false;
-          this.invalidFilterMessage = 'Please select a field to search on.'
+          this.invalidFilterMessage = 'Please select a field to search on.';
           this.$.AddField.invalid = true;
         }
 
@@ -658,10 +658,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // If filter to be added is valid
         if (this.filterValidate()) {
 
-          var item = JSON.parse(this.$.AddFieldList.selectedItem.getAttribute("value"));
+          var item = JSON.parse(this.$.AddFieldList.selectedItem.getAttribute('value'));
 
           var filterObject = {
-            collectionName: this.$.AddFilterDataTypeList.selectedItem.getAttribute("value"),
+            collectionName: this.$.AddFilterDataTypeList.selectedItem.getAttribute('value'),
             collectionDisplayName: this.$.AddFilterDataTypeList.selectedItem.innerText.trim(),
             fieldName: item.name,
             filter: item.filter,
@@ -726,7 +726,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (value) {
           return this.toArray(value)[0].value.split(' ')[1];
         } else {
-          return '00:00:00'
+          return '00:00:00';
         }
       },
 

@@ -9,6 +9,7 @@
   "immed": true,
   "indent": 2,
   "latedef": true,
+  "loopfunc": true,
   "noarg": true,
   "quotmark": "single",
   "undef": true,
@@ -20,6 +21,9 @@
     "Platform": true,
     "page": true,
     "app": true,
-    "XLSX": true
+    "XLSX": true,
+    "_": true,
+    "L": true,
+    "TL": true
   }
 }
