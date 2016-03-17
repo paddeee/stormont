@@ -204,8 +204,13 @@ module.exports = Reflux.createStore({
   // Add Related Source data to the geoJSON Object
   addRelatedSourceDataToGeoJSON: function(featureObject, selectedEvent, relatedPlace) {
 
-    var supportingEventsSource = this.splitStringByCommas(selectedEvent['Supporting Documents']);
-    var supportingPlaceSource = this.splitStringByCommas(relatedPlace['Supporting Documents']);
+    var supportingEventsSource = this.splitStringByCommas(selectedEvent['Supporting Documents'].toString());
+    var supportingPlaceSource;
+
+    // Event may not have related place
+    if (relatedPlace) {
+      supportingPlaceSource = this.splitStringByCommas(relatedPlace['Supporting Documents'])
+    }
 
     // Push supporting Events evidence
     if (supportingEventsSource) {
