@@ -58,9 +58,9 @@ module.exports = Reflux.createStore({
     return new Promise(function (resolve, reject) {
 
       // In browser
-      if (!ldap) {
+      //if (!ldap) {
         resolve(userLoginObject);
-      }
+      //}
 
       var client = ldap.createClient({
         url: 'ldap://ldap.forumsys.com:389'

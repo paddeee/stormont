@@ -360,6 +360,10 @@ module.exports = Reflux.createStore({
         this.selectedSourceRoute = 'image';
         this.selectedSourceFileType = 'image';
         break;
+      case 'm4a':
+        this.selectedSourceRoute = 'media';
+        this.selectedSourceFileType = 'audio';
+        break;
       case 'mp3':
         this.selectedSourceRoute = 'media';
         this.selectedSourceFileType = 'audio';

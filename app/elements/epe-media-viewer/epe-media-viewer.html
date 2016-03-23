@@ -50,7 +50,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .media-name {
-      padding: 0 2vw 2vh;
+      padding: 2vh 2vw;
       font-size: 2.5vh;
       color: var(--text-primary-color);
     }
@@ -364,12 +364,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Set the src file which needs to be done using a Blob if within packaged app as wavesurfer
         // XHR won't work
         if (this.fs) {
-          this.fs.readFile(window.appConfig.getSourcePath() + this.mediaObject['Linked File'], 'utf-8', function(err, data) {
+
+          this.fs.readFile(window.appConfig.getSourcePath() + this.mediaObject['Linked File'], function(err, data) {
+
             src = new Blob([data], {type : 'audio/mp3'});
-          });
+
+            this.initialiseWaveSurfer($audioElement, src);
+
+          }.bind(this));
+
         } else {
+
           src = window.appConfig.getSourcePath() + this.mediaObject['Linked File'];
+
+          this.initialiseWaveSurfer($audioElement, src);
         }
+      },
+
+      // Initialise Player using WaveSurfer Plugin
+      initialiseWaveSurfer: function($audioElement, src) {
 
         // Create an audio player instance
         this.audioPlayer = window.videojs($audioElement, {
