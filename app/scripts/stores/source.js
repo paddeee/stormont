@@ -388,6 +388,14 @@ module.exports = Reflux.createStore({
         this.selectedSourceRoute = 'media';
         this.selectedSourceFileType = 'video';
         break;
+      case 'tif':
+        this.selectedSourceRoute = 'tiff';
+        this.selectedSourceFileType = 'tiff';
+        break;
+      case 'tiff':
+        this.selectedSourceRoute = 'tiff';
+        this.selectedSourceFileType = 'tiff';
+        break;
       default:
         console.warn(fileExtension + 'not a supported type');
     }

@@ -65,6 +65,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           presentation-state="[[presentationState]]"></epe-image-viewer>
       </section>
 
+      <!-- Tiff Viewer Section -->
+      <section data-route="tiff" class="fit">
+        <epe-tiff-viewer
+          class="viewer-element fit layout horizontal center-justified"
+          tiff-object="[[selectedSourceObject]]"
+          edit-state="[[editState]]"
+          presentation-state="[[presentationState]]"></epe-tiff-viewer>
+      </section>
+
     </iron-pages>
   </template>
 </dom-module>

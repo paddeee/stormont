@@ -1,0 +1,260 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="epe-tiff-viewer">
+  <style>
+    :host {
+      display: block;
+    }
+
+    .image__container {
+      overflow: auto;
+      position: absolute;
+      top: 4px;
+      right: 0;
+      bottom: 7vh;
+      left: 0;
+    }
+
+    .image__content {
+      box-sizing: border-box;
+      height: 80vh;
+      width: 100vw;
+      padding: 4vh 4vw;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+
+    paper-material {
+      background-color: var(--primary-background-color);
+      height: 100%;
+      width: 100%;
+      transition: height 0.5s ease;
+      transition: width 0.5s ease;
+    }
+
+    .loading-mask {
+      background-color: var(--primary-background-color);
+      height: 100%;
+    }
+
+    .image-name {
+      padding: 0 2vw 2vh;
+      font-size: 2.5vh;
+      color: var(--text-primary-color);
+    }
+
+    .image-description {
+      padding: 2vh 2vw;
+      font-size: 1.8vh;
+      color: var(--text-primary-color);
+    }
+
+    .image {
+      height: 100%;
+      width: 100%;
+    }
+
+    .image__footer {
+      background: rgb(55, 64, 70);
+      color: var(--text-primary-color);
+      padding: 8px 4vw;
+      font-size: 2vh;
+      height: 5vh;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+
+    .image_button-holder {
+      padding: 0 1vw;
+    }
+
+    .border-right {
+      border-right: 1px solid var(--divider-color);
+    }
+
+    .add-text {
+      font-size: 20px;
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    .highlight-text {
+      border: 1px solid var(--text-primary-color);
+      cursor: pointer;
+      padding: 3px 8px;
+      margin: 0 8px;
+    }
+
+    paper-tooltip {
+      --paper-tooltip-background: var(--primary-background-color);
+      --paper-tooltip-text-color: var(--primary-text-color);
+    }
+
+    .selected-icon {
+      border-color: var(--default-primary-color);
+      color: var(--default-primary-color);
+    }
+  </style>
+
+  <script src="../../scripts/vendor/tiff/tiff.min.js"></script>
+
+  <template>
+
+    <!-- Image Container -->
+    <div id="ImageContainer"
+         class="image__container layout vertical center center-justified">
+
+      <!-- Image Content -->
+      <div id="ImageContent"
+           class="image__content layout vertical center flex">
+
+        <!-- Headline -->
+        <div class="image-name">[[imageName]]</div>
+
+        <!-- Image Card -->
+        <paper-material id="ImageCard" elevation="5" on-track="imageDragged">
+
+          <!-- Loading Mask -->
+          <div id="LoadingMask" class="loading-mask layout horizontal center center-justified">
+            <paper-spinner alt="Loading Media" active$="[[loadingImage]]"></paper-spinner>
+          </div>
+
+          <!-- Annotation Layer -->
+          <epe-annotations
+            id="TiffAnnotations"
+            annotation-type="image"
+            annotation-height="{{annotationHeight}}"
+            annotation-width="{{annotationWidth}}"
+            zoomLevel="{{zoomLevel}}">
+
+            <!-- Image -->
+            <div id="TiffContainer"
+                 class="image"
+                 alt="[[headline]]"
+                 hidden
+                 drag-mode$="[[dragMode]]"/>
+          </epe-annotations>
+
+        </paper-material>
+
+        <!-- Description -->
+        <div class="image-description">[[imageDescription]]</div>
+
+      </div>
+
+      <!-- Image Footer -->
+      <div class="image__footer relative horizontal layout center center-justified">
+
+        <!-- Zoom -->
+        <div class="image_button-holder  border-right">
+          <paper-icon-button id="ZoomOut" icon="zoom-out" on-tap="zoomOut" disabled></paper-icon-button>
+          <paper-icon-button id="ZoomIn" icon="zoom-in" on-tap="zoomIn"></paper-icon-button>
+        </div>
+
+        <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
+        <paper-tooltip for="ZoomOut" position="top" offset="0">Zoom Out</paper-tooltip>
+        <paper-tooltip for="ZoomIn" position="top" offset="0">Zoom In</paper-tooltip>
+
+        <!-- Annotations -->
+        <div class="image_button-holder border-right horizontal layout center">
+          <paper-icon-button id="SelectAnnotations" icon="open-with" on-tap="selectAnnotations"></paper-icon-button>
+          <paper-icon-button id="FreeDraw" icon="gesture" on-tap="freeDraw"></paper-icon-button>
+          <paper-icon-button id="AddCircle" icon="image:panorama-fish-eye" on-tap="addCircle"></paper-icon-button>
+          <paper-icon-button id="AddRect" icon="image:crop-landscape" on-tap="addRect"></paper-icon-button>
+          <div id="AddText" class="add-text" on-tap="addText">T</div>
+          <div id="HighlightText" class="highlight-text" on-tap="highlightText">T</div>
+          <paper-icon-button id="AddLine" icon="icons:remove" on-tap="addLine"></paper-icon-button>
+          <paper-icon-button id="AddPolygon" icon="image:panorama-horizontal" on-tap="addPolygon" hidden></paper-icon-button>
+        </div>
+
+        <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
+        <paper-tooltip for="SelectAnnotations" position="top" offset="0">Select Annotations</paper-tooltip>
+        <paper-tooltip for="FreeDraw" position="top" offset="0">Free Draw</paper-tooltip>
+        <paper-tooltip for="AddCircle" position="top" offset="0">Add Circle</paper-tooltip>
+        <paper-tooltip for="AddRect" position="top" offset="0">Add Rectangle</paper-tooltip>
+        <paper-tooltip for="AddText" position="top" offset="0">Add Text</paper-tooltip>
+        <paper-tooltip for="HighlightText" position="top" offset="0">Highlight Text</paper-tooltip>
+        <paper-tooltip for="AddLine" position="top" offset="0">Add Line</paper-tooltip>
+        <paper-tooltip for="AddPolygon" position="top" offset="0">Add Polygon</paper-tooltip>
+
+        <!-- Delete -->
+        <div class="image_button-holder horizontal layout center end-justified">
+          <paper-icon-button id="DeleteAnnotation" icon="delete" on-tap="deleteAnnotation"></paper-icon-button>
+        </div>
+
+        <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
+        <paper-tooltip for="DeleteAnnotation" position="top" offset="0">Delete Selected Annotations</paper-tooltip>
+      </div>
+
+    </div>
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+    is: 'epe-tiff-viewer',
+
+    properties: {
+
+      tiffObject: {
+        type: Object,
+        value: null,
+        observer: 'setUpTiff'
+      }
+    },
+
+    // Convert Tiff to canvas
+    setUpTiff: function() {
+
+      var tiffPath;
+      var xhr;
+
+      if (this.tiffObject && window.appConfig.getSourcePath() + this.tiffObject['Linked File']) {
+
+        tiffPath = window.appConfig.getSourcePath() + this.tiffObject['Linked File'];
+
+        xhr = new XMLHttpRequest();
+
+        xhr.responseType = 'arraybuffer';
+
+        xhr.open('GET', tiffPath);
+
+        xhr.onload = function () {
+
+          var canvas;
+
+          var tiff = new Tiff({
+            buffer: xhr.response
+          });
+
+          for (var i = 0, len = tiff.countDirectory(); i < len; ++i) {
+
+            tiff.setDirectory(i);
+
+            canvas = tiff.toCanvas();
+
+            this.$.TiffContainer.appendChild(canvas);
+          }
+
+          this.$.TiffContainer.hidden = false;
+
+        }.bind(this);
+
+        xhr.send();
+      }
+    },
+  });
+})();
+</script>
