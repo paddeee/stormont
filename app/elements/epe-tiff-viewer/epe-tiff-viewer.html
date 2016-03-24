@@ -221,7 +221,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var tiffPath;
       var xhr;
 
-      if (this.tiffObject && window.appConfig.getSourcePath() + this.tiffObject['Linked File']) {
+      if (this.tiffObject && this.selectedSourceFileType === 'tiff') {
 
         tiffPath = window.appConfig.getSourcePath() + this.tiffObject['Linked File'];
 
