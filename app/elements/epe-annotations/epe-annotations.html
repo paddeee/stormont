@@ -181,7 +181,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // because of shady DOM we have to assign the canvas a random ID otherwise fabric.js
         // finds only the first occurrence
-        var elem = this.querySelector('canvas');
+        var elem = this.querySelector('#Canvas');
         elem.id = Math.random();
 
         this.canvas = new window.fabric.Canvas(elem.id);

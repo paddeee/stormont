@@ -59,9 +59,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       color: var(--text-primary-color);
     }
 
-    .image {
-      height: 100%;
-      width: 100%;
+    .tiff-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
     }
 
     .image__footer {
@@ -112,40 +113,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <template>
 
-    <!-- Image Container -->
-    <div id="ImageContainer"
+    <!-- Tiff Wrapper -->
+    <div id="TiffWrapper"
          class="image__container layout vertical center center-justified">
 
-      <!-- Image Content -->
-      <div id="ImageContent"
+      <!-- Tiff Content -->
+      <div id="TiffContent"
            class="image__content layout vertical center flex">
 
         <!-- Headline -->
         <div class="image-name">[[imageName]]</div>
 
         <!-- Image Card -->
-        <paper-material id="ImageCard" elevation="5" on-track="imageDragged">
+        <paper-material id="TiffCard"
+                        elevation="5"
+                        on-track="imageDragged">
+
+          <div id="TiffContainer" hidden></div>
 
           <!-- Loading Mask -->
           <div id="LoadingMask" class="loading-mask layout horizontal center center-justified">
             <paper-spinner alt="Loading Media" active$="[[loadingImage]]"></paper-spinner>
           </div>
-
-          <!-- Annotation Layer -->
-          <epe-annotations
-            id="TiffAnnotations"
-            annotation-type="image"
-            annotation-height="{{annotationHeight}}"
-            annotation-width="{{annotationWidth}}"
-            zoomLevel="{{zoomLevel}}">
-
-            <!-- Image -->
-            <div id="TiffContainer"
-                 class="image"
-                 alt="[[headline]]"
-                 hidden
-                 drag-mode$="[[dragMode]]"/>
-          </epe-annotations>
 
         </paper-material>
 
@@ -157,15 +146,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <!-- Image Footer -->
       <div class="image__footer relative horizontal layout center center-justified">
 
-        <!-- Zoom -->
+        <!-- Zoom
         <div class="image_button-holder  border-right">
           <paper-icon-button id="ZoomOut" icon="zoom-out" on-tap="zoomOut" disabled></paper-icon-button>
           <paper-icon-button id="ZoomIn" icon="zoom-in" on-tap="zoomIn"></paper-icon-button>
-        </div>
+        </div>-->
 
-        <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
+        <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it
         <paper-tooltip for="ZoomOut" position="top" offset="0">Zoom Out</paper-tooltip>
-        <paper-tooltip for="ZoomIn" position="top" offset="0">Zoom In</paper-tooltip>
+        <paper-tooltip for="ZoomIn" position="top" offset="0">Zoom In</paper-tooltip>-->
 
         <!-- Annotations -->
         <div class="image_button-holder border-right horizontal layout center">
@@ -190,12 +179,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-tooltip for="AddPolygon" position="top" offset="0">Add Polygon</paper-tooltip>
 
         <!-- Delete -->
-        <div class="image_button-holder horizontal layout center end-justified">
+        <div class="image_button-holder border-right horizontal layout center end-justified">
           <paper-icon-button id="DeleteAnnotation" icon="delete" on-tap="deleteAnnotation"></paper-icon-button>
         </div>
 
         <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
         <paper-tooltip for="DeleteAnnotation" position="top" offset="0">Delete Selected Annotations</paper-tooltip>
+
+        <!-- Navigate through multipart Tiffs -->
+        <div id="TiffNavigation" class="image_button-holder horizontal layout center end-justified" hidden>
+          <paper-icon-button id="Previous" icon="arrow-back" on-tap="showPreviousTiff" disabled></paper-icon-button>
+          <paper-icon-button id="Next" icon="arrow-forward" on-tap="showNextTiff"></paper-icon-button>
+        </div>
+
+        <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
+        <paper-tooltip for="Previous" position="top" offset="0">Show Previous Part of Tiff</paper-tooltip>
+        <paper-tooltip for="Next" position="top" offset="0">Show Next Part of Tiff</paper-tooltip>
+
       </div>
 
     </div>
@@ -208,11 +208,60 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     properties: {
 
+      loadingImage: {
+        type: Boolean,
+        value: true
+      },
+
       tiffObject: {
         type: Object,
         value: null,
         observer: 'setUpTiff'
+      },
+
+      tiffPages: {
+        type: Array,
+        value: []
+      },
+
+      currentTiffPage: {
+        type: Number,
+        value: 1
+      },
+
+      annotationHeight: {
+        type: Number,
+        value: 0
+      },
+
+      annotationWidth: {
+        type: Number,
+        value: 0
+      },
+
+      zoomLevel: {
+        type: Number,
+        value: 1
+      },
+
+      dragMode: {
+        type: Boolean,
+        value: false
+      },
+
+      imageX: {
+        type: Number,
+        value: 0
+      },
+
+      imageY: {
+        type: Number,
+        value: 0
       }
+    },
+
+    ready: function() {
+      this.scopeSubtree(this.$.TiffCard, true);
     },
 
     // Convert Tiff to canvas
@@ -222,6 +271,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var xhr;
 
       if (this.tiffObject && this.selectedSourceFileType === 'tiff') {
+
+        // Remove Existing tiffs from the DOM
+        while (this.$.TiffContainer.firstChild) {
+          this.$.TiffContainer.removeChild(this.$.TiffContainer.firstChild);
+        }
+
+        // Reset tiff page array
+        this.tiffPages = [];
+
+        // Reste current tiff page
+        this.currentTiffPage = 1;
 
         tiffPath = window.appConfig.getSourcePath() + this.tiffObject['Linked File'];
 
@@ -239,22 +299,300 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             buffer: xhr.response
           });
 
-          for (var i = 0, len = tiff.countDirectory(); i < len; ++i) {
+          // If multipart tiff show navigation icons
+          if (tiff.countDirectory() > 1) {
+            this.$.TiffNavigation.hidden = false;
+          }
+
+          for (var i = 0, length = tiff.countDirectory(); i < length; ++i) {
 
             tiff.setDirectory(i);
 
             canvas = tiff.toCanvas();
 
-            this.$.TiffContainer.appendChild(canvas);
-          }
+            canvas.classList.add('tiff-canvas');
 
-          this.$.TiffContainer.hidden = false;
+            this.tiffPages.push(canvas);
+
+            this.addTiffToView(canvas, i + 1);
+          }
 
         }.bind(this);
 
         xhr.send();
       }
     },
+
+    // Add Tiff page to view
+    addTiffToView: function(canvas, tiffId) {
+
+      var pageNumber = this.currentTiffPage;
+      var $epeAnnotations;
+
+      // Prevent two annotation elements being inserted into each page
+      if (this.editState === this.presentationState) {
+
+        // Create new epe-annotations element
+        $epeAnnotations = document.createElement('epe-annotations');
+
+        // Set id to match page number that has just rendered
+        $epeAnnotations.id = 'TiffAnnotations' + tiffId;
+
+        // Don't change class name to pdf-annotations instead of pdfannotations. No idea why but anything with annotations in class
+        // name doesn't pick up the styles. Maybe a Polymer thing?
+        $epeAnnotations.classList.add('tiffannotations');
+
+        // Pass in annotation type as Tiff
+        $epeAnnotations.annotationType = 'tiff';
+
+        // Set size of canvas based off size of Tiff page
+        $epeAnnotations.annotationHeight = canvas.height;
+        $epeAnnotations.annotationWidth = canvas.width;
+
+        // Show first tiff by default
+        if (tiffId === 1) {
+          $epeAnnotations.hidden = false;
+        } else {
+          $epeAnnotations.hidden = true;
+        }
+
+        //$epeAnnotations.appendChild(canvas);
+        $epeAnnotations.insertBefore(canvas, $epeAnnotations.querySelector('#AnnotationsEditor'));
+
+        // Append epe-annotation element to the DOM
+        this.$.TiffContainer.appendChild($epeAnnotations);
+
+        // Need to manually call setCanvasDimensions method of epe-annotations element as not sure
+        // observers work with dynamically created elements.
+        // Call after element has been added to the DOM so the 'attached' method will have been called.
+        $epeAnnotations.setCanvasDimensions();
+
+        this.resizeTiffContainer(canvas);
+
+        // Set canvas zoom to same as current scale
+        //$epeAnnotations.zoom(window.PDFViewerApplication.pdfViewer.currentScale);/
+
+        // Remove Loading mask
+        this.async(function() {
+          this.loadingImage = false;
+          this.$.TiffContainer.hidden = false;
+          this.$.LoadingMask.hidden = true;
+        }, 500);
+      }
+    },
+
+    // Resize the tiff container to the size of the bitmap canvas
+    resizeTiffContainer: function($canvas) {
+
+      var bottom;
+      var $containerWidth;
+      var $containerHeight;
+      var canvasRatio;
+      var containerPaddingTop;
+      var containerPaddingRight;
+      var containerPaddingBottom;
+      var containerPaddingLeft;
+      var actualContainerWidth;
+      var actualContainerHeight;
+
+      // Resize event can be triggered by other unrelated parts of the application such as Leaflet Map or iron-resize
+      // If this method hasn't been called by the tiff load or event or a window resize event, do nothing
+      if ((event.srcElement.document && event.srcElement.location) || event.type === 'load') {
+
+        /*if (!this.$ || !this.$.Image || !this.$.Image.height) {
+          return;
+        }*/
+
+        if (this.editState === this.presentationState) {
+
+          $containerWidth = $canvas.width;
+          $containerHeight = $canvas.height;
+          canvasRatio = $containerWidth / $containerHeight;
+
+          // Take footer into account
+          bottom = parseInt(getComputedStyle(this.$.TiffWrapper).getPropertyValue('bottom'), 10);
+
+          // Container values
+          containerPaddingTop = parseInt(getComputedStyle(this.$.TiffContent).getPropertyValue('padding-top'), 10);
+          containerPaddingRight = parseInt(getComputedStyle(this.$.TiffContent).getPropertyValue('padding-right'), 10);
+          containerPaddingBottom = parseInt(getComputedStyle(this.$.TiffContent).getPropertyValue('padding-bottom'), 10);
+          containerPaddingLeft = parseInt(getComputedStyle(this.$.TiffContent).getPropertyValue('padding-left'), 10);
+          actualContainerWidth = this.$.TiffContent.clientWidth - containerPaddingLeft - containerPaddingRight;
+          actualContainerHeight = this.$.TiffContent.clientHeight - containerPaddingTop - containerPaddingBottom - bottom;
+
+          // Landscape Tiff
+          if (canvasRatio >= 1) {
+
+            // If the canvas width is wider than the container, set it to the size of the container
+            // and the height to the container width * imageRatio
+            if ($containerWidth > actualContainerWidth) {
+              $containerWidth = actualContainerWidth;
+              $containerHeight = $containerWidth / canvasRatio;
+            }
+
+            // If the image height is taller than the container, set it to the size of the container
+            // and the width to the container height * imageRatio
+            if ($containerHeight > actualContainerHeight) {
+              $containerHeight = actualContainerHeight;
+              $containerWidth = $containerHeight * canvasRatio;
+            }
+
+            // Portrait Tiff
+          } else {
+
+            // If the image height is taller than the container, set it to the size of the container
+            // and the width to the container height * imageRatio
+            if ($containerHeight > actualContainerHeight) {
+              $containerHeight = actualContainerHeight;
+              $containerWidth = $containerHeight * canvasRatio;
+            }
+          }
+
+          this.$.TiffCard.style.height = Math.round($containerHeight) + 'px';
+          this.$.TiffCard.style.width = Math.round($containerWidth) + 'px';
+        }
+      }
+    },
+
+    // Free draw annotation
+    freeDraw: function(event) {
+
+      this.dragMode = false;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
+
+      this.$$('#TiffAnnotations' + this.currentTiffPage).freeDraw();
+    },
+
+    // Go into canvas selection mode
+    selectAnnotations: function(event) {
+
+      this.dragMode = false;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
+
+      this.$$('#TiffAnnotations' + this.currentTiffPage).selectAnnotations();
+    },
+
+    // Add circle annotation
+    addCircle: function(event) {
+
+      this.dragMode = false;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
+
+      this.$$('#TiffAnnotations' + this.currentTiffPage).addCircle();
+    },
+
+    // Add rectangle annotation
+    addRect: function(event) {
+
+      this.dragMode = false;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
+
+      this.$$('#TiffAnnotations' + this.currentTiffPage).addRect();
+    },
+
+    // Add text
+    addText: function(event) {
+
+      this.dragMode = false;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
+
+      this.$$('#TiffAnnotations' + this.currentTiffPage).addText();
+    },
+
+    // Highlight text
+    highlightText: function(event) {
+
+      this.dragMode = false;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
+
+      this.$$('#TiffAnnotations' + this.currentTiffPage).highlightText();
+    },
+
+    // Add a line
+    addLine: function(event) {
+
+      this.dragMode = false;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
+
+      this.$$('#TiffAnnotations' + this.currentTiffPage).addLine();
+    },
+
+    // Deleste selected annotation
+    deleteAnnotation: function(event) {
+
+      this.dragMode = false;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
+
+      this.$$('#TiffAnnotations' + this.currentTiffPage).deleteAnnotation();
+    },
+
+    // Manage the 'selected' class on buttons
+    manageSelectedButtonClass: function($button) {
+
+      // Remove 'selected-icon' class from everywhere
+      this.querySelectorAll('.selected-icon').forEach(function($selectedButton) {
+        $selectedButton.classList.remove('selected-icon');
+      });
+
+      // Add it to this button
+      $button.classList.add('selected-icon');
+    },
+
+    // Show Previous Tiff
+    showPreviousTiff: function() {
+
+      this.$$('#TiffAnnotations' + this.currentTiffPage).hidden = true;
+
+      this.currentTiffPage = this.currentTiffPage - 1;
+
+      this.$$('#TiffAnnotations' + this.currentTiffPage).hidden = false;;
+
+      this.manageTiffNavigationButtons();
+    },
+
+    // Show Next Tiff
+    showNextTiff: function() {
+
+      this.$$('#TiffAnnotations' + this.currentTiffPage).hidden = true;
+
+      this.currentTiffPage = this.currentTiffPage + 1;
+
+      this.$$('#TiffAnnotations' + this.currentTiffPage).hidden = false;
+
+      this.manageTiffNavigationButtons();
+    },
+
+    // Manage the navigation button states
+    manageTiffNavigationButtons: function() {
+
+      if (this.currentTiffPage === 1) {
+        this.$.Previous.disabled = true;
+      } else {
+        this.$.Previous.disabled = false;
+      }
+
+      if (this.currentTiffPage === this.tiffPages.length) {
+        this.$.Next.disabled = true;
+      } else {
+        this.$.Next.disabled = false;
+      }
+    }
   });
 })();
 </script>

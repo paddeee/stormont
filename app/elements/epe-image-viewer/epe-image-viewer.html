@@ -25,11 +25,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       left: 0;
     }
 
-    .image-annotations {
-      height: 100%;
-      width: 100%;
-    }
-
     .image__content {
       box-sizing: border-box;
       height: 80vh;
@@ -136,7 +131,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <!-- Annotation Layer -->
           <epe-annotations
             id="ImageAnnotations"
-            class="image-annotations"
             annotation-type="image"
             annotation-height="{{annotationHeight}}"
             annotation-width="{{annotationWidth}}"
@@ -291,7 +285,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       $image.addEventListener('load', function () {
 
         // Resize the paper-material element to size of the image
-        this.resizeImageContainer($image.naturalWidth, $image.naturalHeight);
+        this.resizeImageContainer();
 
         // Reset Image
         this.resetImage();
