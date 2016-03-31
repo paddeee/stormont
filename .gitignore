@@ -1,4 +1,5 @@
 node_modules
+testmedia
 dist
 bower_components
 .tmp
