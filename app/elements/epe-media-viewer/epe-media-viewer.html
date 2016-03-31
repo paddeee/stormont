@@ -15,7 +15,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <style>
     :host {
       display: block;
-      height: calc(100% + 10vh);
     }
 
     canvas {
@@ -50,13 +49,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .media-name {
-      padding: 2vh 2vw;
+      padding: 2vh 2vw 0;
       font-size: 2.5vh;
       color: var(--text-primary-color);
     }
 
     .media-description {
-      padding: 0 2vw 2vh;
+      padding: 2vw 2vh;
       font-size: 1.8vh;
       color: var(--text-primary-color);
     }
@@ -125,7 +124,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
            class="media__content  media__content--hidden  layout vertical center flex">
 
         <!-- Headline -->
-        <div class="media-name">[[mediaName]]</div>
+        <div id="MediaName" class="media-name">[[mediaName]]</div>
 
         <!-- Description -->
         <div id="MediaDescription" class="media-description">[[mediaDescription]]</div>
@@ -271,7 +270,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (this.mediaType && this.mediaObject && this.mediaObject['Linked File']) {
 
           // Set media titles
-          this.mediaName = this.mediaObject.Headline;
+          this.mediaName = this.mediaObject['Full Name'];
           this.mediaDescription = this.mediaObject.Description;
 
           if (this.editState === this.presentationState) {
@@ -415,13 +414,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Called just before instantiating an Audio Player (not on resize)
       setAudioPlayerDimensions: function() {
 
+        var nameAndDescriptionHeight = 100;
+
         // Container values
         var containerPaddingRight = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue('padding-right'), 10);
+        var containerPaddingTop = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue('padding-top'), 10);
+        var containerPaddingBottom = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue('padding-bottom'), 10);
         var containerPaddingLeft = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue('padding-left'), 10);
-        var containerWidth = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue('width'), 10);
+        var containerWidth = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue('width'), 10) - containerPaddingLeft - containerPaddingRight;
+        var containerHeight = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue('height'), 10) - containerPaddingTop - containerPaddingBottom - nameAndDescriptionHeight;
 
-        this.audioPlayerWidth = containerWidth - containerPaddingLeft - containerPaddingRight;
-        this.audioPlayerHeight = Math.round(this.audioPlayerWidth / 2);
+        // Set dimensions
+        //this.audioPlayerHeight = containerHeight + 'px';
+
+        // If the height multiplied by 16:9 ratio is wider than the container element
+        if (containerHeight * 1.78 >= containerWidth) {
+          this.audioPlayerWidth = containerWidth;
+          this.audioPlayerHeight = containerWidth / 1.78;
+        } else {
+          this.audioPlayerHeight = containerHeight;
+          this.audioPlayerWidth = (containerHeight * 2) + 'px';
+        }
       },
 
       // ToDo: get this to work. Needs to reposition video

@@ -335,10 +335,6 @@ WaveSurfer.create = function(a) {
   },
   decodeArrayBuffer: function(a, b, c) {
 
-    console.log(a);
-    console.log(b);
-    console.log(c);
-
     if (!this.offlineAc) {
       this.offlineAc = this.getOfflineAudioContext(this.ac ? this.ac.sampleRate : 44100);
 

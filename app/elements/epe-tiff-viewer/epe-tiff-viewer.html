@@ -326,7 +326,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Add Tiff page to view
     addTiffToView: function(canvas, tiffId) {
 
-      var pageNumber = this.currentTiffPage;
       var $epeAnnotations;
 
       // Prevent two annotation elements being inserted into each page
@@ -561,7 +560,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       this.currentTiffPage = this.currentTiffPage - 1;
 
-      this.$$('#TiffAnnotations' + this.currentTiffPage).hidden = false;;
+      this.$$('#TiffAnnotations' + this.currentTiffPage).hidden = false;
 
       this.manageTiffNavigationButtons();
     },
