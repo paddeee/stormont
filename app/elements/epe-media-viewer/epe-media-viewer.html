@@ -262,6 +262,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         $epeNetworked.addEventListener('not-media-route', this.hideMedia.bind(this));
+
+        window.addEventListener('resize', this.windowResized.bind(this));
       },
 
       // FIRED FROM OBSERVERS ON MEDIAOBJECT AND MEDIATYPE
@@ -305,9 +307,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         this.videoSource = window.appConfig.getSourcePath() + this.mediaObject['Linked File'];
 
+        // Set the default sizes to be used for the Video Player
+        this.setVideoPlayerDimensions();
+
         this.videoPlayer = window.videojs(this.$.Video, {
-          fluid: this.fluid
+          //height: this.videoPlayerHeight
         }).ready(function() {
+
+          // Resize video
+          this.resizeVideo();
 
           // Show video
           this.async(this.showMedia, 700);
@@ -352,7 +360,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           $audioElement.setAttribute('id', 'Audio');
           $audioElement.setAttribute('controls', '');
           $audioElement.classList.add('audio-player', 'video-js', 'vjs-default-skin');
-          $mediaDescription.parentNode.insertBefore($audioElement, $mediaDescription);
+          $mediaDescription.parentNode.appendChild($audioElement);
         } else {
           $audioElement = this.$.Audio;
         }
@@ -411,6 +419,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.RemoveControlListeners('audio');
       },
 
+      // Called just before instantiating an Video Player
+      setVideoPlayerDimensions: function() {
+
+        var nameAndDescriptionHeight = 100;
+
+        // Container values
+        var containerPaddingTop = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue('padding-top'), 10);
+        var containerPaddingBottom = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue('padding-bottom'), 10);
+        var containerHeight = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue('height'), 10) - containerPaddingTop - containerPaddingBottom - nameAndDescriptionHeight;
+
+        this.videoPlayerHeight = containerHeight;
+      },
+
+
       // Called just before instantiating an Audio Player (not on resize)
       setAudioPlayerDimensions: function() {
 
@@ -423,9 +445,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var containerPaddingLeft = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue('padding-left'), 10);
         var containerWidth = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue('width'), 10) - containerPaddingLeft - containerPaddingRight;
         var containerHeight = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue('height'), 10) - containerPaddingTop - containerPaddingBottom - nameAndDescriptionHeight;
-
-        // Set dimensions
-        //this.audioPlayerHeight = containerHeight + 'px';
 
         // If the height multiplied by 16:9 ratio is wider than the container element
         if (containerHeight * 1.78 >= containerWidth) {
@@ -491,6 +510,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       },
 
+      // Resize the Video and canvas to fit the viewable area
+      resizeVideo: function() {
+
+        // Set the height or the width depending on the viewport aspect ratio
+        if (this.videoPlayerHeight) {
+          this.videoPlayer.height(this.videoPlayerHeight);
+        } else if (this.videoPlayerWidth) {
+          this.videoPlayer.width(this.videoPlayerWidth);
+        }
+      },
+
+      // Resize the Annotations and canvas to fit the video
+      resizeAnnotations: function() {
+
+        var videoHeight = this.videoPlayer.el().clientHeight;
+        var videoWidth = this.videoPlayer.el().clientWidth;
+
+        this.$.MediaAnnotations.style.height = videoHeight + 'px';
+        this.$.MediaAnnotations.style.width = videoWidth + 'px';
+
+        this.annotationHeight = videoHeight;
+        this.annotationWidth = videoWidth;
+      },
+
       // Remove loading spinner and hide loading mask
       showMedia: function() {
         this.loadingMedia = false;
@@ -499,8 +542,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Set height that can be passed up to annotation triggering a resize of the canvas
         this.pointerEvents = false;
-        this.annotationHeight = this.$.Video.clientHeight;
-        this.annotationWidth = this.$.Video.clientWidth;
+
+        this.resizeAnnotations();
       },
 
       // Add loading spinner and show loading mask
@@ -622,6 +665,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Add it to this button
         $button.classList.add('selected-icon');
+      },
+
+      // Called by window resize event
+      windowResized: function() {
+
+        if (this.editState === this.presentationState) {
+          this.setVideoPlayerDimensions();
+          this.resizeVideo();
+          this.resizeAnnotations();
+        }
       }
     });
   })();
