@@ -293,6 +293,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         var $videoContainer;
         var $audioContainer;
+        var $videoElement;
 
         if (this.videoPlayer) {
           this.videoPlayer.dispose();
@@ -303,7 +304,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Dynamically add video element to DOM
         this.createVideoElement();
 
-        $videoContainer = this.querySelector('#Video').closest('.video-js');
+        $videoElement = this.querySelector('#Video');
+
+        if ($videoElement) {
+          $videoContainer = $videoElement.closest('.video-js');
+        }
+
+        if ($videoContainer) {
+          $videoContainer.removeAttribute('hidden');
+        }
+
         $audioContainer = this.$$('#Audio').closest('.video-js');
 
         this.$.Audio.setAttribute('hidden','');
@@ -313,10 +323,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         this.$.MediaAnnotations.removeAttribute('hidden');
-
-        if ($videoContainer) {
-          $videoContainer.removeAttribute('hidden');
-        }
 
         // Create new Video.js instance
         this.videoPlayer = window.videojs(this.querySelector('#Video'));
@@ -384,13 +390,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       createAudioJS: function() {
 
         var $audioElement;
-        var $videoContainer = this.querySelector('#Video').closest('.video-js');
+        var $videoContainer;
+        var $videoElement = this.querySelector('#Video');
         var $audioContainer = this.$$('#Audio').closest('.video-js');
         var $mediaDescription = this.$.MediaDescription;
         var src;
 
         // Hide Video element and show audio element
         this.$.MediaAnnotations.setAttribute('hidden','');
+
+        if ($videoElement) {
+          $videoContainer = $videoElement.closest('.video-js')
+        }
 
         if ($videoContainer) {
           $videoContainer.setAttribute('hidden','');
@@ -508,7 +519,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.audioPlayerHeight = containerWidth / 1.78;
         } else {
           this.audioPlayerHeight = containerHeight;
-          this.audioPlayerWidth = (containerHeight * 2) + 'px';
+          this.audioPlayerWidth = (containerHeight * 1.78) + 'px';
         }
       },
 
@@ -580,14 +591,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Resize the Annotations and canvas to fit the video
       resizeAnnotations: function() {
 
-        var videoHeight = this.videoPlayer.el().clientHeight;
-        var videoWidth = this.videoPlayer.el().clientWidth;
+        if (this.videoPlayer) {
 
-        this.$.MediaAnnotations.style.height = videoHeight + 'px';
-        this.$.MediaAnnotations.style.width = videoWidth + 'px';
+          var videoHeight = this.videoPlayer.el().clientHeight;
+          var videoWidth = this.videoPlayer.el().clientWidth;
 
-        this.annotationHeight = videoHeight;
-        this.annotationWidth = videoWidth;
+          this.$.MediaAnnotations.style.height = videoHeight + 'px';
+          this.$.MediaAnnotations.style.width = videoWidth + 'px';
+
+          this.annotationHeight = videoHeight;
+          this.annotationWidth = videoWidth;
+        }
       },
 
       // Remove loading spinner and hide loading mask
@@ -726,7 +740,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Called by window resize event
       windowResized: function() {
 
-        if (!this.$ || !this.$.Video || !this.$.Video.clientHeight) {
+        if (!this.$ || !this.querySelector('#Video') || !this.querySelector('#Video').clientHeight) {
           return;
         }
 

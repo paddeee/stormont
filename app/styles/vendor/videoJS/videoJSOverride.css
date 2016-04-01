@@ -13,3 +13,7 @@
   margin-top: -1em;
   padding-top: 0;
 }
+
+.video-js :focus {
+  outline: none;
+}
