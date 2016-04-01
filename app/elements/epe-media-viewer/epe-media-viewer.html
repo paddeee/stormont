@@ -140,7 +140,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           pointer-events="[[pointerEvents]]"
           hidden>
 
-          <!-- Create instance -->
+          <!-- Create instance
           <video id="Video"
                  class="video-js vjs-default-skin vjs-big-play-centered"
                  controls
@@ -148,7 +148,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                  poster="[[poster]]">
             <source src="[[videoSource]]" type='video/mp4'/>
             <source src="[[videoSource]]" type='video/webm'/>
-          </video>
+          </video> -->
 
         </epe-annotations>
 
@@ -291,8 +291,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Create a clean instance of videoJS on the video element
       createVideoJS: function() {
 
-        var $videoContainer = this.$.Video.closest('.video-js');
-        var $audioContainer = this.$$('#Audio').closest('.video-js');
+        var $videoContainer;
+        var $audioContainer;
+
+        if (this.videoPlayer) {
+          this.videoPlayer.dispose();
+        }
+
+        this.videoSource = window.appConfig.getSourcePath() + this.mediaObject['Linked File'];
+
+        // Dynamically add video element to DOM
+        this.createVideoElement();
+
+        $videoContainer = this.querySelector('#Video').closest('.video-js');
+        $audioContainer = this.$$('#Audio').closest('.video-js');
 
         this.$.Audio.setAttribute('hidden','');
 
@@ -306,15 +318,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           $videoContainer.removeAttribute('hidden');
         }
 
-        this.videoSource = window.appConfig.getSourcePath() + this.mediaObject['Linked File'];
-
-        this.videoPlayer = window.videojs(this.$.Video);
+        // Create new Video.js instance
+        this.videoPlayer = window.videojs(this.querySelector('#Video'));
 
         // Set the default sizes to be used for the Video Player
         this.videoPlayer.on('loadedmetadata', this.setVideoPlayerDimensions.bind(this));
 
         // Video Data has loaded
         this.videoPlayer.on('loadeddata', function() {
+
+          // Resize video
+          this.resizeVideo();
+
+          // Show video
+          this.async(this.showMedia, 700);
+        }.bind(this));
+
+        // Set the default sizes to be used for the Video Player
+        this.videoPlayer.on('error', function() {
 
           // Resize video
           this.resizeVideo();
@@ -332,11 +353,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.RemoveControlListeners('video');
       },
 
+      // Dynamically create a video element
+      createVideoElement: function() {
+
+        var $videoElement = document.createElement('video');
+        var $sourceElement = document.createElement('source');
+        var $currentVideoElement = this.querySelector('#Video');
+
+        $videoElement.setAttribute('id', 'Video');
+        $videoElement.setAttribute('preload', this.preload);
+        $videoElement.setAttribute('poster', this.poster);
+        $videoElement.setAttribute('controls', true);
+        $videoElement.classList.add('video-js', 'vjs-default-skin', 'vjs-big-play-centered');
+
+        $sourceElement.setAttribute('src', this.videoSource);
+        $sourceElement.setAttribute('type', 'video/mp4');
+
+        $videoElement.appendChild($sourceElement);
+
+        // Remove existing Video element
+        if ($currentVideoElement) {
+          this.$.MediaAnnotations.querySelector('#ContentWrapper').removeChild($currentVideoElement);
+        }
+
+        // Appen new Video element
+        this.$.MediaAnnotations.querySelector('#ContentWrapper').appendChild($videoElement);
+      },
+
       // Create a clean instance of videoJS on an audio element
       createAudioJS: function() {
 
         var $audioElement;
-        var $videoContainer = this.$.Video.closest('.video-js');
+        var $videoContainer = this.querySelector('#Video').closest('.video-js');
         var $audioContainer = this.$$('#Audio').closest('.video-js');
         var $mediaDescription = this.$.MediaDescription;
         var src;
@@ -524,6 +572,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Set the height or the width depending on the viewport aspect ratio
         if (this.videoPlayerHeight) {
           this.videoPlayer.height(this.videoPlayerHeight);
+        } else {
+          this.videoPlayer.height(200);
         }
       },
 
@@ -675,6 +725,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Called by window resize event
       windowResized: function() {
+
+        if (!this.$ || !this.$.Video || !this.$.Video.clientHeight) {
+          return;
+        }
 
         if (this.editState === this.presentationState) {
           this.setVideoPlayerDimensions();

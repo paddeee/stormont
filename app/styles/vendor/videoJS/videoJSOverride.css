@@ -2,3 +2,14 @@
   bottom: -30px;
   position: absolute;
 }
+
+.vjs-error-display div {
+  bottom: -1.5em;
+  line-height: 1.3;
+}
+
+.vjs-error .vjs-error-display:before {
+  top: 42%;
+  margin-top: -1em;
+  padding-top: 0;
+}
