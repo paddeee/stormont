@@ -26,6 +26,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       font-size: 1.1vw;
     }
 
+    .data-grid-area {
+      overflow-x: scroll;
+    }
+
     @media (min-width: 1020px) {
 
       .data-grid {
@@ -120,7 +124,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   collection-name="[[collectionName]]"
                   sorting-state="[[sortingState]]"
                   hidden$="[[hideDataGrid]]"
-                  class="data-grid fit"
+                  class="data-grid"
                   grid-data="[[gridData]]"
                   show-all-selected="{{showAllSelected}}"></epe-data-grid>
               </section>

@@ -23,11 +23,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
        };
     }
 
+    .checkbox-holder {
+      vertical-align: middle;
+      text-align: center;
+      padding: 0;
+    }
+
     paper-checkbox {
       --paper-checkbox-unchecked-background-color: var(--primary-background-color);
     }
 
     .data-grid__container {
+      background-color: var(--primary-background-color);
+      border-color: #e6e6e6;
+      color: #444;
+      font-size: 14px;
       margin-bottom: 15vh;
     }
 
@@ -40,33 +50,76 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       width: 100%;
     }
 
-    .heading {
-      background-color: var(--divider-color);
-      border-bottom: 1px var(--secondary-text-color) solid;
-      color: var(--primary-text-color);
-      line-height: 3;
-      padding: 0 0 0 16px;
+    .data-grid__header {
+      border-bottom-style: solid;
+      border-bottom-width: 1px;
+      border-bottom-color: #e6e6e6;
+    }
+
+    .data-grid__header-wrapper {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      border-style: solid;
+      border-width: 0 1px 0 0;
+      border-color: #e6e6e6;
+    }
+
+    table {
+      width: 100%;
+      margin: 0;
+      max-width: none;
+      border-collapse: separate;
+      border-spacing: 0;
+      empty-cells: show;
+      border-width: 0;
+      outline: 0;
+    }
+
+    .data-grid__header-wrapper table {
+      margin-bottom: -1px;
+    }
+
+    .data-grid__header table {
+      table-layout: fixed;
+    }
+
+    th {
+      background-color: #F3F3F3;
+      border-color: #e6e6e6;
+      border-left-width: 0;
+      color: #a8a8a8;
+      overflow: hidden;
+      border-style: solid;
+      border-width: 0 0 1px 1px;
+      padding: 0 .6em;
+      padding-left: 1.286em;
+      font-weight: 400;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      text-align: left;
+      vertical-align: bottom;
       text-transform: capitalize;
+    }
+
+    .field-heading__name {
+      display: block;
+      padding: 0;
+      margin: 0;
+      min-height: 16px;
+      line-height: inherit;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .field-heading__name span {
+      display: inline;
     }
 
     .list-item {
       border-bottom: 1px var(--divider-color) solid;
       line-height: 3;
       padding: 0 0 0 16px;
-    }
-
-    .list-item:nth-child(even) {
-      background-color: var(--text-primary-color);
-    }
-
-    .list-item:nth-child(odd) {
-      background-color: rgba(240, 240, 240, 1);
-    }
-
-    .field-heading,
-    .field {
-      border-right: 1px var(--divider-color) solid;
-      margin: 0 16px 0 0;
     }
 
     .selected-by-event {
@@ -81,21 +134,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .selected-by-event-heading {
-      margin: 0 16px 0 0;
+      padding: 0;
+      margin: 0;
+      line-height: 5vh;
+      text-align: center;
+      vertical-align: middle;
     }
 
     .selected-by-event__heading-icon {
-      margin: 0 0 0 8px;
-      height: 2vh;
-      width: 2vh;
-    }
-
-    .field-heading__text,
-    .field {
-      display: block;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      overflow: hidden;
+      height: 2.4vh;
+      width: 2.4vh;
     }
 
     .chevron-holder {
@@ -104,7 +152,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .chevron {
-      color: var(--primary-text-color);
+      color: var(--paper-grey-700);
       transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1) 200ms, background-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
       -webkit-transition: -webkit-transform 200ms cubic-bezier(0.4, 0, 0.2, 1) 200ms, background-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
       -webkit-transform: rotate(90deg);
@@ -113,11 +161,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       transform-origin: 50% 50%;
     }
 
-    .field-heading[sort-status="true"] .chevron {
+    th[sort-status="true"] .chevron {
       -webkit-transform: rotate(180deg);
     }
 
-    .field-heading[sort-status="false"] .chevron {
+    th[sort-status="false"] .chevron {
       -webkit-transform: rotate(0);
     }
 
@@ -171,9 +219,73 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   </style>
   <template>
+
     <div class="data-grid layout vertical">
-      <div class="data-grid__container flex">
-        <div class="headings">
+      <div class="data-grid__container">
+
+        <!-- DataGrid Header -->
+        <div class="data-grid__header">
+          <div class="data-grid__header-wrapper" data-role="resizeable">
+
+            <table>
+              <colgroup>
+                <template is="dom-repeat"
+                          items="[[toArray(gridDataFirstRecord)]]">
+                  <col hidden$="[[!showField(item.name)]]">
+                </template>
+                <thead>
+                  <tr>
+                    <th id="checkBoxHolder"
+                        scope="col"
+                        class="checkbox-holder"
+                        hidden$="[[!noRecords]]">
+                      <paper-checkbox
+                        id="SelectAllCheckbox"
+                        checked$="[[showAllSelected]]"
+                        on-change="selectAllRecords"
+                        on-iron-change="selectAllRecords"></paper-checkbox>
+                    </th>
+                    <template is="dom-repeat"
+                              items="[[toArray(gridDataFirstRecord)]]">
+                      <th scope="col"
+                          hidden$="[[!showField(item.name)]]"
+                          sort-status="neutral"
+                          heading-name$="[[item.name]]"
+                          on-mouseover="showFullText"
+                          on-mouseout="hideFullText"
+                          on-tap="sortByColumn">
+                        <div class="field-heading__name"
+                             on-tap="reOrderColumn">
+                          <span>{{item.name}}</span>
+                          <span class="chevron-holder">
+                            <iron-icon
+                              icon="arrow-drop-up"
+                              class="chevron"><iron-icon>
+                          </span>
+                        </div>
+                      </th>
+                    </template>
+                    <th scope="col"
+                        class="selected-by-event-heading"
+                         hidden$="[[hideRelatedToEventColumn]]">
+                      <iron-icon icon="event"
+                                 class="selected-by-event__heading-icon"></iron-icon>
+                      <paper-tooltip position="top">Item is<br/>related to<br/>a selected <br/>event</paper-tooltip>
+                    </th>
+                    <th scope="col"
+                        class="blank"
+                        hidden$="[[hideViewSourceButton]]">
+                    </th>
+                  </tr>
+                </thead>
+              </colgroup>
+            </table>
+          </div>
+        </div>
+
+        <!-- DataGrid Fields -->
+
+        <!-- <div class="headings">
           <div class="heading layout horizontal">
             <div id="checkBoxHolder"
                  class="checkbox-holder"
@@ -212,7 +324,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
             <div class="blank" hidden$="[[hideViewSourceButton]]"></div>
           </div>
-        </div>
+        </div>-->
 
         <div class="records">
           <template id="ListTemplate"
@@ -463,9 +575,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Reset all heading sort statuses to neutral
     resetHeadingSortIndicators: function() {
 
-      var selectorName = '.field-heading[heading-name="' + this.sortingState.property + '"]';
+      var selectorName = 'th[heading-name="' + this.sortingState.property + '"]';
       var $sortedHeader = Polymer.dom(this.root).querySelector(selectorName);
-      var $headers = Polymer.dom(this.root).querySelectorAll('.field-heading');
+      var $headers = Polymer.dom(this.root).querySelectorAll('th');
 
       if (!$sortedHeader) {
         return;
