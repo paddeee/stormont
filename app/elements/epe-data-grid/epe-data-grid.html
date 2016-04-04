@@ -87,6 +87,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       width: 50px;
     }
 
+    .related-col {
+      width: 60px;
+    }
+
+    .source-col {
+      width: 100px;
+    }
+
     th {
       background-color: #F3F3F3;
       border-color: #e6e6e6;
@@ -239,6 +247,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                        heading-name$="[[item.name]]"
                        hidden$="[[!showField(item.name)]]">
                 </template>
+                <col class="related-col"
+                     hidden$="[[hideRelatedToEventColumn]]">
+                <col class="source-col"
+                     hidden$="[[hideViewSourceButton]]">
                 <thead>
                   <tr>
                     <th id="checkBoxHolder"
@@ -561,7 +573,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.updateCheckboxes();
 
         // Set table to relevant size depending on widths of heading names
-        this.setDefaultTableWidths();
+        // Wrap in async to give template time to be stamped
+        this.async(this.setDefaultTableWidths);
       }
     },
 
@@ -569,9 +582,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     setDefaultTableWidths: function() {
 
       var fieldHeadings = this.querySelectorAll('.field-heading');
+      var tableWidth = 0;
+      var checkBoxColWidth = 0;
+      var relatedToEventColWidth = 0;
+      var sourceColWidth = 0;
+
+      // Remove style width on table
+      this.$.HeaderTable.style.width = '';
 
       // Set the colGroup width based on the width of the field heading
       if (fieldHeadings.length > 0) {
+
+        checkBoxColWidth = this.querySelector('.checkbox-holder').clientWidth + 1;
+        relatedToEventColWidth = this.querySelector('.selected-by-event-heading').clientWidth;
+        sourceColWidth = this.querySelector('.blank').clientWidth;
+
+        // Add borders to width if not hidden
+        if (relatedToEventColWidth) {
+          relatedToEventColWidth = relatedToEventColWidth + 1;
+        }
+
+        if (sourceColWidth) {
+          sourceColWidth = sourceColWidth + 1;
+        }
 
         // Set each colGroup col's width
         fieldHeadings.forEach(function(fieldHeading) {
@@ -582,11 +615,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           if (fieldHeading.clientWidth > 0) {
             $col = this.querySelector('.field-col[heading-name="' + fieldHeading.getAttribute('heading-name') + '"');
             $col.style.width = fieldHeading.clientWidth + 'px';
+            tableWidth = tableWidth + fieldHeading.clientWidth + 1;
           }
         }.bind(this));
 
-        // Set width for heading table
-        this.$.HeaderTable.style.width = this.$.HeaderTable.clientWidth + 'px';
+        // Calculate table width including all visible headers
+        tableWidth = tableWidth + checkBoxColWidth + relatedToEventColWidth + sourceColWidth;
+
+        // If the table is less than this element's width, set it to 100%
+        if (tableWidth < this.clientWidth) {
+          this.$.HeaderTable.style.width = '100%';
+        } else {
+          this.$.HeaderTable.style.width = tableWidth + 'px';
+        }
       }
     },
 
