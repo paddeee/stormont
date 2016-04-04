@@ -103,6 +103,9 @@ module.exports = Reflux.createStore({
       return;
     }
 
+    // Replace shortNames in description field of Event collection
+    this.replaceShortnames(dataSource);
+
     // Save database
     dataSource.saveDatabase(function() {
       console.log('DataBase saved');
@@ -114,6 +117,96 @@ module.exports = Reflux.createStore({
         message: 'All files have been successfully imported'
       });
     }.bind(this));
+  },
+
+  // Find and Replace by a dictionary
+  replaceShortnames: function(dataSource) {
+
+    var shortNameDictionary = {};
+    var eventData = dataSource.getCollection(config.EventsCollection.name).data;
+    var placeData = dataSource.getCollection(config.PlacesCollection.name).data;
+    var personData = dataSource.getCollection(config.PeopleCollection.name).data;
+
+    shortNameDictionary = this.addToShortnameDictionary(shortNameDictionary, eventData);
+    shortNameDictionary = this.addToShortnameDictionary(shortNameDictionary, placeData);
+    shortNameDictionary = this.addToShortnameDictionary(shortNameDictionary, personData);
+
+    eventData.forEach(function(event) {
+
+      event.Description = this.replaceUsingDictionary(shortNameDictionary, event.Description, function(key, shortNameDictionary) {
+        return shortNameDictionary[key];
+        //return '<span class="replaced">' + shortNameDictionary[key] + '</span>';
+      });
+    }.bind(this));
+  },
+
+  // Return a dictionary of Shortname/Full Name pairs from a collection
+  addToShortnameDictionary: function(shortNameDictionary, collection) {
+
+    collection.forEach(function(record) {
+      shortNameDictionary[record['Short Name']] = record['Full Name'];
+    });
+
+    return shortNameDictionary;
+  },
+
+  // Replaces phrases in a string, based on keys in a given dictionary
+  replaceUsingDictionary: function(dictionary, content, replacehandler) {
+
+    var patterns = [];
+    var patternHash = {};
+    var oldkey;
+    var key;
+    var index = 0;
+    var output = [];
+    var pattern;
+    var lastIndex;
+
+    if (typeof replacehandler != "function") {
+
+      // Default replacehandler function.
+      replacehandler = function(key, dictionary) {
+        return dictionary[key];
+      }
+    }
+
+    for (key in dictionary) {
+
+      // Case-insensitivity:
+      key = (oldkey = key).toLowerCase();
+      dictionary[key] = dictionary[oldkey];
+
+      // Sanitize the key, and push it in the list
+      patterns.push('\\b(?:' + key.replace(/([[^$.|?*+(){}])/g, '\\$1') + ')\\b');
+
+      // Add entry to hash variable, for an optimized backtracking at the next loop
+      patternHash[key] = index++;
+    }
+
+    pattern = new RegExp(patterns.join('|'), 'gi');
+    lastIndex = 0;
+
+    // We should actually test using !== null, but for foolproofness,
+    // we also reject empty strings
+    while (key = pattern.exec(content)) {
+
+      // Case-insensitivity
+      key = key[0].toLowerCase();
+
+      // Add to output buffer
+      output.push(content.substring(lastIndex, pattern.lastIndex - key.length));
+
+      // The next line is the actual replacement method
+      output.push(replacehandler(key, dictionary));
+
+      // Update lastIndex variable
+      lastIndex = pattern.lastIndex;
+
+      // IMPORTANT: Update lastIndex property. Otherwise, enjoy an infinite loop
+      pattern.lastIndex = lastIndex;
+    }
+    output.push(content.substring(lastIndex, content.length));
+    return output.join('');
   },
 
   // Create an array of cellObjects which can be iterated through to return a dataCollection
