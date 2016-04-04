@@ -66,7 +66,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     table {
-      width: 100%;
       margin: 0;
       max-width: none;
       border-collapse: separate;
@@ -84,19 +83,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       table-layout: fixed;
     }
 
+    .checkbox-col {
+      width: 50px;
+    }
+
     th {
       background-color: #F3F3F3;
       border-color: #e6e6e6;
       border-left-width: 0;
       color: #a8a8a8;
-      overflow: hidden;
       border-style: solid;
       border-width: 0 0 1px 1px;
       padding: 0 .6em;
       padding-left: 1.286em;
       font-weight: 400;
-      white-space: nowrap;
+      overflow: hidden;
       text-overflow: ellipsis;
+      white-space: nowrap;
       text-align: left;
       vertical-align: bottom;
       text-transform: capitalize;
@@ -227,11 +230,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div class="data-grid__header">
           <div class="data-grid__header-wrapper" data-role="resizeable">
 
-            <table>
+            <table id="HeaderTable">
               <colgroup>
+                <col class="checkbox-col">
                 <template is="dom-repeat"
                           items="[[toArray(gridDataFirstRecord)]]">
-                  <col hidden$="[[!showField(item.name)]]">
+                  <col class="field-col"
+                       heading-name$="[[item.name]]"
+                       hidden$="[[!showField(item.name)]]">
                 </template>
                 <thead>
                   <tr>
@@ -248,6 +254,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <template is="dom-repeat"
                               items="[[toArray(gridDataFirstRecord)]]">
                       <th scope="col"
+                          class="field-heading"
                           hidden$="[[!showField(item.name)]]"
                           sort-status="neutral"
                           heading-name$="[[item.name]]"
@@ -552,6 +559,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Force template-repeat to show checkboxes in correct state after the
         // show record property has changed
         this.updateCheckboxes();
+
+        // Set table to relevant size depending on widths of heading names
+        this.setDefaultTableWidths();
+      }
+    },
+
+    // Set default table and column widths
+    setDefaultTableWidths: function() {
+
+      var fieldHeadings = this.querySelectorAll('.field-heading');
+
+      // Set the colGroup width based on the width of the field heading
+      if (fieldHeadings.length > 0) {
+
+        // Set each colGroup col's width
+        fieldHeadings.forEach(function(fieldHeading) {
+
+          var headingName = fieldHeading.getAttribute('heading-name');
+          var $col;
+
+          if (fieldHeading.clientWidth > 0) {
+            $col = this.querySelector('.field-col[heading-name="' + fieldHeading.getAttribute('heading-name') + '"');
+            $col.style.width = fieldHeading.clientWidth + 'px';
+          }
+        }.bind(this));
+
+        // Set width for heading table
+        this.$.HeaderTable.style.width = this.$.HeaderTable.clientWidth + 'px';
       }
     },
 
