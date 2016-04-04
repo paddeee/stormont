@@ -23,12 +23,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
        };
     }
 
-    .checkbox-holder {
-      vertical-align: middle;
-      text-align: center;
-      padding: 0;
-    }
-
     paper-checkbox {
       --paper-checkbox-unchecked-background-color: var(--primary-background-color);
     }
@@ -79,8 +73,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       margin-bottom: -1px;
     }
 
-    .data-grid__header table {
+    .data-grid__header table,
+    .data-grid__records table {
       table-layout: fixed;
+    }
+
+    .data-grid__header .checkbox-holder {
+      border-left-width: 0;
+      vertical-align: middle;
+      text-align: center;
+      padding: 0;
     }
 
     .checkbox-col {
@@ -180,6 +182,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       -webkit-transform: rotate(0);
     }
 
+    .data-grid__records {
+      padding-bottom: 300px;
+      position: relative;
+      width: 100%;
+      overflow: auto;
+      overflow-x: auto;
+      overflow-y: scroll;
+      zoom: 1;
+      min-height: 0;
+      white-space: normal;
+    }
+
+    .data-grid__records tr:hover {
+      background-color: #ebebeb;
+    }
+
+    .data-grid__records td {
+      border-color: #e6e6e6;
+      border-width: 0;
+      border-bottom-width: 1px;
+      border-style: solid;
+      padding: .929em 1.286em;
+      overflow: hidden;
+      line-height: 1.6em;
+      vertical-align: middle;
+      text-overflow: ellipsis;
+    }
+
+    .data-grid__records tr:first-child td {
+      border-top: 0;
+    }
+
+    .data-grid__records .checkbox-holder {
+      vertical-align: middle;
+      text-align: center;
+      padding: 0;
+    }
+
     .total-records {
       color: var(--secondary-text-color);
       font-size: 1.5vh;
@@ -207,11 +247,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     paper-fab {
       background-color: var(--default-primary-color);
-    }
-
-    .blank,
-    .field__source {
-      width: 8vw;
     }
 
     .field__button {
@@ -251,134 +286,113 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                      hidden$="[[hideRelatedToEventColumn]]">
                 <col class="source-col"
                      hidden$="[[hideViewSourceButton]]">
-                <thead>
-                  <tr>
-                    <th id="checkBoxHolder"
-                        scope="col"
-                        class="checkbox-holder"
-                        hidden$="[[!noRecords]]">
-                      <paper-checkbox
-                        id="SelectAllCheckbox"
-                        checked$="[[showAllSelected]]"
-                        on-change="selectAllRecords"
-                        on-iron-change="selectAllRecords"></paper-checkbox>
-                    </th>
-                    <template is="dom-repeat"
-                              items="[[toArray(gridDataFirstRecord)]]">
-                      <th scope="col"
-                          class="field-heading"
-                          hidden$="[[!showField(item.name)]]"
-                          sort-status="neutral"
-                          heading-name$="[[item.name]]"
-                          on-mouseover="showFullText"
-                          on-mouseout="hideFullText"
-                          on-tap="sortByColumn">
-                        <div class="field-heading__name"
-                             on-tap="reOrderColumn">
-                          <span>{{item.name}}</span>
-                          <span class="chevron-holder">
-                            <iron-icon
-                              icon="arrow-drop-up"
-                              class="chevron"><iron-icon>
-                          </span>
-                        </div>
-                      </th>
-                    </template>
-                    <th scope="col"
-                        class="selected-by-event-heading"
-                         hidden$="[[hideRelatedToEventColumn]]">
-                      <iron-icon icon="event"
-                                 class="selected-by-event__heading-icon"></iron-icon>
-                      <paper-tooltip position="top">Item is<br/>related to<br/>a selected <br/>event</paper-tooltip>
-                    </th>
-                    <th scope="col"
-                        class="blank"
-                        hidden$="[[hideViewSourceButton]]">
-                    </th>
-                  </tr>
-                </thead>
               </colgroup>
+              <thead>
+                <tr>
+                  <th id="checkBoxHolder"
+                      scope="col"
+                      class="checkbox-holder"
+                      hidden$="[[!noRecords]]">
+                    <paper-checkbox
+                      id="SelectAllCheckbox"
+                      checked$="[[showAllSelected]]"
+                      on-change="selectAllRecords"
+                      on-iron-change="selectAllRecords"></paper-checkbox>
+                  </th>
+                  <template is="dom-repeat"
+                            items="[[toArray(gridDataFirstRecord)]]">
+                    <th scope="col"
+                        class="field-heading"
+                        hidden$="[[!showField(item.name)]]"
+                        sort-status="neutral"
+                        heading-name$="[[item.name]]"
+                        on-mouseover="showFullText"
+                        on-mouseout="hideFullText"
+                        on-tap="sortByColumn">
+                      <div class="field-heading__name"
+                           on-tap="reOrderColumn">
+                        <span>{{item.name}}</span>
+                        <span class="chevron-holder">
+                          <iron-icon
+                            icon="arrow-drop-up"
+                            class="chevron"><iron-icon>
+                        </span>
+                      </div>
+                    </th>
+                  </template>
+                  <th scope="col"
+                      class="selected-by-event-heading"
+                       hidden$="[[hideRelatedToEventColumn]]">
+                    <iron-icon icon="event"
+                               class="selected-by-event__heading-icon"></iron-icon>
+                    <paper-tooltip position="top">Item is<br/>related to<br/>a selected <br/>event</paper-tooltip>
+                  </th>
+                  <th scope="col"
+                      class="blank"
+                      hidden$="[[hideViewSourceButton]]">
+                  </th>
+                </tr>
+              </thead>
             </table>
           </div>
         </div>
 
-        <!-- DataGrid Fields -->
+        <!-- DataGrid Data Records -->
 
-        <!-- <div class="headings">
-          <div class="heading layout horizontal">
-            <div id="checkBoxHolder"
-                 class="checkbox-holder"
-                 hidden$="[[!noRecords]]">
-              <paper-checkbox
-                id="SelectAllCheckbox"
-                checked$="[[showAllSelected]]"
-                on-change="selectAllRecords"
-                on-iron-change="selectAllRecords"></paper-checkbox>
-            </div>
-            <paper-tooltip for="checkBoxHolder" position="top">Select All</paper-tooltip>
-            <template is="dom-repeat"
-                      items="[[toArray(gridDataFirstRecord)]]">
-              <div class="field-heading flex layout horizontal"
-                   hidden$="[[!showField(item.name)]]"
-                   sort-status="neutral"
-                   heading-name$="[[item.name]]"
-                   on-mouseover="showFullText"
-                   on-mouseout="hideFullText"
-                   on-tap="sortByColumn">
-                <div class="field-heading__text flex">
-                  <span>{{item.name}}</span>
-                </div>
-                <div class="chevron-holder">
-                  <iron-icon
-                    icon="arrow-drop-up"
-                    class="chevron"><iron-icon>
-                </div>
-              </div>
-            </template>
-            <div class="selected-by-event-heading flex layout horizontal center center-justified"
-                 hidden$="[[hideRelatedToEventColumn]]">
-              <iron-icon icon="event"
-                         class="selected-by-event__heading-icon"></iron-icon>
-              <paper-tooltip position="top">Item is<br/>related to<br/>a selected <br/>event</paper-tooltip>
-            </div>
-            <div class="blank" hidden$="[[hideViewSourceButton]]"></div>
-          </div>
-        </div>-->
+        <div class="data-grid__records">
 
-        <div class="records">
-          <template id="ListTemplate"
-                    is="dom-repeat"
-                    items="[[paginatedData]]">
-            <div class="list-item layout horizontal">
-              <div class="checkbox-holder">
-                <paper-checkbox class="record-checkbox"
-                                on-iron-change="selectRecord"
-                                on-change="selectRecord"
-                                checked$="[[item.showRecord]]"></paper-checkbox>
-              </div>
-              <template is="dom-repeat" items="[[toArray(item)]]">
-                <div class="field flex"
-                     on-mouseover="showFullText"
-                     on-mouseout="hideFullText"
+          <table id="RecordsTable">
+            <colgroup>
+              <col class="checkbox-col">
+              <template is="dom-repeat"
+                        items="[[toArray(gridDataFirstRecord)]]">
+                <col class="field-col"
+                     heading-name$="[[item.name]]"
                      hidden$="[[!showField(item.name)]]">
-                  <span>{{item.value}}</span>
-                </div>
               </template>
-              <div class="selected-by-event field flex layout horizontal center center-justified"
+              <col class="related-col"
                    hidden$="[[hideRelatedToEventColumn]]">
-                <iron-icon icon="check"
-                           class="selected-by-event__icon"
-                           hidden$="[[!item.highlightAsRelatedToEvent]]"></iron-icon></div>
-              <div class="field__source layout horizontal center center-justified"
+              <col class="source-col"
                    hidden$="[[hideViewSourceButton]]">
-                <paper-button
-                  class="field__button"
-                  raised
-                  on-tap="viewSourceFile">View <iron-icon icon="description"></iron-icon>
-                </paper-button>
-              </div>
-            </div>
-          </template>
+            </colgroup>
+
+            <tbody>
+              <template id="ListTemplate"
+                      is="dom-repeat"
+                      items="[[paginatedData]]">
+                <tr>
+                  <td class="checkbox-holder">
+                    <paper-checkbox class="record-checkbox"
+                                    on-iron-change="selectRecord"
+                                    on-change="selectRecord"
+                                    checked$="[[item.showRecord]]">
+                    </paper-checkbox>
+                  </td>
+
+                  <template is="dom-repeat" items="[[toArray(item)]]">
+                    <td class="field-record"
+                        on-mouseover="showFullText"
+                        on-mouseout="hideFullText"
+                        hidden$="[[!showField(item.name)]]">
+                      <span>{{item.value}}</span>
+                    </td>
+                  </template>
+                  <td hidden$="[[hideRelatedToEventColumn]]">
+                    <iron-icon icon="check"
+                               class="selected-by-event__icon"
+                               hidden$="[[!item.highlightAsRelatedToEvent]]"></iron-icon>
+                  </td>
+                  <td hidden$="[[hideViewSourceButton]]">
+                    <paper-button
+                      class="field__button"
+                      raised
+                      on-tap="viewSourceFile">View <iron-icon icon="description"></iron-icon>
+                    </paper-button>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
         </div>
 
         <!-- No records returned form filter -->
@@ -583,38 +597,47 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var fieldHeadings = this.querySelectorAll('.field-heading');
       var tableWidth = 0;
-      var checkBoxColWidth = 0;
+      var checkBoxColWidth = 51;
       var relatedToEventColWidth = 0;
       var sourceColWidth = 0;
+      var $relatedToEventCol;
+      var $sourceCol;
 
-      // Remove style width on table
+      // Reset style widths on table and colGroup cols
       this.$.HeaderTable.style.width = '';
+      this.querySelectorAll('.field-col').forEach(function($col) {
+        $col.style.width = '';
+      });
 
       // Set the colGroup width based on the width of the field heading
       if (fieldHeadings.length > 0) {
 
-        checkBoxColWidth = this.querySelector('.checkbox-holder').clientWidth + 1;
-        relatedToEventColWidth = this.querySelector('.selected-by-event-heading').clientWidth;
-        sourceColWidth = this.querySelector('.blank').clientWidth;
+        $relatedToEventCol = this.querySelector('.selected-by-event-heading:not([hidden]');
+        $sourceCol = this.querySelector('.blank:not([hidden]');
 
         // Add borders to width if not hidden
-        if (relatedToEventColWidth) {
-          relatedToEventColWidth = relatedToEventColWidth + 1;
+        if ($relatedToEventCol) {
+          relatedToEventColWidth = 61;
         }
 
-        if (sourceColWidth) {
-          sourceColWidth = sourceColWidth + 1;
+        if ($sourceCol) {
+          sourceColWidth = 101;
         }
 
         // Set each colGroup col's width
         fieldHeadings.forEach(function(fieldHeading) {
 
           var headingName = fieldHeading.getAttribute('heading-name');
-          var $col;
+          var $colElements;
 
           if (fieldHeading.clientWidth > 0) {
-            $col = this.querySelector('.field-col[heading-name="' + fieldHeading.getAttribute('heading-name') + '"');
-            $col.style.width = fieldHeading.clientWidth + 'px';
+
+            $colElements = this.querySelectorAll('.field-col[heading-name="' + fieldHeading.getAttribute('heading-name') + '"');
+
+            $colElements.forEach(function($col) {
+              $col.style.width = fieldHeading.clientWidth + 'px';
+            });
+
             tableWidth = tableWidth + fieldHeading.clientWidth + 1;
           }
         }.bind(this));
@@ -623,10 +646,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         tableWidth = tableWidth + checkBoxColWidth + relatedToEventColWidth + sourceColWidth;
 
         // If the table is less than this element's width, set it to 100%
-        if (tableWidth < this.clientWidth) {
+        if (tableWidth < document.querySelector('body').clientWidth) {
           this.$.HeaderTable.style.width = '100%';
+          this.$.RecordsTable.style.width = '100%';
         } else {
           this.$.HeaderTable.style.width = tableWidth + 'px';
+          this.$.RecordsTable.style.width = tableWidth + 'px';
         }
       }
     },
@@ -783,6 +808,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     showFullText: function(event) {
 
       var dataText;
+
+      //Temporarily turned off
+      return;
 
       // Set text depending on whether method is called from mousing over column heading or data field
       if (event.currentTarget.classList.contains('field-heading')) {
