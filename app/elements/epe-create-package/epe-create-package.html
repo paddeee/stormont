@@ -26,10 +26,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       font-size: 1.1vw;
     }
 
-    .data-grid-area {
-      overflow-x: scroll;
-    }
-
     @media (min-width: 1020px) {
 
       .data-grid {
@@ -61,6 +57,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     epe-source-viewer {
       background-color: var(--primary-background-color);
       height: calc(100% + 128px);
+    }
+
+    .data-grid-container {
+      background-color: var(--primary-background-color);
     }
 
   </style>
@@ -116,7 +116,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <iron-pages attr-for-selected="data-route"
                         selected="{{dataGridRoute}}">
               <section data-route="data-grid"
-                       class="data-grid-area relative layout horizontal">
+                       class="data-grid-area">
                 <epe-data-grid
                   filter-state-actions="[[filterStateActions]]"
                   source-actions="[[sourceActions]]"

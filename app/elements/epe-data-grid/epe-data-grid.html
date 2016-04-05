@@ -14,6 +14,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <style>
     :host {
       display: block;
+      margin: 5vh 3vw;
+      overflow: scroll;
     }
 
     iron-list {
@@ -29,7 +31,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .data-grid__container {
       background-color: var(--primary-background-color);
-      border-color: #e6e6e6;
+      border: 1px solid #e6e6e6;
       color: #444;
       font-size: 14px;
       margin-bottom: 15vh;
@@ -41,6 +43,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       height: 15vh;
       position: fixed;
       bottom: 0;
+      left: 0;
       width: 100%;
     }
 
@@ -183,10 +186,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .data-grid__records {
+      height: 550px;
       padding-bottom: 300px;
       position: relative;
       width: 100%;
-      overflow: auto;
       overflow-x: auto;
       overflow-y: scroll;
       zoom: 1;
@@ -266,12 +269,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
 
-    <div class="data-grid layout vertical">
+    <div class="data-grid">
       <div class="data-grid__container">
 
         <!-- DataGrid Header -->
         <div class="data-grid__header">
-          <div class="data-grid__header-wrapper" data-role="resizeable">
+          <div id="DataGridHeader" class="data-grid__header-wrapper">
 
             <table id="HeaderTable">
               <colgroup>
@@ -339,7 +342,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <!-- DataGrid Data Records -->
 
-        <div class="data-grid__records">
+        <div id="DataGridRecords" class="data-grid__records">
 
           <table id="RecordsTable">
             <colgroup>
@@ -489,6 +492,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
+    ready: function() {
+      var $scrollableContent = this.$.DataGridRecords;
+      $scrollableContent.addEventListener("scroll", this.scrollHeader.bind(this));
+    },
+
     // Iterate through keys of an object and return key/value pair
     toArray: function(obj) {
 
@@ -502,6 +510,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       } else {
         return [];
       }
+    },
+
+    // Scroll the header horizontally when the content scrolls
+    scrollHeader: function (event) {
+
+      var $scrollableHeader = this.$.DataGridHeader;
+
+      $scrollableHeader.scrollLeft = event.currentTarget.scrollLeft;
     },
 
     // Return false if item is a loki property
