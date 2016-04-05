@@ -20,9 +20,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     iron-list {
       background-color: var(--primary-background-color);
-      --iron-list-items-container: {
-         border-bottom: 0 none;
-       };
+    --iron-list-items-container: {
+       border-bottom: 0 none;
+     };
     }
 
     paper-checkbox {
@@ -34,16 +34,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       border: 1px solid #e6e6e6;
       color: #444;
       font-size: 14px;
-      margin-bottom: 15vh;
     }
 
     .data-grid__footer {
       background-color: var(--text-primary-color);
       border-top: 1px var(--divider-color) solid;
       height: 15vh;
-      position: fixed;
-      bottom: 0;
-      left: 0;
       width: 100%;
     }
 
@@ -132,12 +128,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       display: inline;
     }
 
-    .list-item {
-      border-bottom: 1px var(--divider-color) solid;
-      line-height: 3;
-      padding: 0 0 0 16px;
-    }
-
     .selected-by-event {
       margin: 0 0 0 8px;
       padding: 0 10px 0 0;
@@ -187,12 +177,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .data-grid__records {
       height: 550px;
-      padding-bottom: 300px;
       position: relative;
       width: 100%;
-      overflow-x: auto;
       overflow-y: scroll;
-      zoom: 1;
       min-height: 0;
       white-space: normal;
     }
@@ -291,50 +278,50 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                      hidden$="[[hideViewSourceButton]]">
               </colgroup>
               <thead>
-                <tr>
-                  <th id="checkBoxHolder"
-                      scope="col"
-                      class="checkbox-holder"
-                      hidden$="[[!noRecords]]">
-                    <paper-checkbox
-                      id="SelectAllCheckbox"
-                      checked$="[[showAllSelected]]"
-                      on-change="selectAllRecords"
-                      on-iron-change="selectAllRecords"></paper-checkbox>
-                  </th>
-                  <template is="dom-repeat"
-                            items="[[toArray(gridDataFirstRecord)]]">
-                    <th scope="col"
-                        class="field-heading"
-                        hidden$="[[!showField(item.name)]]"
-                        sort-status="neutral"
-                        heading-name$="[[item.name]]"
-                        on-mouseover="showFullText"
-                        on-mouseout="hideFullText"
-                        on-tap="sortByColumn">
-                      <div class="field-heading__name"
-                           on-tap="reOrderColumn">
-                        <span>{{item.name}}</span>
+              <tr>
+                <th id="checkBoxHolder"
+                    scope="col"
+                    class="checkbox-holder"
+                    hidden$="[[!noRecords]]">
+                  <paper-checkbox
+                    id="SelectAllCheckbox"
+                    checked$="[[showAllSelected]]"
+                    on-change="selectAllRecords"
+                    on-iron-change="selectAllRecords"></paper-checkbox>
+                </th>
+                <template is="dom-repeat"
+                          items="[[toArray(gridDataFirstRecord)]]">
+                  <th scope="col"
+                      class="field-heading"
+                      hidden$="[[!showField(item.name)]]"
+                      sort-status="neutral"
+                      heading-name$="[[item.name]]"
+                      on-mouseover="showFullText"
+                      on-mouseout="hideFullText"
+                      on-tap="sortByColumn">
+                    <div class="field-heading__name"
+                         on-tap="reOrderColumn">
+                      <span>{{item.name}}</span>
                         <span class="chevron-holder">
                           <iron-icon
                             icon="arrow-drop-up"
                             class="chevron"><iron-icon>
                         </span>
-                      </div>
-                    </th>
-                  </template>
-                  <th scope="col"
-                      class="selected-by-event-heading"
-                       hidden$="[[hideRelatedToEventColumn]]">
-                    <iron-icon icon="event"
-                               class="selected-by-event__heading-icon"></iron-icon>
-                    <paper-tooltip position="top">Item is<br/>related to<br/>a selected <br/>event</paper-tooltip>
+                    </div>
                   </th>
-                  <th scope="col"
-                      class="blank"
-                      hidden$="[[hideViewSourceButton]]">
-                  </th>
-                </tr>
+                </template>
+                <th scope="col"
+                    class="selected-by-event-heading"
+                    hidden$="[[hideRelatedToEventColumn]]">
+                  <iron-icon icon="event"
+                             class="selected-by-event__heading-icon"></iron-icon>
+                  <paper-tooltip position="top">Item is<br/>related to<br/>a selected <br/>event</paper-tooltip>
+                </th>
+                <th scope="col"
+                    class="blank"
+                    hidden$="[[hideViewSourceButton]]">
+                </th>
+              </tr>
               </thead>
             </table>
           </div>
@@ -360,42 +347,59 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </colgroup>
 
             <tbody>
-              <template id="ListTemplate"
+            <template id="ListTemplate"
                       is="dom-repeat"
                       items="[[paginatedData]]">
-                <tr>
-                  <td class="checkbox-holder">
-                    <paper-checkbox class="record-checkbox"
-                                    on-iron-change="selectRecord"
-                                    on-change="selectRecord"
-                                    checked$="[[item.showRecord]]">
-                    </paper-checkbox>
-                  </td>
+              <tr>
+                <td class="checkbox-holder">
+                  <paper-checkbox class="record-checkbox"
+                                  on-iron-change="selectRecord"
+                                  on-change="selectRecord"
+                                  checked$="[[item.showRecord]]">
+                  </paper-checkbox>
+                </td>
 
-                  <template is="dom-repeat" items="[[toArray(item)]]">
-                    <td class="field-record"
-                        on-mouseover="showFullText"
-                        on-mouseout="hideFullText"
-                        hidden$="[[!showField(item.name)]]">
-                      <span>{{item.value}}</span>
-                    </td>
-                  </template>
-                  <td hidden$="[[hideRelatedToEventColumn]]">
-                    <iron-icon icon="check"
-                               class="selected-by-event__icon"
-                               hidden$="[[!item.highlightAsRelatedToEvent]]"></iron-icon>
+                <template is="dom-repeat" items="[[toArray(item)]]">
+                  <td class="field-record"
+                      on-mouseover="showFullText"
+                      on-mouseout="hideFullText"
+                      hidden$="[[!showField(item.name)]]">
+                    <span>{{item.value}}</span>
                   </td>
-                  <td hidden$="[[hideViewSourceButton]]">
-                    <paper-button
-                      class="field__button"
-                      raised
-                      on-tap="viewSourceFile">View <iron-icon icon="description"></iron-icon>
-                    </paper-button>
-                  </td>
-                </tr>
-              </template>
+                </template>
+                <td hidden$="[[hideRelatedToEventColumn]]">
+                  <iron-icon icon="check"
+                             class="selected-by-event__icon"
+                             hidden$="[[!item.highlightAsRelatedToEvent]]"></iron-icon>
+                </td>
+                <td hidden$="[[hideViewSourceButton]]">
+                  <paper-button
+                    class="field__button"
+                    raised
+                    on-tap="viewSourceFile">View <iron-icon icon="description"></iron-icon>
+                  </paper-button>
+                </td>
+              </tr>
+            </template>
             </tbody>
           </table>
+        </div>
+
+        <!-- Footer Bar -->
+        <div hidden$="[[!noRecords]]"
+             class="data-grid__footer layout horizontal center center-justified">
+          <div class="layout vertical">
+            <div class="total-records">
+              <span>[[totalRecords]]</span> Results
+            </div>
+            <epe-paginator
+              id="Paginator"
+              perpage="50"
+              items="{{paginatedData}}"
+              data="[[gridData]]"
+              show-first="true"
+              show-last="true"></epe-paginator>
+          </div>
         </div>
 
         <!-- No records returned form filter -->
@@ -404,23 +408,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <div>There are no records matching the selected filters.</div>
         </div>
 
-      </div>
-
-      <!-- Footer Bar -->
-      <div hidden$="[[!noRecords]]"
-           class="data-grid__footer layout horizontal center center-justified">
-        <div class="layout vertical">
-          <div class="total-records">
-            <span>[[totalRecords]]</span> Results
-          </div>
-          <epe-paginator
-            id="Paginator"
-            perpage="50"
-            items="{{paginatedData}}"
-            data="[[gridData]]"
-            show-first="true"
-            show-last="true"></epe-paginator>
-        </div>
       </div>
     </div>
 
@@ -431,449 +418,461 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </template>
 </dom-module>
 <script>
-(function() {
-  Polymer({
-    is: 'epe-data-grid',
+  (function() {
+    Polymer({
+      is: 'epe-data-grid',
 
-    properties: {
+      properties: {
 
-      collectionName: {
-        type: String,
-        observer: 'collectionNameChanged'
+        collectionName: {
+          type: String,
+          observer: 'collectionNameChanged'
+        },
+
+        gridData: {
+          type: Array,
+          observer: 'gridDataChanged'
+        },
+
+        // Used to get the headings
+        gridDataFirstRecord: {
+          type: Object,
+          value: {}
+        },
+
+        // Used to retain sort info on column headers
+        sortingState: {
+          type: Object,
+          observer: 'sortingStateChanged'
+        },
+
+        totalRecords: {
+          type: Number,
+          computed: 'getTotalRecords(gridData)'
+        },
+
+        noRecords: {
+          type: Boolean,
+          computed: 'areThereAnyRecords(gridData)',
+          value: false
+        },
+
+        hideViewSourceButton: {
+          tye: Boolean,
+          computed: 'isSource(collectionName)'
+        },
+
+        hideRelatedToEventColumn: {
+          tye: Boolean,
+          computed: 'isEvent(collectionName)'
+        },
+
+        fullText: {
+          type: String,
+          value: ''
+        },
+
+        showAllSelected: {
+          type: Boolean,
+          value: false,
+          notify: true
+        }
       },
 
-      gridData: {
-        type: Array,
-        observer: 'gridDataChanged'
+      ready: function() {
+        var $scrollableContent = this.$.DataGridRecords;
+        $scrollableContent.addEventListener("scroll", this.scrollHeader.bind(this));
       },
 
-      // Used to get the headings
-      gridDataFirstRecord: {
-        type: Object,
-        value: {}
+      // Iterate through keys of an object and return key/value pair
+      toArray: function(obj) {
+
+        if (obj) {
+          return Object.keys(obj).map(function (key) {
+            return {
+              name: key,
+              value: obj[key]
+            };
+          });
+        } else {
+          return [];
+        }
       },
 
-      // Used to retain sort info on column headers
-      sortingState: {
-        type: Object,
-        observer: 'sortingStateChanged'
+      // Scroll the header horizontally when the content scrolls
+      scrollHeader: function () {
+
+        var $scrollableHeader = this.$.DataGridHeader;
+
+        // Set header scroll position
+        $scrollableHeader.scrollLeft = this.$.DataGridRecords.scrollLeft;
+
+        // Keep a record of Records' scroll position to fix issue with selecting checkbox at
+        // bottom jumping the scroll position up
+        this.recordsScrollTopPosition = this.$.DataGridRecords.scrollTop;
       },
 
-      totalRecords: {
-        type: Number,
-        computed: 'getTotalRecords(gridData)'
+      // Return false if item is a loki property
+      showField: function(keyName) {
+
+        var schemaFieldsToDisplay = [];
+
+        switch (this.collectionName) {
+          case app.config.EventsCollection.name:
+            app.config.EventsCollection.fields.forEach(function(object) {
+              if (object.display === 'true') {
+                schemaFieldsToDisplay.push(object.name);
+              }
+            }.bind(this));
+            break;
+          case app.config.PlacesCollection.name:
+            app.config.PlacesCollection.fields.forEach(function(object) {
+              if (object.display === 'true') {
+                schemaFieldsToDisplay.push(object.name);
+              }
+            }.bind(this));
+            break;
+          case app.config.PeopleCollection.name:
+            app.config.PeopleCollection.fields.forEach(function(object) {
+              if (object.display === 'true') {
+                schemaFieldsToDisplay.push(object.name);
+              }
+            }.bind(this));
+            break;
+          case app.config.SourcesCollection.name:
+            app.config.SourcesCollection.fields.forEach(function(object) {
+              if (object.display === 'true') {
+                schemaFieldsToDisplay.push(object.name);
+              }
+            }.bind(this));
+            break;
+        }
+
+        if (_.indexOf(schemaFieldsToDisplay, keyName) === -1) {
+          return false;
+        }
+
+        return true;
       },
 
-      noRecords: {
-        type: Boolean,
-        computed: 'areThereAnyRecords(gridData)',
-        value: false
-      },
+      // Return whether there are any records
+      areThereAnyRecords: function(gridData) {
 
-      hideViewSourceButton: {
-        tye: Boolean,
-        computed: 'isSource(collectionName)'
-      },
-
-      hideRelatedToEventColumn: {
-        tye: Boolean,
-        computed: 'isEvent(collectionName)'
-      },
-
-      fullText: {
-        type: String,
-        value: ''
-      },
-
-      showAllSelected: {
-        type: Boolean,
-        value: false,
-        notify: true
-      }
-    },
-
-    ready: function() {
-      var $scrollableContent = this.$.DataGridRecords;
-      $scrollableContent.addEventListener("scroll", this.scrollHeader.bind(this));
-    },
-
-    // Iterate through keys of an object and return key/value pair
-    toArray: function(obj) {
-
-      if (obj) {
-        return Object.keys(obj).map(function (key) {
-          return {
-            name: key,
-            value: obj[key]
-          };
-        });
-      } else {
-        return [];
-      }
-    },
-
-    // Scroll the header horizontally when the content scrolls
-    scrollHeader: function (event) {
-
-      var $scrollableHeader = this.$.DataGridHeader;
-
-      $scrollableHeader.scrollLeft = event.currentTarget.scrollLeft;
-    },
-
-    // Return false if item is a loki property
-    showField: function(keyName) {
-
-      var schemaFieldsToDisplay = [];
-
-      switch (this.collectionName) {
-        case app.config.EventsCollection.name:
-          app.config.EventsCollection.fields.forEach(function(object) {
-            if (object.display === 'true') {
-              schemaFieldsToDisplay.push(object.name);
-            }
-          }.bind(this));
-          break;
-        case app.config.PlacesCollection.name:
-          app.config.PlacesCollection.fields.forEach(function(object) {
-            if (object.display === 'true') {
-              schemaFieldsToDisplay.push(object.name);
-            }
-          }.bind(this));
-          break;
-        case app.config.PeopleCollection.name:
-          app.config.PeopleCollection.fields.forEach(function(object) {
-            if (object.display === 'true') {
-              schemaFieldsToDisplay.push(object.name);
-            }
-          }.bind(this));
-          break;
-        case app.config.SourcesCollection.name:
-          app.config.SourcesCollection.fields.forEach(function(object) {
-            if (object.display === 'true') {
-              schemaFieldsToDisplay.push(object.name);
-            }
-          }.bind(this));
-          break;
-      }
-
-      if (_.indexOf(schemaFieldsToDisplay, keyName) === -1) {
+        if (gridData) {
+          if (gridData.length > 0) {
+            return true;
+          }
+        }
         return false;
-      }
+      },
 
-      return true;
-    },
+      // Return total number of records in the gridData
+      getTotalRecords: function(gridData) {
 
-    // Return whether there are any records
-    areThereAnyRecords: function(gridData) {
+        if (gridData) {
+          return gridData.length;
+        }
+        return 0;
+      },
 
-      if (gridData) {
-        if (gridData.length > 0) {
+      // CALLED BY OBSERVABLE ON COLLECTIONNAME
+      collectionNameChanged: function() {
+
+        // Reset Pagination to first page on collection name changing
+        this.$.Paginator.currentpage = 0;
+      },
+
+      // CALLED BY OBSERVABLE ON GRIDDATA
+      gridDataChanged: function() {
+
+        if (this.gridData) {
+
+          // This is the column headings
+          this.gridDataFirstRecord = this.gridData[0];
+
+          // Force template-repeat to show checkboxes in correct state after the
+          // show record property has changed
+          this.updateCheckboxes();
+
+          // Set table to relevant size depending on widths of heading names
+          // Wrap in async to give template time to be stamped
+          this.async(this.setDefaultTableWidths);
+        }
+      },
+
+      // Set default table and column widths
+      setDefaultTableWidths: function() {
+
+        var fieldHeadings = this.querySelectorAll('.field-heading');
+        var tableWidth = 0;
+        var checkBoxColWidth = 51;
+        var relatedToEventColWidth = 0;
+        var sourceColWidth = 0;
+        var $relatedToEventCol;
+        var $sourceCol;
+        var recordsScrollTopPosition;
+
+        // Reset style widths on table and colGroup cols
+        this.$.HeaderTable.style.width = '';
+        this.querySelectorAll('.field-col').forEach(function($col) {
+          $col.style.width = '';
+        });
+
+        // Set the colGroup width based on the width of the field heading
+        if (fieldHeadings.length > 0) {
+
+          $relatedToEventCol = this.querySelector('.selected-by-event-heading:not([hidden]');
+          $sourceCol = this.querySelector('.blank:not([hidden]');
+
+          // Add borders to width if not hidden
+          if ($relatedToEventCol) {
+            relatedToEventColWidth = 61;
+          }
+
+          if ($sourceCol) {
+            sourceColWidth = 101;
+          }
+
+          // Set each colGroup col's width
+          fieldHeadings.forEach(function(fieldHeading) {
+
+            var headingName = fieldHeading.getAttribute('heading-name');
+            var $colElements;
+
+            if (fieldHeading.clientWidth > 0) {
+
+              $colElements = this.querySelectorAll('.field-col[heading-name="' + fieldHeading.getAttribute('heading-name') + '"');
+
+              $colElements.forEach(function($col) {
+                $col.style.width = fieldHeading.clientWidth + 'px';
+              });
+
+              tableWidth = tableWidth + fieldHeading.clientWidth + 1;
+            }
+          }.bind(this));
+
+          // Resizing the Columns will have made the scroll top position change so reset again
+          this.$.DataGridRecords.scrollTop = this.recordsScrollTopPosition;
+
+          // Calculate table width including all visible headers
+          tableWidth = tableWidth + checkBoxColWidth + relatedToEventColWidth + sourceColWidth;
+
+          // If the table is less than this element's width, set it to 100%
+          if (tableWidth < document.querySelector('body').clientWidth) {
+            this.$.HeaderTable.style.width = '100%';
+            this.$.RecordsTable.style.width = '100%';
+          } else {
+            this.$.HeaderTable.style.width = tableWidth + 'px';
+            this.$.RecordsTable.style.width = tableWidth + 'px';
+          }
+        }
+
+        // Set the scrollHeader
+        this.scrollHeader();
+      },
+
+      // Force template-repeat to show checkboxes in correct state after the
+      // show record property has changed
+      updateCheckboxes: function() {
+
+        this.gridData.forEach(function(item, index) {
+
+          this.$.ListTemplate.set('items.' + index + '.showRecord', item.showRecord);
+        }.bind(this));
+      },
+
+      // CALLED BY OBSERVABLE ON SORTINGSTATE
+      sortingStateChanged: function() {
+
+        // Stick in async so the gridData headings will have been added to DOM in template
+        this.async(this.resetHeadingSortIndicators);
+      },
+
+      // Reset all heading sort statuses to neutral
+      resetHeadingSortIndicators: function() {
+
+        var selectorName = 'th[heading-name="' + this.sortingState.property + '"]';
+        var $sortedHeader = Polymer.dom(this.root).querySelector(selectorName);
+        var $headers = Polymer.dom(this.root).querySelectorAll('th');
+
+        if (!$sortedHeader) {
+          return;
+        }
+
+        // Set any current sorts back to neutral
+        $headers.forEach(function($header) {
+          $header.setAttribute('sort-status', 'neutral');
+        });
+
+        if (this.sortingState.desc === true) {
+          $sortedHeader.setAttribute('sort-status', 'false');
+        } else if (this.sortingState.desc === false) {
+          $sortedHeader.setAttribute('sort-status', 'true');
+        }
+      },
+
+      // Sort gridData by column
+      sortByColumn: function(event) {
+
+        var desc;
+        var sortingObject;
+        var sortStatus = event.currentTarget.getAttribute('sort-status');
+
+        // Set the desc property to send to the sorting collection transform
+        if (sortStatus === 'neutral' || sortStatus === 'false') {
+          desc = false;
+        } else if (sortStatus === 'true') {
+          desc = true;
+        }
+
+        sortingObject = {
+          collectionName: this.collectionName,
+          fieldName: event.model.item.name,
+          desc: desc
+        };
+
+        // Call sortingChanged action
+        this.filterStateActions.sortingChanged(sortingObject);
+      },
+
+      // FIRED BY USER SELECTING CHECKBOXHOLDER: Select all checkboxes in list
+      selectAllRecords: function(event) {
+
+        if (this.gridData) {
+
+          // Update all items in the data collection
+          this.gridData.forEach(function(record, index) {
+
+            if (event.target.checked) {
+              this.showAllSelected = true;
+              this.$.ListTemplate.set('items.' + index + '.showRecord', true);
+            } else {
+              this.showAllSelected = false;
+
+              // Only set checkbox to false if user has deselected Select All checkbox not when called programmatically
+              if (event.type === 'change') {
+                this.$.ListTemplate.set('items.' + index + '.showRecord', false);
+              }
+            }
+          }.bind(this));
+
+          // Call showAllSelected action
+          if (event.type === 'change') {
+            this.filterStateActions.showAllSelected({
+              collectionData: this.gridData,
+              collectionName: this.collectionName,
+              showAllSelected: this.showAllSelected
+            });
+          }
+        }
+      },
+
+      // FIRED BY USER SELECTING A RECORD'S CHECKBOX: Deselect the Select All Checkbox and
+      // call filterStateChanged action
+      selectRecord: function(event) {
+
+        var checkBoxSelected;
+
+        // Deselect the Select All Checkbox if checkbox is being de-selected
+        if (!event.target.checked) {
+          checkBoxSelected = false;
+          this.showAllSelected = false;
+
+          // Set the model showRecord and highlightAsRelatedToEvent properties
+          if(event.model.item) {
+            this.$.ListTemplate.set('items.' + event.model.index + '.showRecord', false);
+          }
+        } else {
+
+          checkBoxSelected = true;
+
+          // Set the model showRecord property
+          if(event.model.item) {
+            this.$.ListTemplate.set('items.' + event.model.index + '.showRecord', true);
+
+            // Set highlight tick
+            if (event.model.item.selectedByEvent) {
+              this.$.ListTemplate.set('items.' + event.model.index + '.highlightAsRelatedToEvent', true);
+            }
+          }
+        }
+
+        // Call checkBoxUpdated action
+        this.filterStateActions.checkBoxUpdated({
+          collectionName: this.collectionName,
+          collectionData: this.gridData,
+          showAllSelected: this.showAllSelected,
+          item: event.model.item,
+          checkBoxSelected: checkBoxSelected,
+          userSelected: event.type === 'change'
+        });
+      },
+
+      // FIRED WHEN USER TAPS VIEW SOURCE BUTTON
+      viewSourceFile: function(event) {
+
+        var sourceObject = event.model.item;
+
+        // Hack based around need to trigger pdf creation in pdf element so we broadcast a change to null
+        // before sending out the object again.
+        this.sourceActions.viewSourceFile(null);
+        this.sourceActions.viewSourceFile(sourceObject);
+      },
+
+      // FIRED WHEN USER TAPS OR MOUSES OVER DATA FIELD
+      showFullText: function(event) {
+
+        var dataText;
+
+        //Temporarily turned off
+        return;
+
+        // Set text depending on whether method is called from mousing over column heading or data field
+        if (event.currentTarget.classList.contains('field-heading')) {
+          dataText = event.model.item.name;
+        } else {
+          dataText = event.model.item.value;
+        }
+
+        this.debounce('showFullText', function() {
+
+          // Set toast text
+          this.fullText = dataText;
+
+          // Show Toast
+          this.$.ShowFullTextToast.show();
+
+          this.cancelDebouncer('showFullText');
+        }, 1000);
+      },
+
+      // FIRED WHEN USER MOUSES OUT OF DATA FIELD
+      hideFullText: function() {
+
+        // Hide toast
+        this.$.ShowFullTextToast.hide();
+
+        // Cancel debouncer
+        this.cancelDebouncer('showFullText');
+      },
+
+      // Computed function to return true if we're looking at a 'Source' data-grid
+      isSource: function(collectionName) {
+
+        if (collectionName !== app.config.SourcesCollection.name) {
           return true;
         }
-      }
-      return false;
-    },
+        return false;
+      },
 
-    // Return total number of records in the gridData
-    getTotalRecords: function(gridData) {
+      // Computed function to return true if we're looking at a 'Event' data-grid
+      isEvent: function() {
 
-      if (gridData) {
-        return gridData.length;
-      }
-      return 0;
-    },
-
-    // CALLED BY OBSERVABLE ON COLLECTIONNAME
-    collectionNameChanged: function() {
-
-      // Reset Pagination to first page on collection name changing
-      this.$.Paginator.currentpage = 0;
-    },
-
-    // CALLED BY OBSERVABLE ON GRIDDATA
-    gridDataChanged: function() {
-
-      if (this.gridData) {
-
-        // This is the column headings
-        this.gridDataFirstRecord = this.gridData[0];
-
-        // Force template-repeat to show checkboxes in correct state after the
-        // show record property has changed
-        this.updateCheckboxes();
-
-        // Set table to relevant size depending on widths of heading names
-        // Wrap in async to give template time to be stamped
-        this.async(this.setDefaultTableWidths);
-      }
-    },
-
-    // Set default table and column widths
-    setDefaultTableWidths: function() {
-
-      var fieldHeadings = this.querySelectorAll('.field-heading');
-      var tableWidth = 0;
-      var checkBoxColWidth = 51;
-      var relatedToEventColWidth = 0;
-      var sourceColWidth = 0;
-      var $relatedToEventCol;
-      var $sourceCol;
-
-      // Reset style widths on table and colGroup cols
-      this.$.HeaderTable.style.width = '';
-      this.querySelectorAll('.field-col').forEach(function($col) {
-        $col.style.width = '';
-      });
-
-      // Set the colGroup width based on the width of the field heading
-      if (fieldHeadings.length > 0) {
-
-        $relatedToEventCol = this.querySelector('.selected-by-event-heading:not([hidden]');
-        $sourceCol = this.querySelector('.blank:not([hidden]');
-
-        // Add borders to width if not hidden
-        if ($relatedToEventCol) {
-          relatedToEventColWidth = 61;
+        if (this.collectionName === app.config.EventsCollection.name) {
+          return true;
         }
-
-        if ($sourceCol) {
-          sourceColWidth = 101;
-        }
-
-        // Set each colGroup col's width
-        fieldHeadings.forEach(function(fieldHeading) {
-
-          var headingName = fieldHeading.getAttribute('heading-name');
-          var $colElements;
-
-          if (fieldHeading.clientWidth > 0) {
-
-            $colElements = this.querySelectorAll('.field-col[heading-name="' + fieldHeading.getAttribute('heading-name') + '"');
-
-            $colElements.forEach(function($col) {
-              $col.style.width = fieldHeading.clientWidth + 'px';
-            });
-
-            tableWidth = tableWidth + fieldHeading.clientWidth + 1;
-          }
-        }.bind(this));
-
-        // Calculate table width including all visible headers
-        tableWidth = tableWidth + checkBoxColWidth + relatedToEventColWidth + sourceColWidth;
-
-        // If the table is less than this element's width, set it to 100%
-        if (tableWidth < document.querySelector('body').clientWidth) {
-          this.$.HeaderTable.style.width = '100%';
-          this.$.RecordsTable.style.width = '100%';
-        } else {
-          this.$.HeaderTable.style.width = tableWidth + 'px';
-          this.$.RecordsTable.style.width = tableWidth + 'px';
-        }
+        return false;
       }
-    },
-
-    // Force template-repeat to show checkboxes in correct state after the
-    // show record property has changed
-    updateCheckboxes: function() {
-
-      this.gridData.forEach(function(item, index) {
-
-        this.$.ListTemplate.set('items.' + index + '.showRecord', item.showRecord);
-      }.bind(this));
-    },
-
-    // CALLED BY OBSERVABLE ON SORTINGSTATE
-    sortingStateChanged: function() {
-
-      // Stick in async so the gridData headings will have been added to DOM in template
-      this.async(this.resetHeadingSortIndicators);
-    },
-
-    // Reset all heading sort statuses to neutral
-    resetHeadingSortIndicators: function() {
-
-      var selectorName = 'th[heading-name="' + this.sortingState.property + '"]';
-      var $sortedHeader = Polymer.dom(this.root).querySelector(selectorName);
-      var $headers = Polymer.dom(this.root).querySelectorAll('th');
-
-      if (!$sortedHeader) {
-        return;
-      }
-
-      // Set any current sorts back to neutral
-      $headers.forEach(function($header) {
-        $header.setAttribute('sort-status', 'neutral');
-      });
-
-      if (this.sortingState.desc === true) {
-        $sortedHeader.setAttribute('sort-status', 'false');
-      } else if (this.sortingState.desc === false) {
-        $sortedHeader.setAttribute('sort-status', 'true');
-      }
-    },
-
-    // Sort gridData by column
-    sortByColumn: function(event) {
-
-      var desc;
-      var sortingObject;
-      var sortStatus = event.currentTarget.getAttribute('sort-status');
-
-      // Set the desc property to send to the sorting collection transform
-      if (sortStatus === 'neutral' || sortStatus === 'false') {
-        desc = false;
-      } else if (sortStatus === 'true') {
-        desc = true;
-      }
-
-      sortingObject = {
-        collectionName: this.collectionName,
-        fieldName: event.model.item.name,
-        desc: desc
-      };
-
-      // Call sortingChanged action
-      this.filterStateActions.sortingChanged(sortingObject);
-    },
-
-    // FIRED BY USER SELECTING CHECKBOXHOLDER: Select all checkboxes in list
-    selectAllRecords: function(event) {
-
-      if (this.gridData) {
-
-        // Update all items in the data collection
-        this.gridData.forEach(function(record, index) {
-
-          if (event.target.checked) {
-            this.showAllSelected = true;
-            this.$.ListTemplate.set('items.' + index + '.showRecord', true);
-          } else {
-            this.showAllSelected = false;
-
-            // Only set checkbox to false if user has deselected Select All checkbox not when called programmatically
-            if (event.type === 'change') {
-              this.$.ListTemplate.set('items.' + index + '.showRecord', false);
-            }
-          }
-        }.bind(this));
-
-        // Call showAllSelected action
-        if (event.type === 'change') {
-          this.filterStateActions.showAllSelected({
-            collectionData: this.gridData,
-            collectionName: this.collectionName,
-            showAllSelected: this.showAllSelected
-          });
-        }
-      }
-    },
-
-    // FIRED BY USER SELECTING A RECORD'S CHECKBOX: Deselect the Select All Checkbox and
-    // call filterStateChanged action
-    selectRecord: function(event) {
-
-      var checkBoxSelected;
-
-      // Deselect the Select All Checkbox if checkbox is being de-selected
-      if (!event.target.checked) {
-        checkBoxSelected = false;
-        this.showAllSelected = false;
-
-        // Set the model showRecord and highlightAsRelatedToEvent properties
-        if(event.model.item) {
-          this.$.ListTemplate.set('items.' + event.model.index + '.showRecord', false);
-        }
-      } else {
-
-        checkBoxSelected = true;
-
-        // Set the model showRecord property
-        if(event.model.item) {
-          this.$.ListTemplate.set('items.' + event.model.index + '.showRecord', true);
-
-          // Set highlight tick
-          if (event.model.item.selectedByEvent) {
-           this.$.ListTemplate.set('items.' + event.model.index + '.highlightAsRelatedToEvent', true);
-          }
-        }
-      }
-
-      // Call checkBoxUpdated action
-      this.filterStateActions.checkBoxUpdated({
-        collectionName: this.collectionName,
-        collectionData: this.gridData,
-        showAllSelected: this.showAllSelected,
-        item: event.model.item,
-        checkBoxSelected: checkBoxSelected,
-        userSelected: event.type === 'change'
-      });
-    },
-
-    // FIRED WHEN USER TAPS VIEW SOURCE BUTTON
-    viewSourceFile: function(event) {
-
-      var sourceObject = event.model.item;
-
-      // Hack based around need to trigger pdf creation in pdf element so we broadcast a change to null
-      // before sending out the object again.
-      this.sourceActions.viewSourceFile(null);
-      this.sourceActions.viewSourceFile(sourceObject);
-    },
-
-    // FIRED WHEN USER TAPS OR MOUSES OVER DATA FIELD
-    showFullText: function(event) {
-
-      var dataText;
-
-      //Temporarily turned off
-      return;
-
-      // Set text depending on whether method is called from mousing over column heading or data field
-      if (event.currentTarget.classList.contains('field-heading')) {
-        dataText = event.model.item.name;
-      } else {
-        dataText = event.model.item.value;
-      }
-
-      this.debounce('showFullText', function() {
-
-        // Set toast text
-        this.fullText = dataText;
-
-        // Show Toast
-        this.$.ShowFullTextToast.show();
-
-        this.cancelDebouncer('showFullText');
-      }, 1000);
-    },
-
-    // FIRED WHEN USER MOUSES OUT OF DATA FIELD
-    hideFullText: function() {
-
-      // Hide toast
-      this.$.ShowFullTextToast.hide();
-
-      // Cancel debouncer
-      this.cancelDebouncer('showFullText');
-    },
-
-    // Computed function to return true if we're looking at a 'Source' data-grid
-    isSource: function(collectionName) {
-
-      if (collectionName !== app.config.SourcesCollection.name) {
-        return true;
-      }
-      return false;
-    },
-
-    // Computed function to return true if we're looking at a 'Event' data-grid
-    isEvent: function() {
-
-      if (this.collectionName === app.config.EventsCollection.name) {
-        return true;
-      }
-      return false;
-    }
-  });
-})();
+    });
+  })();
 </script>
