@@ -262,7 +262,7 @@ var config = {
     },
     {
       name: 'Approved for release',
-      display: 'false',
+      display: 'true',
       filter: 'none'
     }]
   },

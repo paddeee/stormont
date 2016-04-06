@@ -250,6 +250,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       padding: 0 0.5vw;
     }
 
+    .approved-for-release {
+      color: var(--paper-red-700);
+    }
+
     @media (min-width: 1020px) {
 
       .field__button {
@@ -354,7 +358,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <template id="ListTemplate"
                       is="dom-repeat"
                       items="[[paginatedData]]">
-              <tr>
+              <tr class$="[[isApprovedForRelease(item)]]">
                 <td class="checkbox-holder">
                   <paper-checkbox class="record-checkbox"
                                   on-iron-change="selectRecord"
@@ -878,6 +882,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           return true;
         }
         return false;
+      },
+
+      // Return the class name if approved for release
+      isApprovedForRelease: function(item) {
+
+        var className = '';
+
+        if (item['Approved for release'] === 'No') {
+          className = 'approved-for-release';
+        }
+
+        return className;
       }
     });
   })();
