@@ -669,13 +669,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.$.HeaderTable.style.width = tableWidth + 'px';
             this.$.RecordsTable.style.width = tableWidth + 'px';
           }
-
-          // Set the Records div height to be same as the table so no gap at the bottom
-          this.$.DataGridRecords.style.height = this.$.RecordsTable.clientHeight + 'px';
         }
 
         // Set the scrollHeader
         this.scrollHeader();
+
+        // Set the Records div height to be same as the table so no gap at the bottom
+        this.async(function() {
+          this.$.DataGridRecords.style.height = this.$.RecordsTable.clientHeight + 'px';
+        });
       },
 
       // Force template-repeat to show checkboxes in correct state after the
