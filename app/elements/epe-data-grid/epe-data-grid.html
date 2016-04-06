@@ -204,6 +204,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       border-top: 0;
     }
 
+    .source {
+      text-align: right;
+    }
+
     .data-grid__records .checkbox-holder {
       vertical-align: middle;
       text-align: center;
@@ -372,7 +376,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                              class="selected-by-event__icon"
                              hidden$="[[!item.highlightAsRelatedToEvent]]"></iron-icon>
                 </td>
-                <td hidden$="[[hideViewSourceButton]]">
+                <td class="source"
+                    hidden$="[[hideViewSourceButton]]">
                   <paper-button
                     class="field__button"
                     raised
