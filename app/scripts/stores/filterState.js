@@ -454,9 +454,12 @@ module.exports = Reflux.createStore({
 
     itemArray.forEach(function (eventObject) {
 
+      // Match any shortNames inside square brackets
+      var place = eventObject.Place.replace(/(^.*\[|\].*$)/g, '');
+
       placesStore.userFilteredCollection.copy().find({
         'Short Name': {
-          '$eq': eventObject.Place
+          '$eq': place
         }
       }).update(function (placeObject) {
 
@@ -500,7 +503,25 @@ module.exports = Reflux.createStore({
     };
 
     var split = function (item) {
-      return _.union(item.Suspects.split(','), item.Victims.split(','), item.Witnesses.split(','));
+
+      var suspects = item.Suspects.split(',');
+      var victims = item.Victims.split(',');
+      var witnesses = item.Witnesses.split(',');
+
+      // Match any shortNames inside square brackets
+      suspects = suspects.map(function(suspect) {
+        return suspect.replace(/(^.*\[|\].*$)/g, '');
+      });
+
+      victims = victims.map(function(victim) {
+        return victim.replace(/(^.*\[|\].*$)/g, '');
+      });
+
+      witnesses = witnesses.map(function(witness) {
+        return witness.replace(/(^.*\[|\].*$)/g, '');
+      });
+
+      return _.union(suspects, victims, witnesses);
     };
 
     var trim = function (item) {

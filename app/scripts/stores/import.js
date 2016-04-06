@@ -131,12 +131,51 @@ module.exports = Reflux.createStore({
     shortNameDictionary = this.addToShortnameDictionary(shortNameDictionary, placeData);
     shortNameDictionary = this.addToShortnameDictionary(shortNameDictionary, personData);
 
+    var handlerFunction = function(key, shortNameDictionary) {
+      return shortNameDictionary[key] + ' [' + key + '] ';
+    };
+
+    // Replace shortnames in Events
     eventData.forEach(function(event) {
 
-      event.Description = this.replaceUsingDictionary(shortNameDictionary, event.Description, function(key, shortNameDictionary) {
-        return shortNameDictionary[key];
-        //return '<span class="replaced">' + shortNameDictionary[key] + '</span>';
-      });
+      if (event.Suspects) {
+        event.Suspects = this.replaceUsingDictionary(shortNameDictionary, event.Suspects, handlerFunction);
+      }
+
+      if (event.Victims) {
+        event.Victims = this.replaceUsingDictionary(shortNameDictionary, event.Victims, handlerFunction);
+      }
+
+      if (event.Witnesses) {
+        event.Witnesses = this.replaceUsingDictionary(shortNameDictionary, event.Witnesses, handlerFunction);
+      }
+
+      if (event.Description) {
+        event.Description = this.replaceUsingDictionary(shortNameDictionary, event.Description, handlerFunction);
+      }
+
+    }.bind(this));
+
+    // Replace shortnames in Places
+    placeData.forEach(function(place) {
+
+      if (place.Description) {
+        place.Description = this.replaceUsingDictionary(shortNameDictionary, place.Description, handlerFunction);
+      }
+
+    }.bind(this));
+
+    // Replace shortnames in Persons
+    personData.forEach(function(person) {
+
+      if (person.Profile) {
+        person.Profile = this.replaceUsingDictionary(shortNameDictionary, person.Profile, handlerFunction);
+      }
+
+      if (person.Description) {
+        person.Description = this.replaceUsingDictionary(shortNameDictionary, person.Description, handlerFunction);
+      }
+
     }.bind(this));
   },
 
@@ -155,26 +194,21 @@ module.exports = Reflux.createStore({
 
     var patterns = [];
     var patternHash = {};
-    var oldkey;
     var key;
     var index = 0;
     var output = [];
     var pattern;
     var lastIndex;
 
-    if (typeof replacehandler != "function") {
+    if (typeof replacehandler !== 'function') {
 
       // Default replacehandler function.
       replacehandler = function(key, dictionary) {
         return dictionary[key];
-      }
+      };
     }
 
     for (key in dictionary) {
-
-      // Case-insensitivity:
-      key = (oldkey = key).toLowerCase();
-      dictionary[key] = dictionary[oldkey];
 
       // Sanitize the key, and push it in the list
       patterns.push('\\b(?:' + key.replace(/([[^$.|?*+(){}])/g, '\\$1') + ')\\b');
@@ -191,7 +225,7 @@ module.exports = Reflux.createStore({
     while (key = pattern.exec(content)) {
 
       // Case-insensitivity
-      key = key[0].toLowerCase();
+      key = key[0];
 
       // Add to output buffer
       output.push(content.substring(lastIndex, pattern.lastIndex - key.length));

@@ -125,9 +125,14 @@ var config = {
       filter: 'regex'
     },
     {
-      name: 'Picture',
+      name: 'Photo',
       display: 'false',
       filter: 'none'
+    },
+    {
+      name: 'Profile',
+      display: 'true',
+      filter: 'regex'
     },
     {
       name: 'Supporting Documents',

@@ -486,7 +486,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       ready: function() {
         var $scrollableContent = this.$.DataGridRecords;
-        $scrollableContent.addEventListener("scroll", this.scrollHeader.bind(this));
+        $scrollableContent.addEventListener('scroll', this.scrollHeader.bind(this));
       },
 
       // Iterate through keys of an object and return key/value pair
@@ -615,7 +615,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var sourceColWidth = 0;
         var $relatedToEventCol;
         var $sourceCol;
-        var recordsScrollTopPosition;
 
         // Reset style widths on table and colGroup cols
         this.$.HeaderTable.style.width = '';
@@ -646,7 +645,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             if (fieldHeading.clientWidth > 0) {
 
-              $colElements = this.querySelectorAll('.field-col[heading-name="' + fieldHeading.getAttribute('heading-name') + '"');
+              $colElements = this.querySelectorAll('.field-col[heading-name="' + headingName + '"');
 
               $colElements.forEach(function($col) {
                 $col.style.width = fieldHeading.clientWidth + 'px';
@@ -826,11 +825,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // FIRED WHEN USER TAPS OR MOUSES OVER DATA FIELD
       showFullText: function(event) {
-
+        /*Temporarily turned off
         var dataText;
-
-        //Temporarily turned off
-        return;
 
         // Set text depending on whether method is called from mousing over column heading or data field
         if (event.currentTarget.classList.contains('field-heading')) {
@@ -848,7 +844,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.$.ShowFullTextToast.show();
 
           this.cancelDebouncer('showFullText');
-        }, 1000);
+        }, 1000);*/
       },
 
       // FIRED WHEN USER MOUSES OUT OF DATA FIELD
