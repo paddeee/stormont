@@ -266,6 +266,7 @@ var config = {
       filter: 'none'
     }]
   },
+  PresentationsCollection: 'Presentations',
   QueriesCollection: 'Queries',
   MapGeoJSONCollection: 'MapGeoJSON'
 };

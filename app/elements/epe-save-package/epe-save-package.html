@@ -266,7 +266,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           gateKeeperState: 'red',
           authoriserState: 'red',
           presentationState: 'creating',
-          originalName: originalName
+          originalName: originalName,
+          unapprovedSource: this.selectedPresentation.unapprovedSource
         };
 
         // Call saveQuery action
@@ -296,7 +297,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         gateKeeperState: 'red',
         authoriserState: 'red',
         presentationState: this.presentationState,
-        originalName: originalName
+        originalName: originalName,
+        unapprovedSource: this.selectedPresentation.unapprovedSource
       };
 
       // Call saveQuery action

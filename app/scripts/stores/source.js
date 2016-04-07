@@ -94,10 +94,18 @@ module.exports = Reflux.createStore({
       // Apply the sort
       this.userFilteredCollection.simplesort(collectionTransformObject.sorting.property, collectionTransformObject.sorting.desc);
 
+      // Call the presentations store's flagUnapprovedSources method to set whether any source records are not approved
+      // for release
+      presentationsStore.flagUnapprovedSources(this.userFilteredCollection);
+
     } else {
 
       if (message !== 'presentationSaved') {
         this.userFilteredCollection = collectionToAddTransformTo.chain().copy();
+
+        // Call the presentations store's flagUnapprovedSources method to set whether any source records are not approved
+        // for release
+        presentationsStore.flagUnapprovedSources(this.userFilteredCollection);
       }
     }
 
@@ -126,6 +134,10 @@ module.exports = Reflux.createStore({
 
     // Update the collection resulting from the transform
     this.userFilteredCollection = collectionToAddTransformTo.chain(transformName);
+
+    // Call the presentations store's flagUnapprovedSources method to set whether any source records are not approved
+    // for release
+    presentationsStore.flagUnapprovedSources(this.userFilteredCollection);
 
     // Set viewingSource property to false
     this.viewingSource = false;

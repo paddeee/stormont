@@ -95,5 +95,23 @@ module.exports = Reflux.createStore({
       this.trigger(this);
 
     }.bind(this));
+  },
+
+  // Add an 'unapprovedSource' property to each presentation that contains unapproved Source Material
+  flagUnapprovedSources: function(userFilteredCollection) {
+
+    var unapprovedSource = false;
+
+    // If any sources are not approved for release change the flag
+    userFilteredCollection.data().forEach(function(source) {
+
+      if (source['Approved for release'] === 'No') {
+        unapprovedSource = true;
+      }
+    });
+
+    if (this.selectedPresentationObject) {
+      this.selectedPresentationObject.unapprovedSource = unapprovedSource;
+    }
   }
 });
