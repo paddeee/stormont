@@ -15,6 +15,9 @@ module.exports = Reflux.createStore({
     // Set initial state user is using presentation
     this.presentationState = 'creating';
 
+    // Create selected presentation object
+    this.selectedPresentationObject = {};
+
     // Register dataSourceStores's changes
     this.listenTo(dataSourceStore, this.dataSourceChanged);
   },
@@ -67,7 +70,7 @@ module.exports = Reflux.createStore({
     if (selectedPresentationObject && selectedPresentationObject.length > 0) {
       this.selectedPresentationObject = selectedPresentationObject[0];
     } else {
-      this.selectedPresentationObject = null;
+      this.selectedPresentationObject = {};
     }
 
     this.presentationState = presentationObject.presentationState;
@@ -110,8 +113,6 @@ module.exports = Reflux.createStore({
       }
     });
 
-    if (this.selectedPresentationObject) {
-      this.selectedPresentationObject.unapprovedSource = unapprovedSource;
-    }
+    this.selectedPresentationObject.unapprovedSource = unapprovedSource;
   }
 });

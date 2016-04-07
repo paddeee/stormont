@@ -248,7 +248,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
 
-    <div class="data-grid">
+    <div class="data-grid"
+         hidden$="[[!noRecords]]">
       <div class="data-grid__container">
 
         <!-- DataGrid Header -->
@@ -395,13 +396,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </div>
         </div>
 
-        <!-- No records returned form filter -->
-        <div hidden$="[[noRecords]]"
-             class="no-records fit layout horizontal center center-justified">
-          <div>There are no records matching the selected filters.</div>
-        </div>
-
       </div>
+    </div>
+
+    <!-- No records returned form filter -->
+    <div hidden$="[[noRecords]]"
+         class="no-records fit layout horizontal center center-justified">
+      <div>There are no records matching the selected filters.</div>
     </div>
 
     <!-- Import Notifications -->
@@ -664,7 +665,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Set the Records div height to be same as the table so no gap at the bottom
         this.async(function() {
-          this.$.DataGridRecords.style.height = this.$.RecordsTable.clientHeight + 'px';
+          if (this.$.DataGridRecords.clientHeight >= this.$.RecordsTable.clientHeight) {
+            this.$.DataGridRecords.style.height = this.$.RecordsTable.clientHeight + 'px';
+          }
         });
       },
 

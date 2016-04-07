@@ -267,6 +267,7 @@ module.exports = Reflux.createStore({
       presentationInfo.gateKeeperState = presentationObject.gateKeeperState;
       presentationInfo.authoriserState = presentationObject.authoriserState;
       presentationInfo.createdDate = createdDate;
+      presentationInfo.unapprovedSource = presentationObject.unapprovedSource;
 
       presentationsCollection.insert(presentationInfo);
     } else if (action === 'update') {

@@ -96,21 +96,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           <div id="DataGridContainer" class="data-grid-container">
 
-            <!-- Filters
-            <div class="filter-container layout vertical"
-                 hidden$="[[hideDataGrid]]">
-              <div class="filters-title horizontal layout">
-                <div class="flex">Filters</div>
-              </div>
-              <div class="filter-search-container">
-                <epe-filter-search
-                  collection-name="[[collectionName]]"
-                  filters-to-show="[[filtersToShow]]"
-                  on-filters-changed="filtersChanged">
-                </epe-filter-search>
-              </div>
-            </div>-->
-
             <!-- DataGrid -->
             <iron-pages attr-for-selected="data-route"
                         selected="{{dataGridRoute}}">
@@ -332,30 +317,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             break;
           default:
             console.log('Sorry, no collectionName set for grid data');
-        }
-      },
-
-      // EPE-SEARCH-FILTER LISTENER
-      filtersChanged: function (event) {
-
-        var searchFilterObject = event.detail;
-
-        this.userFilterOccurred();
-
-        // Call fileImported action
-        this.filterStateActions.searchFilterChanged(searchFilterObject);
-      },
-
-      // EPE-SEARCH-FILTER LISTENER
-      userFilterOccurred: function() {
-
-        if (this.presentationState === 'viewing') {
-
-          // Call presentationStateChanged presentations action
-          this.presentationsActions.presentationStateChanged({
-            presentationName: this.presentationName,
-            presentationState: 'cloning'
-          });
         }
       },
 
