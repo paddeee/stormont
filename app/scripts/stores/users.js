@@ -17,8 +17,8 @@ module.exports = Reflux.createStore({
 
     this.user = {
       status: 'loggedin',
-      userName: 'Padd',
-      role: 'user'
+      userName: 'Lena',
+      role: 'gatekeeper'
     };
 
     this.trigger(this.user);

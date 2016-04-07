@@ -305,6 +305,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
     </paper-dialog>
 
+    <paper-dialog id="UnapprovedSourceDialog" modal>
+      <h2>This Package contains unapproved source material</h2>
+      <div>
+        <span>Are you sure you want to export?</span>
+      </div>
+      <div class="buttons layout horizontal">
+        <paper-button dialog-dismiss autofocus>No</paper-button>
+        <paper-button dialog-confirm
+                      on-tap="openExportDialog">Yes</paper-button>
+      </div>
+    </paper-dialog>
+
     <paper-dialog id="DeletedDialog" modal>
       <h2>Package Successfully Deleted</h2>
       <div class="buttons">
@@ -381,7 +393,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // If a YubiKey is inserted
       } else if (messageType === 'yubiKeyInserted') {
-        this.$.ExportDialog.open();
+          this.isSourceApproved();
 
       // Package successfully exported
       } else if (messageType === 'exportSuccess') {
@@ -485,6 +497,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     exportPackageSelected: function(event) {
 
       this.presentationForExport = event.model.item.presentationName;
+      this.unapprovedSource = event.model.item.unapprovedSource;
 
       // Perform export if in packaged app. Otherwise log so we know it won't work in browser
       if (typeof global === 'object') {
@@ -492,7 +505,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Check YubiKey is inserted
         this.exportActions.yubiKeyCheck();
       } else {
-        console.warn('Export not required in browser mode');
+
+        // Act as if Yubi Key was inserted
+        this.isSourceApproved();
       }
     },
 
@@ -517,28 +532,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var packagePassword;
       var packageLocation;
 
-      // YubiKey will press enter after entering its password
-      if (event.keyCode === 13) {
+        // YubiKey will press enter after entering its password
+        if (event.keyCode === 13) {
 
-        // ToDo: Let User select a location from file explorer
-        // For now just hardcode a location
-        packageLocation = '/Users/ODonnell/SITF/SITFExports/';
-        packagePassword = event.target.value;
+          // Perform export if in packaged app. Otherwise log so we know it won't work in browser
+          if (typeof global === 'object') {
 
-        // Close the Export Dialog and reset the password field
-        this.$.ExportPassword.value = null;
-        this.$.ExportDialog.close();
+            // ToDo: Let User select a location from file explorer
+            // For now just hardcode a location
+            packageLocation = '/Users/ODonnell/SITF/SITFExports/';
+            packagePassword = event.target.value;
 
-        // Open the Exporing Loading Dialog
-        this.$.ExportingPackage.open();
+            // Close the Export Dialog and reset the password field
+            this.$.ExportPassword.value = null;
+            this.$.ExportDialog.close();
 
-        // Call exportPresentation export action
-        this.exportActions.exportPresentation({
-          packageName: this.presentationForExport,
-          packageLocation: packageLocation,
-          packagePassword: packagePassword
-        });
-      }
+            // Open the Exporting Loading Dialog
+            this.$.ExportingPackage.open();
+
+            // Call exportPresentation export action
+            this.exportActions.exportPresentation({
+              packageName: this.presentationForExport,
+              packageLocation: packageLocation,
+              packagePassword: packagePassword
+            });
+
+          } else {
+            console.warn('Export not required in browser mode');
+          }
+        }
     },
 
     // Delete Package action button
@@ -568,6 +590,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return false;
       }
       return true;
+    },
+
+    // If Unapproved Source show Dialog
+    isSourceApproved: function() {
+
+      if (this.unapprovedSource ) {
+        this.$.UnapprovedSourceDialog.open();
+      } else {
+        this.openExportDialog();
+      }
+    },
+
+    // Open Export Dialog
+    openExportDialog: function() {
+      this.$.ExportDialog.open();
     }
   });
 })();
