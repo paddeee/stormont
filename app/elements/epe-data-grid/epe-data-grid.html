@@ -77,6 +77,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       table-layout: fixed;
     }
 
+    .data-grid__records table[loading-data] {
+      visibility: hidden;
+    }
+
     .data-grid__header .checkbox-holder {
       border-left-width: 0;
       vertical-align: middle;
@@ -245,6 +249,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       color: var(--paper-red-700);
     }
 
+    paper-spinner {
+      position: absolute;
+      top: 150px;
+    }
+
   </style>
   <template>
 
@@ -324,7 +333,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <div id="DataGridRecords" class="data-grid__records">
 
-          <table id="RecordsTable">
+          <table id="RecordsTable"
+                 loading-data$="[[!dataLoaded]]">
             <colgroup>
               <col class="checkbox-col">
               <template is="dom-repeat"
@@ -400,6 +410,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </div>
 
     <!-- No records returned form filter -->
+    <div hidden$="[[dataLoaded]]"
+         class="spinner fit layout horizontal center center-justified">
+      <paper-spinner alt="Loading data grid" active></paper-spinner>
+    </div>
+
+    <!-- No records returned form filter -->
     <div hidden$="[[noRecords]]"
          class="no-records fit layout horizontal center center-justified">
       <div>There are no records matching the selected filters.</div>
@@ -417,6 +433,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       is: 'epe-data-grid',
 
       properties: {
+
+        dataLoaded: {
+          tye: Boolean,
+          value: false
+        },
 
         collectionName: {
           type: String,
@@ -579,6 +600,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // CALLED BY OBSERVABLE ON GRIDDATA
       gridDataChanged: function() {
 
+        this.dataLoaded = false;
+
         if (this.gridData) {
 
           // This is the column headings
@@ -665,10 +688,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Set the Records div height to be same as the table so no gap at the bottom
         this.async(function() {
-          if (this.$.DataGridRecords.clientHeight >= this.$.RecordsTable.clientHeight) {
+          if (this.$.DataGridRecords.clientHeight > this.$.RecordsTable.clientHeight) {
             this.$.DataGridRecords.style.height = this.$.RecordsTable.clientHeight + 'px';
+          } else {
+            this.$.DataGridRecords.style.height = '';
           }
-        });
+
+          this.dataLoaded = true;
+        }, 400);
       },
 
       // Force template-repeat to show checkboxes in correct state after the
