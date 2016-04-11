@@ -594,14 +594,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // CALLED BY OBSERVABLE ON COLLECTIONNAME
       collectionNameChanged: function() {
 
+        this.dataLoaded = false;
+
         // Reset Pagination to first page on collection name changing
         this.$.Paginator.currentpage = 0;
+
+        this.async(function() {
+          this.dataLoaded = true;
+        }, 400);
       },
 
       // CALLED BY OBSERVABLE ON GRIDDATA
       gridDataChanged: function() {
-
-        this.dataLoaded = false;
 
         if (this.gridData) {
 
@@ -694,8 +698,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           } else {
             this.$.DataGridRecords.style.height = '';
           }
-
-          this.dataLoaded = true;
         }, 400);
       },
 
