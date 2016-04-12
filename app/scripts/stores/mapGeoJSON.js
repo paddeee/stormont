@@ -9,6 +9,9 @@ module.exports = Reflux.createStore({
   // Called on Store initialisation
   init: function() {
 
+    // Set default display type
+    this.displayType = 'all';
+
     // Register dataSourceStores's changes
     this.listenTo(selectedRecordsStore, this.selectedRecordStoreUpdated);
   },
@@ -18,6 +21,27 @@ module.exports = Reflux.createStore({
 
     // If selected records is changed
     if (selectedRecordStore.message.type === 'selectedRecordsUpdated') {
+
+      this.createGeoJSON();
+
+      // If changed to setToAll events
+    } else if (selectedRecordStore.message.type === 'setToAll') {
+
+      this.activeEvent = selectedRecordStore.activeEvent;
+      this.activePlace = selectedRecordStore.activePlace;
+
+      this.displayType = 'all';
+
+      this.createGeoJSON();
+
+      // If changed to show one event only at a time
+    } else if (selectedRecordStore.message.type === 'setToOneChanged') {
+
+      this.activeEvent = selectedRecordStore.activeEvent;
+      this.activePlace = selectedRecordStore.activePlace;
+
+      this.displayType = 'one';
+
       this.createGeoJSON();
 
     // If event selected has changed
@@ -49,6 +73,8 @@ module.exports = Reflux.createStore({
       events: []
     };
 
+    var messageType = 'geoJSONCreated';
+
     // Assign selected events from each store
     this.selectedEvents = selectedRecordsStore.selectedRecords[config.EventsCollection.name];
     this.selectedPlaces = selectedRecordsStore.selectedRecords[config.PlacesCollection.name];
@@ -60,12 +86,29 @@ module.exports = Reflux.createStore({
       geoJSONObject = defaultGeoJSONObject;
     } else {
 
-      // Push a feature object for each Event record
-      this.selectedEvents.data().forEach(function(selectedEvent) {
+      if (this.displayType === 'one') {
 
-        this.getFeatureObject(selectedEvent, defaultGeoJSONObject, noneGeoJSONObject);
+        this.selectedEvents.copy().find({
+          $loki: parseInt(this.activeEvent, 10)
+        }).data().forEach(function(selectedEvent) {
 
-      }.bind(this));
+          this.getFeatureObject(selectedEvent, defaultGeoJSONObject, noneGeoJSONObject);
+
+        }.bind(this));
+
+        messageType = 'setToOneChanged';
+
+      } else if (this.displayType === 'all') {
+
+        // Push a feature object for each Event record
+        this.selectedEvents.data().forEach(function(selectedEvent) {
+
+          this.getFeatureObject(selectedEvent, defaultGeoJSONObject, noneGeoJSONObject);
+
+        }.bind(this));
+
+        messageType = 'setToAll';
+      }
     }
 
     this.noneGeoJSONObject = _.cloneDeep(noneGeoJSONObject);
@@ -75,7 +118,7 @@ module.exports = Reflux.createStore({
     this.geoJSONObject = _.cloneDeep(defaultGeoJSONObject);
 
     this.message = {
-      type: 'geoJSONCreated'
+      type: messageType
     };
 
     this.trigger(this);

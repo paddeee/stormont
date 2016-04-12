@@ -99,7 +99,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       width: 60px;
       position: fixed;
       bottom: 10px;
-      left: 10px;
+      left: calc(50% - 30px);
       -webkit-transition-property: -webkit-transform, width;
       transition-property: transform, width;
       -webkit-transition-duration: 300ms;
@@ -122,9 +122,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .timeline-control-section--hide {
-      -ms-transform: translateX(-100px);
-      -webkit-transform: translateX(-100px);
-      transform: translateX(-100px);
+      -ms-transform: translateX(-100vw);
+      -webkit-transform: translateX(-100vw);
+      transform: translateX(-100vw);
     }
 
     .timeline-control {
@@ -224,6 +224,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <epe-map-geojson id="MapGeoJSON"
                        data="[[geoJSON]]"
+                       navigating-events="[[navigatingEvents]]"
                        selected-records-actions="[[selectedRecordsActions]]"
                        active-event="[[activeEvent]]"
                        active-place="[[activePlace]]"
@@ -281,6 +282,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     properties: {
 
+      navigatingEvents: {
+        type: Boolean,
+        value: false
+      },
+
       // Remember state so draw controls are only added once
       drawFunctionalityAdded: {
         type: Boolean,
@@ -320,9 +326,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.mapGeoJsonStore.listen(function(mapBroadcast) {
 
           if (mapBroadcast.message.type === 'geoJSONCreated') {
+            this.navigatingEvents = false;
             this.geoJSON = mapBroadcast.geoJSONObject;
             this.noneGeoJSONObject = mapBroadcast.noneGeoJSONObject;
           } else if (mapBroadcast.message.type === 'timeLineSelectedRecord') {
+            this.navigatingEvents = true;
+            this.activeEvent = mapBroadcast.activeEvent;
+            this.activePlace = mapBroadcast.activePlace;
+          } else if (mapBroadcast.message.type === 'setToAll') {
+            this.navigatingEvents = false;
+            this.geoJSON = mapBroadcast.geoJSONObject;
+            this.noneGeoJSONObject = mapBroadcast.noneGeoJSONObject;
+            this.activeEvent = mapBroadcast.activeEvent;
+            this.activePlace = mapBroadcast.activePlace;
+          } else if (mapBroadcast.message.type === 'setToOneChanged') {
+            this.navigatingEvents = false;
+            this.geoJSON = mapBroadcast.geoJSONObject;
+            this.noneGeoJSONObject = mapBroadcast.noneGeoJSONObject;
             this.activeEvent = mapBroadcast.activeEvent;
             this.activePlace = mapBroadcast.activePlace;
           }

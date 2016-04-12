@@ -33,6 +33,18 @@ module.exports = Reflux.createStore({
       };
 
       this.trigger(this);
+
+      // If event selected has changed
+    } else if (selectedRecordStore.message.type === 'mapSelectedRecord') {
+
+      this.activeEvent = selectedRecordStore.activeEvent;
+      this.activePlace = selectedRecordStore.activePlace;
+
+      this.message = {
+        type: 'mapSelectedRecord'
+      };
+
+      this.trigger(this);
     }
   },
 

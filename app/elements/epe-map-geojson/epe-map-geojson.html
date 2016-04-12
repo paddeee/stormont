@@ -39,6 +39,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       behaviors: [window.leafletMap.LeafletILayer],
 
       properties: {
+
         /**
          * data as geojson object
          *
@@ -532,7 +533,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // if the event card has been opened
         if (data.target._popup._isOpen) {
 
-          // Call mapEventSelected export action
+          // Call selectedRecords mapEventSelected action
           this.selectedRecordsActions.mapEventSelected({
             placeId: data.target.feature.properties.placeId,
             eventId: data.target.feature.properties.id
@@ -545,32 +546,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         var openPopups;
 
-        if (this.activeEventExistsInFeatures) {
-          if (data.target.feature.properties.id.toString() === this.activeEvent) {
+        // This will get called when navigating to next item in one and plus-one mode
+        if (this.navigatingEvents === true) {
 
-            // Give popup closed time to decide if there are now no popups left open and then
-            // let Timeline go back to start. Have to do it this way as data from Leaflet's popUpClosed event says the
-            // popup is open.
-            this.async(function () {
+          if (this.activeEventExistsInFeatures) {
+            if (data.target.feature.properties.id.toString() === this.activeEvent) {
 
-              openPopups = this.features.filter(function (feature) {
+              // Give popup closed time to decide if there are now no popups left open and then
+              // let Timeline go back to start. Have to do it this way as data from Leaflet's popUpClosed event says the
+              // popup is open.
+              this.async(function () {
 
-                return feature._popup._isOpen === true;
-              }.bind(this));
+                openPopups = this.features.filter(function (feature) {
 
-              if (!openPopups.length) {
+                  return feature._popup._isOpen === true;
+                }.bind(this));
 
-                this.selectedRecordsActions.timeLineEventSelected({
-                  eventId: '0'
-                });
+                if (!openPopups.length) {
 
-                // No popups so TimeLine needs to know
-                this.selectedRecordsActions.mapEventSelected({
-                  eventId: '0'
-                });
-              }
-            });
+                  this.selectedRecordsActions.timeLineEventSelected({
+                    eventId: '0'
+                  });
+
+                  // No popups so TimeLine needs to know
+                  this.selectedRecordsActions.mapEventSelected({
+                    eventId: '0'
+                  });
+                }
+              });
+            }
           }
+        } else if (this.navigatingEvents === false) {
+
+          // When changing between Display modes, any open popups will be closed
+          // so call activeEventChanged to open again if necessary. In async to give
+          // Leaflet chance to add the markers to the DOM
+          this.async(function() {
+            this.activeEventChanged();
+          });
         }
       }
     });

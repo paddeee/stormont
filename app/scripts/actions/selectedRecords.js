@@ -4,5 +4,7 @@ var Reflux = require('reflux');
 
 module.exports = Reflux.createActions([
   'timeLineEventSelected',
-  'mapEventSelected'
+  'mapEventSelected',
+  'setToAll',
+  'setToOneChanged'
 ]);

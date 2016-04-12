@@ -88,7 +88,36 @@ module.exports = Reflux.createStore({
     this.activeEvent = eventObject.eventId;
 
     this.message = {
-      type: 'timeLineSelectedRecord'
+      type: 'timeLineSelectedRecord',
+      displayType: eventObject.displayType
+    };
+
+    this.trigger(this);
+  },
+
+  // Set To One Event Changed
+  setToOneChanged: function(eventObject) {
+
+    this.activeEvent = eventObject.eventId;
+    this.activePlace = eventObject.placeId;
+
+    this.message = {
+      type: 'setToOneChanged',
+      displayType: eventObject.displayType
+    };
+
+    this.trigger(this);
+  },
+
+  // Set To All Events
+  setToAll: function(eventObject) {
+
+    this.activeEvent = eventObject.eventId;
+    this.activePlace = eventObject.placeId;
+
+    this.message = {
+      type: 'setToAll',
+      displayType: eventObject.displayType
     };
 
     this.trigger(this);
