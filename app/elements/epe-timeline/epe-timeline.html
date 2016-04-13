@@ -188,6 +188,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.timeLineJSONUpdated(timeLineBroadcast.timeLineJSONObject);
           } else if (timeLineBroadcast.message.type === 'mapSelectedRecord') {
             this.mapSelectedRecord(timeLineBroadcast);
+          } else if (timeLineBroadcast.message.type === 'setToOneChanged') {
+            this.allSelectedEvents = timeLineBroadcast.allSelectedEvents;
+            this.timeLineJSONUpdated(timeLineBroadcast.timeLineJSONObject);
           }
 
         }.bind(this));
@@ -218,7 +221,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       } else {
 
         if (this.timeLineData.events.length) {
-          this.setFirstAndLast();
+          if (this.displayType === 'all') {
+            this.setFirstAndLast();
+          }
         }
 
         this.updateTimeLine(previousEvents);
@@ -376,7 +381,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Got to next event
     goToNext: function() {
       this.noRelatedEvent = false;
-      this.timeLine.goToNext();
+
+      if (this.displayType === 'all') {
+        this.timeLine.goToNext();
+      } else if (this.displayType === 'one') {
+        this.oneNavigateToNext();
+      }
     },
 
     // Zoom In
@@ -414,6 +424,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.activeEventChanged();
     },
 
+    // Handle next button navigation in only showing one event mode
+    oneNavigateToNext: function() {
+
+      var indexOfActiveEvent = _.findIndex(this.allSelectedEvents, function(o) {
+        return o.$loki == this.activeEvent;
+      }.bind(this));
+
+      var nextObject = this.allSelectedEvents[indexOfActiveEvent + 1];
+
+      if (nextObject) {
+        this.activeEvent = nextObject.$loki.toString();
+      }
+    },
+
     // CALLED BY OBSERVABLE ON ACTIVEEVENT
     // Also called by setFirstAndLast method
     activeEventChanged: function() {
@@ -422,24 +446,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.manageControlButtonsState();
       }
 
-      if (this.displayType === 'all') {
+      // Let Map know timeline has changed
+      if (this.activeEvent !== '0') {
 
-        // Let Map know timeline has changed
-        if (this.activeEvent !== '0') {
+        if (this.displayType === 'all') {
 
           this.selectedRecordsActions.timeLineEventSelected({
             eventId: this.activeEvent,
             placeId: this.activePlace,
             displayType: this.displayType
           });
-        }
-      } else if (this.displayType === 'one') {
 
-        this.selectedRecordsActions.setToOneChanged({
-          eventId: this.activeEvent,
-          placeId: this.activePlace,
-          displayType: this.displayType
-        });
+        } else if (this.displayType === 'one') {
+
+          this.selectedRecordsActions.setToOneChanged({
+            eventId: this.activeEvent,
+            placeId: this.activePlace,
+            displayType: this.displayType
+          });
+        }
       }
     },
 
@@ -469,7 +494,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Called when a selected event is changed via Timeline.js
     selectedTimeLineEventChanged: function(eventData) {
-      this.activeEvent = eventData.unique_id;
+      if (this.displayType === 'all') {
+        this.activeEvent = eventData.unique_id;
+      }
     },
 
     // Show Controls if there are selected events
