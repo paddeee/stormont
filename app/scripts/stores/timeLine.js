@@ -10,9 +10,6 @@ module.exports = Reflux.createStore({
   // Called on Store initialisation
   init: function() {
 
-    // Set default display type
-    this.displayType = 'all';
-
     // Register dataSourceStores's changes
     this.listenTo(selectedRecordsStore, this.selectedRecordStoreUpdated);
   },
@@ -25,7 +22,7 @@ module.exports = Reflux.createStore({
 
       this.createTimeLineJSON();
 
-    // If event selected has changed
+      // If event selected has changed
     } else if (selectedRecordStore.message.type === 'mapSelectedRecord') {
 
       this.activeEvent = selectedRecordStore.activeEvent;
@@ -37,25 +34,17 @@ module.exports = Reflux.createStore({
 
       this.trigger(this);
 
-      // If changed to setToAll events
-    } else if (selectedRecordStore.message.type === 'setToAll') {
+      // If event selected has changed
+    } else if (selectedRecordStore.message.type === 'mapSelectedRecord') {
 
       this.activeEvent = selectedRecordStore.activeEvent;
       this.activePlace = selectedRecordStore.activePlace;
 
-      this.displayType = 'all';
+      this.message = {
+        type: 'mapSelectedRecord'
+      };
 
-      this.createTimeLineJSON();
-
-      // If changed to show one event only at a time
-    } else if (selectedRecordStore.message.type === 'setToOneChanged') {
-
-      this.activeEvent = selectedRecordStore.activeEvent;
-      this.activePlace = selectedRecordStore.activePlace;
-
-      this.displayType = 'one';
-
-      this.createTimeLineJSON();
+      this.trigger(this);
     }
   },
 
@@ -75,8 +64,6 @@ module.exports = Reflux.createStore({
       'events': []
     };
 
-    var messageType = 'timeLineJSONCreated';
-
     // Assign selected events from each store
     this.selectedEvents = selectedRecordsStore.selectedRecords[config.EventsCollection.name];
 
@@ -85,44 +72,18 @@ module.exports = Reflux.createStore({
       timeLineJSONObject = defaultTimeLineJSONObject;
     } else {
 
-      if (this.displayType === 'one') {
+      // Push a feature object for each Event record
+      this.selectedEvents.data().forEach(function(selectedEvent) {
 
-        // Keep a reference to all selected events
-        this.allSelectedEvents = this.selectedEvents.data();
+        timeLineJSONObject = this.getTimeLineObject(selectedEvent, defaultTimeLineJSONObject);
 
-        // If no events are selected, the timeline will break so we need to select the first event
-        if (this.activeEvent === '0') {
-
-          timeLineJSONObject = this.getTimeLineObject(this.selectedEvents.simplesort('Begin Date and Time').data()[0], defaultTimeLineJSONObject);
-
-        } else {
-
-          this.selectedEvents.copy().find({
-            $loki: parseInt(this.activeEvent, 10)
-          }).data().forEach(function(selectedEvent) {
-
-            timeLineJSONObject = this.getTimeLineObject(selectedEvent, defaultTimeLineJSONObject);
-
-          }.bind(this));
-        }
-
-        messageType = 'setToOneChanged';
-
-      } else if (this.displayType === 'all') {
-
-        // Push a feature object for each Event record
-        this.selectedEvents.data().forEach(function(selectedEvent) {
-
-          timeLineJSONObject = this.getTimeLineObject(selectedEvent, defaultTimeLineJSONObject);
-
-        }.bind(this));
-      }
+      }.bind(this));
     }
 
     this.timeLineJSONObject = _.cloneDeep(timeLineJSONObject);
 
     this.message = {
-      type: messageType
+      type: 'timeLineJSONCreated'
     };
 
     this.trigger(this);

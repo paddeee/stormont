@@ -22,8 +22,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .timeline {
-       height: 100%;
-     }
+      height: 100%;
+    }
 
     .timeline-controls {
       height: inherit;
@@ -66,30 +66,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <div class="timeline-container layout horizontal">
       <div class="timeline-controls  timeline-controls--left  layout vertical  center center-justified">
         <div class="flex"><paper-icon-button id="StartButton"
-                           disabled
-                           icon="av:fast-rewind"
-                           on-tap="goToStart">
+                                             disabled
+                                             icon="av:fast-rewind"
+                                             on-tap="goToStart">
         </paper-icon-button>
-          </div>
-          <div class="flex">
-            <paper-icon-button id="ZoomInButton"
-                           icon="zoom-in"
-                           on-tap="zoomIn">
-            </paper-icon-button>
-          </div>
-          <div class="flex">
-            <paper-icon-button id="ZoomOutButton"
-                           icon="zoom-out"
-                           on-tap="zoomOut">
-            </paper-icon-button>
-          </div>
-          <div class="flex">
-            <paper-icon-button id="PreviousButton"
-                           disabled
-                           icon="arrow-back"
-                           on-tap="goToPrevious">
-            </paper-icon-button>
-          </div>
+        </div>
+        <div class="flex">
+          <paper-icon-button id="ZoomInButton"
+                             icon="zoom-in"
+                             on-tap="zoomIn">
+          </paper-icon-button>
+        </div>
+        <div class="flex">
+          <paper-icon-button id="ZoomOutButton"
+                             icon="zoom-out"
+                             on-tap="zoomOut">
+          </paper-icon-button>
+        </div>
+        <div class="flex">
+          <paper-icon-button id="PreviousButton"
+                             disabled
+                             icon="arrow-back"
+                             on-tap="goToPrevious">
+          </paper-icon-button>
+        </div>
 
         <paper-tooltip for="StartButton" position="right">Back To Start</paper-tooltip>
         <paper-tooltip for="ZoomInButton" position="right">Zoom In</paper-tooltip>
@@ -109,8 +109,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
         <div class="flex">
           <paper-icon-button id="NextButton"
-                           icon="arrow-forward"
-                           on-tap="goToNext"></paper-icon-button>
+                             icon="arrow-forward"
+                             on-tap="goToNext"></paper-icon-button>
         </div>
         <paper-tooltip for="SetToOne" position="right">Only Show One Event</paper-tooltip>
         <paper-tooltip for="SetToPlusOne" position="right">Show Events Cumulatively</paper-tooltip>
@@ -121,342 +121,318 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </template>
 </dom-module>
 <script>
-(function() {
-  Polymer({
-    is: 'epe-timeline',
+  (function() {
+    Polymer({
+      is: 'epe-timeline',
 
-    properties: {
+      properties: {
 
-      displayType: {
-        type: String,
-        value: 'all'
+        displayType: {
+          type: String,
+          value: 'all'
+        },
+
+        timeLine: {
+          type: Object
+        },
+
+        zoom: {
+          type: Number,
+          value: 3,
+          observer: 'zoomChanged'
+        },
+
+        activeEvent: {
+          type: String,
+          value: '0',
+          observer: 'activeEventChanged'
+        },
+
+        timeLineData: {
+          type: Object,
+          value: {
+            'title': {
+              'unique_id': '0',
+              'text': {
+                'headline': 'No Selected Events'
+              }
+            },
+            'events': []
+          }
+        },
+
+        timeLineOptions: {
+          type: Object,
+          value: {
+            duration: 800,
+            hash_bookmark: false,
+            timenav_height: 225,
+            timenav_height_min: 225
+          }
+        },
+
+        idOfLastEventToBeRemoved: {
+          type: Array,
+          value: []
+        }
       },
 
-      timeLine: {
-        type: Object
-      },
+      ready: function() {
 
-      zoom: {
-        type: Number,
-        value: 3,
-        observer: 'zoomChanged'
-      },
+        if (this.timeLineStore) {
 
-      activeEvent: {
-        type: String,
-        value: '0',
-        observer: 'activeEventChanged'
-      },
+          // When the events data is updated, update our grid data
+          this.timeLineStore.listen(function(timeLineBroadcast) {
 
-      timeLineData: {
-        type: Object,
-        value: {
-          'title': {
-            'unique_id': '0',
-            'text': {
-              'headline': 'No Selected Events'
+            if (timeLineBroadcast.message.type === 'timeLineJSONCreated') {
+              this.timeLineJSONUpdated(timeLineBroadcast.timeLineJSONObject);
+            } else if (timeLineBroadcast.message.type === 'mapSelectedRecord') {
+              this.mapSelectedRecord(timeLineBroadcast);
             }
-          },
-          'events': []
+
+          }.bind(this));
         }
       },
 
-      timeLineOptions: {
-        type: Object,
-        value: {
-          duration: 800,
-          hash_bookmark: false,
-          timenav_height: 225,
-          timenav_height_min: 225
+      // TimeLine JSON Updated
+      timeLineJSONUpdated: function(timeLineJSONObject) {
+
+        var previousEvents;
+
+        previousEvents = this.timeLineData.events;
+
+        this.timeLineData = timeLineJSONObject;
+
+        // If the TimeLine has not been created
+        if (!this.timeLine) {
+
+          if (this.timeLineData.events.length) {
+
+            // Keep first and last events up to date
+            this.setFirstAndLast();
+
+            // Initialise Timeline
+            this.createTimeLine();
+          }
+
+        } else {
+
+          if (this.timeLineData.events.length) {
+            this.setFirstAndLast();
+          }
+
+          this.updateTimeLine(previousEvents);
+        }
+
+        this.toggleTimeLineControls();
+      },
+
+      // When an event is selected on the map, select relevant slide on timeline
+      mapSelectedRecord: function(timeLineBroadcast) {
+
+        // Keep activeEvent property in sync
+        this.activeEvent = timeLineBroadcast.activeEvent.toString();
+
+        if (timeLineBroadcast.activePlace) {
+          this.activePlace = timeLineBroadcast.activePlace.toString();
+        } else {
+          this.activePlace = '';
+        }
+
+        if (this.activeEvent === 'noEvent') {
+
+          this.noRelatedEvent = true;
+
+          // Navigate to beginning of TimeLine
+          if (this.timeLine) {
+            this.goToStart();
+          }
+        } else {
+
+          this.noRelatedEvent = false;
+
+          if (this.timeLine) {
+
+            // Navigate to event on Timeline
+            this.goToId(this.activeEvent);
+          }
         }
       },
 
-      idOfLastEventToBeRemoved: {
-        type: Array,
-        value: []
-      }
-    },
+      // Create a new instance of the timeLine
+      createTimeLine: function() {
 
-    ready: function() {
+        // Initialise Timeline
+        this.timeLine = new TL.Timeline(this.$.TimeLine, this.timeLineData, this.timeLineOptions);
 
-      if (this.timeLineStore) {
+        this.timeLine.on('change', function(eventData) {
+          this.selectedTimeLineEventChanged(eventData);
+        }.bind(this));
 
-        // When the events data is updated, update our grid data
-        this.timeLineStore.listen(function(timeLineBroadcast) {
+        this.timeLine.on('dataloaded', function(eventData) {
+          console.log('Data loaded', eventData);
+        }.bind(this));
+      },
 
-          if (timeLineBroadcast.message.type === 'timeLineJSONCreated') {
-            this.timeLineJSONUpdated(timeLineBroadcast.timeLineJSONObject);
-          } else if (timeLineBroadcast.message.type === 'mapSelectedRecord') {
-            this.mapSelectedRecord(timeLineBroadcast);
-          } else if (timeLineBroadcast.message.type === 'setToOneChanged') {
-            this.allSelectedEvents = timeLineBroadcast.allSelectedEvents;
-            this.timeLineJSONUpdated(timeLineBroadcast.timeLineJSONObject);
+      // Remove all data and then add each record
+      updateTimeLine: function(previousEvents) {
+
+        var allEventIds;
+        var previousEventIds;
+        var eventIdsToAdd;
+        var eventIdsToRemove;
+
+        allEventIds = _.map(this.timeLineData.events, 'unique_id');
+        previousEventIds = _.map(previousEvents, 'unique_id');
+
+        // Get array of new event ids
+        eventIdsToAdd = _.difference(allEventIds, previousEventIds);
+
+        eventIdsToRemove = _.difference(previousEventIds, allEventIds);
+
+        // If this method has been called because a user has updated a filter but selectedRecords remain the same
+        if (!eventIdsToAdd.length && !eventIdsToRemove.length) {
+          return;
+        }
+
+        // Add new events
+        this.timeLineData.events.forEach(function(eventObject) {
+
+          if (_.includes(eventIdsToAdd, eventObject.unique_id)) {
+            this.timeLine.add(eventObject);
+          }
+        }.bind(this));
+
+        // If the selected events were previously cleared we can now remove the last event that TimeLine.js
+        // would not let us remove due to its limitations
+        if (this.idOfLastEventToBeRemoved.length) {
+
+          if (this.timeLine.config.events.length > 1) {
+
+            if (!_.includes(eventIdsToAdd, this.idOfLastEventToBeRemoved)) {
+              this.timeLine.removeId(this.idOfLastEventToBeRemoved[0]);
+              this.idOfLastEventToBeRemoved = [];
+            }
+          }
+        }
+
+        // Remove old events
+        previousEvents.forEach(function(eventObject) {
+
+          if (this.timeLine.config.events.length > 1) {
+
+            if (_.includes(eventIdsToRemove, eventObject.unique_id)) {
+              this.timeLine.removeId(eventObject.unique_id);
+            }
+
+            // TimeLine throws a wobbler when removing the last event. So instead the event needs to be stored
+            // and then removed first thing next time the events change
+          } else if (this.timeLine.config.events.length === 1) {
+            this.idOfLastEventToBeRemoved = [eventObject.unique_id];
           }
 
         }.bind(this));
-      }
-    },
+      },
 
-    // TimeLine JSON Updated
-    timeLineJSONUpdated: function(timeLineJSONObject) {
+      // Timeline seems a bit buggy. Having to do hacky things like zoom twice to make sure the time axis appear
+      initialiseTimelineUI: function() {
 
-      var previousEvents;
-
-      previousEvents = this.timeLineData.events;
-
-      this.timeLineData = timeLineJSONObject;
-
-      // If the TimeLine has not been created
-      if (!this.timeLine) {
-
-        if (this.timeLineData.events.length) {
-
-          // Keep first and last events up to date
-          this.setFirstAndLast();
-
-          // Initialise Timeline
-          this.createTimeLine();
-        }
-
-      } else {
-
-        if (this.timeLineData.events.length) {
-          if (this.displayType === 'all') {
-            this.setFirstAndLast();
-          }
-        }
-
-        this.updateTimeLine(previousEvents);
-      }
-
-      this.toggleTimeLineControls();
-    },
-
-    // When an event is selected on the map, select relevant slide on timeline
-    mapSelectedRecord: function(timeLineBroadcast) {
-
-      // Keep activeEvent property in sync
-      this.activeEvent = timeLineBroadcast.activeEvent.toString();
-
-      if (timeLineBroadcast.activePlace) {
-        this.activePlace = timeLineBroadcast.activePlace.toString();
-      } else {
-        this.activePlace = '';
-      }
-
-      if (this.activeEvent === 'noEvent') {
-
-        this.noRelatedEvent = true;
-
-        // Navigate to beginning of TimeLine
         if (this.timeLine) {
-          this.goToStart();
+          this.timeLine.setZoom(this.zoom + 3);
+          this.timeLine.setZoom(this.zoom);
+          this.timeLine.updateDisplay();
         }
-      } else {
+      },
 
+      // Go to start of TimeLine
+      goToStart: function() {
+
+        // Set to zero if user has tapped TimeLine start button
+        if (!this.noRelatedEvent) {
+          this.activeEvent = '0';
+
+          // Call exportPresentation export action
+          this.selectedRecordsActions.timeLineEventSelected({
+            eventId: this.activeEvent,
+            placeId: this.activePlace
+          });
+        }
+
+        this.$.PreviousButton.disabled = true;
+        this.timeLine.goToStart();
+      },
+
+      // Got to event ID
+      goToId: function(id) {
+        this.timeLine.goToId(id);
+      },
+
+      // Got to previous event
+      goToPrevious: function() {
         this.noRelatedEvent = false;
+        this.timeLine.goToPrev();
+      },
 
-        if (this.timeLine) {
-
-          // Navigate to event on Timeline
-          this.goToId(this.activeEvent);
-        }
-      }
-    },
-
-    // Create a new instance of the timeLine
-    createTimeLine: function() {
-
-      // Initialise Timeline
-      this.timeLine = new TL.Timeline(this.$.TimeLine, this.timeLineData, this.timeLineOptions);
-
-      this.timeLine.on('change', function(eventData) {
-        this.selectedTimeLineEventChanged(eventData);
-      }.bind(this));
-
-      this.timeLine.on('dataloaded', function(eventData) {
-        console.log('Data loaded', eventData);
-      }.bind(this));
-    },
-
-    // Remove all data and then add each record
-    updateTimeLine: function(previousEvents) {
-
-      var allEventIds;
-      var previousEventIds;
-      var eventIdsToAdd;
-      var eventIdsToRemove;
-
-      allEventIds = _.map(this.timeLineData.events, 'unique_id');
-      previousEventIds = _.map(previousEvents, 'unique_id');
-
-      // Get array of new event ids
-      eventIdsToAdd = _.difference(allEventIds, previousEventIds);
-
-      eventIdsToRemove = _.difference(previousEventIds, allEventIds);
-
-      // If this method has been called because a user has updated a filter but selectedRecords remain the same
-      if (!eventIdsToAdd.length && !eventIdsToRemove.length) {
-        return;
-      }
-
-      // Add new events
-      this.timeLineData.events.forEach(function(eventObject) {
-
-        if (_.includes(eventIdsToAdd, eventObject.unique_id)) {
-          this.timeLine.add(eventObject);
-        }
-      }.bind(this));
-
-      // If the selected events were previously cleared we can now remove the last event that TimeLine.js
-      // would not let us remove due to its limitations
-      if (this.idOfLastEventToBeRemoved.length) {
-
-        if (this.timeLine.config.events.length > 1) {
-
-          if (!_.includes(eventIdsToAdd, this.idOfLastEventToBeRemoved)) {
-            this.timeLine.removeId(this.idOfLastEventToBeRemoved[0]);
-            this.idOfLastEventToBeRemoved = [];
-          }
-        }
-      }
-
-      // Remove old events
-      previousEvents.forEach(function(eventObject) {
-
-        if (this.timeLine.config.events.length > 1) {
-
-          if (_.includes(eventIdsToRemove, eventObject.unique_id)) {
-            this.timeLine.removeId(eventObject.unique_id);
-          }
-
-        // TimeLine throws a wobbler when removing the last event. So instead the event needs to be stored
-        // and then removed first thing next time the events change
-        } else if (this.timeLine.config.events.length === 1) {
-          this.idOfLastEventToBeRemoved = [eventObject.unique_id];
-        }
-
-      }.bind(this));
-    },
-
-    // Timeline seems a bit buggy. Having to do hacky things like zoom twice to make sure the time axis appear
-    initialiseTimelineUI: function() {
-
-      if (this.timeLine) {
-        this.timeLine.setZoom(this.zoom + 3);
-        this.timeLine.setZoom(this.zoom);
-        this.timeLine.updateDisplay();
-      }
-    },
-
-    // Go to start of TimeLine
-    goToStart: function() {
-
-      // Set to zero if user has tapped TimeLine start button
-      if (!this.noRelatedEvent) {
-        this.activeEvent = '0';
-
-        // Call exportPresentation export action
-        this.selectedRecordsActions.timeLineEventSelected({
-          eventId: this.activeEvent,
-          placeId: this.activePlace
-        });
-      }
-
-      this.$.PreviousButton.disabled = true;
-      this.timeLine.goToStart();
-    },
-
-    // Got to event ID
-    goToId: function(id) {
-      this.timeLine.goToId(id);
-    },
-
-    // Got to previous event
-    goToPrevious: function() {
-      this.noRelatedEvent = false;
-      this.timeLine.goToPrev();
-    },
-
-    // Got to next event
-    goToNext: function() {
-      this.noRelatedEvent = false;
-
-      if (this.displayType === 'all') {
+      // Got to next event
+      goToNext: function() {
+        this.noRelatedEvent = false;
         this.timeLine.goToNext();
-      } else if (this.displayType === 'one') {
-        this.oneNavigateToNext();
-      }
-    },
+      },
 
-    // Zoom In
-    zoomIn: function() {
-      this.zoom++;
-      this.timeLine.setZoom(this.zoom);
-    },
+      // Zoom In
+      zoomIn: function() {
+        this.zoom++;
+        this.timeLine.setZoom(this.zoom);
+      },
 
-    // Zoom Out
-    zoomOut: function() {
-      this.zoom--;
-      this.timeLine.setZoom(this.zoom);
-    },
+      // Zoom Out
+      zoomOut: function() {
+        this.zoom--;
+        this.timeLine.setZoom(this.zoom);
+      },
 
-    // CALLED BY OBSERVABLE ON ZOOM
-    zoomChanged: function() {
+      // CALLED BY OBSERVABLE ON ZOOM
+      zoomChanged: function() {
 
-      if (this.zoom === 0) {
-        this.$.ZoomOutButton.disabled = true;
-      } else {
-        this.$.ZoomOutButton.disabled = false;
-      }
+        if (this.zoom === 0) {
+          this.$.ZoomOutButton.disabled = true;
+        } else {
+          this.$.ZoomOutButton.disabled = false;
+        }
 
-      if (this.zoom === 10) {
-        this.$.ZoomInButton.disabled = true;
-      } else {
-        this.$.ZoomInButton.disabled = false;
-      }
-    },
+        if (this.zoom === 10) {
+          this.$.ZoomInButton.disabled = true;
+        } else {
+          this.$.ZoomInButton.disabled = false;
+        }
+      },
 
-    // Set the ids of the first and last events so we can disable buttons
-    setFirstAndLast: function() {
-      this.firstEventId = this.timeLineData.events[0].unique_id;
-      this.lastEventId = this.timeLineData.events[this.timeLineData.events.length - 1].unique_id;
-      this.activeEventChanged();
-    },
+      // Set the ids of the first and last events so we can disable buttons
+      setFirstAndLast: function() {
+        this.firstEventId = this.timeLineData.events[0].unique_id;
+        this.lastEventId = this.timeLineData.events[this.timeLineData.events.length - 1].unique_id;
+        this.activeEventChanged();
+      },
 
-    // Handle next button navigation in only showing one event mode
-    oneNavigateToNext: function() {
+      // CALLED BY OBSERVABLE ON ACTIVEEVENT
+      // Also called by setFirstAndLast method
+      activeEventChanged: function() {
 
-      var indexOfActiveEvent = _.findIndex(this.allSelectedEvents, function(o) {
-        return o.$loki == this.activeEvent;
-      }.bind(this));
-
-      var nextObject = this.allSelectedEvents[indexOfActiveEvent + 1];
-
-      if (nextObject) {
-        this.activeEvent = nextObject.$loki.toString();
-      }
-    },
-
-    // CALLED BY OBSERVABLE ON ACTIVEEVENT
-    // Also called by setFirstAndLast method
-    activeEventChanged: function() {
-
-      if (this.timeLineData) {
-        this.manageControlButtonsState();
-      }
-
-      // Let Map know timeline has changed
-      if (this.activeEvent !== '0') {
+        if (this.timeLineData) {
+          this.manageControlButtonsState();
+        }
 
         if (this.displayType === 'all') {
 
-          this.selectedRecordsActions.timeLineEventSelected({
-            eventId: this.activeEvent,
-            placeId: this.activePlace,
-            displayType: this.displayType
-          });
+          // Let Map know timeline has changed
+          if (this.activeEvent !== '0') {
 
+            this.selectedRecordsActions.timeLineEventSelected({
+              eventId: this.activeEvent,
+              placeId: this.activePlace,
+              displayType: this.displayType
+            });
+          }
         } else if (this.displayType === 'one') {
 
           this.selectedRecordsActions.setToOneChanged({
@@ -465,145 +441,105 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             displayType: this.displayType
           });
         }
-      }
-    },
+      },
 
-    // Manage the control button state
-    manageControlButtonsState: function() {
+      // Manage the control button state
+      manageControlButtonsState: function() {
 
-      if (this.activeEvent === '0') {
-
-        this.$.StartButton.disabled = true;
-        this.$.PreviousButton.disabled = true;
-
-        this.fire('button-state-changed', {
-          button: 'previous',
-          disabled: true
-        });
-      } else {
-
-        if (this.activeEvent === this.firstEventId) {
-
+        if (this.activeEvent === '0') {
+          this.$.StartButton.disabled = true;
           this.$.PreviousButton.disabled = true;
 
-          this.fire('button-state-changed', {
-            button: 'previous',
-            disabled: true
-          });
         } else {
 
-          this.$.PreviousButton.disabled = false;
-
-          this.fire('button-state-changed', {
-            button: 'previous',
-            disabled: false
-          });
+          if (this.activeEvent === this.firstEventId) {
+            this.$.PreviousButton.disabled = true;
+          } else {
+            this.$.PreviousButton.disabled = false;
+          }
+          this.$.StartButton.disabled = false;
         }
 
-        this.$.StartButton.disabled = false;
-      }
+        if (this.activeEvent === this.lastEventId) {
+          this.$.NextButton.disabled = true;
+        } else {
+          this.$.NextButton.disabled = false;
+        }
+      },
 
-      if (this.activeEvent === this.lastEventId) {
-
-        this.$.NextButton.disabled = true;
-
-        this.fire('button-state-changed', {
-          button: 'next',
-          disabled: true
-        });
-
-      } else {
-
-        this.$.NextButton.disabled = false;
-
-        this.fire('button-state-changed', {
-          button: 'next',
-          disabled: false
-        });
-      }
-    },
-
-    // Called when a selected event is changed via Timeline.js
-    selectedTimeLineEventChanged: function(eventData) {
-      if (this.displayType === 'all') {
+      // Called when a selected event is changed via Timeline.js
+      selectedTimeLineEventChanged: function(eventData) {
         this.activeEvent = eventData.unique_id;
+      },
+
+      // Show Controls if there are selected events
+      toggleTimeLineControls: function() {
+
+        var showControls = false;
+
+        if (this.timeLineData.events.length) {
+          showControls = true;
+        }
+
+        this.fire('timeline-events-changed', {
+          showControls: showControls
+        });
+      },
+
+      // Only show one event at a time
+      setToOne: function(event) {
+
+        var $selectedSetToButton = event.target;
+
+        this.displayType = 'one';
+
+        this.selectedRecordsActions.setToOneChanged({
+          eventId: this.activeEvent,
+          placeId: this.activePlace,
+          displayType: this.displayType
+        });
+
+        this.manageSetToSelectedClass($selectedSetToButton);
+      },
+
+      // Show a new event when next button is selected
+      setToPlusOne: function(event) {
+
+        var $selectedSetToButton = event.target;
+
+        this.displayType = 'plusOne';
+
+        this.manageSetToSelectedClass($selectedSetToButton);
+      },
+
+      // Show All selected events
+      setToAll: function(event) {
+
+        var $selectedSetToButton = event.target;
+
+        this.displayType = 'all';
+
+        this.selectedRecordsActions.setToAll({
+          eventId: this.activeEvent,
+          placeId: this.activePlace,
+          displayType: this.displayType
+        });
+
+        this.manageSetToSelectedClass($selectedSetToButton);
+      },
+
+      // Only show one event at a time
+      manageSetToSelectedClass: function($selectedSetToButton) {
+
+        var $setToButtons = this.querySelectorAll('.set-to');
+
+        // Remove selected class from all buttons
+        $setToButtons.forEach(function($setToButton) {
+          $setToButton.classList.remove('set-to--selected');
+        });
+
+        $selectedSetToButton.classList.add('set-to--selected');
       }
-    },
-
-    // Show Controls if there are selected events
-    toggleTimeLineControls: function() {
-
-      var showControls = false;
-
-      if (this.timeLineData.events.length) {
-        showControls = true;
-      }
-
-      this.fire('timeline-events-changed', {
-        showControls: showControls
-      });
-    },
-
-    // Only show one event at a time
-    setToOne: function(event) {
-
-      var $selectedSetToButton = event.target;
-
-      this.displayType = 'one';
-
-      this.selectedRecordsActions.setToOneChanged({
-        eventId: this.activeEvent,
-        placeId: this.activePlace,
-        displayType: this.displayType
-      });
-
-      this.manageSetToSelectedClass($selectedSetToButton);
-    },
-
-    // Show a new event when next button is selected
-    setToPlusOne: function(event) {
-
-      var $selectedSetToButton = event.target;
-
-      this.displayType = 'plusOne';
-
-      this.selectedRecordsActions.setToPlusOneChanged({
-        eventId: this.activeEvent,
-        placeId: this.activePlace,
-        displayType: this.displayType
-      });
-
-      this.manageSetToSelectedClass($selectedSetToButton);
-    },
-
-    // Show All selected events
-    setToAll: function(event) {
-
-      var $selectedSetToButton = event.target;
-
-      this.displayType = 'all';
-
-      this.selectedRecordsActions.setToAll({
-        eventId: this.activeEvent,
-        placeId: this.activePlace,
-        displayType: this.displayType
-      });
-
-      this.manageSetToSelectedClass($selectedSetToButton);
-    },
-
-    // Only show one event at a time
-    manageSetToSelectedClass: function($selectedSetToButton) {
-
-      var $setToButtons = this.querySelectorAll('.set-to');
-
-      // Remove selected class from all buttons
-      $setToButtons.forEach(function($setToButton) {
-        $setToButton.classList.remove('set-to--selected');
-      });
-
-      $selectedSetToButton.classList.add('set-to--selected');
-    }
-  });
-})();
+    });
+  })();
 </script>
