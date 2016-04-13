@@ -93,13 +93,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       line-height: 29px;
     }
 
-    .timeline-control-section {
+    .timeline-control-holder {
       background-color: var(--primary-background-color);
-      height: 29px;
-      width: 60px;
       position: fixed;
       bottom: 10px;
-      left: calc(50% - 30px);
       -webkit-transition-property: -webkit-transform, width;
       transition-property: transform, width;
       -webkit-transition-duration: 300ms;
@@ -109,6 +106,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       -ms-transform: translateX(0px);
       -webkit-transform: translateX(0px);
       transform: translateX(0px);
+    }
+
+    .timeline-control-previous {
+      height: 29px;
+      width: 29px;
+      left: 10px;
+    }
+
+    .timeline-control-next {
+      height: 29px;
+      width: 29px;
+      right: 10px;
+    }
+
+    .timeline-control-previous--hide,
+    .timeline-control-previous.timeline--showing {
+      -ms-transform: translateX(-100vw);
+      -webkit-transform: translateX(-100vw);
+      transform: translateX(-100vw);
+    }
+
+    .timeline-control-next--hide,
+    .timeline-control-next.timeline--showing {
+      -ms-transform: translateX(100vw);
+      -webkit-transform: translateX(100vw);
+      transform: translateX(100vw);
+    }
+
+    .timeline-control-section {
+      height: 29px;
+      width: 60px;
+      left: calc(50% - 30px);
     }
 
     .timeline-control-section.timeline--showing {
@@ -133,7 +162,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       width: 29px;
     }
 
-    .timeline-toggle:hover {
+    .timeline-control--disabled {
+      cursor: default;
+      background-color: rgb(244, 244, 244);
+      color: rgb(187, 187, 187);
+    }
+
+    .timeline-control-section:hover,
+    .timeline-control-previous:hover,
+    .timeline-control-next:hover {
       background-color: var(--map-control-hover-colour);
     }
 
@@ -203,6 +240,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       opacity: 0.85;
     }
 
+    .timeline-tooltip {
+      -ms-transform: translateY(128px);
+      -webkit-transform: translateY(128px);
+      transform: translateY(128px);
+    }
+
   </style>
   <script src="../../scripts/vendor/leaflet/leaflet-draw.js"></script>
   <script src="../../scripts/vendor/leaflet/leaflet-style-forms.js"></script>
@@ -238,9 +281,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     </leaflet-map>
 
+    <!-- Navigate Previous control -->
+    <paper-material id="NavigatePreviousControl"
+                    class="timeline-control-holder timeline-control-previous timeline-control-previous--hide layout horizontal">
+      <div class="timeline-control timeline-control--disabled layout horizontal center center-justified"
+           on-tap="goToPrevious">
+        <iron-icon class="toggle-timeline"
+                   icon="arrow-back"></iron-icon>
+      </div>
+    </paper-material>
+
+    <!-- Navigate Next control -->
+    <paper-material id="NavigateNextControl"
+                    class="timeline-control-holder timeline-control-next timeline-control-next--hide layout horizontal">
+      <div class="timeline-control timeline-control--disabled layout horizontal center center-justified"
+           on-tap="goToNext">
+        <iron-icon id="NextButton"
+                   class="toggle-timeline"
+                   icon="arrow-forward"></iron-icon>
+      </div>
+    </paper-material>
+
     <!-- TimeLine Toggle control -->
     <paper-material id="TimeLineControl"
-                    class="timeline-control-section timeline-control-section--hide layout horizontal">
+                    class="timeline-control-holder timeline-control-section timeline-control-section--hide layout horizontal">
       <div class="timeline-control layout horizontal center center-justified">
         <iron-icon class="toggle-timeline"
                    icon="timeline"
@@ -260,7 +324,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
     </paper-material>
     <paper-tooltip for="TimeLineControl"
-                   position="left">Toggle Timeline</paper-tooltip>
+                   position="top"
+                   class="timeline-tooltip">Toggle Timeline</paper-tooltip>
+    <paper-tooltip for="NavigatePreviousControl"
+                   position="right"
+                   class="timeline-tooltip">Show Previous Event Information</paper-tooltip>
+    <paper-tooltip for="NavigateNextControl"
+                   position="left"
+                   class="timeline-tooltip">Show Next Event Information</paper-tooltip>
 
     <paper-material id="TimeLine"
                     class="timeline"
@@ -270,7 +341,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <epe-timeline id="TimeLineElement"
                     time-line-store="[[timeLineStore]]"
                     selected-records-actions="[[selectedRecordsActions]]"
-                    on-timeline-events-changed="toggleTimeLineEnabled"></epe-timeline>
+                    on-timeline-events-changed="toggleTimeLineEnabled"
+                    on-button-state-changed="timelineButtonStateChanged"></epe-timeline>
     </paper-material>
 
   </template>
@@ -474,9 +546,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (this.timelineShowing) {
         this.$.TimeLine.classList.add('timeline--showing');
         this.$.TimeLineControl.classList.add('timeline--showing');
+        this.$.NavigatePreviousControl.classList.add('timeline--showing');
+        this.$.NavigateNextControl.classList.add('timeline--showing');
       } else {
         this.$.TimeLine.classList.remove('timeline--showing');
         this.$.TimeLineControl.classList.remove('timeline--showing');
+        this.$.NavigatePreviousControl.classList.remove('timeline--showing');
+        this.$.NavigateNextControl.classList.remove('timeline--showing');
       }
     },
 
@@ -484,11 +560,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     toggleTimeLineEnabled: function(event) {
 
       if (event.detail.showControls) {
+
         this.$.TimeLineControl.classList.remove('timeline-control-section--hide');
+        this.$.NavigatePreviousControl.classList.remove('timeline-control-previous--hide');
+        this.$.NavigateNextControl.classList.remove('timeline-control-next--hide');
+
       } else {
+
         this.$.TimeLine.classList.remove('timeline--showing');
+
         this.$.TimeLineControl.classList.remove('timeline--showing');
         this.$.TimeLineControl.classList.add('timeline-control-section--hide');
+
+        this.$.NavigatePreviousControl.classList.remove('timeline--showing');
+        this.$.NavigatePreviousControl.classList.add('timeline-control-previous--hide');
+
+        this.$.NavigateNextControl.classList.remove('timeline--showing');
+        this.$.NavigateNextControl.classList.add('timeline-control-next--hide');
+
         this.timelineShowing = false;
       }
     },
@@ -525,6 +614,49 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.sourceActions.viewSourceFile(null);
       this.sourceActions.viewSourceFile(sourceObject);
     },
+
+    // FIRED FROM TIMELINE ELEMENT
+    timelineButtonStateChanged: function(event) {
+
+      var $timeLinePreviousElement = this.$.NavigatePreviousControl.querySelector('.timeline-control');
+      var $timeLineNextElement = this.$.NavigateNextControl.querySelector('.timeline-control');
+
+      if (event.detail.button === 'previous') {
+
+        if (event.detail.disabled === true) {
+          $timeLinePreviousElement.classList.add('timeline-control--disabled');
+        } else if (event.detail.disabled === false) {
+          $timeLinePreviousElement.classList.remove('timeline-control--disabled');
+        }
+      } else if (event.detail.button === 'next') {
+
+        if (event.detail.disabled === true) {
+          $timeLineNextElement.classList.add('timeline-control--disabled');
+        } else if (event.detail.disabled === false) {
+          $timeLineNextElement.classList.remove('timeline-control--disabled');
+        }
+      }
+    },
+
+    // FIRED FROM NAVIGATENEXTCONTROL ELEMENT
+    goToPrevious: function(event) {
+
+      if (event.currentTarget.classList.contains('timeline-control--disabled')) {
+        return;
+      }
+
+      this.$.TimeLineElement.goToPrevious();
+    },
+
+    // FIRED FROM NAVIGATENEXTCONTROL ELEMENT
+    goToNext: function(event) {
+
+      if (event.currentTarget.classList.contains('timeline-control--disabled')) {
+        return;
+      }
+
+      this.$.TimeLineElement.goToNext();
+    }
   });
 })();
 </script>
