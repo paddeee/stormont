@@ -447,23 +447,54 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     manageControlButtonsState: function() {
 
       if (this.activeEvent === '0') {
+
         this.$.StartButton.disabled = true;
         this.$.PreviousButton.disabled = true;
 
+        this.fire('button-state-changed', {
+          button: 'previous',
+          disabled: true
+        });
       } else {
 
         if (this.activeEvent === this.firstEventId) {
+
           this.$.PreviousButton.disabled = true;
+
+          this.fire('button-state-changed', {
+            button: 'previous',
+            disabled: true
+          });
         } else {
+
           this.$.PreviousButton.disabled = false;
+
+          this.fire('button-state-changed', {
+            button: 'previous',
+            disabled: false
+          });
         }
+
         this.$.StartButton.disabled = false;
       }
 
       if (this.activeEvent === this.lastEventId) {
+
         this.$.NextButton.disabled = true;
+
+        this.fire('button-state-changed', {
+          button: 'next',
+          disabled: true
+        });
+
       } else {
+
         this.$.NextButton.disabled = false;
+
+        this.fire('button-state-changed', {
+          button: 'next',
+          disabled: false
+        });
       }
     },
 
