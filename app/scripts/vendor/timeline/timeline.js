@@ -3208,7 +3208,6 @@ TL.TimelineConfig = TL.Class.extend({
     }
     // make sure it's unique and add it.
     slide.unique_id = TL.Util.ensureUniqueKey(this.event_dict,slide_id);
-    console.log(slide.unique_id);
     return slide.unique_id
   },
 
