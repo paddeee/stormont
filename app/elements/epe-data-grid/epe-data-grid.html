@@ -633,6 +633,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var $relatedToEventCol;
         var $sourceCol;
 
+        // Don't calculate if not on data-grid route as queries to the DOM won't work
+        if (EpeCreatePackage.createPackageRoute !== 'data-grid') {
+          return;
+        }
+
         // Reset style widths on table and colGroup cols
         this.$.HeaderTable.style.width = '';
         this.querySelectorAll('.field-col').forEach(function($col) {
