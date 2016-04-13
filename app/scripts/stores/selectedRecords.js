@@ -109,6 +109,20 @@ module.exports = Reflux.createStore({
     this.trigger(this);
   },
 
+  // Set To Plus One Event Changed
+  setToPlusOneChanged: function(eventObject) {
+
+    this.activeEvent = eventObject.eventId;
+    this.activePlace = eventObject.placeId;
+
+    this.message = {
+      type: 'setToPlusOneChanged',
+      displayType: eventObject.displayType
+    };
+
+    this.trigger(this);
+  },
+
   // Set To All Events
   setToAll: function(eventObject) {
 

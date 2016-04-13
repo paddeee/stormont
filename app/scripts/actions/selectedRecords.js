@@ -6,5 +6,6 @@ module.exports = Reflux.createActions([
   'timeLineEventSelected',
   'mapEventSelected',
   'setToAll',
-  'setToOneChanged'
+  'setToOneChanged',
+  'setToPlusOneChanged'
 ]);

@@ -567,6 +567,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       this.displayType = 'plusOne';
 
+      this.selectedRecordsActions.setToPlusOneChanged({
+        eventId: this.activeEvent,
+        placeId: this.activePlace,
+        displayType: this.displayType
+      });
+
       this.manageSetToSelectedClass($selectedSetToButton);
     },
 
