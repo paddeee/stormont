@@ -417,6 +417,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.noneGeoJSONObject = mapBroadcast.noneGeoJSONObject;
             this.activeEvent = mapBroadcast.activeEvent;
             this.activePlace = mapBroadcast.activePlace;
+          } else if (mapBroadcast.message.type === 'setToPlusOneChanged') {
+            this.navigatingEvents = false;
+            this.geoJSON = mapBroadcast.geoJSONObject;
+            this.noneGeoJSONObject = mapBroadcast.noneGeoJSONObject;
+            this.activeEvent = mapBroadcast.activeEvent;
+            this.activePlace = mapBroadcast.activePlace;
           }
 
         }.bind(this));

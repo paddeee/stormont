@@ -44,6 +44,16 @@ module.exports = Reflux.createStore({
 
       this.createGeoJSON();
 
+      // If changed to show events cumulatively
+    } else if (selectedRecordStore.message.type === 'setToPlusOneChanged') {
+
+      this.activeEvent = selectedRecordStore.activeEvent;
+      this.activePlace = selectedRecordStore.activePlace;
+
+      this.displayType = 'plusOne';
+
+      this.createGeoJSON();
+
     // If event selected has changed
     } else if (selectedRecordStore.message.type === 'timeLineSelectedRecord') {
 
@@ -62,6 +72,9 @@ module.exports = Reflux.createStore({
   createGeoJSON: function() {
 
     var geoJSONObject;
+    var indexOfActiveEvent;
+    var plusOneEvents;
+    var activePlusOneEvent = parseInt(this.activeEvent, 10);
 
     // Create an empty GeoJSON object
     var defaultGeoJSONObject = {
@@ -97,6 +110,23 @@ module.exports = Reflux.createStore({
         }.bind(this));
 
         messageType = 'setToOneChanged';
+
+      } else if (this.displayType === 'plusOne') {
+
+        indexOfActiveEvent = _.findIndex(this.selectedEvents.data(), function(selectedEvent) {
+          return selectedEvent.$loki == activePlusOneEvent;
+        }.bind(this));
+
+        plusOneEvents = this.selectedEvents.data().slice(0, indexOfActiveEvent + 1);
+
+        // Push a feature object for each Event record
+        plusOneEvents.forEach(function(selectedEvent) {
+
+          this.getFeatureObject(selectedEvent, defaultGeoJSONObject, noneGeoJSONObject);
+
+        }.bind(this));
+
+        messageType = 'setToPlusOneChanged';
 
       } else if (this.displayType === 'all') {
 
