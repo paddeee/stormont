@@ -309,8 +309,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           if (this.timeLine.config.events.length > 1) {
 
-            if (!_.includes(eventIdsToAdd, this.idOfLastEventToBeRemoved)) {
-              this.timeLine.removeId(this.idOfLastEventToBeRemoved[0]);
+            if (!_.includes(eventIdsToAdd, 'temporaryLastId')) {
+              this.timeLine.removeId('temporaryLastId');
               this.idOfLastEventToBeRemoved = [];
             }
           }
@@ -328,7 +328,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             // TimeLine throws a wobbler when removing the last event. So instead the event needs to be stored
             // and then removed first thing next time the events change
           } else if (this.timeLine.config.events.length === 1) {
-            this.idOfLastEventToBeRemoved = [eventObject.unique_id];
+            eventObject.unique_id = 'temporaryLastId';
+            this.idOfLastEventToBeRemoved = ['temporaryLastId'];
           }
 
         }.bind(this));
