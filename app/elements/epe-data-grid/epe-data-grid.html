@@ -634,7 +634,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var $sourceCol;
 
         // Don't calculate if not on data-grid route as queries to the DOM won't work
-        if (EpeCreatePackage.createPackageRoute !== 'data-grid') {
+        if (window.EpeCreatePackage.createPackageRoute !== 'data-grid') {
           return;
         }
 
@@ -855,7 +855,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       // FIRED WHEN USER TAPS OR MOUSES OVER DATA FIELD
-      showFullText: function(event) {
+      showFullText: function() {
         /*Temporarily turned off
         var dataText;
 

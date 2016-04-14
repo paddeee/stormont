@@ -222,7 +222,8 @@ module.exports = Reflux.createStore({
 
     // We should actually test using !== null, but for foolproofness,
     // we also reject empty strings
-    while (key = pattern.exec(content)) {
+    // Using extra parentheses to pass JSHint
+    while ((key = pattern.exec(content))) {
 
       // Case-insensitivity
       key = key[0];

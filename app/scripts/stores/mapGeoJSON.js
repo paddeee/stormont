@@ -114,7 +114,7 @@ module.exports = Reflux.createStore({
       } else if (this.displayType === 'plusOne') {
 
         indexOfActiveEvent = _.findIndex(this.selectedEvents.data(), function(selectedEvent) {
-          return selectedEvent.$loki == activePlusOneEvent;
+          return selectedEvent.$loki === activePlusOneEvent;
         }.bind(this));
 
         plusOneEvents = this.selectedEvents.data().slice(0, indexOfActiveEvent + 1);
