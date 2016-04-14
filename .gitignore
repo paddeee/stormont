@@ -11,4 +11,4 @@ app.asar
 
 app/scripts/bundle.js
 
-testmedia
+app/testmedia
