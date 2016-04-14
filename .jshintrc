@@ -9,7 +9,6 @@
   "immed": true,
   "indent": 2,
   "latedef": true,
-  "loopfunc": true,
   "noarg": true,
   "quotmark": "single",
   "undef": true,
