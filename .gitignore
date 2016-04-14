@@ -9,3 +9,5 @@ dist/output
 app.asar
 
 app/scripts/bundle.js
+
+testmedia
