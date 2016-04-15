@@ -30,21 +30,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       bottom: 0;
       left: 0;
 
-    /* background for toolbar when it is at its full size */
-    --paper-scroll-header-panel-full-header: {
-       background-color: var(--dark-primary-color);
-       background-image: url(../../images/header-bg.png);
-     };
+      /* background for toolbar when it is at its full size */
+      --paper-scroll-header-panel-full-header: {
+        background-color: var(--dark-primary-color);
+        background-image: url(../../images/header-bg.png);
+      };
 
-    /* background for toolbar when it is condensed */
-    --paper-scroll-header-panel-condensed-header: {
-       background-color: var(--default-primary-color);
-     };
+      /* background for toolbar when it is condensed */
+      --paper-scroll-header-panel-condensed-header: {
+        background-color: var(--default-primary-color);
+      };
     }
 
-    paper-scroll-header-panel #mainContainer {
-    @apply(--layout-flex);
-    @apply(--layout-vertical);
+    paper-scroll-header-panel.no-scrollbar /deep/ #mainContainer::-webkit-scrollbar {
+      display: none;
     }
 
     paper-scroll-header-panel.hide-header {
@@ -124,7 +123,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <paper-scroll-header-panel
         id="MainScrollHeader"
-        class="source-viewer"
+        class="source-viewer no-scrollbar"
         main
         condenses
         keep-condensed-header>
@@ -552,6 +551,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.sectionTitle = 'Create Package - ' + window.EpeCreatePackage.params.name;
           }
 
+          // While we're here, scroll header to top
+          this.manageScrollHeader('data-grid');
+
         } else if (window.EpeCreatePackage.createPackageRoute === 'map') {
           this.sectionTitle = 'Create Package - Map';
 
@@ -617,35 +619,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         switch (route) {
           case 'view-packages':
             $scrollHeader.scroll(0, true);
+            this.$.MainScrollHeader.classList.remove('no-scrollbar');
             break;
           case 'data-grid':
-            $scrollHeader.scroll(0, true);
+            $scrollHeader.scroll(128, true);
+            this.$.MainScrollHeader.classList.add('no-scrollbar');
             break;
           case 'map':
             $scrollHeader.scroll(128, true);
+            this.$.MainScrollHeader.classList.add('no-scrollbar');
             break;
           case 'profile':
             $scrollHeader.scroll(0, true);
+            this.$.MainScrollHeader.classList.remove('no-scrollbar');
             break;
           case 'source':
             $scrollHeader.scroll(128, true);
+            this.$.MainScrollHeader.classList.add('no-scrollbar');
             break;
           case 'pdf':
             $scrollHeader.scroll(128, true);
+            this.$.MainScrollHeader.classList.add('no-scrollbar');
             break;
           case 'media':
             $scrollHeader.scroll(128, true);
+            this.$.MainScrollHeader.classList.add('no-scrollbar');
             break;
           case 'image':
             $scrollHeader.scroll(128, true);
+            this.$.MainScrollHeader.classList.add('no-scrollbar');
             break;
           case 'choose-option':
             // Hack that fixed header issue on Chrome Windows
             $scrollHeader.scroll(128, false);
             $scrollHeader.scroll(0, false);
+            this.$.MainScrollHeader.classList.remove('no-scrollbar');
             break;
           default:
             $scrollHeader.scroll(0, true);
+            this.$.MainScrollHeader.classList.add('no-scrollbar');
         }
       },
 
@@ -713,10 +725,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         // If in Source View
-        if ((app.route === 'create-package' || app.route === 'edit-package') && $packageElement.createPackageRoute === 'source') {
+        if (app.route === 'create-package' || app.route === 'edit-package') {
 
-          if ($header.scrollTop < 128) {
-            this.$.MainScrollHeader.scroll(128, false);
+          if ($packageElement.createPackageRoute === 'source' || $packageElement.createPackageRoute === 'data-grid') {
+
+            if ($header.scrollTop < 128) {
+              this.$.MainScrollHeader.scroll(128, false);
+            }
           }
         }
       },

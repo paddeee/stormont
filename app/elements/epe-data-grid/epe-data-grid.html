@@ -15,7 +15,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     :host {
       display: block;
       margin: 5vh 3vw;
-      overflow: scroll;
     }
 
     iron-list {
@@ -39,7 +38,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .data-grid__footer {
       background-color: var(--text-primary-color);
       border-top: 1px var(--divider-color) solid;
-      height: 15vh;
+      height: 44px;
       width: 100%;
     }
 
@@ -180,7 +179,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .data-grid__records {
-      height: 550px;
+      height: 380px;
       position: relative;
       width: 100%;
       overflow-y: scroll;
@@ -220,7 +219,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .total-records {
       color: var(--secondary-text-color);
-      font-size: 1.5vh;
+      font-size: 12px;
       text-align: center;
     }
 
@@ -259,7 +258,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <div class="data-grid"
          hidden$="[[!noRecords]]">
-      <div class="data-grid__container">
+      <div id="DataGridContainer" class="data-grid__container">
 
         <!-- DataGrid Header -->
         <div class="data-grid__header">
@@ -392,11 +391,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <!-- Footer Bar -->
         <div hidden$="[[!noRecords]]"
-             class="data-grid__footer layout horizontal center center-justified">
-          <div class="layout vertical">
-            <div class="total-records">
-              <span>[[totalRecords]]</span> Results
-            </div>
+             class="data-grid__footer">
+          <div class="layout horizontal center center-justified">
             <epe-paginator
               id="Paginator"
               perpage="20"
@@ -404,6 +400,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               data="[[gridData]]"
               show-first="true"
               show-last="true"></epe-paginator>
+            <div class="total-records">
+              <span>[[totalRecords]]</span> Results
+            </div>
           </div>
         </div>
 
@@ -616,10 +615,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // show record property has changed
           this.updateCheckboxes();
 
+          // Set table to relevant size depending on body height
+          this.setDefaultTableHeight();
+
           // Set table to relevant size depending on widths of heading names
           // Wrap in async to give template time to be stamped
           this.async(this.setDefaultTableWidths);
         }
+      },
+
+      // Set heights on table elements to ensure it fits the available height without scrolling
+      setDefaultTableHeight: function() {
+
+        var bodyHeight = document.querySelector('body').clientHeight;
+
+        this.$.DataGridContainer.style.height = bodyHeight - 170 + 'px';
+        this.$.DataGridRecords.style.height = bodyHeight - 255 + 'px';
       },
 
       // Set default table and column widths
@@ -697,13 +708,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.scrollHeader();
 
         // Set the Records div height to be same as the table so no gap at the bottom
-        this.async(function() {
+        /*this.async(function() {
           if (this.$.DataGridRecords.clientHeight > this.$.RecordsTable.clientHeight) {
             this.$.DataGridRecords.style.height = this.$.RecordsTable.clientHeight + 'px';
           } else {
             this.$.DataGridRecords.style.height = '';
           }
-        }, 400);
+        }, 400);*/
       },
 
       // Force template-repeat to show checkboxes in correct state after the
