@@ -1,6 +1,7 @@
 'use strict';
 
 var Reflux = require('reflux');
+var config = require('../config/config.js');
 var ExportActions = require('../actions/export.js');
 var dataSourceStore = require('../stores/dataSource.js');
 var fs = window.electronRequire('fs-extra');
@@ -188,15 +189,15 @@ module.exports = Reflux.createStore({
     var sourceObjects;
 
     // ToDO: In unlikely case of no source collection, don't need to copy source files
-    if (!dataSourceStore.dataSource.getCollection('Source')) {
+    if (!dataSourceStore.dataSource.getCollection(config.SourcesCollection.name)) {
 
     }
 
     // If a filter has been applied, only get selected source records otherwise get all
-    if (dataSourceStore.dataSource.getCollection('Source').chain(presentationName)) {
-      sourceObjects = dataSourceStore.dataSource.getCollection('Source').chain(presentationName).data();
+    if (dataSourceStore.dataSource.getCollection(config.SourcesCollection.name).chain(presentationName)) {
+      sourceObjects = dataSourceStore.dataSource.getCollection(config.SourcesCollection.name).chain(presentationName).data();
     } else {
-      sourceObjects = dataSourceStore.dataSource.getCollection('Source').data;
+      sourceObjects = dataSourceStore.dataSource.getCollection(config.SourcesCollection.name).data;
     }
 
     return sourceObjects;
@@ -215,7 +216,7 @@ module.exports = Reflux.createStore({
       var sourceFilePath = window.appConfig.paths.sourcePath;
 
       // Return a new Promise for every file to be copied
-      var copyFile = function (sourceFile) { // sample async action
+      var copyFile = function (sourceFile) {
 
         return new Promise(function(resolve, reject) {
 
