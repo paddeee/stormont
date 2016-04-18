@@ -646,7 +646,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var $sourceCol;
 
         // Don't calculate if not on data-grid route as queries to the DOM won't work
-        if (window.EpeCreatePackage.createPackageRoute !== 'data-grid') {
+        if (window.EpeCreatePackage.createPackageRoute && window.EpeCreatePackage.createPackageRoute !== 'data-grid') {
+          return;
+        }
+
+        if (window.EpeEditPackage.createPackageRoute && window.EpeEditPackage.createPackageRoute !== 'data-grid') {
           return;
         }
 
