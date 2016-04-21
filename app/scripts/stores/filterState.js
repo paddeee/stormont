@@ -40,7 +40,7 @@ module.exports = Reflux.createStore({
 
     this.convertQueryObjectToFilterTransform(queryBuilderStore.queryObject.filters);
 
-    // If A Package has just been chosen we don't want to select all or deselct all checkboxes
+    // If A Package has just been chosen we don't want to select all or deselect all checkboxes
     if (queryBuilderStore.message.type === 'packageSelected') {
       this.autoFilterCollections(false, true);
       this.selectSelectedRecords(queryBuilderStore.packageName);

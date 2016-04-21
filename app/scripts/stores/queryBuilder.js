@@ -3,6 +3,7 @@
 var Reflux = require('reflux');
 var QueryBuilderActions = require('../actions/queryBuilder.js');
 var dataSourceStore = require('../stores/dataSource.js');
+var presentationsStore = require('../stores/presentations.js');
 var config = require('../config/config.js');
 
 module.exports = Reflux.createStore({
@@ -17,6 +18,9 @@ module.exports = Reflux.createStore({
 
     // Register dataSourceStores's changes
     this.listenTo(dataSourceStore, this.dataSourceChanged);
+
+    // Register presentationStore changes
+    this.listenTo(presentationsStore, this.presentationsChanged);
 
     // Used to prevent Checkboxes being displayed when none of the filters have values
     this.filtersWithValues = [];
@@ -37,10 +41,18 @@ module.exports = Reflux.createStore({
     if (dataSourceStore.dataSource.message.type === 'dataBaseLoaded') {
 
       if (!queryCollection) {
-        queryCollection = dataSourceStore.dataSource.addCollection(config.QueriesCollection);
+        dataSourceStore.dataSource.addCollection(config.QueriesCollection);
       }
 
-      this.createDefaultQuery(queryCollection);
+      this.createDefaultQuery();
+    }
+  },
+
+  // Reset filters and selections
+  presentationsChanged: function(presentationsStore) {
+
+    if (presentationsStore.presentationState === 'creating') {
+      this.createDefaultQuery();
     }
   },
 
@@ -72,7 +84,7 @@ module.exports = Reflux.createStore({
     this.getQuery();
   },
 
-  // Create a default query if none exist
+  // Create a default query object
   createDefaultQuery: function() {
 
     var queryObjectToClone;
