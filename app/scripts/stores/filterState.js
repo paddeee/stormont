@@ -371,7 +371,7 @@ module.exports = Reflux.createStore({
     sourcesCollection.update(presentationObject.selectedSources);
 
     // Let listeners know data has been updated
-    this.selectedDataChanged(true);
+    this.selectedDataChanged(true, true);
   },
 
   // Fired from grid view when Select all checkbox is selected
@@ -712,11 +712,11 @@ module.exports = Reflux.createStore({
   },
 
   // Let listeners know the userFilteredCollections have been updated
-  selectedDataChanged: function(sortCheckBoxes) {
+  selectedDataChanged: function(sortCheckBoxes, sortEvents) {
 
     // Only sort when checkboxes have been ticked, not when a sort has been done
     if (sortCheckBoxes) {
-      this.sortBySelectedRecords();
+      this.sortBySelectedRecords(sortEvents);
     }
 
     // Pass data onto views
@@ -733,7 +733,12 @@ module.exports = Reflux.createStore({
   },
 
   // Sort the collections by selected records
-  sortBySelectedRecords: function() {
+  sortBySelectedRecords: function(sortEvents) {
+
+    if (sortEvents) {
+      eventsStore.userFilteredCollection.simplesort('showRecord', true).data();
+    }
+
     placesStore.userFilteredCollection.simplesort('showRecord', true).data();
     peopleStore.userFilteredCollection.simplesort('showRecord', true).data();
     this.sortBySelectedSourceRecords();
