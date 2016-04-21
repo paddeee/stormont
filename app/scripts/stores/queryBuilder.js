@@ -44,7 +44,7 @@ module.exports = Reflux.createStore({
         dataSourceStore.dataSource.addCollection(config.QueriesCollection);
       }
 
-      this.createDefaultQuery();
+      this.createDefaultQuery('defaultQueryAdded');
     }
   },
 
@@ -52,7 +52,9 @@ module.exports = Reflux.createStore({
   presentationsChanged: function(presentationsStore) {
 
     if (presentationsStore.presentationState === 'creating') {
-      this.createDefaultQuery();
+      this.packageName = 'ViewingFilter';
+      this.resetFiltersWithValues();
+      this.createDefaultQuery('creatingSelected');
     }
   },
 
@@ -85,7 +87,7 @@ module.exports = Reflux.createStore({
   },
 
   // Create a default query object
-  createDefaultQuery: function() {
+  createDefaultQuery: function(action) {
 
     var queryObjectToClone;
 
@@ -100,7 +102,7 @@ module.exports = Reflux.createStore({
     this.insertQueryObject(queryObjectToClone);
 
     this.message = {
-      type: 'defaultQueryAdded'
+      type: action
     };
 
     this.trigger(this);
@@ -243,6 +245,14 @@ module.exports = Reflux.createStore({
     }.bind(this));
 
     this.filtersWithValues = tempFilterWithValues;
+  },
+
+  // Reset filtersWithValues
+  resetFiltersWithValues: function() {
+
+    this.filtersWithValues = [];
+
+    this.manageContainsEventFilters();
   },
 
   // Manage property to indicate if there are any event filters. Because if not, the application shouldn't select all

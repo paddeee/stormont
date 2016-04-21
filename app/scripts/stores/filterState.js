@@ -44,8 +44,10 @@ module.exports = Reflux.createStore({
     if (queryBuilderStore.message.type === 'packageSelected') {
       this.autoFilterCollections(false, true);
       this.selectSelectedRecords(queryBuilderStore.packageName);
-    } else {
+    } else if (queryBuilderStore.message.type === 'defaultQueryAdded') {
       this.autoFilterCollections(true, true);
+    } else if (queryBuilderStore.message.type === 'creatingSelected') {
+      this.autoFilterCollections(false, false);
     }
   },
 
@@ -302,7 +304,7 @@ module.exports = Reflux.createStore({
     // Update all Checkboxes if query contains events filter/filters with a value selected by the user
     if (selectAllCheckBoxes && queryBuilderStore.containsEvents) {
       this.selectAllCheckboxes(eventsStore, true);
-    } else if (selectAllCheckBoxes && !queryBuilderStore.containsEvents) {
+    } else if (!selectAllCheckBoxes && !queryBuilderStore.containsEvents) {
       this.selectAllCheckboxes(eventsStore, false);
     }
 
