@@ -700,11 +700,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Fired from epe-create-package elements
       showDialog: function (event) {
+
         if (event.detail.type === 'presentationSaved') {
+
+          this.navigateToSavedEvent(event.detail);
+
           this.$.SuccessDialog.open();
+
         } else if (event.detail.type === 'collectionExists') {
           this.$.WarningDialog.open();
         }
+      },
+
+      // Navigate to newly saved even
+      navigateToSavedEvent: function(presentation) {
+
+        // Call presentationStateChanged presentations action
+        this.presentationsActions.presentationStateChanged({
+          presentationState: presentation.presentationState,
+          presentationName: presentation.presentationName
+        });
+
+        // Call packageSelected filterState action
+        this.filterStateActions.packageSelected(presentation.presentationName);
+        this.queryBuilderActions.packageSelected(presentation.presentationName);
+
+        // Navigate to Data Grid Event tab
+        page('/edit-package/data-grid/Event');
       },
 
       // Close the save presentation overlay on the epe-filters element

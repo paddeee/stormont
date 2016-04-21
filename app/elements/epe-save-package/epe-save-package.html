@@ -199,6 +199,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // When the events data is updated, update our grid data
         this.presentationsStore.listen(function (presentationsStore) {
 
+          var $formPresentationName = this.$.PresentationNameSave.value;
+
           this.selectedPresentation = presentationsStore.selectedPresentationObject;
           this.presentationState = presentationsStore.presentationState;
 
@@ -207,7 +209,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.setMessage(presentationsStore.message);
 
             this.fire('show-dialog', {
-              type: presentationsStore.message
+              type: presentationsStore.message,
+              presentationName: $formPresentationName,
+              presentationState: this.presentationState
             });
           }
         }.bind(this));

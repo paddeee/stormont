@@ -559,9 +559,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             // Open the Exporting Loading Dialog
             this.$.ExportingPackage.open();
 
-            // Run the filters against the data so the export process will be able to work against the filtered data
+            // Call packageSelected filterState action
             this.filterStateActions.packageSelected(this.presentationForExport);
-            this.queryBuilderActions.packageSelected(this.presentationForExport);
+            this.queryBuilderActions.packageSelected(presentationName);
 
             // Call exportPresentation export action
             this.exportActions.exportPresentation({

@@ -803,7 +803,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         event.preventDefault();
         this.fire('show-dialog', {
-          type: event.detail.type
+          type: event.detail.type,
+          presentationName: event.detail.presentationName,
+          presentationState: event.detail.presentationState
         });
       },
 
