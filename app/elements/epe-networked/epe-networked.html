@@ -703,7 +703,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         if (event.detail.type === 'presentationSaved') {
 
-          this.navigateToSavedEvent(event.detail);
+          if (this.presentationsStore.presentationState === 'creating') {
+            this.navigateToSavedEvent(event.detail);
+          }
 
           this.$.SuccessDialog.open();
 
@@ -715,10 +717,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Navigate to newly saved even
       navigateToSavedEvent: function(presentation) {
 
-        // Call presentationStateChanged presentations action
-        this.presentationsActions.presentationStateChanged({
-          presentationName: presentation.presentationName
-        });
+        this.savedPresentation = presentation;
 
         // Call packageSelected filterState action
         this.filterStateActions.packageSelected(presentation.presentationName);
@@ -735,9 +734,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.Filters.closeCard();
 
         // Call presentationStateChanged presentations action
-        this.presentationsActions.presentationStateChanged({
-          presentationState: 'editing'
-        });
+        if (this.presentationsStore.presentationState === 'creating') {
+          this.presentationsActions.presentationStateChanged({
+            presentationName: this.savedPresentation.presentationName,
+            presentationState: 'editing'
+          });
+        }
       },
 
       // Keep header small and fixed in certain conditions
