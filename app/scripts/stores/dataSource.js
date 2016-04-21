@@ -2,6 +2,7 @@
 
 var ldap =  global.packagedApp ? window.electronRequire('ldapjs') : null;
 var Reflux = require('reflux');
+var config = require('../config/config.js');
 var loki = require('lokijs');
 var fileAdapter = require('../adapters/loki-file-adapter.js');
 var DataSourceActions = require('../actions/dataSource.js');
@@ -106,12 +107,15 @@ module.exports = Reflux.createStore({
     // Try to save database
     } else {
 
-      this.resetShowFilterProperties();
-
       this.manageCollectionTransformNames(presentationObject);
 
       // Create Presentation meta info such as user and date created
-      this.savePresentationMetaData(presentationObject, createdDate, 'save');
+      this.createPresentationMetaData(presentationObject, createdDate, 'save');
+
+      // Keep a record of all selected records
+      this.updateSelectedRecords(presentationName);
+
+      this.resetShowFilterProperties();
 
       // Save database
       this.dataSource.saveDatabase(function() {
@@ -137,12 +141,15 @@ module.exports = Reflux.createStore({
       // Try to save database
     } else {
 
-      this.resetShowFilterProperties();
-
       this.updateCollectionTransformNames(presentationObject);
 
       // Create Presentation meta info such as user and date created
-      this.savePresentationMetaData(presentationObject, createdDate, 'update');
+      this.createPresentationMetaData(presentationObject, createdDate, 'update');
+
+      // Keep a record of all selected records
+      this.updateSelectedRecords(presentationName);
+
+      this.resetShowFilterProperties();
 
       // Save database
       this.dataSource.saveDatabase(function () {
@@ -160,15 +167,15 @@ module.exports = Reflux.createStore({
     // Broadcast message if collection exists
     if (this.collectionExists(presentationName)) {
 
-      this.resetShowFilterProperties();
-
       this.deleteCollectionTransformNames(presentationObject);
 
       // Create Presentation meta info such as user and date created
-      this.savePresentationMetaData(presentationObject, null, 'delete');
+      this.createPresentationMetaData(presentationObject, null, 'delete');
 
       // Delete record from Queries Collection to keep everything tidy
       this.saveQueryBuilderData(presentationObject, 'delete');
+
+      this.resetShowFilterProperties();
 
       // Save database
       this.dataSource.saveDatabase(function() {
@@ -179,6 +186,59 @@ module.exports = Reflux.createStore({
     } else {
       console.error('Can\'t delete collection as doesn\'t exist in database');
     }
+  },
+
+  //
+  updateSelectedRecords: function(presentationName, action) {
+
+    var selectedEvents = [];
+    var selectedPlaces = [];
+    var selectedPeople = [];
+    var selectedSources = [];
+
+    var presentationsCollection = this.dataSource.getCollection('Presentations');
+    var presentationObject = presentationsCollection.find({
+      presentationName: presentationName
+    })[0];
+
+    var eventData = this.dataSource.getCollection(config.EventsCollection.name).data;
+    var placeData = this.dataSource.getCollection(config.PlacesCollection.name).data;
+    var peopleData = this.dataSource.getCollection(config.PeopleCollection.name).data;
+    var sourceData = this.dataSource.getCollection(config.SourcesCollection.name).data;
+
+    // Push selected ids onto arrays
+    eventData.forEach(function(object) {
+      if (object.showRecord === true) {
+        selectedEvents.push(object);
+      }
+    });
+
+    placeData.forEach(function(object) {
+      if (object.showRecord === true) {
+        selectedPlaces.push(object);
+      }
+    });
+
+    peopleData.forEach(function(object) {
+      if (object.showRecord === true) {
+        selectedPeople.push(object);
+      }
+    });
+
+    sourceData.forEach(function(object) {
+      if (object.showRecord === true) {
+        selectedSources.push(object);
+      }
+    });
+
+    // Assign selectedRecord Arrays to properties on Presentations Collection
+    presentationObject.selectedEvents = selectedEvents;
+    presentationObject.selectedPlaces = selectedPlaces;
+    presentationObject.selectedPeople = selectedPeople;
+    presentationObject.selectedSources = selectedSources;
+
+    // Update presentations collection presentation object
+    presentationsCollection.update(presentationObject);
   },
 
   // Return true if presentationName exists in collection
@@ -249,7 +309,7 @@ module.exports = Reflux.createStore({
   },
 
   // Create a meta object and add to presentations collection of loki db
-  savePresentationMetaData: function (presentationObject, createdDate, action) {
+  createPresentationMetaData: function (presentationObject, createdDate, action) {
 
     var presentationInfo = {};
     var presentationsCollection = this.dataSource.getCollection('Presentations');
@@ -287,5 +347,4 @@ module.exports = Reflux.createStore({
       });
     }
   }
-
 });

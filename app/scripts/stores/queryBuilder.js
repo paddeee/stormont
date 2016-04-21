@@ -105,6 +105,10 @@ module.exports = Reflux.createStore({
 
     this.queryObject = this.cloneDocument(queryObject, false);
 
+    this.message = {
+      type: 'packageSelected'
+    };
+
     this.trigger(this);
   },
 

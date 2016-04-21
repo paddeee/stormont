@@ -2,8 +2,14 @@
 
 var Reflux = require('reflux');
 var config = require('../config/config.js');
+var loki = require('lokijs');
+var fileAdapter = require('../adapters/loki-file-adapter.js');
 var ExportActions = require('../actions/export.js');
 var dataSourceStore = require('../stores/dataSource.js');
+var eventsStore = require('../stores/events.js');
+var placesStore = require('../stores/places.js');
+var peopleStore = require('../stores/people.js');
+var sourcesStore = require('../stores/source.js');
 var fs = window.electronRequire('fs-extra');
 var zipFolder = window.electronRequire('zip-folder');
 var encryptor = window.electronRequire('file-encryptor');
@@ -45,9 +51,22 @@ module.exports = Reflux.createStore({
     var tempExportDirectory = presentationObject.packageLocation + presentationObject.packageName;
     var dbName = '/SITF.json';
     var dbFilePath = window.appConfig.paths.dbPath + dbName;
+    var copyDBFile;
+    var zipTempDirectory;
+
+    var exportDatabase = new loki('SITF.json', {
+      adapter: fileAdapter
+    });
+
+    exportDatabase.loadDatabase({}, function() {
+
+      this.updateDataCollections(exportDatabase, presentationObject);
+
+    }.bind(this));
+
 
     // Create promise for copying the Database file
-    var copyDBFile = new Promise(function (resolve, reject) {
+    copyDBFile = new Promise(function (resolve, reject) {
 
       fs.copy(dbFilePath, tempExportDirectory + dbName, function(err) {
         if (err) {
@@ -59,7 +78,7 @@ module.exports = Reflux.createStore({
     });
 
     // Create promise for zipping the Temporary Directory
-    var zipTempDirectory = new Promise(function (resolve, reject) {
+    zipTempDirectory = new Promise(function (resolve, reject) {
 
       // Add artificial timeout to make sure the directory is ready with all its contents
       setTimeout(function() {
@@ -156,6 +175,68 @@ module.exports = Reflux.createStore({
       this.message = 'dbCopyFailure';
       this.trigger(this);
     }.bind(this));
+  },
+
+  // Base on whether the export has chosen filtered or selected records, set the collection data to the correct subset
+  updateDataCollections: function(exportDatabase, presentationObject) {
+
+    var exportEventData;
+    var exportPlaceData;
+    var exportPeopleData;
+    var exportSourceData;
+    var eventsCollection = exportDatabase.getCollection(config.EventsCollection.name);
+    var placeCollection = exportDatabase.getCollection(config.PlacesCollection.name);
+    var peopleCollection = exportDatabase.getCollection(config.PeopleCollection.name);
+    var sourceCollection = exportDatabase.getCollection(config.SourcesCollection.name);
+    var presentationsCollection = dataSourceStore.dataSource.getCollection('Presentations');
+    var selectedPresentationObject = presentationsCollection.find({
+      presentationName: presentationObject.packageName
+    })[0];
+
+      // If exporting filtered records, user the userFilteredCollection data
+    if (presentationObject.filteredOrSelected === 'filtered') {
+      exportEventData = eventsStore.userFilteredCollection.data();
+      exportPlaceData = placesStore.userFilteredCollection.data();
+      exportPeopleData = peopleStore.userFilteredCollection.data();
+      exportSourceData = sourcesStore.userFilteredCollection.data();
+
+      // If exporting selected records, use the records stored in the presentations collection
+    } else if (presentationObject.filteredOrSelected === 'selected') {
+      exportEventData = selectedPresentationObject.selectedEvents;
+      exportPlaceData = selectedPresentationObject.selectedPlaces;
+      exportPeopleData = selectedPresentationObject.selectedPeople;
+      exportSourceData = selectedPresentationObject.selectedSources;
+    }
+
+    // Remove $loki properties from data so we can insert the documents afresh
+    exportEventData.forEach(function(object) {
+      delete object.$loki;
+    });
+    exportPlaceData.forEach(function(object) {
+      delete object.$loki;
+    });
+
+    exportPeopleData.forEach(function(object) {
+      delete object.$loki;
+    });
+
+    exportSourceData.forEach(function(object) {
+      delete object.$loki;
+    });
+
+    // Remove All records
+    eventsCollection.removeDataOnly();
+    placeCollection.removeDataOnly();
+    peopleCollection.removeDataOnly();
+    sourceCollection.removeDataOnly();
+
+    // Add filtered or selected records
+    eventsCollection.insert(exportEventData);
+    placeCollection.insert(exportPlaceData);
+    peopleCollection.insert(exportPeopleData);
+    sourceCollection.insert(exportSourceData);
+
+    console.log(eventsCollection);
   },
 
   // Encrypt a zip file using aes-256 and the package password

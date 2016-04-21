@@ -38,11 +38,15 @@ module.exports = Reflux.createStore({
   // Set search filter on our collectionTransform
   queryBuilderChanged: function (queryBuilderStore) {
 
-    //this.updateFilteredData2(queryBuilderStore.queryObject);
-
     this.convertQueryObjectToFilterTransform(queryBuilderStore.queryObject.filters);
 
-    this.autoFilterCollections(true, true);
+    // If A Package has just been chosen we don't want to select all or deselct all checkboxes
+    if (queryBuilderStore.message.type === 'packageSelected') {
+      this.autoFilterCollections(false, true);
+      this.selectSelectedRecords(queryBuilderStore.packageName);
+    } else {
+      this.autoFilterCollections(true, true);
+    }
   },
 
   // Set the filteredData Object
@@ -298,7 +302,7 @@ module.exports = Reflux.createStore({
     // Update all Checkboxes if query contains events filter/filters with a value selected by the user
     if (selectAllCheckBoxes && queryBuilderStore.containsEvents) {
       this.selectAllCheckboxes(eventsStore, true);
-    } else {
+    } else if (selectAllCheckBoxes && !queryBuilderStore.containsEvents) {
       this.selectAllCheckboxes(eventsStore, false);
     }
 
@@ -318,6 +322,56 @@ module.exports = Reflux.createStore({
     store.userFilteredCollection.update(function (item) {
       item.showRecord = value;
     });
+  },
+
+  // When a package is selected, select the selected records for each data table
+  selectSelectedRecords: function(packageName) {
+
+    var presentationsCollection = dataSourceStore.dataSource.getCollection('Presentations');
+
+    var eventsCollection = dataSourceStore.dataSource.getCollection(config.EventsCollection.name);
+    var placesCollection = dataSourceStore.dataSource.getCollection(config.PlacesCollection.name);
+    var peopleCollection = dataSourceStore.dataSource.getCollection(config.PeopleCollection.name);
+    var sourcesCollection = dataSourceStore.dataSource.getCollection(config.SourcesCollection.name);
+
+    var presentationObject;
+
+    if (!presentationsCollection) {
+      return;
+    }
+
+    presentationObject = presentationsCollection.find({
+      presentationName: packageName
+    })[0];
+
+    if (!presentationObject) {
+      return;
+    }
+
+    presentationObject.selectedEvents.forEach(function(selectedEvent) {
+      selectedEvent.showRecord = true;
+    });
+
+    presentationObject.selectedPlaces.forEach(function(selectedPlace) {
+      selectedPlace.showRecord = true;
+    });
+
+    presentationObject.selectedPeople.forEach(function(selectedPerson) {
+      selectedPerson.showRecord = true;
+    });
+
+    presentationObject.selectedSources.forEach(function(selectedSource) {
+      selectedSource.showRecord = true;
+    });
+
+    // Update the collections
+    eventsCollection.update(presentationObject.selectedEvents);
+    placesCollection.update(presentationObject.selectedPlaces);
+    peopleCollection.update(presentationObject.selectedPeople);
+    sourcesCollection.update(presentationObject.selectedSources);
+
+    // Let listeners know data has been updated
+    this.selectedDataChanged(true);
   },
 
   // Fired from grid view when Select all checkbox is selected

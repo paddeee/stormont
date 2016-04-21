@@ -138,7 +138,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .export-dialog {
-      height: 35vh;
+      height: 50vh;
       width: 50vw;
     }
 
@@ -254,6 +254,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   modal>
       <h2>Export Package</h2>
       <div>
+
+        <paper-radio-group id="FilteredOrSelected" selected="filtered">
+          <paper-radio-button name="filtered">Filtered Records</paper-radio-button>
+          <paper-radio-button name="selected">Selected Records</paper-radio-button>
+        </paper-radio-group>
+
         <paper-input
           id="ExportPassword"
           class="export-package"
@@ -261,6 +267,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           type="password"
           autofocus
           on-keypress="yubiKeyPressed"></paper-input>
+
       </div>
       <div class="buttons">
         <paper-button dialog-confirm autofocus>Cancel</paper-button>
@@ -531,6 +538,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var packagePassword;
       var packageLocation;
+      var filteredOrSelected;
 
         // YubiKey will press enter after entering its password
         if (event.keyCode === 13) {
@@ -542,6 +550,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             // For now just hardcode a location
             packageLocation = '/Users/ODonnell/SITF/SITFExports/';
             packagePassword = event.target.value;
+            filteredOrSelected = this.$.FilteredOrSelected.selected;
 
             // Close the Export Dialog and reset the password field
             this.$.ExportPassword.value = null;
@@ -550,15 +559,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             // Open the Exporting Loading Dialog
             this.$.ExportingPackage.open();
 
+            // Run the filters against the data so the export process will be able to work against the filtered data
+            this.filterStateActions.packageSelected(this.presentationForExport);
+            this.queryBuilderActions.packageSelected(this.presentationForExport);
+
             // Call exportPresentation export action
             this.exportActions.exportPresentation({
               packageName: this.presentationForExport,
               packageLocation: packageLocation,
-              packagePassword: packagePassword
+              packagePassword: packagePassword,
+              filteredOrSelected: filteredOrSelected
             });
 
           } else {
-            console.warn('Export not required in browser mode');
+            console.warn('Export not available in browser mode');
           }
         }
     },
