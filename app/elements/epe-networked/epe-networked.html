@@ -717,7 +717,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Call presentationStateChanged presentations action
         this.presentationsActions.presentationStateChanged({
-          presentationState: presentation.presentationState,
           presentationName: presentation.presentationName
         });
 
@@ -731,8 +730,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Close the save presentation overlay on the epe-filters element
       closeCard: function () {
+
         this.$.Filters.hideFilters();
         this.$.Filters.closeCard();
+
+        // Call presentationStateChanged presentations action
+        this.presentationsActions.presentationStateChanged({
+          presentationState: 'editing'
+        });
       },
 
       // Keep header small and fixed in certain conditions
