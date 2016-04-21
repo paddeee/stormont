@@ -160,10 +160,17 @@ module.exports = Reflux.createStore({
 
   queryFiltersChanged: function(arg, action) {
 
+    var broadcastMessage = '';
+
+    // If the filters have changed as a result of a package being selected send a different message to hook on to
+    if (this.message.type === 'packageSelected') {
+      broadcastMessage = 'PackageSelected';
+    }
+
     if (action === 'add') {
       this.queryObject.filters.push(arg);
       this.message = {
-        type: 'queryAdded'
+        type: 'queryUpdated' + broadcastMessage
       };
     } else if (action === 'remove') {
 
@@ -172,14 +179,14 @@ module.exports = Reflux.createStore({
       this.manageFiltersWithValues(deletedFilter, 'remove');
 
       this.message = {
-        type: 'queryRemoved'
+        type: 'queryUpdated' + broadcastMessage
       };
     } else if (action === 'update') {
 
       this.manageFiltersWithValues(arg, 'update');
 
       this.message = {
-        type: 'queryUpdated'
+        type: 'queryUpdated' + broadcastMessage
       };
     }
 

@@ -44,12 +44,12 @@ module.exports = Reflux.createStore({
     if (queryBuilderStore.message.type === 'packageSelected') {
       this.autoFilterCollections(false, true, true);
       this.selectSelectedRecords(queryBuilderStore.packageName);
-    } else if (queryBuilderStore.message.type === 'queryAdded' || queryBuilderStore.message.type === 'queryUpdated' || queryBuilderStore.message.type === 'queryRemoved') {
+    } else if (queryBuilderStore.message.type === 'queryUpdatedPackageSelected') {
       this.autoFilterCollections(false, true, true);
+    } else if (queryBuilderStore.message.type === 'queryUpdated') {
+      this.autoFilterCollections(true, true, true);
     } else if (queryBuilderStore.message.type === 'creatingSelected') {
       this.autoFilterCollections(true, false, false);
-    } else {
-      this.autoFilterCollections(true, true, true);
     }
   },
 
@@ -352,6 +352,10 @@ module.exports = Reflux.createStore({
       return;
     }
 
+    // Reset any selected records in the data tables to showRecord false
+    this.selectAllCheckboxes(eventsStore, false);
+
+    // Add showRecord true to slected records in presentation object
     presentationObject.selectedEvents.forEach(function(selectedEvent) {
       selectedEvent.showRecord = true;
     });
@@ -367,9 +371,6 @@ module.exports = Reflux.createStore({
     presentationObject.selectedSources.forEach(function(selectedSource) {
       selectedSource.showRecord = true;
     });
-
-    // Reset any selected records in the data tables to showRecord false
-    this.selectAllCheckboxes(eventsStore, false);
 
     // Update the collections
     eventsCollection.update(presentationObject.selectedEvents);
