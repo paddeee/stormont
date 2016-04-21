@@ -189,7 +189,7 @@ module.exports = Reflux.createStore({
   },
 
   //
-  updateSelectedRecords: function(presentationName, action) {
+  updateSelectedRecords: function(presentationName) {
 
     var selectedEvents = [];
     var selectedPlaces = [];

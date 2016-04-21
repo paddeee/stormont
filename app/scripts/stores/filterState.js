@@ -42,12 +42,14 @@ module.exports = Reflux.createStore({
 
     // If A Package has just been chosen we don't want to select all or deselect all checkboxes
     if (queryBuilderStore.message.type === 'packageSelected') {
-      this.autoFilterCollections(false, true);
+      this.autoFilterCollections(false, true, true);
       this.selectSelectedRecords(queryBuilderStore.packageName);
-    } else if (queryBuilderStore.message.type === 'defaultQueryAdded') {
-      this.autoFilterCollections(true, true);
+    } else if (queryBuilderStore.message.type === 'queryAdded' || queryBuilderStore.message.type === 'queryUpdated' || queryBuilderStore.message.type === 'queryRemoved') {
+      this.autoFilterCollections(false, true, true);
     } else if (queryBuilderStore.message.type === 'creatingSelected') {
-      this.autoFilterCollections(false, false);
+      this.autoFilterCollections(true, false, false);
+    } else {
+      this.autoFilterCollections(true, true, true);
     }
   },
 
@@ -280,7 +282,7 @@ module.exports = Reflux.createStore({
   // Filter on datastore userFilteredCollections based on linkage rules between tables
   // Event Place field links to Places Shortname field
   // Event Suspects, Victims and Witnesses fields link to People's Shortname field
-  autoFilterCollections: function (selectAllCheckBoxes, sortCheckBoxes) {
+  autoFilterCollections: function (selectAllCheckBoxes, sortCheckBoxes, sortEvents) {
 
     var eventsCollection = dataSourceStore.dataSource.getCollection(config.EventsCollection.name);
 
@@ -304,7 +306,7 @@ module.exports = Reflux.createStore({
     // Update all Checkboxes if query contains events filter/filters with a value selected by the user
     if (selectAllCheckBoxes && queryBuilderStore.containsEvents) {
       this.selectAllCheckboxes(eventsStore, true);
-    } else if (!selectAllCheckBoxes && !queryBuilderStore.containsEvents) {
+    } else if (selectAllCheckBoxes && !queryBuilderStore.containsEvents) {
       this.selectAllCheckboxes(eventsStore, false);
     }
 
@@ -312,7 +314,7 @@ module.exports = Reflux.createStore({
     this.eventsCheckBoxUpdated(eventsCollection.data);
 
     // Let listeners know data has been updated
-    this.selectedDataChanged(sortCheckBoxes);
+    this.selectedDataChanged(sortCheckBoxes, sortEvents);
   },
 
   // Select all checkboxes in a store
@@ -366,6 +368,9 @@ module.exports = Reflux.createStore({
       selectedSource.showRecord = true;
     });
 
+    // Reset any selected records in the data tables to showRecord false
+    this.selectAllCheckboxes(eventsStore, false);
+
     // Update the collections
     eventsCollection.update(presentationObject.selectedEvents);
     placesCollection.update(presentationObject.selectedPlaces);
@@ -410,7 +415,7 @@ module.exports = Reflux.createStore({
     }
 
     // Sort the order of selected records
-    this.selectedDataChanged(true);
+    this.selectedDataChanged(true, false);
   },
 
   // Update showRecord property of collections
@@ -433,14 +438,14 @@ module.exports = Reflux.createStore({
         eventsStore.showAllSelected = showRecordObject.showAllSelected;
 
         // Let listeners know data has been updated
-        this.selectedDataChanged(true);
+        this.selectedDataChanged(true, false);
 
         break;
       case config.PlacesCollection.name:
 
         if (showRecordObject.userSelected) {
           this.checkBoxUpdatedByUser(showRecordObject.item, showRecordObject.checkBoxSelected, config.PlacesCollection.name);
-          this.selectedDataChanged(false);
+          this.selectedDataChanged(false, false);
         }
 
         // Set property on the events store so the show All checkbox state will be maintained
@@ -451,7 +456,7 @@ module.exports = Reflux.createStore({
 
         if (showRecordObject.userSelected) {
           this.checkBoxUpdatedByUser(showRecordObject.item, showRecordObject.checkBoxSelected, config.PeopleCollection.name);
-          this.selectedDataChanged(false);
+          this.selectedDataChanged(false, false);
         }
 
         // Set property on the events store so the show All checkbox state will be maintained
