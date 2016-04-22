@@ -283,6 +283,10 @@ module.exports = Reflux.createStore({
   // Remove showRecord and selectedByEvent properties from each record in each collection
   resetShowFilterProperties: function() {
 
+    this.selectedEventDocuments = [];
+    this.selectedPlaceDocuments = [];
+    this.selectedPeopleDocuments = [];
+
     dataSourceStore.dataSource.collections.forEach(function (collection) {
 
       // Leave presentations collection which needs to remember a package's state
@@ -294,14 +298,14 @@ module.exports = Reflux.createStore({
           // presentations collection
           var clonedObject = _.cloneDeep(object);
 
-          if (clonedObject.showRecord) {
-            clonedObject.showRecord = false;
-            collection.update(clonedObject);
-          }
-          if (clonedObject.selectedByEvent) {
-            clonedObject.selectedByEvent = false;
-            collection.update(clonedObject);
-          }
+          clonedObject.showRecord = false;
+          clonedObject.selectedByEvent = false;
+          clonedObject.selectedByPlace = false;
+          clonedObject.selectedByPeople = false;
+          clonedObject.highlightAsRelatedToEvent = false;
+
+          collection.update(clonedObject);
+
         });
       }
     });
