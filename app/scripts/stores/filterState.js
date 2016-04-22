@@ -49,6 +49,7 @@ module.exports = Reflux.createStore({
     } else if (queryBuilderStore.message.type === 'queryUpdated') {
       this.autoFilterCollections(true, true, true);
     } else if (queryBuilderStore.message.type === 'creatingSelected') {
+      this.resetShowFilterProperties();
       this.autoFilterCollections(true, false, false);
     }
   },
@@ -72,7 +73,7 @@ module.exports = Reflux.createStore({
 
     // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
     // method
-    this.autoFilterCollections(false, false);
+    this.autoFilterCollections(false, false, false);
   },
 
   // Convert a queryBuilder object into one that can be used by loki to apply a transform on the data
@@ -279,6 +280,33 @@ module.exports = Reflux.createStore({
     sourcesStore.filterStateChanged(presentationName);
   },
 
+  // Remove showRecord and selectedByEvent properties from each record in each collection
+  resetShowFilterProperties: function() {
+
+    dataSourceStore.dataSource.collections.forEach(function (collection) {
+
+      // Leave presentations collection which needs to remember a package's state
+      if (collection.name !== 'Presentations') {
+
+        collection.data.forEach(function(object) {
+
+          // Need to clone an object as for some reason the object in events, places etc is same object as the one in
+          // presentations collection
+          var clonedObject = _.cloneDeep(object);
+
+          if (clonedObject.showRecord) {
+            clonedObject.showRecord = false;
+            collection.update(clonedObject);
+          }
+          if (clonedObject.selectedByEvent) {
+            clonedObject.selectedByEvent = false;
+            collection.update(clonedObject);
+          }
+        });
+      }
+    });
+  },
+
   // Filter on datastore userFilteredCollections based on linkage rules between tables
   // Event Place field links to Places Shortname field
   // Event Suspects, Victims and Witnesses fields link to People's Shortname field
@@ -355,7 +383,7 @@ module.exports = Reflux.createStore({
     // Reset any selected records in the data tables to showRecord false
     this.selectAllCheckboxes(eventsStore, false);
 
-    // Add showRecord true to slected records in presentation object
+    // Add showRecord true to selected records in presentation object
     presentationObject.selectedEvents.forEach(function(selectedEvent) {
       selectedEvent.showRecord = true;
     });

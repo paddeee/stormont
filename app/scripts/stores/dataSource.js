@@ -115,8 +115,6 @@ module.exports = Reflux.createStore({
       // Keep a record of all selected records
       this.updateSelectedRecords(presentationName);
 
-      this.resetShowFilterProperties();
-
       // Save database
       this.dataSource.saveDatabase(function() {
         this.message = 'presentationSaved';
@@ -149,8 +147,6 @@ module.exports = Reflux.createStore({
       // Keep a record of all selected records
       this.updateSelectedRecords(presentationName);
 
-      this.resetShowFilterProperties();
-
       // Save database
       this.dataSource.saveDatabase(function () {
         this.message = 'presentationSaved';
@@ -175,8 +171,6 @@ module.exports = Reflux.createStore({
       // Delete record from Queries Collection to keep everything tidy
       this.saveQueryBuilderData(presentationObject, 'delete');
 
-      this.resetShowFilterProperties();
-
       // Save database
       this.dataSource.saveDatabase(function() {
         this.message = 'presentationDeleted';
@@ -188,7 +182,7 @@ module.exports = Reflux.createStore({
     }
   },
 
-  //
+  // Keep selected state of records in Presentations collection
   updateSelectedRecords: function(presentationName) {
 
     var selectedEvents = [];
@@ -209,25 +203,25 @@ module.exports = Reflux.createStore({
     // Push selected ids onto arrays
     eventData.forEach(function(object) {
       if (object.showRecord === true) {
-        selectedEvents.push(object);
+        selectedEvents.push(_.cloneDeep(object));
       }
     });
 
     placeData.forEach(function(object) {
       if (object.showRecord === true) {
-        selectedPlaces.push(object);
+        selectedPlaces.push(_.cloneDeep(object));
       }
     });
 
     peopleData.forEach(function(object) {
       if (object.showRecord === true) {
-        selectedPeople.push(object);
+        selectedPeople.push(_.cloneDeep(object));
       }
     });
 
     sourceData.forEach(function(object) {
       if (object.showRecord === true) {
-        selectedSources.push(object);
+        selectedSources.push(_.cloneDeep(object));
       }
     });
 
@@ -254,23 +248,6 @@ module.exports = Reflux.createStore({
       }
     }
     return false;
-  },
-
-  // Remove showRecord and selectedByEvent properties from each record in each collection so records aren't saved
-  // in collection data stores when creating a new package with these properties already set
-  resetShowFilterProperties: function() {
-
-    this.dataSource.collections.forEach(function (collection) {
-
-      collection.data.forEach(function(object) {
-        if (object.showRecord) {
-          delete object.showRecord;
-        }
-        if (object.selectedByEvent) {
-          delete object.selectedByEvent;
-        }
-      });
-    });
   },
 
   // Iterate through all collections and set the transform names to the user created
