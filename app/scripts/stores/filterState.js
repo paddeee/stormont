@@ -42,13 +42,15 @@ module.exports = Reflux.createStore({
 
     // If A Package has just been chosen we don't want to select all or deselect all checkboxes
     if (queryBuilderStore.message.type === 'packageSelected') {
-      this.autoFilterCollections(false, true, true);
+      this.resetSelectedSources();
       this.selectSelectedRecords(queryBuilderStore.packageName);
+      this.autoFilterCollections(false, true, true);
     } else if (queryBuilderStore.message.type === 'queryUpdatedPackageSelected') {
       this.autoFilterCollections(false, true, true);
     } else if (queryBuilderStore.message.type === 'queryUpdated') {
       this.autoFilterCollections(true, true, true);
     } else if (queryBuilderStore.message.type === 'creatingSelected') {
+      this.resetSelectedSources();
       this.resetShowFilterProperties();
       this.autoFilterCollections(true, false, false);
     }
@@ -280,12 +282,16 @@ module.exports = Reflux.createStore({
     sourcesStore.filterStateChanged(presentationName);
   },
 
-  // Remove showRecord and selectedByEvent properties from each record in each collection
-  resetShowFilterProperties: function() {
+  // Reset the arrays used by Sources to remember what Sources are selected by which records
+  resetSelectedSources: function() {
 
     this.selectedEventDocuments = [];
     this.selectedPlaceDocuments = [];
     this.selectedPeopleDocuments = [];
+  },
+
+  // Remove showRecord and selectedByEvent properties from each record in each collection
+  resetShowFilterProperties: function() {
 
     dataSourceStore.dataSource.collections.forEach(function (collection) {
 
