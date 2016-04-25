@@ -99,7 +99,6 @@ module.exports = Reflux.createStore({
 
   // Reset a transform on this collection
   resetFilterTransform: function() {
-    console.log('Events - resetFilterTransform');
 
     var collectionToAddTransformTo;
     var transformName = 'ViewingFilter';

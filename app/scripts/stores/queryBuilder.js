@@ -51,10 +51,18 @@ module.exports = Reflux.createStore({
   // Reset filters and selections
   presentationsChanged: function(presentationsStore) {
 
+    var action;
+
+    if (presentationsStore.lastAction === 'dataSourceChanged') {
+      action = 'defaultQueryAdded';
+    } else if (presentationsStore.lastAction === 'presentationStateChanged') {
+      action = 'creatingSelected';
+    }
+
     if (presentationsStore.presentationState === 'creating') {
       this.packageName = 'ViewingFilter';
       this.resetFiltersWithValues();
-      this.createDefaultQuery('creatingSelected');
+      this.createDefaultQuery(action);
     }
   },
 
@@ -132,7 +140,7 @@ module.exports = Reflux.createStore({
     var queryCollection = dataSourceStore.dataSource.getCollection(config.QueriesCollection);
 
     // Insert queryObject for this filter if it doesn't already exist
-    if (queryCollection.find({ packageName: this.packageName }).length === 0) {
+    if (queryCollection && queryCollection.find({ packageName: this.packageName }).length === 0) {
       queryCollection.insert(queryObject);
     }
   },
