@@ -3,7 +3,7 @@
 var Reflux = require('reflux');
 var config = require('../config/config.js');
 var loki = require('lokijs');
-var fileAdapter = require('../adapters/loki-file-adapter.js');
+var exportFileAdapter = require('../adapters/loki-export-file-adapter.js');
 var ExportActions = require('../actions/export.js');
 var dataSourceStore = require('../stores/dataSource.js');
 var eventsStore = require('../stores/events.js');
@@ -48,33 +48,50 @@ module.exports = Reflux.createStore({
   // Export a presentation to the filesystem
   onExportPresentation: function (presentationObject) {
 
-    var tempExportDirectory = presentationObject.packageLocation + presentationObject.packageName;
-    var dbName = '/SITF.json';
-    var dbFilePath = window.appConfig.paths.dbPath + dbName;
-    var copyDBFile;
-    var zipTempDirectory;
+    var exportDatabase = new loki('SITF.json', { adapter: exportFileAdapter });
 
-    var exportDatabase = new loki('SITF.json', {
-      adapter: fileAdapter
+    // Set property to be used by the loki export file adapter
+    exportFileAdapter.tempExportDirectory = presentationObject.packageLocation + presentationObject.packageName;
+
+    // Set the package password
+    this.packagePassword = presentationObject.packagePassword;
+
+    // Create a temporary directory for database file and related source files
+    fs.mkdirs(exportFileAdapter.tempExportDirectory, function(err) {
+
+      if (err) {
+        return console.error(err);
+      }
     });
 
+    // Load the Export Database Collections into the DB
+    // Then Update the collections depeneding on what the user has selected to export, filtered or selected
+    // When the Export Database file is successfully saved, start the Export sequence
     exportDatabase.loadDatabase({}, function() {
 
       this.updateDataCollections(exportDatabase, presentationObject);
-
+      this.commenceExportProcess(exportDatabase, presentationObject);
     }.bind(this));
+  },
 
+  // Start the chain of Promises that will handle the Export Process
+  commenceExportProcess: function(exportDatabase, presentationObject) {
 
-    // Create promise for copying the Database file
-    copyDBFile = new Promise(function (resolve, reject) {
+    var saveExportDatabase;
+    var zipTempDirectory;
 
-      fs.copy(dbFilePath, tempExportDirectory + dbName, function(err) {
-        if (err) {
-          reject(err);
+    // Create promise for saving the export Database
+    saveExportDatabase = new Promise(function (resolve, reject) {
+
+      // Save database
+      exportDatabase.saveDatabase(function(error) {
+
+        if (error) {
+          reject(error);
         } else {
           resolve();
         }
-      });
+      }.bind(this));
     });
 
     // Create promise for zipping the Temporary Directory
@@ -82,7 +99,7 @@ module.exports = Reflux.createStore({
 
       // Add artificial timeout to make sure the directory is ready with all its contents
       setTimeout(function() {
-        zipFolder(tempExportDirectory, tempExportDirectory + '.zip', function(err) {
+        zipFolder(exportFileAdapter.tempExportDirectory, exportFileAdapter.tempExportDirectory + '.zip', function(err) {
           if (err) {
             reject(err);
           } else {
@@ -92,27 +109,12 @@ module.exports = Reflux.createStore({
       }, 100);
     });
 
-    // Set the package password
-    this.packagePassword = presentationObject.packagePassword;
-
-    // Create a temporary directory for database file and related source files
-    fs.mkdirs(tempExportDirectory, function(err) {
-
-      if (err) {
-        return console.error(err);
-      }
-    });
-
-    // ToDo: Remove all other package transforms
-    this.removeOtherTransformFilters();
-
-    // Commence Export Process
-    copyDBFile
+    saveExportDatabase
     .then(function() {
-      console.log('DB File Copied');
+      console.log('Export DB File Saved');
 
       // Iterate through each Source Object and copy the file from its Source Path into the temp directory
-      this.copySourceFiles(this.getLokiSourceObjects(presentationObject.packageName), presentationObject, tempExportDirectory)
+      this.copySourceFiles(this.getLokiSourceObjects(presentationObject.packageName), presentationObject, exportFileAdapter.tempExportDirectory)
       .then(function() {
         console.log('Source Files Copied');
 
@@ -127,11 +129,11 @@ module.exports = Reflux.createStore({
             console.log('Package Encrypted');
 
             // Delete temporary directory and zip file
-            this.deleteTempDirectory(tempExportDirectory)
+            this.deleteTempDirectory(exportFileAdapter.tempExportDirectory)
             .then(function() {
               console.log('Temp directory removed');
 
-              this.deleteZipFile(tempExportDirectory + '.zip')
+              this.deleteZipFile(exportFileAdapter.tempExportDirectory + '.zip')
               .then(function() {
                 console.log('Zip File removed');
 
@@ -150,18 +152,18 @@ module.exports = Reflux.createStore({
               this.message = 'removeDirectoryFailure';
               this.trigger(this);
             }.bind(this));
+            }.bind(this))
+            .catch(function(reason) {
+              console.error(reason);
+              this.message = 'encryptionFailure';
+              this.trigger(this);
+            }.bind(this));
           }.bind(this))
           .catch(function(reason) {
             console.error(reason);
-            this.message = 'encryptionFailure';
+            this.message = 'zipDirectoryFailure';
             this.trigger(this);
           }.bind(this));
-        }.bind(this))
-        .catch(function(reason) {
-          console.error(reason);
-          this.message = 'zipDirectoryFailure';
-          this.trigger(this);
-        }.bind(this));
       }.bind(this))
       .catch(function(reason) {
         console.error(reason);
@@ -252,8 +254,6 @@ module.exports = Reflux.createStore({
     placeCollection.insert(exportPlaceData);
     peopleCollection.insert(exportPeopleData);
     sourceCollection.insert(exportSourceData);
-
-    console.log(eventsCollection);
   },
 
   // Encrypt a zip file using aes-256 and the package password
@@ -299,11 +299,6 @@ module.exports = Reflux.createStore({
     }
 
     return sourceObjects;
-  },
-
-  // ToDo: Remove other transform filters
-  removeOtherTransformFilters: function() {
-    console.log('ToDo: Remove Other transform package names');
   },
 
   // Iterate through each Source Object and copy the file from its Source Path into the temp directory

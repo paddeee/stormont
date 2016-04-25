@@ -64,8 +64,7 @@ lokiFileAdapter.prototype.loadDatabase = function loadDatabase(dbname, callback)
  */
 lokiFileAdapter.prototype.saveDatabase = function saveDatabase(dbname, dbstring, callback) {
 
-  // This can be set from nw.js input file directory picker value
-  var path = global.packagedApp ? window.appConfig.paths.dbPath : '';
+  var path = global.packagedApp ? this.tempExportDirectory : '';
 
   fs.mkdir(path, function() {
     fs.writeFile(path + '/' + dbname, dbstring, function() {
