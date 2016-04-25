@@ -311,7 +311,6 @@ module.exports = Reflux.createStore({
           clonedObject.highlightAsRelatedToEvent = false;
 
           collection.update(clonedObject);
-
         });
       }
     });

@@ -543,7 +543,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // YubiKey will press enter after entering its password
         if (event.keyCode === 13) {
 
-          // Perform export if in packaged app. Otherwise log so we know it won't work in browser
+          // Perform export if in packaged app. Otherwise log to alert that it won't work in browser
           if (typeof global === 'object') {
 
             // ToDo: Let User select a location from file explorer
@@ -561,7 +561,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             // Call packageSelected filterState action
             this.filterStateActions.packageSelected(this.presentationForExport);
-            this.queryBuilderActions.packageSelected(this.presentationName);
+            this.queryBuilderActions.packageSelected(this.presentationForExport);
 
             // Call exportPresentation export action
             this.exportActions.exportPresentation({

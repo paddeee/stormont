@@ -209,19 +209,36 @@ module.exports = Reflux.createStore({
     }
 
     // Remove $loki properties from data so we can insert the documents afresh
-    exportEventData.forEach(function(object) {
-      delete object.$loki;
-    });
-    exportPlaceData.forEach(function(object) {
-      delete object.$loki;
+    exportEventData = exportEventData.map(function(object) {
+
+      var clonedObject = _.cloneDeep(object);
+
+      delete clonedObject.$loki;
+      return clonedObject;
     });
 
-    exportPeopleData.forEach(function(object) {
-      delete object.$loki;
+    exportPlaceData = exportPlaceData.map(function(object) {
+
+      var clonedObject = _.cloneDeep(object);
+
+      delete clonedObject.$loki;
+      return clonedObject;
     });
 
-    exportSourceData.forEach(function(object) {
-      delete object.$loki;
+    exportPeopleData = exportPeopleData.map(function(object) {
+
+      var clonedObject = _.cloneDeep(object);
+
+      delete clonedObject.$loki;
+      return clonedObject;
+    });
+
+    exportSourceData = exportSourceData.map(function(object) {
+
+      var clonedObject = _.cloneDeep(object);
+
+      delete clonedObject.$loki;
+      return clonedObject;
     });
 
     // Remove All records
