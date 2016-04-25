@@ -1,6 +1,5 @@
 'use strict';
 
-var ldap =  global.packagedApp ? window.electronRequire('ldapjs') : null;
 var Reflux = require('reflux');
 var config = require('../config/config.js');
 var loki = require('lokijs');
@@ -15,72 +14,22 @@ module.exports = Reflux.createStore({
   // The Loki db object
   dataSource: null,
 
-  // Set the dataSource Object based on the availability of LDAP
-  checkForLDAP: function () {
+  loadDatabase: function() {
 
-    // Check for LDAP
-    this.LDAPExists()
-     .then(function() {
+    this.dataSource = new loki('SITF.json', {
+      adapter: fileAdapter
+    });
 
-      console.log('LDAP exists');
+    this.dataSource.loadDatabase({}, function() {
 
-      this.dataSource = new loki('SITF.json', {
-        adapter: fileAdapter
-      });
+      // Send object out to all listeners when database loaded
+      this.dataSource.message = {
+        type: 'dataBaseLoaded'
+      };
 
-      this.dataSource.loadDatabase({}, function() {
-
-        // Send object out to all listeners when database loaded
-        this.dataSource.message = {
-          type: 'dataBaseLoaded'
-        };
-
-        this.trigger(this);
-
-      }.bind(this));
-    }.bind(this))
-    .catch(function(error) {
-      console.error(error);
-
-      // ToDO: Check error and if timeout, start the app in offline mode
-
+      this.trigger(this);
 
     }.bind(this));
-  },
-
-  // Can we establish an LDAP connection
-  // ToDo: Need to manage LDAP connectivity checks from here. For now, just return true
-  LDAPExists: function() {
-
-    return new Promise(function (resolve, reject) {
-
-      // In browser
-      if (!ldap) {
-        resolve();
-      }
-
-      var client = ldap.createClient({
-        url: 'ldap://ldap.forumsys.com:389'
-      });
-
-      client.bind('cn=read-only-admin,dc=example,dc=com', 'password', function (err) {
-
-        if (err) {
-          client.unbind();
-          reject('Error connecting to LDAP: ' + err);
-        }
-
-        // Can unbind connection now we know online is available
-        client.unbind(function(err) {
-
-          if (err) {
-            reject('Problem unbinding from LDAP: ' + err);
-          }
-
-          resolve();
-        });
-      });
-    });
   },
 
   // Update and broadcast dataSource when a collection is imported

@@ -1,15 +1,69 @@
 const electron = require('electron');
 const electronApp = electron.app;  // Module to control application life.
 const BrowserWindow = electron.BrowserWindow;  // Module to create native browser window.
+const ipc = electron.ipcMain;
+const dialog = electron.dialog;
+const Menu = require("menu");
+const ldap =  require('ldapjs');
 
-var Menu = require("menu");
-
-// Report crashes to our server.
-electron.crashReporter.start();
+var presentationMode;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 var mainWindow = null;
+
+// Set the dataSource Object based on the availability of LDAP
+var checkForLDAP =  function () {
+
+  return new Promise(function (resolve) {
+
+    // Check for LDAP
+    LDAPExists()
+    .then(function() {
+        resolve();
+    }.bind(this))
+    .catch(function(error) {
+        console.error(error);
+        reject();
+    }.bind(this));
+  });
+};
+
+// Can we establish an LDAP connection
+// ToDo: Need to manage LDAP connectivity checks from here. For now, just return true
+var LDAPExists = function() {
+
+  return new Promise(function (resolve, reject) {
+
+    // In browser
+    if (!ldap) {
+      resolve();
+    }
+
+    var client = ldap.createClient({
+      url: 'ldap://ldap.forumsys.com:389'
+    });
+
+    client.bind('cn=read-only-admin,dc=example,dc=com', 'password', function (err) {
+
+      if (err) {
+        client.unbind();
+        reject('Error connecting to LDAP: ' + err);
+      }
+
+      // Can unbind connection now we know online is available
+      client.unbind(function(err) {
+
+        if (err) {
+          reject('Problem unbinding from LDAP: ' + err);
+        }
+
+        resolve();
+      });
+    });
+  });
+};
+
 
 // Quit when all windows are closed.
 electronApp.on('window-all-closed', function() {
@@ -32,8 +86,13 @@ electronApp.on('ready', function() {
     height: 720
   });
 
-  // and load the index.html of the app.
-  mainWindow.loadURL('file://' + __dirname + '/index.html');
+  checkForLDAP()
+    .then(function() {
+      mainWindow.loadURL('file://' + __dirname + '/online.html');
+    }.bind(this))
+    .catch(function() {
+      mainWindow.loadURL('file://' + __dirname + '/offline.html');
+    }.bind(this));
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();

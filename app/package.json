@@ -3,7 +3,7 @@
   "app_name": "SITF",
   "version" : "0.1.0",
   "name": "SITF",
-  "devDependencies": {
+  "dependencies": {
     "babyparse": "^0.4.3",
     "browserify": "^11.0.0",
     "browserify-fs": "^1.0.0",

@@ -15,7 +15,7 @@ if (typeof global === 'object') {
   var fs = require('fs');
 
   // ToDo: Change to something that isn't users desktop
-  var configDirectory = electronApp.remote.app.getPath('desktop');
+  var configDirectory = process.resourcesPath;
   var platformPath;
   var remoteConfig;
 
@@ -37,7 +37,7 @@ if (typeof global === 'object') {
     if (data) {
       remoteConfig = JSON.parse(data);
       appConfig.paths = remoteConfig.paths;
-      window.app.dataSourceActions.checkForLDAP();
+      window.app.dataSourceActions.loadDatabase();
     } else if (err) {
       console.error(err);
     }

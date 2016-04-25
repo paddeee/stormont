@@ -204,7 +204,7 @@ gulp.task('precache', function (callback) {
     if (error) {
       callback(error);
     } else {
-      files.push('index.html', './', 'bower_components/webcomponentsjs/webcomponents-lite.min.js');
+      files.push('online.html', 'offline.html', './', 'bower_components/webcomponentsjs/webcomponents-lite.min.js');
       var filePath = path.join(dir, 'precache.json');
       fs.writeFile(filePath, JSON.stringify(files), callback);
     }

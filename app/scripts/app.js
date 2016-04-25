@@ -36,10 +36,10 @@ var timeLineStore = require('./stores/timeLine.js');
 (function(document, reflux, moment, config, sourceActions, selectedRecordsActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore, timeLineStore) {
   'use strict';
 
-  // Call checkForLDAP action when in browser
+  // Load Database
   if (!global.packagedApp) {
     console.log('not packaged app');
-    dataSourceActions.checkForLDAP();
+    dataSourceActions.loadDatabase();
   }
 
   // Grab a reference to our auto-binding template
