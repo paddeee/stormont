@@ -8,7 +8,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 */
 var reflux = require('reflux');
 var moment = require('moment');
-var config = global.config ? global.config : require('./config/config.js');
+var config = config ? config : require('./config/config.js');
 var CSVParser = require('./vendor/harb-customised.js');
 var dataSourceActions = require('./actions/dataSource.js');
 var selectedRecordsActions = require('./actions/selectedRecords.js');
