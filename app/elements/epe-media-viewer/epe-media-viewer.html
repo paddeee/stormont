@@ -258,7 +258,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Get element this way as parent element isn't yet available through document.querySelector
         var $epeNetworked = app.$.epeNetworked;
 
-        if (typeof global === 'object') {
+        if (typeof process === 'object') {
           this.fs = window.electronRequire('fs');
         }
 
@@ -294,12 +294,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var $videoContainer;
         var $audioContainer;
         var $videoElement;
+        var sourcePath = '';
 
         if (this.videoPlayer) {
           this.videoPlayer.dispose();
         }
 
-        this.videoSource = window.appConfig.getSourcePath() + this.mediaObject['Linked File'];
+        // Set the src of the image if inside Electron
+        if (app.config.getSourcePath) {
+          sourcePath = app.config.getSourcePath();
+        }
+
+        this.videoSource = sourcePath + this.mediaObject['Linked File'];
 
         // Dynamically add video element to DOM
         this.createVideoElement();
@@ -395,6 +401,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var $audioContainer = this.$$('#Audio').closest('.video-js');
         var $mediaDescription = this.$.MediaDescription;
         var src;
+        var sourcePath = '';
 
         // Hide Video element and show audio element
         this.$.MediaAnnotations.setAttribute('hidden','');
@@ -432,7 +439,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // XHR won't work
         if (this.fs) {
 
-          this.fs.readFile(window.appConfig.getSourcePath() + this.mediaObject['Linked File'], function(err, data) {
+          sourcePath = app.config.getSourcePath();
+
+          this.fs.readFile(sourcePath + this.mediaObject['Linked File'], function(err, data) {
 
             src = new Blob([data], {type : 'audio/mp3'});
 
@@ -442,7 +451,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         } else {
 
-          src = window.appConfig.getSourcePath() + this.mediaObject['Linked File'];
+          src = this.mediaObject['Linked File'];
 
           this.initialiseWaveSurfer($audioElement, src);
         }

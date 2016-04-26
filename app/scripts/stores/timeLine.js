@@ -1,7 +1,7 @@
 'use strict';
 
 var Reflux = require('reflux');
-var config = require('../config/config.js');
+var config = global.config ? global.config : require('../config/config.js');
 var selectedRecordsStore = require('../stores/selectedRecords.js');
 var moment = require('moment');
 

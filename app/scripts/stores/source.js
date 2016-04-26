@@ -2,7 +2,7 @@
 
 var Reflux = require('reflux');
 var dataSourceStore = require('../stores/dataSource.js');
-var config = require('../config/config.js');
+var config = global.config ? global.config : require('../config/config.js');
 var presentationsStore = require('../stores/presentations.js');
 var SourceActions = require('../actions/source.js');
 

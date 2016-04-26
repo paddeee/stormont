@@ -1,6 +1,6 @@
 'use strict';
 
-var ldap =  global.packagedApp ? window.electronRequire('ldapjs') : null;
+var ldap =  global.config ? window.electronRequire('ldapjs') : null;
 var Reflux = require('reflux');
 var UserActions = require('../actions/users.js');
 

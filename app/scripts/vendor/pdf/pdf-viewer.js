@@ -7277,7 +7277,14 @@ function webViewerInitialized($pdfViewerElement) {
 
   var queryString = document.location.search.substring(1);
   var params = parseQueryString(queryString);
-  var file = window.appConfig.getSourcePath() + $pdfViewerElement.pdfObject['Linked File'];
+  var sourcePath = '';
+
+  // Set the src of the image if inside Electron
+  if (app.config.getSourcePath) {
+    sourcePath = app.config.getSourcePath();
+  }
+
+  var file = sourcePath + $pdfViewerElement.pdfObject['Linked File'];
   //var file =  'file' in params ? params.file : DEFAULT_URL;
 
   var fileInput = document.createElement('input');

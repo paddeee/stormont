@@ -11,7 +11,8 @@
  * require libs
  * @ignore
  */
-var fs = global.packagedApp ? electronRequire('fs') : require('browserify-fs');
+var fs = global.config ? electronRequire('fs') : require('browserify-fs');
+var config = global.config ? global.config : require('../config/config.js');
 
 /**
  * The constructor is automatically called on `require` , see examples below
@@ -36,7 +37,7 @@ function lokiFileAdapter() {}
 lokiFileAdapter.prototype.loadDatabase = function loadDatabase(dbname, callback) {
 
   // ToDo: Make configurable by user or admin
-  var path = global.packagedApp ? window.appConfig.paths.dbPath : '';
+  var path = global.config ? config.paths.dbPath : '';
 
   fs.readFile(path + '/' + dbname, 'utf-8', function(err, data) {
 
@@ -64,7 +65,7 @@ lokiFileAdapter.prototype.loadDatabase = function loadDatabase(dbname, callback)
  */
 lokiFileAdapter.prototype.saveDatabase = function saveDatabase(dbname, dbstring, callback) {
 
-  var path = global.packagedApp ? this.tempExportDirectory : '';
+  var path = global.config ? this.tempExportDirectory : '';
 
   fs.mkdir(path, function() {
     fs.writeFile(path + '/' + dbname, dbstring, function() {

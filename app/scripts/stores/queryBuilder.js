@@ -4,7 +4,7 @@ var Reflux = require('reflux');
 var QueryBuilderActions = require('../actions/queryBuilder.js');
 var dataSourceStore = require('../stores/dataSource.js');
 var presentationsStore = require('../stores/presentations.js');
-var config = require('../config/config.js');
+var config = global.config ? global.config : require('../config/config.js');
 
 module.exports = Reflux.createStore({
 

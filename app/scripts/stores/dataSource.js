@@ -1,7 +1,7 @@
 'use strict';
 
 var Reflux = require('reflux');
-var config = require('../config/config.js');
+var config = global.config ? global.config : require('../config/config.js');
 var loki = require('lokijs');
 var fileAdapter = require('../adapters/loki-file-adapter.js');
 var DataSourceActions = require('../actions/dataSource.js');
@@ -16,11 +16,14 @@ module.exports = Reflux.createStore({
 
   loadDatabase: function() {
 
+    console.log('loadDatabase called');
+
     this.dataSource = new loki('SITF.json', {
       adapter: fileAdapter
     });
 
     this.dataSource.loadDatabase({}, function() {
+      console.log('Database Loaded');
 
       // Send object out to all listeners when database loaded
       this.dataSource.message = {

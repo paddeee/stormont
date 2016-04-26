@@ -263,7 +263,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Set source on image element
     setUpImage: function() {
 
-      if (this.imageObject && window.appConfig.getSourcePath() + this.imageObject['Linked File']) {
+      if (this.imageObject && this.imageObject['Linked File']) {
 
         // Set image titles
         this.imageName = this.imageObject.Headline;
@@ -281,6 +281,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     renderImage: function() {
 
       var $image = this.$.Image;
+      var sourcePath = '';
 
       $image.addEventListener('load', function () {
 
@@ -298,8 +299,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }, 500);
       }.bind(this));
 
-      // Set the src of the image
-      this.imageSource = window.appConfig.getSourcePath() + this.imageObject['Linked File'];
+      // Set the src of the image if inside Electron
+      if (app.config.getSourcePath) {
+        sourcePath = app.config.getSourcePath();
+      }
+      this.imageSource = sourcePath + this.imageObject['Linked File'];
     },
 
     // Resize the image container to the size of the image

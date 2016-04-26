@@ -269,6 +269,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var tiffPath;
       var xhr;
+      var sourcePath = '';
 
       if (this.tiffObject && this.selectedSourceFileType === 'tiff') {
 
@@ -277,13 +278,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.$.TiffContainer.removeChild(this.$.TiffContainer.firstChild);
         }
 
+        // Set the src of the image if inside Electron
+        if (app.config.getSourcePath) {
+          sourcePath = app.config.getSourcePath();
+        }
+
         // Reset tiff page array
         this.tiffPages = [];
 
         // Reste current tiff page
         this.currentTiffPage = 1;
 
-        tiffPath = window.appConfig.getSourcePath() + this.tiffObject['Linked File'];
+        tiffPath = sourcePath + this.tiffObject['Linked File'];
 
         xhr = new XMLHttpRequest();
 

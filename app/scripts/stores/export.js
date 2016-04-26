@@ -1,7 +1,7 @@
 'use strict';
 
 var Reflux = require('reflux');
-var config = require('../config/config.js');
+var config = global.config;
 var loki = require('lokijs');
 var exportFileAdapter = require('../adapters/loki-export-file-adapter.js');
 var ExportActions = require('../actions/export.js');
@@ -306,7 +306,7 @@ module.exports = Reflux.createStore({
 
     return new Promise(function (resolve, reject) {
 
-      var sourceFilePath = window.appConfig.paths.sourcePath;
+      var sourceFilePath = config.paths.sourcePath;
 
       // Return a new Promise for every file to be copied
       var copyFile = function (sourceFile) {

@@ -34,7 +34,7 @@ module.exports = Reflux.createActions([
  * require libs
  * @ignore
  */
-var fs = global.packagedApp ? require('fs') : require('browserify-fs');
+var fs = global.config ? require('fs') : require('browserify-fs');
 
 /**
  * The constructor is automatically called on `require` , see examples below
@@ -59,7 +59,7 @@ function lokiFileAdapter() {}
 lokiFileAdapter.prototype.loadDatabase = function loadDatabase(dbname, callback) {
 
   // This can be set from nw.js input file directory picker value
-  var path = global.packagedApp ? '/Users/ODonnell/Documents' : '';
+  var path = global.config ? '/Users/ODonnell/Documents' : '';
 
   fs.readFile(path + dbname, 'utf-8', function(err, data) {
 
@@ -88,7 +88,7 @@ lokiFileAdapter.prototype.loadDatabase = function loadDatabase(dbname, callback)
 lokiFileAdapter.prototype.saveDatabase = function saveDatabase(dbname, dbstring, callback) {
 
   // This can be set from nw.js input file directory picker value
-  var path = global.packagedApp ? '/Users/ODonnell/Documents' : '';
+  var path = global.config ? '/Users/ODonnell/Documents' : '';
 
   //var callbackFunction = callback || function (){};
   //fs.writeFile(dbname, dbstring, 'utf8',callbackFunction);

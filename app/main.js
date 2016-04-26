@@ -1,10 +1,12 @@
 const electron = require('electron');
 const electronApp = electron.app;  // Module to control application life.
 const BrowserWindow = electron.BrowserWindow;  // Module to create native browser window.
-const ipc = electron.ipcMain;
+const ipcMain = electron.ipcMain;
 const dialog = electron.dialog;
 const Menu = require("menu");
 const ldap =  require('ldapjs');
+const fs = require('fs');
+const config;
 
 var presentationMode;
 
@@ -12,20 +14,19 @@ var presentationMode;
 // be closed automatically when the JavaScript object is garbage collected.
 var mainWindow = null;
 
-// Set the dataSource Object based on the availability of LDAP
+// Check for LDAP
 var checkForLDAP =  function () {
 
   return new Promise(function (resolve) {
 
     // Check for LDAP
     LDAPExists()
-    .then(function() {
+      .then(function() {
         resolve();
-    }.bind(this))
-    .catch(function(error) {
-        console.error(error);
+      }.bind(this))
+      .catch(function(error) {
         reject();
-    }.bind(this));
+      }.bind(this));
   });
 };
 
@@ -57,23 +58,37 @@ var LDAPExists = function() {
         if (err) {
           reject('Problem unbinding from LDAP: ' + err);
         }
-
         resolve();
       });
     });
   });
 };
 
+// Get the config file
+var getConfig =  function () {
 
-// Quit when all windows are closed.
-electronApp.on('window-all-closed', function() {
+  return new Promise(function (resolve, reject) {
 
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    electronApp.quit();
-  }
-});
+    var configDirectory = process.resourcesPath;
+    var platformPath;
+
+    if (process.platform != 'darwin') {
+      platformPath = '/SITFConfig/ConfigWindows/';
+    } else {
+      platformPath = '/SITFConfig/ConfigOSX/';
+    }
+
+    fs.readFile(configDirectory + platformPath + '/appConfig.json', 'utf-8', function(err, data) {
+
+      if (data) {
+        global.config = JSON.parse(data);
+        resolve();
+      } else if (err) {
+        reject(err);
+      }
+    });
+  });
+};
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -86,12 +101,19 @@ electronApp.on('ready', function() {
     height: 720
   });
 
-  checkForLDAP()
+  getConfig()
     .then(function() {
-      mainWindow.loadURL('file://' + __dirname + '/online.html');
-    }.bind(this))
-    .catch(function() {
-      mainWindow.loadURL('file://' + __dirname + '/offline.html');
+      checkForLDAP()
+        .then(function() {
+          mainWindow.loadURL('file://' + __dirname + '/online.html');
+        }.bind(this))
+        .catch(function() {
+          mainWindow.loadURL('file://' + __dirname + '/offline.html');
+        }.bind(this));
+    })
+    .catch(function(error) {
+      require('dialog').showErrorBox('Get Config error', error);
+      reject();
     }.bind(this));
 
   // Open the DevTools.
@@ -127,4 +149,19 @@ electronApp.on('ready', function() {
   ];
 
   //Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+});
+
+// Quit when all windows are closed.
+electronApp.on('window-all-closed', function() {
+
+  // On OS X it is common for applications and their menu bar
+  // to stay active until the user quits explicitly with Cmd + Q
+  if (process.platform !== 'darwin') {
+    electronApp.quit();
+  }
+});
+
+ipcMain.on('is-packaged-app', function(event, arg) {
+  console.log(arg);
+  event.sender.send('asynchronous-reply', true);
 });

@@ -1,48 +1,21 @@
+var ipcRenderer;
+var packagedApp = false;
+var electronRequire;
+var remote;
 
-var appConfig = {
+if (typeof process === 'object') {
 
-  getSourcePath: function() {
-    return '';
-  }
-};
-
-if (typeof global === 'object') {
+  remote = require('electron').remote;
 
   // Use for non browserify requires
-  var electronRequire = require;
+  electronRequire = require;
 
-  var electronApp = require('electron');
-  var fs = require('fs');
+  // Use to communicate with Electron
+  ipcRenderer = require('electron').ipcRenderer;
 
-  // ToDo: Change to something that isn't users desktop
-  var configDirectory = process.resourcesPath;
-  var platformPath;
-  var remoteConfig;
+  global.config = remote.getGlobal('config');
 
-  if (process.platform != 'darwin') {
-    platformPath = '/SITFConfig/ConfigWindows/';
-  } else {
-    platformPath = '/SITFConfig/ConfigOSX/';
-  }
-
-  appConfig = {
-
-    getSourcePath: function() {
-      return this.paths.sourcePath;
-    }
-  };
-
-  fs.readFile(configDirectory + platformPath + '/appConfig.json', 'utf-8', function(err, data) {
-
-    if (data) {
-      remoteConfig = JSON.parse(data);
-      appConfig.paths = remoteConfig.paths;
-      window.app.dataSourceActions.loadDatabase();
-    } else if (err) {
-      console.error(err);
-    }
-  });
-
-  // Set property if inside packaged app
-  global.packagedApp = true;
+  //
+  //packagedApp = ipcRenderer.sendSync('is-packaged-app', 'Is Packaged App?');
+  //alert('Packaged App ' + packagedApp);
 }
