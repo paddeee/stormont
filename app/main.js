@@ -81,7 +81,7 @@ var getConfig =  function () {
     fs.readFile(configDirectory + platformPath + '/appConfig.json', 'utf-8', function(err, data) {
 
       if (data) {
-        global.config = JSON.parse(data);
+        global.config = data;
         resolve();
       } else if (err) {
         reject(err);

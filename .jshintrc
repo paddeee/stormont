@@ -25,6 +25,7 @@
     "_": true,
     "L": true,
     "TL": true,
-    "Tiff": true
+    "Tiff": true,
+    "config": true
   }
 }

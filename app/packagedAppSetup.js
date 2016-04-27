@@ -13,7 +13,7 @@ if (typeof process === 'object') {
   // Use to communicate with Electron
   ipcRenderer = require('electron').ipcRenderer;
 
-  config = remote.getGlobal('config');
+  config = JSON.parse(remote.getGlobal('config'));
 
   //
   //packagedApp = ipcRenderer.sendSync('is-packaged-app', 'Is Packaged App?');
