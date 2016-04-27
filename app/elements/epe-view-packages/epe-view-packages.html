@@ -132,9 +132,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       margin-right: 1vw;
     }
 
+    .export-location {
+      margin: 0 0 8px;
+    }
+
     .export-button {
       background-color: var(--default-primary-color);
       color: var(--text-primary-color);
+    }
+
+    .display-export-path {
+      color: var(--secondary-text-color);
+      font-size: 12px;
+      font-weight: bold;
     }
 
     .export-dialog {
@@ -255,6 +265,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <h2>Export Package</h2>
       <div>
 
+        <paper-button class="export-location"
+                      on-tap="exportLocationTapped"
+                      raised>Choose Export Directory..</paper-button>
+
+        <div class="display-export-path">[[exportLocation]]</div>
+
         <paper-radio-group id="FilteredOrSelected" selected="filtered">
           <paper-radio-button name="filtered">Filtered Records</paper-radio-button>
           <paper-radio-button name="selected">Selected Records</paper-radio-button>
@@ -331,6 +347,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
     </paper-dialog>
 
+    <paper-dialog id="NoLocationDialog" modal>
+      <h2>Please choose a directory to export the Presentation Package to.</h2>
+      <div class="buttons layout horizontal">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
   </template>
 </dom-module>
 <script>
@@ -352,10 +375,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       yubiKeyMessage: {
         type: String
+      },
+
+      exportLocation: {
+        type: String,
+        value: 'Not selected..'
       }
     },
 
     ready: function() {
+
+      if (typeof process === 'object') {
+
+        // Listen to Electron when directory is selected
+        ipc.on('directory-selected', function (arg) {
+
+          if (arg) {
+            this.exportLocation = arg[0] + '/';
+          } else {
+            this.exportLocation = 'Not selected..';
+          }
+        }.bind(this));
+      }
 
       if (this.presentationsStore) {
 
@@ -507,7 +548,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.unapprovedSource = event.model.item.unapprovedSource;
 
       // Perform export if in packaged app. Otherwise log so we know it won't work in browser
-      if (typeof global === 'object') {
+      if (typeof process === 'object') {
 
         // Check YubiKey is inserted
         this.exportActions.yubiKeyCheck();
@@ -537,44 +578,47 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     yubiKeyPressed: function(event) {
 
       var packagePassword;
-      var packageLocation;
       var filteredOrSelected;
 
-        // YubiKey will press enter after entering its password
-        if (event.keyCode === 13) {
+      if (this.exportLocation === 'Not selected..') {
+        this.$.NoLocationDialog.open();
+        return;
+      }
 
-          // Perform export if in packaged app. Otherwise log to alert that it won't work in browser
-          if (typeof global === 'object') {
+      // YubiKey will press enter after entering its password
+      if (event.keyCode === 13) {
 
-            // ToDo: Let User select a location from file explorer
-            // For now just hardcode a location
-            packageLocation = '/Users/ODonnell/SITF/SITFExports/';
-            packagePassword = event.target.value;
-            filteredOrSelected = this.$.FilteredOrSelected.selected;
+        // Perform export if in packaged app. Otherwise log to alert that it won't work in browser
+        if (typeof process === 'object') {
 
-            // Close the Export Dialog and reset the password field
-            this.$.ExportPassword.value = null;
-            this.$.ExportDialog.close();
+          // ToDo: Let User select a location from file explorer
+          // For now just hardcode a location
+          packagePassword = event.target.value;
+          filteredOrSelected = this.$.FilteredOrSelected.selected;
 
-            // Open the Exporting Loading Dialog
-            this.$.ExportingPackage.open();
+          // Close the Export Dialog and reset the password field
+          this.$.ExportPassword.value = null;
+          this.$.ExportDialog.close();
 
-            // Call packageSelected filterState action
-            this.filterStateActions.packageSelected(this.presentationForExport);
-            this.queryBuilderActions.packageSelected(this.presentationForExport);
+          // Open the Exporting Loading Dialog
+          this.$.ExportingPackage.open();
 
-            // Call exportPresentation export action
-            this.exportActions.exportPresentation({
-              packageName: this.presentationForExport,
-              packageLocation: packageLocation,
-              packagePassword: packagePassword,
-              filteredOrSelected: filteredOrSelected
-            });
+          // Call packageSelected filterState action
+          this.filterStateActions.packageSelected(this.presentationForExport);
+          this.queryBuilderActions.packageSelected(this.presentationForExport);
 
-          } else {
-            console.warn('Export not available in browser mode');
-          }
+          // Call exportPresentation export action
+          this.exportActions.exportPresentation({
+            packageName: this.presentationForExport,
+            packageLocation: this.exportLocation,
+            packagePassword: packagePassword,
+            filteredOrSelected: filteredOrSelected
+          });
+
+        } else {
+          console.warn('Export not available in browser mode');
         }
+      }
     },
 
     // Delete Package action button
@@ -619,6 +663,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Open Export Dialog
     openExportDialog: function() {
       this.$.ExportDialog.open();
+    },
+
+    // Send message to electron to open Open Dialog
+    exportLocationTapped: function() {
+      ipc.send('show-open-dialog', 'directory');
     }
   });
 })();

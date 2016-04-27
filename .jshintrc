@@ -26,6 +26,7 @@
     "L": true,
     "TL": true,
     "Tiff": true,
-    "config": true
+    "config": true,
+    "ipc": true
   }
 }

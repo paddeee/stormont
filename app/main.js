@@ -1,7 +1,7 @@
 const electron = require('electron');
 const electronApp = electron.app;  // Module to control application life.
 const BrowserWindow = electron.BrowserWindow;  // Module to create native browser window.
-const ipcMain = electron.ipcMain;
+const ipc = require('ipc');
 const dialog = electron.dialog;
 const Menu = require("menu");
 const ldap =  require('ldapjs');
@@ -161,7 +161,15 @@ electronApp.on('window-all-closed', function() {
   }
 });
 
-ipcMain.on('is-packaged-app', function(event, arg) {
-  console.log(arg);
-  event.sender.send('asynchronous-reply', true);
+ipc.on('show-open-dialog', function(event, arg) {
+
+  var directorySelected;
+
+  if (arg === 'directory') {
+    directorySelected = dialog.showOpenDialog({
+      properties: ['openDirectory']
+    });
+  }
+
+  event.sender.send(arg + '-selected', directorySelected);
 });
