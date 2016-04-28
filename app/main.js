@@ -17,14 +17,14 @@ var mainWindow = null;
 // Check for LDAP
 var checkForLDAP =  function () {
 
-  return new Promise(function (resolve) {
+  return new Promise(function (resolve, reject) {
 
     // Check for LDAP
     LDAPExists()
       .then(function() {
         resolve();
       }.bind(this))
-      .catch(function(error) {
+      .catch(function() {
         reject();
       }.bind(this));
   });
@@ -42,24 +42,29 @@ var LDAPExists = function() {
     }
 
     var client = ldap.createClient({
-      url: 'ldap://ldap.forumsys.com:389'
+      //url: 'ldap://ldap.forumsys.com:389',
+      url: 'ldap://ldap.forumsys.com:388',
+      connectTimeout: 3000
     });
 
-    client.bind('cn=read-only-admin,dc=example,dc=com', 'password', function (err) {
+    client.on('connect', function() {
+      resolve();
+    });
 
-      if (err) {
-        client.unbind();
-        reject('Error connecting to LDAP: ' + err);
-      }
+    client.on('error', function() {
+      resolve();
+    });
 
-      // Can unbind connection now we know online is available
-      client.unbind(function(err) {
+    client.on('timeout', function() {
+      reject();
+    });
 
-        if (err) {
-          reject('Problem unbinding from LDAP: ' + err);
-        }
-        resolve();
-      });
+    client.on('connectError', function() {
+      reject();
+    });
+
+    client.on('socketTimeout', function() {
+      reject();
     });
   });
 };
@@ -101,11 +106,15 @@ electronApp.on('ready', function() {
     height: 720
   });
 
+  mainWindow.loadURL('file://' + __dirname + '/splash.html');
+
   getConfig()
     .then(function() {
       checkForLDAP()
         .then(function() {
-          mainWindow.loadURL('file://' + __dirname + '/online.html');
+          setTimeout(function() {
+            mainWindow.loadURL('file://' + __dirname + '/online.html');
+          }, 2000);
         }.bind(this))
         .catch(function() {
           mainWindow.loadURL('file://' + __dirname + '/offline.html');

@@ -66,29 +66,12 @@ module.exports = Reflux.createStore({
         url: 'ldap://ldap.forumsys.com:389'
       });
 
-      var options = {
-        filter: '(uid=' + userLoginObject.username + ')',
-        scope: 'sub'
-      };
-
-      // Search for User in LDAP
-      client.search('dc=example,dc=com', options, function(err, res) {
-
-        var ldapUsers = [];
-
+      client.bind(userLoginObject.username, userLoginObject.password, function(err) {
         if (err) {
           reject('General Error searching LDAP for User: ' + err);
+        } else {
+          resolve(userLoginObject);
         }
-
-        res.on('searchEntry', function(entry) {
-          ldapUsers.push(entry.object);
-        });
-        res.on('error', function(err) {
-          reject('Search Failed: ' + err.message);
-        });
-        res.on('end', function() {
-          resolve(ldapUsers);
-        });
       });
     });
   },

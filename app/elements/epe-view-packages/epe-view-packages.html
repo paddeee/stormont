@@ -385,13 +385,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     ready: function() {
 
+      var pathDivider;
+
       if (typeof process === 'object') {
+
+        // Select correct path divider depending on OS
+        if (process.platform === 'darwin') {
+          pathDivider = '/';
+        } else {
+          pathDivider = '\\';
+        }
 
         // Listen to Electron when directory is selected
         ipc.on('directory-selected', function (arg) {
 
           if (arg) {
-            this.exportLocation = arg[0] + '/';
+            this.exportLocation = arg[0] + pathDivider;
           } else {
             this.exportLocation = 'Not selected..';
           }
