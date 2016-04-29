@@ -28,6 +28,7 @@ var mocha = require('gulp-mocha');
 var through = require('through2');
 var rename = require('gulp-rename');
 var historyApiFallback = require('connect-history-api-fallback');
+var useref = require('gulp-useref');
 
 var AUTOPREFIXER_BROWSERS = [
   'ie >= 10',
@@ -157,7 +158,8 @@ gulp.task('fonts', function () {
 
 // Scan Your HTML For Assets & Optimize Them
 gulp.task('html', function () {
-  var assets = $.useref.assets({searchPath: ['.tmp', 'app', 'dist']});
+
+  var assets = useref.assets({searchPath: ['.tmp', 'app', 'dist']});
 
   return gulp.src(['app/**/*.html', '!app/{elements,test}/**/*.html'])
     // Replace path for vulcanized assets
@@ -169,7 +171,7 @@ gulp.task('html', function () {
     // In case you are still using useref build blocks
     .pipe($.if('*.css', $.cssmin()))
     .pipe(assets.restore())
-    .pipe($.useref())
+    .pipe(useref())
     // Minify Any HTML
     .pipe($.if('*.html', $.minifyHtml({
       quotes: true,

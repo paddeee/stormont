@@ -27,6 +27,6 @@
     "TL": true,
     "Tiff": true,
     "config": true,
-    "ipc": true
+    "ipcRenderer": true
   }
 }

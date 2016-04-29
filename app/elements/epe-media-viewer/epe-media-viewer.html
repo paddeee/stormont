@@ -301,8 +301,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         // Set the src of the image if inside Electron
-        if (app.config.getSourcePath) {
-          sourcePath = app.config.getSourcePath();
+        if (typeof process === 'object') {
+          sourcePath = config.paths.sourcePath;
         }
 
         this.videoSource = sourcePath + this.mediaObject['Linked File'];
@@ -439,7 +439,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // XHR won't work
         if (this.fs) {
 
-          sourcePath = app.config.getSourcePath();
+          sourcePath = config.paths.sourcePath;
 
           this.fs.readFile(sourcePath + this.mediaObject['Linked File'], function(err, data) {
 

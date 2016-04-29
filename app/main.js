@@ -1,14 +1,11 @@
 const electron = require('electron');
 const electronApp = electron.app;  // Module to control application life.
 const BrowserWindow = electron.BrowserWindow;  // Module to create native browser window.
-const ipc = require('ipc');
+const ipcMain = electron.ipcMain;
 const dialog = electron.dialog;
 const Menu = require("menu");
 const ldap =  require('ldapjs');
 const fs = require('fs');
-const config;
-
-var presentationMode;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -48,22 +45,27 @@ var LDAPExists = function() {
     });
 
     client.on('connect', function() {
+      console.log('COnnected to LDAP');
       resolve();
     });
 
     client.on('error', function() {
+      console.log('LDAP Error');
       resolve();
     });
 
     client.on('timeout', function() {
+      console.log('LDAP timeout');
       reject();
     });
 
     client.on('connectError', function() {
+      console.log('LDAP connect error');
       reject();
     });
 
     client.on('socketTimeout', function() {
+      console.log('LDAP socket timeout');
       reject();
     });
   });
@@ -106,22 +108,25 @@ electronApp.on('ready', function() {
     height: 720
   });
 
-  mainWindow.loadURL('file://' + __dirname + '/splash.html');
-
   getConfig()
     .then(function() {
+      console.log('Got config');
+      mainWindow.loadURL('file://' + __dirname + '/splash.html');
+
       checkForLDAP()
         .then(function() {
+          console.log('Got LDAP');
           setTimeout(function() {
             mainWindow.loadURL('file://' + __dirname + '/online.html');
           }, 2000);
         }.bind(this))
         .catch(function() {
+          console.log('No LDAP');
           mainWindow.loadURL('file://' + __dirname + '/offline.html');
         }.bind(this));
     })
-    .catch(function(error) {
-      require('dialog').showErrorBox('Get Config error', error);
+    .catch(function() {
+      dialog.showErrorBox('Config File Missing', 'Please make sure the Config Directory resides in the Application.')
       reject();
     }.bind(this));
 
@@ -170,7 +175,7 @@ electronApp.on('window-all-closed', function() {
   }
 });
 
-ipc.on('show-open-dialog', function(event, arg) {
+ipcMain.on('show-open-dialog', function(event, arg) {
 
   var directorySelected;
 

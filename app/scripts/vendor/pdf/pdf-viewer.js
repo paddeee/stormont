@@ -7280,8 +7280,8 @@ function webViewerInitialized($pdfViewerElement) {
   var sourcePath = '';
 
   // Set the src of the image if inside Electron
-  if (app.config.getSourcePath) {
-    sourcePath = app.config.getSourcePath();
+  if (typeof process === 'object') {
+    sourcePath = config.paths.sourcePath;
   }
 
   var file = sourcePath + $pdfViewerElement.pdfObject['Linked File'];

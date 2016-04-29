@@ -300,8 +300,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }.bind(this));
 
       // Set the src of the image if inside Electron
-      if (app.config.getSourcePath) {
-        sourcePath = app.config.getSourcePath();
+      if (typeof process === 'object') {
+        sourcePath = config.paths.sourcePath;
       }
       this.imageSource = sourcePath + this.imageObject['Linked File'];
     },
