@@ -1,6 +1,6 @@
 var config;
 var electronRequire;
-var ipc;
+var ipcRenderer;
 var remote;
 
 if (typeof process === 'object') {
@@ -13,5 +13,5 @@ if (typeof process === 'object') {
   electronRequire = require;
 
   // Use to communicate with Electron
-  var ipc = require('ipc');
+  var ipcRenderer = require('ipc');
 }

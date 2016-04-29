@@ -397,7 +397,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         // Listen to Electron when directory is selected
-        ipc.on('directory-selected', function (arg) {
+        ipcRenderer.on('directory-selected', function (arg) {
 
           if (arg) {
             this.exportLocation = arg[0] + pathDivider;
@@ -676,7 +676,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Send message to electron to open Open Dialog
     exportLocationTapped: function() {
-      ipc.send('show-open-dialog', 'directory');
+      ipcRenderer.send('show-open-dialog', 'directory');
     }
   });
 })();
