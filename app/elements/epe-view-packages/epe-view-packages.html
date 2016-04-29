@@ -312,7 +312,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <paper-dialog id="ExportErrorDialog" modal>
       <h2>Package Export Error</h2>
       <div>
-        <span>ToDO: Error message logic to go here</span>
+        <span>[[exportFailureMessage]]</span>
       </div>
       <div class="buttons">
         <paper-button dialog-confirm autofocus>OK</paper-button>
@@ -380,6 +380,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       exportLocation: {
         type: String,
         value: 'Not selected..'
+      },
+
+      exportFailureMessage: {
+        type: String,
+        value: ''
       }
     },
 
@@ -457,8 +462,39 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.ExportSuccessDialog.open();
         this.$.ExportingPackage.close();
 
-      // Package export error
-      } else if (messageType === 'exportError') {
+      // Database Save error
+      } else if (messageType === 'dbCopyFailure') {
+        this.exportFailureMessage = 'There was a problem creating the export database File';
+        this.$.ExportErrorDialog.open();
+        this.$.ExportingPackage.close();
+
+        // Package export error
+      } else if (messageType === 'sourceFileCopyFailure') {
+        this.exportFailureMessage = 'There was a problem copying Source Files';
+        this.$.ExportErrorDialog.open();
+        this.$.ExportingPackage.close();
+
+        // Package export error
+      } else if (messageType === 'zipDirectoryFailure') {
+        this.exportFailureMessage = 'There was a problem creating a zip file for the package';
+        this.$.ExportErrorDialog.open();
+        this.$.ExportingPackage.close();
+
+        // Package export error
+      } else if (messageType === 'encryptionFailure') {
+        this.exportFailureMessage = 'There was a problem encrypting the zip file';
+        this.$.ExportErrorDialog.open();
+        this.$.ExportingPackage.close();
+
+        // Package export error
+      } else if (messageType === 'removeDirectoryFailure') {
+        this.exportFailureMessage = 'There was a problem removing the temporary directory';
+        this.$.ExportErrorDialog.open();
+        this.$.ExportingPackage.close();
+
+        // Package export error
+      } else if (messageType === 'removeZipFileFailure') {
+        this.exportFailureMessage = 'There was a problem removing the temporary zip file';
         this.$.ExportErrorDialog.open();
         this.$.ExportingPackage.close();
       }

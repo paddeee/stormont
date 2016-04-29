@@ -13,6 +13,7 @@ var sourcesStore = require('../stores/source.js');
 var fs = window.electronRequire('fs-extra');
 var zipFolder = window.electronRequire('zip-folder');
 var encryptor = window.electronRequire('file-encryptor');
+var HID = window.electronRequire('node-hid');
 
 module.exports = Reflux.createStore({
 
@@ -26,6 +27,8 @@ module.exports = Reflux.createStore({
   onYubiKeyCheck: function() {
 
     var isYubiKeyInserted = true;
+
+    console.log(HID.devices());
 
     /*usbDetect.
       find().
