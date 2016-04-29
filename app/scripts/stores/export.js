@@ -13,7 +13,6 @@ var sourcesStore = require('../stores/source.js');
 var fs = window.electronRequire('fs-extra');
 var zipFolder = window.electronRequire('zip-folder');
 var encryptor = window.electronRequire('file-encryptor');
-var usb = window.electronRequire('electron-usb');
 //var usb = window.electronRequire('electron-usb');
 
 module.exports = Reflux.createStore({
