@@ -126,7 +126,7 @@ electronApp.on('ready', function() {
         }.bind(this));
     })
     .catch(function() {
-      dialog.showErrorBox('Config File Missing', 'Please make sure the Config Directory resides in the Application.')
+      dialog.showErrorBox('Config File Missing', 'Please make sure the Config Directory resides in the Application.');
       reject();
     }.bind(this));
 

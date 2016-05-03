@@ -78,6 +78,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       EpeEditPackage.createPackageRoute = 'profile';
     });
 
+    page('/edit-package/profile', function () {
+      app.route = 'edit-package';
+      EpeEditPackage.createPackageRoute = 'profile';
+    });
+
     page('/edit-package/source/:type', function (data) {
       app.route = 'edit-package';
       EpeEditPackage.createPackageRoute = 'source';

@@ -405,7 +405,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     ready: function() {
 
       // Get element this way as parent element isn't yet available through document.querySelector
-      var $epeNetworked = app.$.epeNetworked;
+      var $epeElement;
+
+      if (presentationMode === 'online') {
+        $epeElement = app.$.epeNetworked;
+      } else if (presentationMode === 'offline') {
+        $epeElement = app.$.epeOffline;
+      }
 
       // Add listener to make sure page is updated when a new one is rendered
       window.addEventListener('pagechange', function () {
@@ -430,7 +436,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       }.bind(this), true);
 
-      $epeNetworked.addEventListener('not-pdf-route', function() {
+      $epeElement.addEventListener('not-pdf-route', function() {
         this.resetPDFAnnotations();
       }.bind(this));
     },
