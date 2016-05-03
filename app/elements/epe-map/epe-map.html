@@ -257,12 +257,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                  longitude="21.37939453125"
                  zoom="7"
                  min-zoom="7"
-                 max-zoom="19"
+                 max-zoom="17"
                  maxBounds="[[maxBounds]]"
                  fitToMarkers
                  on-load="mapReady">
 
-      <leaflet-tilelayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png">
+      <leaflet-tilelayer id="LeafletTileLayer" url="[[mapTilesSrc]]">
       </leaflet-tilelayer>
 
       <epe-map-geojson id="MapGeoJSON"
@@ -385,12 +385,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       noneGeoJSONObject: {
         type: Object
+      },
+
+      mapTilesSrc: {
+        type: String,
+        value: ''
       }
     },
 
     ready: function() {
 
       this.scopeSubtree(this.$.LeafletMap, true);
+
+      this.setMapTilesSrc();
 
       if (this.mapGeoJsonStore) {
 
@@ -662,6 +669,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       this.$.TimeLineElement.goToNext();
+    },
+
+    // Set the path to the MapTiles to online or offline
+    setMapTilesSrc: function() {
+
+      var mapTilesDirectories = '/{z}/{x}/{y}.png';
+
+      // Set the src of the mapTiles if inside Electron or not
+      // Online tiles for now if in a browser
+      if (typeof process === 'object') {
+        this.mapTilesSrc = 'file:///' + config.paths.tilesPath + mapTilesDirectories;
+      } else {
+        this.mapTilesSrc = 'https://{s}.tile.openstreetmap.org' + mapTilesDirectories;
+      }
     }
   });
 })();
