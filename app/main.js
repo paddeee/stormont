@@ -45,7 +45,7 @@ var LDAPExists = function() {
     });
 
     client.on('connect', function() {
-      console.log('COnnected to LDAP');
+      console.log('Connected to LDAP');
       resolve();
     });
 

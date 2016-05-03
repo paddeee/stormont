@@ -41,6 +41,7 @@ var timeLineStore = require('./stores/timeLine.js');
   var app = document.querySelector('#app');
 
   // Set required modules as attributes on app
+  app.presentationMode = presentationMode;
   app.reflux = reflux;
   app.moment = moment;
   app.config = config;
@@ -78,7 +79,11 @@ var timeLineStore = require('./stores/timeLine.js');
     console.log('Operation Farrell content all added to page!');
     console.log('dom-change');
 
-    app.route = 'login';
+    if (presentationMode === 'online') {
+      app.route = 'login';
+    } else if (presentationMode === 'offline') {
+      app.route = 'import-package';
+    }
   });
 
   // See https://github.com/Polymer/polymer/issues/1381

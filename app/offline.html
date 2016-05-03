@@ -55,6 +55,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="elements/elements.html">
   <!-- endreplace-->
 
+  <script>
+    var presentationMode ='offline';
+  </script>
+
   <!-- Set up config for packagedApp -->
   <script src="packagedAppSetup.js"></script>
 
@@ -91,6 +95,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       map-geo-json-store="[[mapGeoJsonStore]]"
       time-line-store="[[timeLineStore]]"
       csv-parser="[[CSVParser]]"
+      presentation-mode="[[presentationMode]]"
       route="[[route]]">
 
     </epe-networked>
