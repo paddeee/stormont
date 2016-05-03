@@ -132,8 +132,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .selected-by-event {
-      margin: 0 0 0 8px;
-      padding: 0 10px 0 0;
+      text-align: center;
     }
 
     .selected-by-event__icon {
@@ -291,6 +290,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     on-change="selectAllRecords"
                     on-iron-change="selectAllRecords"></paper-checkbox>
                 </th>
+                <th scope="col"
+                    id="SelectedByEventHeading"
+                    class="selected-by-event-heading"
+                    hidden$="[[hideRelatedToEventColumn]]">
+                  <iron-icon icon="event"
+                             class="selected-by-event__heading-icon"></iron-icon>
+                  <paper-tooltip for="SelectedByEventHeading" position="top">Item is<br/>related to<br/>a selected <br/>event</paper-tooltip>
+                </th>
                 <template is="dom-repeat"
                           items="[[toArray(gridDataFirstRecord)]]">
                   <th scope="col"
@@ -312,14 +319,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </div>
                   </th>
                 </template>
-                <th scope="col"
-                    id="SelectedByEventHeading"
-                    class="selected-by-event-heading"
-                    hidden$="[[hideRelatedToEventColumn]]">
-                  <iron-icon icon="event"
-                             class="selected-by-event__heading-icon"></iron-icon>
-                  <paper-tooltip for="SelectedByEventHeading" position="top">Item is<br/>related to<br/>a selected <br/>event</paper-tooltip>
-                </th>
                 <th scope="col"
                     class="blank"
                     hidden$="[[hideViewSourceButton]]">
@@ -363,6 +362,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   </paper-checkbox>
                 </td>
 
+                <td class="selected-by-event" hidden$="[[hideRelatedToEventColumn]]">
+                  <iron-icon icon="check"
+                             class="selected-by-event__icon"
+                             hidden$="[[!item.highlightAsRelatedToEvent]]"></iron-icon>
+                </td>
                 <template is="dom-repeat" items="[[toArray(item)]]">
                   <td class="field-record"
                       on-mouseover="showFullText"
@@ -371,11 +375,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <span>{{item.value}}</span>
                   </td>
                 </template>
-                <td hidden$="[[hideRelatedToEventColumn]]">
-                  <iron-icon icon="check"
-                             class="selected-by-event__icon"
-                             hidden$="[[!item.highlightAsRelatedToEvent]]"></iron-icon>
-                </td>
                 <td class="source"
                     hidden$="[[hideViewSourceButton]]">
                   <paper-button
