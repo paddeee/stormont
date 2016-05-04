@@ -89,6 +89,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       EpeSourceViewer[1].route = data.params.type;
     });
 
+    /* Offline routes */
+    page('/choose-package', function () {
+      app.route = 'choose-package';
+    });
+
     // add #! before urls
     page({
       hashbang: true

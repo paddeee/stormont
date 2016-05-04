@@ -24,6 +24,8 @@ var sourceStore = require('./stores/source.js');
 var userActions = require('./actions/users.js');
 var userStore = require('./stores/users.js');
 var presentationsActions = require('./actions/presentations.js');
+var importPackageActions = require('./actions/importPackage.js');
+var importPackageStore = global.config ? require('./stores/importPackage.js') : null;
 var presentationsStore = require('./stores/presentations.js');
 var importActions = require('./actions/import.js');
 var importStore = require('./stores/import.js');
@@ -32,7 +34,7 @@ var exportStore = global.config ? require('./stores/export.js') : null;
 var mapGeoJsonStore = require('./stores/mapGeoJSON.js');
 var timeLineStore = require('./stores/timeLine.js');
 
-(function(document, reflux, moment, config, sourceActions, selectedRecordsActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore, timeLineStore) {
+(function(document, reflux, moment, config, sourceActions, selectedRecordsActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore, timeLineStore, importPackageActions, importPackageStore) {
   'use strict';
 
   // Grab a reference to our auto-binding template
@@ -56,6 +58,8 @@ var timeLineStore = require('./stores/timeLine.js');
   app.queryBuilderStore = queryBuilderStore;
   app.importActions = importActions;
   app.importStore = importStore;
+  app.importPackageActions = importPackageActions;
+  app.importPackageStore = importPackageStore;
   app.exportActions = exportActions;
   app.exportStore = exportStore;
   app.filterStateActions = filterStateActions;
@@ -82,7 +86,7 @@ var timeLineStore = require('./stores/timeLine.js');
     if (presentationMode === 'online') {
       app.route = 'login';
     } else if (presentationMode === 'offline') {
-      app.route = 'import-package';
+      app.route = 'choose-package';
     }
   });
 
@@ -109,4 +113,4 @@ var timeLineStore = require('./stores/timeLine.js');
   // Maybe dangerous but can change for different approach if needed
   NodeList.prototype.forEach = Array.prototype.forEach;
 
-})(document, reflux, moment, config, sourceActions, selectedRecordsActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore, timeLineStore);
+})(document, reflux, moment, config, sourceActions, selectedRecordsActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore, timeLineStore, importPackageActions, importPackageStore);

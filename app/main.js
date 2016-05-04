@@ -175,15 +175,26 @@ electronApp.on('window-all-closed', function() {
   }
 });
 
-ipcMain.on('show-open-dialog', function(event, arg) {
+ipcMain.on('show-open-dialog', function(event, property, type) {
 
-  var directorySelected;
+  var selection;
 
-  if (arg === 'directory') {
-    directorySelected = dialog.showOpenDialog({
+  if (property === 'directory') {
+    selection = dialog.showOpenDialog({
       properties: ['openDirectory']
     });
+  } else if (property === 'file') {
+
+    if (type === '.dat') {
+
+      selection = dialog.showOpenDialog({
+        properties: ['openFile'],
+        filters: [
+          { name: 'Package', extensions: ['dat'] }
+        ]
+      });
+    }
   }
 
-  event.sender.send(arg + '-selected', directorySelected);
+  event.sender.send(property + '-selected', selection);
 });

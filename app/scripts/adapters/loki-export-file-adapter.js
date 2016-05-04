@@ -21,32 +21,6 @@ var config = global.config ? global.config : require('../config/config.js');
 function lokiFileAdapter() {}
 
 /**
- * loadDatabase() - Retrieves a serialized db string from the catalog.
- *
- *  @example
- // LOAD
- var fileAdapter = require('./lokiFileAdapter');
- var db = new loki('test', { adapter: fileAdapter });
- db.loadDatabase(function(result) {
-		console.log('done');
-	});
- *
- * @param {string} dbname - the name of the database to retrieve.
- * @param {function} callback - callback should accept string param containing serialized db string.
- */
-lokiFileAdapter.prototype.loadDatabase = function loadDatabase(dbname, callback) {
-
-  // ToDo: Make configurable by user or admin
-  var path = global.config ? config.paths.dbPath : '';
-
-  fs.readFile(path + '/' + dbname, 'utf-8', function(err, data) {
-
-    var dataStore = err || data;
-    callback(dataStore);
-  });
-};
-
-/**
  *
  @example
  // SAVE : will save database in 'test'

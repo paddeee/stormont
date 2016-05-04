@@ -636,8 +636,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Perform export if in packaged app. Otherwise log to alert that it won't work in browser
         if (typeof process === 'object') {
 
-          // ToDo: Let User select a location from file explorer
-          // For now just hardcode a location
+          // Let User select a location from file explorer
           packagePassword = event.target.value;
           filteredOrSelected = this.$.FilteredOrSelected.selected;
 
