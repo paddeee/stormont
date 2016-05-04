@@ -11,8 +11,7 @@ var dataSourceStore = require('../stores/dataSource.js');
  var peopleStore = require('../stores/people.js');
  var sourcesStore = require('../stores/source.js');*/
 var fsExtra = window.electronRequire('fs-extra');
-var extract = require('extract-zip');
-var fs = window.electronRequire('fs');
+var decompressZip = window.electronRequire('decompress-zip');
 var encryptor = window.electronRequire('file-encryptor');
 
 module.exports = Reflux.createStore({
@@ -186,16 +185,25 @@ module.exports = Reflux.createStore({
     return new Promise(function (resolve, reject) {
 
       var zipPath = importFileAdapter.tempPackageDirectory + '/tempPackage.zip';
+      var unzipper = new decompressZip(zipPath);
+
+      unzipper.on('error', function (err) {
+        reject('Caught an error ' + err);
+      });
+
+      unzipper.on('extract', function () {
+        resolve();
+      });
+
+      unzipper.on('progress', function (fileIndex, fileCount) {
+        console.log('Extracted file ' + (fileIndex + 1) + ' of ' + fileCount);
+      });
 
       // Extract Zip
-      extract(zipPath, {dir: importFileAdapter.tempPackageDirectory}, function (err) {
-
-        if (err) {
-          reject('Error extracting Zip file: ' + err);
-        } else {
-          resolve();
-        }
+      unzipper.extract({
+        path: importFileAdapter.tempPackageDirectory + '/tempPackage'
       });
+
     }.bind(this));
   },
 
