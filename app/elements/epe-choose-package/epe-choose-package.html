@@ -1,0 +1,214 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="epe-choose-package">
+  <style>
+
+    :host {
+      display: block;
+    }
+
+    paper-material.card--choose-package {
+      background-color: var(--dark-primary-color);
+      color: var(--text-primary-color);
+      margin-top: 64px;
+      max-height: 300px;
+      max-width: 512px;
+      width: 512px;
+      box-shadow: 0 2px 5px 0 rgba(0,0,0,.26);
+      border-radius: 2px;
+      overflow-y: auto;
+    }
+
+    .choose-button-holder {
+      padding: 16px 0;
+    }
+
+    .choose-button {
+      background-color: var(--primary-background-color);
+      color: var(--primary-text-color);
+      height: 64px;
+      width: 250px;
+      font-size: 20px;
+      line-height: 1.6;
+    }
+
+    .display-import-path {
+      color: var(--text-primary-color);
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    iron-icon {
+      margin: 0 8px;
+    }
+
+    .import-dialog {
+      height: 50vh;
+      width: 50vw;
+    }
+
+    .import-package {
+      width: 420px;
+    }
+
+    .import-progress {
+      height: 60%;
+    }
+
+    paper-progress {
+      --paper-progress-active-color: var(--dark-primary-color);
+      --paper-progress-secondary-color: var(--paper-light-blue-100);
+      width: 100%;
+    }
+  </style>
+  <template>
+
+    <div class="main flex layout vertical center">
+      <paper-material elevation="1" class="card card--choose-package flex fit layout vertical center">
+        <h1>Choose Package To Import</h1>
+        <div class="choose-button-holder layout horizontal center-justified">
+          <paper-button
+            raised
+            id="ChooseButton"
+            class="choose-button"
+            on-tap="choosePackageTapped"><iron-icon icon="file-upload"></iron-icon>Choose Package</paper-button>
+        </div>
+
+        <div class="display-import-path">[[importLocation]]</div>
+
+        <paper-input
+          id="ImportPassword"
+          class="import-package"
+          label="Enter Package Password, Then Hold Down YubiKey Button"
+          type="password"
+          autofocus
+          on-keypress="yubiKeyPressed"></paper-input>
+
+      </paper-material>
+    </div>
+
+    <paper-dialog id="NoLocationDialog" modal>
+      <h2>Please choose a Package File to Import.</h2>
+      <div class="buttons layout horizontal">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="ImportingPackage"
+                  class="import-dialog"
+                  modal>
+      <h2>Importing Package</h2>
+      <div class="import-progress layout horizontal center center-justified">
+        <paper-progress indeterminate value="800" min="100" max="1000"></paper-progress>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="ExportSuccessDialog" modal>
+      <h2>Package Successfully Exported</h2>
+      <div>
+        <span>The package has been successfully exported to the selected location.</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="ExportErrorDialog" modal>
+      <h2>Package Export Error</h2>
+      <div>
+        <span>[[exportFailureMessage]]</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+    is: 'epe-choose-package',
+
+    properties: {
+
+      importLocation: {
+        type: String,
+        value: 'Not selected..'
+      },
+    },
+
+    ready: function() {
+
+      if (typeof process === 'object') {
+
+        // Listen to Electron when file is selected
+        ipcRenderer.on('file-selected', function (arg) {
+
+          if (arg) {
+            this.importLocation = arg[0];
+          }
+        }.bind(this));
+      }
+    },
+
+    // WHEN CHOOSE PACKAGE BUTTON IS TAPPED
+    choosePackageTapped: function() {
+
+      // Perform export if in packaged app. Otherwise log so we know it won't work in browser
+      if (typeof process === 'object') {
+        ipcRenderer.send('show-open-dialog', 'file', '.dat');
+      } else {
+        console.warn('Can\'t import in browser');
+      }
+    },
+
+    // When the Yubikey Password has been entered
+    yubiKeyPressed: function(event) {
+
+      var packagePassword;
+
+      if (this.importLocation === 'Not selected..') {
+        this.$.NoLocationDialog.open();
+        return;
+      }
+
+      // YubiKey will press enter after entering its password
+      if (event.keyCode === 13) {
+
+        // Perform export if in packaged app. Otherwise log to alert that it won't work in browser
+        if (typeof process === 'object') {
+
+          // Let User select a location from file explorer
+          packagePassword = event.target.value;
+
+          // Reset the password field
+          this.$.ImportPassword.value = null;
+
+          // Open the Exporting Loading Dialog
+          this.$.ImportingPackage.open();
+
+          // Call importPackage packageSelected action
+          this.importPackageActions.packageSelected({
+            packageLocation: this.importLocation,
+            packagePassword: packagePassword
+          });
+
+        } else {
+          console.warn('Import not available in browser mode');
+        }
+      }
+    }
+  });
+})();
+</script>
