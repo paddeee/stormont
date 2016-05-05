@@ -234,8 +234,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   Delete Package<iron-icon icon="delete"></iron-icon>
                 </paper-button>
               </div>
-              <div class="flex layout horizontal end-justified export"
-                   hidden$="[[hideExportButton(item.authoriserState)]]">
+              <div class="export-button-holder flex layout horizontal end-justified export"
+                   hidden$="[[item.hideExportButton]]">
                 <paper-button raised
                               class="export-button"
                               on-tap="exportPackageSelected">
@@ -424,6 +424,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           this.presentationsData = presentationsStore.presentationsData;
 
+          this.manageExportButtons();
+
           this.$.List.items = this.presentationsData;
 
           if (presentationsStore.message === 'presentationDeleted') {
@@ -510,15 +512,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var $item = event.currentTarget.closest('.item');
       var $authoriserTrafficLight = $item.querySelector('.authoriser-state iron-icon');
+      var $exportButton = $item.querySelector('.export-button-holder');
 
       if (event.target.checked) {
         event.model.item.authoriserState = 'green';
+        if (this.userStore.user.role === 'gatekeeper' || this.userStore.user.role === 'admin') {
+          event.model.item.hideExportButton = false;
+        }
       } else {
         event.model.item.authoriserState = 'red';
+        event.model.item.hideExportButton = true;
       }
 
       // Set the change to the DOM due to template not auto updating
       this.updateTrafficLights($authoriserTrafficLight, event.model.item.authoriserState);
+
+      // Set the change to the DOM due to template not auto updating
+      this.showHideExportButton($exportButton, event.model.item.hideExportButton);
 
       // Call approvalStateChanged action
       this.presentationsActions.approvalStateChanged(event.model.item);
@@ -530,6 +540,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     updateTrafficLights: function($authoriserTrafficLight, authoriserState) {
       $authoriserTrafficLight.classList.remove('green','red');
       $authoriserTrafficLight.classList.add(authoriserState);
+    },
+
+    // Have to do this manually as the functions inside the template don't get called
+    // when the presentationsData is updated.
+    // ToDo: Find a better way to let the iron-list manage this if its possible
+    showHideExportButton: function($exportButton, hideExportButton) {
+      $exportButton.hidden = hideExportButton;
     },
 
     // Used to set the checked state on the checkbox
@@ -675,16 +692,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
-    // Export Package action button
-    hideExportButton: function(authoriserState) {
-
-      if ((this.userStore.user.role === 'gatekeeper' || this.userStore.user.role === 'admin') && authoriserState === 'green') {
-        return false;
-      } else {
-        return true;
-      }
-    },
-
     // Return Boolean based on gridData
     isPackages: function(presentationData) {
 
@@ -712,6 +719,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Send message to electron to open Open Dialog
     exportLocationTapped: function() {
       ipcRenderer.send('show-open-dialog', 'directory');
+    },
+
+    // When data changes make sure all Export buttons are displayed or hidden correctly
+    manageExportButtons: function() {
+
+      this.presentationsData.forEach(function(presentation) {
+
+        if ((this.userStore.user.role === 'gatekeeper' || this.userStore.user.role === 'admin') && presentation.authoriserState === 'green') {
+          presentation.hideExportButton = false;
+        }
+      }.bind(this));
     }
   });
 })();

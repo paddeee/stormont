@@ -254,6 +254,7 @@ module.exports = Reflux.createStore({
       presentationInfo.notes = presentationObject.notes;
       presentationInfo.gateKeeperState = presentationObject.gateKeeperState;
       presentationInfo.authoriserState = presentationObject.authoriserState;
+      presentationInfo.hideExportButton = presentationObject.hideExportButton;
       presentationInfo.createdDate = createdDate;
       presentationInfo.unapprovedSource = presentationObject.unapprovedSource;
 
