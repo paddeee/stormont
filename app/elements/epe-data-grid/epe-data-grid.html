@@ -361,7 +361,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <tr class$="[[isApprovedForRelease(item)]]">
                 <td class="checkbox-holder">
                   <paper-checkbox class="record-checkbox"
-                                  on-iron-change="selectRecord"
                                   on-change="selectRecord"
                                   checked$="[[item.showRecord]]">
                   </paper-checkbox>
@@ -797,18 +796,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (this.gridData) {
 
           // Update all items in the data collection
-          this.gridData.forEach(function(record, index) {
+          this.gridData.forEach(function() {
 
             if (event.target.checked) {
               this.showAllSelected = true;
-              //this.$.ListTemplate.set('items.' + index + '.showRecord', true);
             } else {
               this.showAllSelected = false;
-
-              // Only set checkbox to false if user has deselected Select All checkbox not when called programmatically
-              if (event.type === 'change') {
-                //this.$.ListTemplate.set('items.' + index + '.showRecord', false);
-              }
             }
           }.bind(this));
 
