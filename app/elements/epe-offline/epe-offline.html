@@ -140,8 +140,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             id="MenuButton"
             class="menu-button"
             icon="menu"
-            on-tap="toggleMenu"></paper-icon-button>
-          <div class="flex"></div>-->
+            on-tap="toggleMenu"></paper-icon-button>-->
+          <div class="flex"></div>
 
           <!-- Toolbar icons -->
           <div hidden$="[[hideHeaderPackageNavigation]]" class="package-navigation">
@@ -232,17 +232,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       data-source-actions="[[dataSourceActions]]"
       user-store="[[userStore]]"
       on-show-dialog="showDialog"></epe-filters>
-
-    <!-- Dialogs -->
-    <paper-dialog id="SuccessDialog" modal>
-      <h2>Package successfully opened</h2>
-      <div>
-        <span>[[message]]</span>
-      </div>
-      <div class="buttons">
-        <paper-button dialog-confirm autofocus on-tap="closeCard">OK</paper-button>
-      </div>
-    </paper-dialog>
 
   </template>
 </dom-module>

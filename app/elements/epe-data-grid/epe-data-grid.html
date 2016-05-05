@@ -649,7 +649,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           return;
         }
 
-        if (window.EpeEditPackage.createPackageRoute && window.EpeEditPackage.createPackageRoute !== 'data-grid') {
+        // Need a check in here as EpeEditPackage doesnt exist in Offline Mode
+        if (presentationMode === 'online' && window.EpeEditPackage.createPackageRoute && window.EpeEditPackage.createPackageRoute !== 'data-grid') {
           return;
         }
 

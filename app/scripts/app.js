@@ -97,8 +97,10 @@ var timeLineStore = require('./stores/timeLine.js');
     window.L.Icon.Default.imagePath = './images/leaflet/';
     console.log('components ready');
 
-    // Load Database
-    dataSourceActions.loadDatabase();
+    // Load Database in Networked Online mode
+    if (presentationMode === 'online') {
+      dataSourceActions.loadDatabase();
+    }
   });
 
   // Close drawer after menu item is selected if drawerPanel is narrow

@@ -113,20 +113,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
     </paper-dialog>
 
-    <paper-dialog id="ExportSuccessDialog" modal>
-      <h2>Package Successfully Exported</h2>
+    <paper-dialog id="ImportSuccessDialog" modal>
+      <h2>Package Successfully Imported</h2>
       <div>
-        <span>The package has been successfully exported to the selected location.</span>
+        <span>The package has been successfully imported into the application.</span>
       </div>
       <div class="buttons">
-        <paper-button dialog-confirm autofocus>OK</paper-button>
+        <paper-button dialog-confirm autofocus on-tap="navigateToDataGrid">OK</paper-button>
       </div>
     </paper-dialog>
 
-    <paper-dialog id="ExportErrorDialog" modal>
-      <h2>Package Export Error</h2>
+    <paper-dialog id="ImportErrorDialog" modal>
+      <h2>Package Import Error</h2>
       <div>
-        <span>[[exportFailureMessage]]</span>
+        <span>[[importFailureMessage]]</span>
       </div>
       <div class="buttons">
         <paper-button dialog-confirm autofocus>OK</paper-button>
@@ -146,6 +146,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         type: String,
         value: 'Not selected..'
       },
+
+      importFailureMessage: {
+        type: String,
+        value: ''
+      }
     },
 
     ready: function() {
@@ -159,6 +164,51 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.importLocation = arg[0];
           }
         }.bind(this));
+      }
+
+      if (this.importPackageStore) {
+
+        // When the events data is updated, update our grid data
+        this.importPackageStore.listen(function (importPackageStore) {
+
+          if (importPackageStore.message) {
+            this.handleImportPackageStoreBroadcast(importPackageStore.message);
+          }
+        }.bind(this));
+      }
+    },
+
+    // Handle the broadcast from the import package Store
+    handleImportPackageStoreBroadcast: function(messageType) {
+
+      // Import Successful
+      if (messageType === 'importSuccess') {
+        this.$.ImportSuccessDialog.open();
+        this.$.ImportingPackage.close();
+
+        // Create Temporary Package error
+      } else if (messageType === 'createTempPackageDirectoryFailure') {
+        this.importFailureMessage = 'There was a problem creating a Directory for the Package';
+        this.$.ImportErrorDialog.open();
+        this.$.ImportingPackage.close();
+
+        // Decrypt temporary package error
+      } else if (messageType === 'decryptTempPackageFailure') {
+        this.importFailureMessage = 'There was a problem decrypting the Package. Please re-enter the password and press the Yubikey again';
+        this.$.ImportErrorDialog.open();
+        this.$.ImportingPackage.close();
+
+        // Extract Zip error
+      } else if (messageType === 'extractZipFailure') {
+        this.importFailureMessage = 'There was a problem extracting the contents of the Zip file';
+        this.$.ImportErrorDialog.open();
+        this.$.ImportingPackage.close();
+
+        // Delete temporary zip error
+      } else if (messageType === 'deleteZipFailure') {
+        this.importFailureMessage = 'There was a problem deleting the temporary zip file';
+        this.$.ImportErrorDialog.open();
+        this.$.ImportingPackage.close();
       }
     },
 
@@ -208,6 +258,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           console.warn('Import not available in browser mode');
         }
       }
+    },
+
+    // Navigate to the Events Data Grid
+    navigateToDataGrid: function() {
+      page('/create-package/data-grid/' + app.config.EventsCollection.name);
     }
   });
 })();

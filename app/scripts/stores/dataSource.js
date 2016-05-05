@@ -40,7 +40,7 @@ module.exports = Reflux.createStore({
 
     this.dataSource = dataSource;
 
-    // Send object out to all listeners when database loaded
+    // Send object out to all listeners when collection imported
     this.trigger(this);
   },
 

@@ -37,7 +37,7 @@ function lokiFileAdapter() {}
 lokiFileAdapter.prototype.loadDatabase = function loadDatabase(dbname, callback) {
 
   // ToDo: Make configurable by user or admin
-  var path = global.config ? config.paths.dbPath : '';
+  var path = this.tempPackageDirectory;
 
   fs.readFile(path + '/' + dbname, 'utf-8', function(err, data) {
 
