@@ -75,7 +75,7 @@ module.exports = Reflux.createStore({
 
     // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
     // method
-    this.autoFilterCollections(false, false, false);
+    this.autoFilterCollections(false, false, false, true);
   },
 
   // Convert a queryBuilder object into one that can be used by loki to apply a transform on the data
@@ -319,7 +319,7 @@ module.exports = Reflux.createStore({
   // Filter on datastore userFilteredCollections based on linkage rules between tables
   // Event Place field links to Places Shortname field
   // Event Suspects, Victims and Witnesses fields link to People's Shortname field
-  autoFilterCollections: function (selectAllCheckBoxes, sortCheckBoxes, sortEvents) {
+  autoFilterCollections: function (selectAllCheckBoxes, sortCheckBoxes, sortEvents, sortPerformed) {
 
     var eventsCollection = dataSourceStore.dataSource.getCollection(config.EventsCollection.name);
 
@@ -348,7 +348,10 @@ module.exports = Reflux.createStore({
     }
 
     // Update all data types checkboxes to only show records from filtered records
-    this.eventsCheckBoxUpdated(eventsCollection.data);
+    // Don't do this if called by column sorting
+    if (!sortPerformed) {
+      this.eventsCheckBoxUpdated(eventsCollection.data);
+    }
 
     // Let listeners know data has been updated
     this.selectedDataChanged(sortCheckBoxes, sortEvents);
@@ -450,6 +453,11 @@ module.exports = Reflux.createStore({
         // Manage the Source Collection Selected Records
         this.autoUpdateSourceCheckboxes(personObject, config.PeopleCollection.name);
       }.bind(this));
+
+      // Source
+    } else if (showAllObject.collectionName === config.SourcesCollection.name) {
+
+      this.selectAllCheckboxes(sourcesStore, showAllObject.showAllSelected);
     }
 
     // Sort the order of selected records

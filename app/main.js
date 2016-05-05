@@ -20,10 +20,10 @@ var checkForLDAP =  function () {
     LDAPExists()
       .then(function() {
         resolve();
-      }.bind(this))
+      })
       .catch(function() {
         reject();
-      }.bind(this));
+      });
   });
 };
 

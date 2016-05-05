@@ -14,7 +14,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <style>
     :host {
       display: block;
-      margin: 3vh 3vw 2vh;
+      margin: 28px 3vw 20px;
     }
 
     iron-list {
@@ -37,8 +37,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .data-grid__footer {
       background-color: var(--text-primary-color);
+      border-bottom: 1px var(--divider-color) solid;
       border-top: 1px var(--divider-color) solid;
-      height: 54px;
+      height: 50px;
       width: 100%;
     }
 
@@ -203,7 +204,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .data-grid__records tr:first-child td {
-      border-top: 0;
+      border-top-width: 0;
+    }
+
+    .data-grid__records tr:last-child td {
+      border-bottom-width: 0;
     }
 
     .source {
@@ -796,13 +801,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             if (event.target.checked) {
               this.showAllSelected = true;
-              this.$.ListTemplate.set('items.' + index + '.showRecord', true);
+              //this.$.ListTemplate.set('items.' + index + '.showRecord', true);
             } else {
               this.showAllSelected = false;
 
               // Only set checkbox to false if user has deselected Select All checkbox not when called programmatically
               if (event.type === 'change') {
-                this.$.ListTemplate.set('items.' + index + '.showRecord', false);
+                //this.$.ListTemplate.set('items.' + index + '.showRecord', false);
               }
             }
           }.bind(this));
