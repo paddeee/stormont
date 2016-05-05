@@ -272,14 +272,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <table id="HeaderTable">
               <colgroup>
                 <col class="checkbox-col">
+                <col class="related-col"
+                     hidden$="[[hideRelatedToEventColumn]]">
                 <template is="dom-repeat"
                           items="[[toArray(gridDataFirstRecord)]]">
                   <col class="field-col"
                        heading-name$="[[item.name]]"
                        hidden$="[[!showField(item.name)]]">
                 </template>
-                <col class="related-col"
-                     hidden$="[[hideRelatedToEventColumn]]">
                 <col class="source-col"
                      hidden$="[[hideViewSourceButton]]">
               </colgroup>
@@ -342,14 +342,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                  loading-data$="[[!dataLoaded]]">
             <colgroup>
               <col class="checkbox-col">
+              <col class="related-col"
+                   hidden$="[[hideRelatedToEventColumn]]">
               <template is="dom-repeat"
                         items="[[toArray(gridDataFirstRecord)]]">
                 <col class="field-col"
                      heading-name$="[[item.name]]"
                      hidden$="[[!showField(item.name)]]">
               </template>
-              <col class="related-col"
-                   hidden$="[[hideRelatedToEventColumn]]">
               <col class="source-col"
                    hidden$="[[hideViewSourceButton]]">
             </colgroup>
