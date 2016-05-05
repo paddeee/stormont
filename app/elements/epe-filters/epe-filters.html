@@ -806,10 +806,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         });
       },
 
-      // Set state of hideSaveButton depending on presentation state
+      // Set state of hideSaveButton depending on presentation state and whether in online mode or not
       manageSaveButton: function(presentationState) {
 
-        if (presentationState === 'viewingLocked') {
+        if (presentationMode === 'offline' || presentationState === 'viewingLocked') {
           this.hideSaveButton = true;
         } else {
           this.hideSaveButton = false;

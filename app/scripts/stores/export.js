@@ -108,7 +108,7 @@ module.exports = Reflux.createStore({
       console.log('Export DB File Saved');
 
       // Iterate through each Source Object and copy the file from its Source Path into the temp directory
-      this.copySourceFiles(this.getLokiSourceObjects(presentationObject.packageName), presentationObject, exportFileAdapter.tempExportDirectory)
+      this.copySourceFiles(exportDatabase.getCollection(config.SourcesCollection.name).data, presentationObject, exportFileAdapter.tempExportDirectory)
       .then(function() {
         console.log('Source Files Copied');
 
@@ -273,26 +273,6 @@ module.exports = Reflux.createStore({
       });
 
     }.bind(this));
-  },
-
-  // Get an array of loki Source objects that we can use to copy files across
-  getLokiSourceObjects: function(presentationName) {
-
-    var sourceObjects;
-
-    // ToDO: In unlikely case of no source collection, don't need to copy source files
-    if (!dataSourceStore.dataSource.getCollection(config.SourcesCollection.name)) {
-
-    }
-
-    // If a filter has been applied, only get selected source records otherwise get all
-    if (dataSourceStore.dataSource.getCollection(config.SourcesCollection.name).chain(presentationName)) {
-      sourceObjects = dataSourceStore.dataSource.getCollection(config.SourcesCollection.name).chain(presentationName).data();
-    } else {
-      sourceObjects = dataSourceStore.dataSource.getCollection(config.SourcesCollection.name).data;
-    }
-
-    return sourceObjects;
   },
 
   // Iterate through each Source Object and copy the file from its Source Path into the temp directory
