@@ -257,17 +257,21 @@ module.exports = Reflux.createStore({
   // Add Related People data to the geoJSON Object
   addRelatedPeopleDataToGeoJSON: function(featureObject, selectedEvent) {
 
-    var trim = function (item) {
-      return item.trim();
+    var getShortName = function (item) {
+
+      if (item.match(/[^[\]]+(?=])/g)) {
+        item = item.match(/[^[\]]+(?=])/g)[0];
+      }
+      return item;
     };
 
     var suspectsArray = selectedEvent.Suspects.split(',');
     var victimsArray = selectedEvent.Victims.split(',');
     var witnessesArray = selectedEvent.Witnesses.split(',');
 
-    var relatedSuspects = _.map(suspectsArray, trim);
-    var relatedVictims = _.map(victimsArray, trim);
-    var relatedWitnesses = _.map(witnessesArray, trim);
+    var relatedSuspects = _.map(suspectsArray, getShortName);
+    var relatedVictims = _.map(victimsArray, getShortName);
+    var relatedWitnesses = _.map(witnessesArray, getShortName);
 
     this.addRelatedPersonToArray(relatedSuspects, featureObject.properties.relatedPeople.suspects);
     this.addRelatedPersonToArray(relatedVictims, featureObject.properties.relatedPeople.victims);
