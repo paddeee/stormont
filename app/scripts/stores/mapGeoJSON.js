@@ -262,7 +262,7 @@ module.exports = Reflux.createStore({
       if (item.match(/[^[\]]+(?=])/g)) {
         item = item.match(/[^[\]]+(?=])/g)[0];
       }
-      return item;
+      return item.trim();
     };
 
     var suspectsArray = selectedEvent.Suspects.split(',');

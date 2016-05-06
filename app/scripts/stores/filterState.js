@@ -689,8 +689,13 @@ module.exports = Reflux.createStore({
     var relatedSourceArray = [];
 
     // Helper methods for parsing Source records
-    var trim = function (item) {
+    var getShortName = function (item) {
       if (item) {
+
+        // Account for Source Documents which relate to certain pages/ times, etc.
+        if (item.match(/^.*?(?=\s\()/g)) {
+          item = item.match(/^.*?(?=\s\()/g)[0];
+        }
         return item.trim();
       }
     };
@@ -731,8 +736,8 @@ module.exports = Reflux.createStore({
     mergedObjectArray = _.union(this.selectedEventDocuments, this.selectedPlaceDocuments, this.selectedPeopleDocuments);
 
     mergedObjectArray.forEach(function (item) {
-      relatedSourceArray.push(_.map(item['Supporting Documents'].toString().split(','), trim));
-    });
+      relatedSourceArray.push(_.map(this.splitStringByCommas(item['Supporting Documents'].toString()), getShortName));
+    }.bind(this));
 
     relatedSourceArray = _.uniq(_.flatten(relatedSourceArray));
 
@@ -801,5 +806,75 @@ module.exports = Reflux.createStore({
   // Needed because of scenario that all data tables can order sources
   sortBySelectedSourceRecords: function() {
     sourcesStore.userFilteredCollection.simplesort('showRecord', true).data();
+  },
+
+  // Helper to split string by commas not inside parentheses
+  splitStringByCommas: function(input) {
+
+    if (!input) {
+      return;
+    }
+
+    var out = [];
+    var iLen = input.length;
+    var parens = 0;
+    var state = '';
+    var buffer = ''; //using string for simplicity, but an array might be faster
+
+    for(var i=0; i<iLen; i++) {
+
+      if (input[i] === ',' && !parens && !state) {
+        out.push(buffer);
+        buffer = '';
+      } else {
+        buffer += input[i];
+      }
+      switch(input[i]) {
+        case '(':
+        case '[':
+        case '{':
+          if (!state) {
+            parens++;
+          }
+          break;
+        case ')':
+        case ']':
+        case '}':
+          if (!state) {
+            if (parens < 1) {
+              throw new SyntaxError('closing paren, but no opening');
+            }
+            parens--;
+          }
+          break;
+        case '"':
+          if (!state) {
+            state = '"';
+          }
+          else if (state === '"') {
+            state = '';
+          }
+          break;
+        case '\'':
+          if (!state) {
+            state = '\'';
+          }
+          else if (state === '\'') {
+            state = '';
+          }
+          break;
+        case '\\':
+          buffer += input[++i];
+          break;
+      }//end of switch-input
+    }//end of for-input
+
+    if (state || parens) {
+      throw new SyntaxError('unfinished input');
+    }
+
+    out.push(buffer);
+
+    return out;
   }
 });
