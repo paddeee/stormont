@@ -445,6 +445,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }
         }.bind(this));
       }
+
+      if (this.userStore) {
+
+        // When the presentations data is updated, set this view's presentationsData
+        this.userStore.listen(function(userStore) {
+
+          this.manageExportButtons();
+
+        }.bind(this));
+      }
     },
 
     // Handle the broadcast from the export Store
@@ -728,6 +738,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         if ((this.userStore.user.role === 'gatekeeper' || this.userStore.user.role === 'admin') && presentation.authoriserState === 'green') {
           presentation.hideExportButton = false;
+        } else {
+          presentation.hideExportButton = true;
         }
       }.bind(this));
     }
