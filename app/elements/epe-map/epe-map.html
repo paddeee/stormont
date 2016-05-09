@@ -44,17 +44,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     :host .leaflet-popup.arson .event-card__header,
-    .leaflet-popup.arson .leaflet-popup-tip {
+    .leaflet-popup.arson .leaflet-popup-tip,
+    .event-card--arson .event-card__header {
       background-color: rgb(246, 151, 48);
     }
 
     :host .leaflet-popup.kidnapping .event-card__header,
-    .leaflet-popup.kidnapping .leaflet-popup-tip {
+    .leaflet-popup.kidnapping .leaflet-popup-tip,
+    .event-card--kidnapping .event-card__header {
       background-color: rgb(210, 82, 185);
     }
 
     :host .leaflet-popup.murder .event-card__header,
-    .leaflet-popup.murder .leaflet-popup-tip {
+    .leaflet-popup.murder .leaflet-popup-tip,
+    .event-card--murder .event-card__header {
       background-color: rgb(214, 62, 42);
     }
 
@@ -604,6 +607,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           if (eventData.length) {
             this.activeEventData = eventData[0].properties;
+
+            // Manage the Event Card style based on its category type
+            this.manageEventCategoryClass();
             this.$.EventCard.classList.add('event-card--showing');
           }
 
@@ -611,6 +617,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.$.EventCard.classList.remove('event-card--showing');
         }
       }
+    },
+
+    // Manage the Event Card style based on its category type
+    manageEventCategoryClass: function() {
+
+      var className;
+
+      switch(this.activeEventData.type) {
+        case 'Kidnapping':
+          className = 'event-card--kidnapping';
+          break;
+        case 'Arson':
+          className = 'event-card--arson';
+          break;
+        case 'Murder':
+          className = 'event-card--murder';
+          break;
+        default:
+          className = 'event-card--default';
+      }
+
+      this.$.EventCard.classList.remove('event-card--default', 'event-card--murder', 'event-card--kidnapping', 'event-card--arson');
+      this.$.EventCard.classList.add(className);
     },
 
     // FIRED BY EVENT CARD CALLING THIS METHOD BY TRAVERSING UP THE DOM TREE
