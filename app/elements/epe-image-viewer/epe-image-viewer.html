@@ -335,6 +335,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           return;
         }
 
+        // If presentation is waiting for authorisation, for these purposes it is in the 'editing' state
+        if (this.presentationState === 'viewingLocked') {
+          this.presentationState = 'editing';
+        }
+
         if (this.editState === this.presentationState) {
 
           $image = this.$.Image;

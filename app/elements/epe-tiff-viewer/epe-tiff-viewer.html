@@ -334,6 +334,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var $epeAnnotations;
 
+      // If presentation is waiting for authorisation, for these purposes it is in the 'editing' state
+      if (this.presentationState === 'viewingLocked') {
+        this.presentationState = 'editing';
+      }
+
       // Prevent two annotation elements being inserted into each page
       if (this.editState === this.presentationState) {
 
@@ -403,10 +408,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Resize event can be triggered by other unrelated parts of the application such as Leaflet Map or iron-resize
       // If this method hasn't been called by the tiff load or event or a window resize event, do nothing
       if ((event.srcElement.document && event.srcElement.location) || event.type === 'load') {
-
-        /*if (!this.$ || !this.$.Image || !this.$.Image.height) {
-          return;
-        }*/
 
         if (this.editState === this.presentationState) {
 

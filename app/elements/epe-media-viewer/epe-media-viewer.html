@@ -282,6 +282,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.mediaName = this.mediaObject['Full Name'];
           this.mediaDescription = this.mediaObject.Description;
 
+          // If presentation is waiting for authorisation, for these purposes it is in the 'editing' state
+          if (this.presentationState === 'viewingLocked') {
+            this.presentationState = 'editing';
+          }
+
           if (this.editState === this.presentationState) {
             if (this.mediaType === 'video') {
               this.hideAnnotations = false;

@@ -453,6 +453,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.scaleToAuto();
         }
 
+        // If presentation is waiting for authorisation, for these purposes it is in the 'editing' state
+        if (this.presentationState === 'viewingLocked') {
+          this.presentationState = 'editing';
+        }
+
         // Kickstart loading PDF using this window.created from pdf-viewer.js
         // but only for one instance of this element
         if (this.editState === this.presentationState) {
