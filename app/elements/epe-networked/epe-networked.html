@@ -67,6 +67,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       height: calc(100% + 128px);
     }
 
+    paper-scroll-header-panel.no-back-button .back-button {
+      display: none;
+    }
+
     .menu-button {
       margin: 0 0 0 16px;
     }
@@ -133,6 +137,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-toolbar class="tall">
           <paper-icon-button
             id="BackArrow"
+            class="back-button"
             icon="arrow-back"
             on-tap="navigateBack"></paper-icon-button>
           <paper-icon-button
@@ -600,7 +605,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Navigate back
       navigateBack: function () {
-        history.back();
+
+        var dataTabSelected;
+
+        // If on Events data grid, go to choose-option
+        if (window.EpeCreatePackage.createPackageRoute === 'data-grid') {
+
+          dataTabSelected = location.hash.substr(location.hash.lastIndexOf('/') + 1);
+
+          if (dataTabSelected === app.config.EventsCollection.name) {
+            page('/choose-option');
+          } else {
+            history.back();
+          }
+        } else {
+          history.back();
+        }
+
       },
 
       // Hide import based on user role
@@ -621,44 +642,54 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           case 'view-packages':
             $scrollHeader.scroll(0, true);
             this.$.MainScrollHeader.classList.remove('no-scrollbar');
+            this.$.MainScrollHeader.classList.remove('no-back-button');
             break;
           case 'data-grid':
             $scrollHeader.scroll(128, true);
             this.$.MainScrollHeader.classList.add('no-scrollbar');
+            this.$.MainScrollHeader.classList.remove('no-back-button');
             break;
           case 'map':
             $scrollHeader.scroll(128, true);
             this.$.MainScrollHeader.classList.add('no-scrollbar');
+            this.$.MainScrollHeader.classList.remove('no-back-button');
             break;
           case 'profile':
             $scrollHeader.scroll(0, true);
             this.$.MainScrollHeader.classList.remove('no-scrollbar');
+            this.$.MainScrollHeader.classList.remove('no-back-button');
             break;
           case 'source':
             $scrollHeader.scroll(128, true);
             this.$.MainScrollHeader.classList.add('no-scrollbar');
+            this.$.MainScrollHeader.classList.remove('no-back-button');
             break;
           case 'pdf':
             $scrollHeader.scroll(128, true);
             this.$.MainScrollHeader.classList.add('no-scrollbar');
+            this.$.MainScrollHeader.classList.remove('no-back-button');
             break;
           case 'media':
             $scrollHeader.scroll(128, true);
             this.$.MainScrollHeader.classList.add('no-scrollbar');
+            this.$.MainScrollHeader.classList.remove('no-back-button');
             break;
           case 'image':
             $scrollHeader.scroll(128, true);
             this.$.MainScrollHeader.classList.add('no-scrollbar');
+            this.$.MainScrollHeader.classList.remove('no-back-button');
             break;
           case 'choose-option':
             // Hack that fixed header issue on Chrome Windows
             $scrollHeader.scroll(128, false);
             $scrollHeader.scroll(0, false);
             this.$.MainScrollHeader.classList.remove('no-scrollbar');
+            this.$.MainScrollHeader.classList.add('no-back-button');
             break;
           default:
             $scrollHeader.scroll(0, true);
             this.$.MainScrollHeader.classList.add('no-scrollbar');
+            this.$.MainScrollHeader.classList.remove('no-back-button');
         }
       },
 
