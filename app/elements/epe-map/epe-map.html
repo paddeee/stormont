@@ -399,6 +399,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           if (mapBroadcast.message.type === 'geoJSONCreated') {
             this.navigatingEvents = false;
+            this.activeEvent = mapBroadcast.activeEvent;
             this.geoJSON = mapBroadcast.geoJSONObject;
             this.noneGeoJSONObject = mapBroadcast.noneGeoJSONObject;
           } else if (mapBroadcast.message.type === 'timeLineSelectedRecord') {

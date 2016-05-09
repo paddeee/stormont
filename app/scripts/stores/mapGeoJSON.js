@@ -22,6 +22,9 @@ module.exports = Reflux.createStore({
     // If selected records is changed
     if (selectedRecordStore.message.type === 'selectedRecordsUpdated') {
 
+      // Reset active event
+      this.activeEvent = '0';
+
       this.createGeoJSON();
 
       // If changed to setToAll events
