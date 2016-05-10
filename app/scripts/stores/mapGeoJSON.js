@@ -342,7 +342,7 @@ module.exports = Reflux.createStore({
       var newObject = {
         id: object.$loki,
         name: object['Full Name'],
-        description: object.Description
+        photo: object.Photo
       };
 
       arrayToPushTo.push(newObject);

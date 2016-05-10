@@ -37,6 +37,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .profile__image {
+      border-radius: 50%;
       height: 188px;
     }
 
@@ -84,6 +85,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .tabs-content {
+      padding: 0 2vw;
+    }
+
+    h2 {
+      font-size: 18px;
+      font-weight: normal;
+    }
+
+    .related-profile {
+      cursor: pointer;
+      margin: 20px 0;
+      padding: 8px;
+    }
+
+    .related-profile-image {
+      height: 50px;
+      margin: 0 8px 0 0;
+    }
+
+    .no-related-profiles {
       padding: 2vh 2vw;
     }
   </style>
@@ -123,6 +144,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </div>
         </div>
 
+        <!-- Content of this injected with innerHTML as contains HTML which can't be bound with Polymer -->
         <div id="ProfileDescription" class="profile__description"></div>
       </div>
 
@@ -139,7 +161,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                              entry-animation="slide-from-right-animation"
                              exit-animation="fade-out-animation">
           <neon-animatable>
-            <div class="tabs-content">Relationships</div>
+            <div class="tabs-content">
+
+              <template is="dom-repeat"
+                        items="[[relatedAffiliations]]"
+                        hidden="[[!relatedAffiliations.length]]">
+                <div class="affiliation">
+                  <h2>[[item.affiliation]]</h2>
+                  <template is="dom-repeat"
+                            items="[[item.relatedProfiles]]"
+                            as="profile">
+                  <paper-material class="related-profile layout horizontal center"
+                                  profile="[[profile]]"
+                                  on-tap="navigateToProfile">
+                    <image class="related-profile-image"
+                           src="[[getProfilePhoto(profile.Photo)]]"/>
+                    <div>[[getProfileFullName(profile)]]</div>
+                  </paper-material>
+                  </template>
+                </div>
+              </template>
+
+              <div class="no-related-profiles"
+                   hidden="[[relatedAffiliations.length]]">
+                No Related Profiles
+              </div>
+            </div>
           </neon-animatable>
           <neon-animatable>
             <div class="tabs-content">Sources</div>
@@ -165,6 +212,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       selectedProfileObject: {
         type: Object
+      },
+
+      relatedAffiliations: {
+        type: Array,
+        value: []
       },
 
       profilePhoto: {
@@ -215,7 +267,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // When the selected Profile is changed navigate to Profile
         this.peopleStore.listen(function (peopleStore) {
 
+          if (peopleStore.message !== 'viewProfile') {
+            return;
+          }
+
           this.selectedProfileObject = peopleStore.selectedProfileObject;
+          this.relatedAffiliations = peopleStore.relatedAffiliations;
+          console.log(this.relatedAffiliations);
 
           this.setSelectedProfileProperties();
 
@@ -229,10 +287,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Show photo if valid, otherwise use default pic
-    getProfilePhoto: function() {
+    getProfilePhoto: function(path) {
 
       var photoPath = '/images/profile-placeholder.png';
-      var path = this.selectedProfileObject.Photo;
+      var path = path || this.selectedProfileObject.Photo;
 
       if (path === '' || !path || path === 'path_to_file') {
         return photoPath;
@@ -243,10 +301,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Get Date of Death
     getDateOfDeath: function() {
-
-      if (!this.selectedProfileObject) {
-        return '';
-      }
 
       if (this.selectedProfileObject['Date of death'] === 'TBD') {
         return '';
@@ -265,13 +319,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Get Full Name as can't use bracket notation in template
+    getProfileFullName: function(profile) {
+      return profile['Full Name'];
+    },
+
+    // Get Age from Date of Birth and Date of Death
     getProfileAge: function() {
 
       var age;
-
-      if (!this.selectedProfileObject) {
-        return '';
-      }
 
       // If Date of Birth is incomplete date, then can't be sure of age
       if (!this.isValidDate(this.selectedProfileObject['Date of birth'])) {
@@ -304,26 +359,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // ToDo: Depending on formatting of description may need to perform some formatting here
     injectDescriptionHTML: function() {
-
-      if (this.selectedProfileObject) {
-        this.$.ProfileDescription.innerHTML = this.selectedProfileObject['Description'];
-      }
+      this.$.ProfileDescription.innerHTML = this.selectedProfileObject['Description'];
     },
 
     setSelectedProfileProperties: function() {
 
-      if (this.selectedProfileObject) {
-        this.profilePhoto = this.getProfilePhoto();
-        this.profileFullName = this.selectedProfileObject['Full Name'];
-        this.profileShortName = this.selectedProfileObject['Short Name'];
-        this.profileGender = this.selectedProfileObject.Gender;
-        this.profileAge = this.getProfileAge();
-        this.genderAndAgeComma = this.getGenderAndAgeComma();
-        this.dateOfBirth = this.selectedProfileObject['Date of birth'];
-        this.dateOfDeath = this.getDateOfDeath();
-        this.ethnicity = this.selectedProfileObject['Ethnicity'];
-        this.affiliations = this.selectedProfileObject['Affiliation'];
-      }
+      this.profilePhoto = this.getProfilePhoto();
+      this.profileFullName = this.selectedProfileObject['Full Name'];
+      this.profileShortName = this.selectedProfileObject['Short Name'];
+      this.profileGender = this.selectedProfileObject.Gender;
+      this.profileAge = this.getProfileAge();
+      this.genderAndAgeComma = this.getGenderAndAgeComma();
+      this.dateOfBirth = this.selectedProfileObject['Date of birth'];
+      this.dateOfDeath = this.getDateOfDeath();
+      this.ethnicity = this.selectedProfileObject.Ethnicity;
+      this.affiliations = this.selectedProfileObject.Affiliation;
+    },
+
+    // Navigate to arlated profile
+    navigateToProfile: function(event) {
+      this.peopleActions.viewProfile(event.currentTarget.profile.$loki);
     }
   });
 })();

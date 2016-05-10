@@ -97,6 +97,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     li span {
       font-weight: normal;
     }
+
+    .event-card__name {
+      margin: 8px 0;
+    }
+
+    .event-card__profile-image {
+      border-radius: 50%;
+      height: 30px;
+      margin: 0 16px 0 0;
+    }
   </style>
   <template>
     <div id="EventCard"
@@ -243,7 +253,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   <template is="dom-repeat"
                             items="[[eventData.relatedPeople.suspects]]">
                     <div class="event-card__name"
-                         on-tap="navigateToProfile">[[item.name]]</div>
+                         on-tap="navigateToProfile">
+                      <div class="event-card__profile layout horizontal center">
+                        <img src="[[getProfilePhoto(item.photo)]]"
+                             class="event-card__profile-image"/>
+                        <div>[[item.name]]</div>
+                      </div>
                     <!--<div class="event-card__description">[[item.description]]</div>-->
                   </template>
                 </div>
@@ -254,7 +269,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   <template is="dom-repeat"
                             items="[[eventData.relatedPeople.victims]]">
                     <div class="event-card__name"
-                         on-tap="navigateToProfile">[[item.name]]</div>
+                         on-tap="navigateToProfile">
+                      <div class="event-card__profile layout horizontal center">
+                        <img src="[[getProfilePhoto(item.photo)]]"
+                             class="event-card__profile-image"/>
+                        <div>[[item.name]]</div>
+                      </div>
                     <!--<div class="event-card__description">[[item.description]]</div>-->
                   </template>
                 </div>
@@ -265,7 +285,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   <template is="dom-repeat"
                             items="[[eventData.relatedPeople.witnesses]]">
                     <div class="event-card__name"
-                         on-tap="navigateToProfile">[[item.name]]</div>
+                         on-tap="navigateToProfile">
+                      <div class="event-card__profile layout horizontal center">
+                        <img src="[[getProfilePhoto(item.photo)]]"
+                             class="event-card__profile-image"/>
+                        <div>[[item.name]]</div>
+                      </div>
                     <!--<div class="event-card__description">[[item.description]]</div>-->
                   </template>
                 </div>
@@ -552,7 +577,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       $map.viewPersonProfile(personId);
 
-    }
+    },
+
+    // Show photo if valid, otherwise use default pic
+    getProfilePhoto: function(path) {
+
+      var photoPath = '/images/profile-placeholder.png';
+
+      if (path === '' || !path || path === 'path_to_file') {
+        return photoPath;
+      }
+
+      return path;
+    },
   });
 })();
 </script>

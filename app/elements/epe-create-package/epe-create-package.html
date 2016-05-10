@@ -133,6 +133,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <section data-route="profile" class="profile-holder">
         <epe-profile id="Profile"
                      class="profile relative"
+                     people-actions="[[peopleActions]]"
                      people-store="[[peopleStore]]"
                      on-navigate-to-profile="navigateToProfile"></epe-profile>
       </section>
@@ -238,6 +239,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           // When the people data is updated, update our grid data
           this.peopleStore.listen(function (peopleData) {
+
+            if (peopleData.message === 'viewProfile') {
+              return;
+            }
 
             this.peopleData = peopleData;
 

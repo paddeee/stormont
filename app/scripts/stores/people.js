@@ -303,6 +303,11 @@ module.exports = Reflux.createStore({
     // Set selectedProfileObject property
     this.setSelectedProfileObject(profileId);
 
+    // Add related affiliations
+    this.setRelatedAffiliations();
+
+    this.message = 'viewProfile';
+
     // Send object out to all listeners
     this.trigger(this);
   },
@@ -315,7 +320,98 @@ module.exports = Reflux.createStore({
         '$eq': profileId
       }
     }).data()[0];
+  },
 
-    console.log(this.selectedProfileObject);
+  // Set related affiliations property
+  setRelatedAffiliations: function() {
+
+    var relatedAffiliations = [];
+    var linkedPersons = this.selectedProfileObject['Linked persons'];
+    var relatedItems;
+    var affiliationCollection = dataSourceStore.dataSource.getCollection('Affiliation');
+
+    // Create array of Related people statements filtering out empty strings if last statement ends in a full stop
+    if (linkedPersons) {
+      relatedItems = linkedPersons.split('.').filter(function(person) {
+        return person;
+      });
+
+      // Iterate through related item statements
+      relatedItems.forEach(function(statement) {
+
+        var affiliationObject = {};
+
+        // Set affiliation property
+        this.setAffiliation(statement, affiliationObject, affiliationCollection);
+
+        // Add related profiles
+        this.addRelatedProfiles(statement, affiliationObject, affiliationCollection);
+
+        relatedAffiliations.push(affiliationObject);
+
+      }.bind(this));
+    }
+
+    this.relatedAffiliations = relatedAffiliations;
+  },
+
+  // Check if any Affiliation name exists in Statement
+  getAffiliationShortname: function(statement, affiliationCollection) {
+
+    var affiliationShortNames = [];
+
+    // Create array of Affiliation Short Names
+    affiliationCollection.data.forEach(function(affiliation) {
+      affiliationShortNames.push(affiliation['Short Name']);
+    }.bind(this));
+
+    var affiliationArray = affiliationShortNames.filter(function(shortName) {
+      return statement.indexOf(shortName) > -1;
+    });
+
+    // Should only be one affiliation per statement so just return the first found
+    return affiliationArray[0];
+  },
+
+  // Set the affiliation property of the affiliationObject
+  setAffiliation: function(statement, affiliationObject, affiliationCollection) {
+
+    var affiliationShortname = this.getAffiliationShortname(statement, affiliationCollection);
+
+    affiliationObject.affiliation = affiliationCollection.where(function (affiliation) {
+      return affiliation['Short Name'] === affiliationShortname;
+    })[0]['Full Name'];
+  },
+
+  // Check if any Profile names exists in Statement
+  getProfileShortnames: function(statement, profileCollection) {
+
+    var profileShortNames = [];
+
+    // Create array of Affiliation Short Names
+    this.userFilteredCollection.data().forEach(function(person) {
+      profileShortNames.push(person['Short Name']);
+    }.bind(this));
+
+    var profileArray = profileShortNames.filter(function(shortName) {
+      return statement.indexOf(shortName) > -1;
+    });
+
+    // Should only be one affiliation per statement so just return the first found
+    return profileArray;
+  },
+
+  // Add related profiles to the relatedProfiles array property of the affiliationObject
+  addRelatedProfiles: function(statement, affiliationObject) {
+
+    var profileShortnames = this.getProfileShortnames(statement);
+
+    var profiles = this.userFilteredCollection.copy().find({
+      'Short Name': {
+        '$in': profileShortnames
+      }
+    }).data();
+
+    affiliationObject.relatedProfiles = profiles;
   }
 });
