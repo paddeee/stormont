@@ -4,8 +4,13 @@ var Reflux = require('reflux');
 var dataSourceStore = require('../stores/dataSource.js');
 var config = global.config ? global.config : require('../config/config.js');
 var presentationsStore = require('../stores/presentations.js');
+var PeopleActions = require('../actions/people.js');
 
 module.exports = Reflux.createStore({
+
+  // this will set up listeners to all publishers in SourceActions,
+  // using onKeyname (or keyname) as callbacks
+  listenables: [PeopleActions],
 
   // Name to use for this collection
   collectionName: config.PeopleCollection.name,
@@ -192,7 +197,7 @@ module.exports = Reflux.createStore({
   // Used by the lokijs 'where' query to filter on dates in a transform
   filterDates: function (obj) {
 
-    var validItem;
+    var validItem = false;
     var fromArray = this.filterTransform[this.collectionName].dateQueries.from;
     var toArray = this.filterTransform[this.collectionName].dateQueries.to;
     var fromDefaultObject = {
@@ -290,5 +295,27 @@ module.exports = Reflux.createStore({
     }
 
     return validItem;
+  },
+
+  // Called when a user attempts to view a profile
+  viewProfile: function(profileId) {
+
+    // Set selectedProfileObject property
+    this.setSelectedProfileObject(profileId);
+
+    // Send object out to all listeners
+    this.trigger(this);
+  },
+
+  // Set a property on this store object to indicate current selected profile
+  setSelectedProfileObject: function(profileId) {
+
+    this.selectedProfileObject = this.userFilteredCollection.copy().find({
+      '$loki': {
+        '$eq': profileId
+      }
+    }).data()[0];
+
+    console.log(this.selectedProfileObject);
   }
 });

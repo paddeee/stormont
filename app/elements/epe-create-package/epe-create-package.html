@@ -131,13 +131,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <!-- Profile View -->
       <section data-route="profile" class="profile-holder">
-        <epe-profile id="Profile" class="profile relative"></epe-profile>
+        <epe-profile id="Profile"
+                     class="profile relative"
+                     people-store="[[peopleStore]]"
+                     on-navigate-to-profile="navigateToProfile"></epe-profile>
       </section>
 
       <!-- Map View -->
       <section data-route="map" class="time-map">
         <epe-map id="Map"
                  source-actions="[[sourceActions]]"
+                 people-actions="[[peopleActions]]"
                  map-geo-json-store="[[mapGeoJsonStore]]"
                  selected-records-actions="[[selectedRecordsActions]]"
                  time-line-store="[[timeLineStore]]"></epe-map>
@@ -378,6 +382,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           } else if (this.editState === 'editing' && this.presentationState !== 'creating') {
             page('/edit-package/source/' + event.detail.selectedSourceRoute);
           }
+        }
+      },
+
+      // FIRED BY EPE-SOURCE-VIEWER ELEMENT: Navigate to the profile view
+      navigateToProfile: function() {
+
+        // ToDo: Fix this weirdness caused by having two epe-create-package elements
+        if (this.editState === 'creating' && this.presentationState === 'creating') {
+          page('/create-package/profile');
+        } else if (this.editState === 'editing' && this.presentationState !== 'creating') {
+          page('/edit-package/profile');
         }
       },
 

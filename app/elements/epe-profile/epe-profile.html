@@ -16,18 +16,138 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       display: block;
     }
 
-    .profile {
-      height: 65vh;
-      padding: 2vh 2vw;
+    .profile__display {
+      z-index: 1;
+      width: 70vw;
     }
 
-    .placeholder {
-      width: 70%;
+    .profile__summary,
+    .profile__description {
+      margin: 4vh 2vw;
+    }
+
+    .profile__summary {
+      border-bottom: 1px solid var(--divider-color);
+      padding: 0 0 2vh;
+    }
+
+    .profile__description {
+      font-size: 14px;
+      font-style: italic;
+    }
+
+    .profile__image {
+      height: 188px;
+    }
+
+    .profile_summary-details {
+      padding: 0 12px;
+      width: 100%;
+    }
+
+    .profile_summary-details table {
+      width: 100%;
+    }
+
+    .profile__full-name {
+      font-size: 32px;
+      line-height: 1.2;
+    }
+
+    .profile__short-name {
+      font-size: 14px;
+    }
+
+    .profile__gender-age {
+      font-size: 20px;
+      line-height: 2.2;
+    }
+
+    .profile__summary-heading {
+      color: grey;
+    }
+
+    .profile__relationships-sources {
+      width: 28vw;
+      position: absolute;
+      right: 0;
+      height: 100%;
+      border-left: 1px solid var(--divider-color);
+    }
+
+    paper-tabs {
+      background: var(--primary-background-color);
+      border-bottom: 1px solid var(--divider-color);
+      color: var(--paper-grey-700);
+
+      --paper-tabs-selection-bar-color: var(--default-primary-color);
+    }
+
+    .tabs-content {
+      padding: 2vh 2vw;
     }
   </style>
   <template>
-    <div class="layout horizontal center-justified fit profile">
-      <img src="../../images/profile-mockup.png" class="placeholder"></img>
+    <div class="profile layout horizontal">
+
+      <!-- Profile Display -->
+      <div class="profile__display">
+        <div class="profile__summary layout horizontal">
+          <div class="profile__image-holder">
+            <img src="[[profilePhoto]]"
+              class="profile__image"/>
+          </div>
+          <div class="profile_summary-details">
+            <div class="profile__full-name">[[profileFullName]]</div>
+            <div class="profile__short-name">"<span>[[profileShortName]]</span>"</div>
+            <div class="profile__gender-age">[[genderAndAgeComma]]</div>
+            <table>
+              <tr>
+                <td class="profile__summary-heading  profile__dob-heading">Date of Birth - </td>
+                <td>[[dateOfBirth]]</td>
+              </tr>
+              <tr>
+                <td class="profile__summary-heading  profile__dod-heading">Date of Death - </td>
+                <td>[[dateOfDeath]]</td>
+              </tr>
+              <tr>
+                <td class="profile__summary-heading  profile__ethnicity-heading">Ethnicity - </td>
+                <td>[[ethnicity]]</td>
+              </tr>
+              <tr>
+                <td class="profile__summary-heading  profile__ethnicity-heading">Affiliations - </td>
+                <td>[[affiliations]]</td>
+              </tr>
+            </table>
+
+          </div>
+        </div>
+
+        <div id="ProfileDescription" class="profile__description"></div>
+      </div>
+
+      <!-- Relationships & Sources Display -->
+      <div class="profile__relationships-sources">
+
+        <paper-tabs selected="{{selected}}">
+          <paper-tab>RELATED</paper-tab>
+          <paper-tab>SOURCE</paper-tab>
+        </paper-tabs>
+
+        <neon-animated-pages class="flex"
+                             selected="[[selected]]"
+                             entry-animation="slide-from-right-animation"
+                             exit-animation="fade-out-animation">
+          <neon-animatable>
+            <div class="tabs-content">Relationships</div>
+          </neon-animatable>
+          <neon-animatable>
+            <div class="tabs-content">Sources</div>
+          </neon-animatable>
+        </neon-animated-pages>
+
+      </div>
+
     </div>
   </template>
 </dom-module>
@@ -37,10 +157,172 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     is: 'epe-profile',
 
     properties: {
-      foo: {
+
+      selected: {
+        type: Number,
+        value: 0
+      },
+
+      selectedProfileObject: {
+        type: Object
+      },
+
+      profilePhoto: {
         type: String,
-        value: 'bar',
-        notify: true
+        value: '/images/profile-placeholder.png'
+      },
+
+      profileFullName: {
+        type: String,
+        value: 'Profile Name'
+      },
+
+      profileShortName: {
+        type: String,
+        value: 'Short Name'
+      },
+
+      genderAndAgeComma: {
+        type: String,
+        value: 'Gender, Age'
+      },
+
+      dateOfBirth: {
+        type: String,
+        value: 'D.O.B.'
+      },
+
+      dateOfDeath: {
+        type: String,
+        value: 'D.O.D.'
+      },
+
+      ethnicity: {
+        type: String,
+        value: 'Ethnicity'
+      },
+
+      affiliations: {
+        type: String,
+        value: 'Affiliations'
+      }
+    },
+
+    ready: function() {
+
+      if (this.peopleStore) {
+
+        // When the selected Profile is changed navigate to Profile
+        this.peopleStore.listen(function (peopleStore) {
+
+          this.selectedProfileObject = peopleStore.selectedProfileObject;
+
+          this.setSelectedProfileProperties();
+
+          this.injectDescriptionHTML();
+
+          if (this.selectedProfileObject) {
+            this.fire('navigate-to-profile', this.selectedProfileObject);
+          }
+        }.bind(this));
+      }
+    },
+
+    // Show photo if valid, otherwise use default pic
+    getProfilePhoto: function() {
+
+      var photoPath = '/images/profile-placeholder.png';
+      var path = this.selectedProfileObject.Photo;
+
+      if (path === '' || !path || path === 'path_to_file') {
+        return photoPath;
+      }
+
+      return path;
+    },
+
+    // Get Date of Death
+    getDateOfDeath: function() {
+
+      if (!this.selectedProfileObject) {
+        return '';
+      }
+
+      if (this.selectedProfileObject['Date of death'] === 'TBD') {
+        return '';
+      }
+
+      return this.selectedProfileObject['Date of death'];
+    },
+
+    // Check if a date is complete
+    isValidDate: function(date) {
+
+      if (date.indexOf('?') > -1) {
+        return false;
+      }
+      return true;
+    },
+
+    // Get Full Name as can't use bracket notation in template
+    getProfileAge: function() {
+
+      var age;
+
+      if (!this.selectedProfileObject) {
+        return '';
+      }
+
+      // If Date of Birth is incomplete date, then can't be sure of age
+      if (!this.isValidDate(this.selectedProfileObject['Date of birth'])) {
+        return '';
+      }
+
+      if (this.selectedProfileObject['Date of death'] !== 'TBD') {
+        age = 'Deceased';
+        return age;
+      }
+
+      age = app.moment(this.selectedProfileObject['Date of birth']).fromNow(true) + ' old';
+
+      return age;
+    },
+
+    // If Gender and Age then add a presentational comma separator in between
+    getGenderAndAgeComma: function() {
+
+      if (this.profileGender && this.profileAge) {
+        return this.profileGender + ', ' + this.profileAge;
+      } else if (this.profileGender) {
+        return this.profileGender;
+      } else if (this.profileAge) {
+        return this.profileAge;
+      } else {
+        return '';
+      }
+    },
+
+    // ToDo: Depending on formatting of description may need to perform some formatting here
+    injectDescriptionHTML: function() {
+
+      if (this.selectedProfileObject) {
+        this.$.ProfileDescription.innerHTML = this.selectedProfileObject['Description'];
+      }
+    },
+
+    setSelectedProfileProperties: function() {
+
+      if (this.selectedProfileObject) {
+        this.profilePhoto = this.getProfilePhoto();
+        this.profileFullName = this.selectedProfileObject['Full Name'];
+        this.profileShortName = this.selectedProfileObject['Short Name'];
+        this.profileGender = this.selectedProfileObject.Gender;
+        this.profileAge = this.getProfileAge();
+        this.genderAndAgeComma = this.getGenderAndAgeComma();
+        this.dateOfBirth = this.selectedProfileObject['Date of birth'];
+        this.dateOfDeath = this.getDateOfDeath();
+        this.ethnicity = this.selectedProfileObject['Ethnicity'];
+        this.affiliations = this.selectedProfileObject['Affiliation'];
       }
     }
   });

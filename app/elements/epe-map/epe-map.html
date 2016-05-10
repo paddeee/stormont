@@ -651,6 +651,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.sourceActions.viewSourceFile(sourceObject);
     },
 
+    // FIRED BY EVENT CARD CALLING THIS METHOD BY TRAVERSING UP THE DOM TREE
+    viewPersonProfile: function(personId) {
+      this.peopleActions.viewProfile(personId);
+    },
+
     // FIRED FROM TIMELINE ELEMENT
     timelineButtonStateChanged: function(event) {
 

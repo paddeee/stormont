@@ -18,6 +18,7 @@ var filterStateActions = require('./actions/filterState.js');
 var filterStateStore = require('./stores/filterState.js');
 var eventsStore = require('./stores/events.js');
 var placesStore = require('./stores/places.js');
+var peopleActions = require('./actions/people.js');
 var peopleStore = require('./stores/people.js');
 var sourceActions = require('./actions/source.js');
 var sourceStore = require('./stores/source.js');
@@ -34,7 +35,7 @@ var exportStore = global.config ? require('./stores/export.js') : null;
 var mapGeoJsonStore = require('./stores/mapGeoJSON.js');
 var timeLineStore = require('./stores/timeLine.js');
 
-(function(document, reflux, moment, config, sourceActions, selectedRecordsActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore, timeLineStore, importPackageActions, importPackageStore) {
+(function(document, reflux, moment, config, sourceActions, selectedRecordsActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleActions, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore, timeLineStore, importPackageActions, importPackageStore) {
   'use strict';
 
   // Grab a reference to our auto-binding template
@@ -66,6 +67,7 @@ var timeLineStore = require('./stores/timeLine.js');
   app.filterStateStore = filterStateStore;
   app.eventsStore = eventsStore;
   app.placesStore = placesStore;
+  app.peopleActions = peopleActions;
   app.peopleStore = peopleStore;
   app.sourceStore = sourceStore;
   app.sourceActions = sourceActions;
@@ -115,4 +117,4 @@ var timeLineStore = require('./stores/timeLine.js');
   // Maybe dangerous but can change for different approach if needed
   NodeList.prototype.forEach = Array.prototype.forEach;
 
-})(document, reflux, moment, config, sourceActions, selectedRecordsActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore, timeLineStore, importPackageActions, importPackageStore);
+})(document, reflux, moment, config, sourceActions, selectedRecordsActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleActions, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore, timeLineStore, importPackageActions, importPackageStore);
