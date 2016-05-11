@@ -300,16 +300,22 @@ module.exports = Reflux.createStore({
   // Called when a user attempts to view a profile
   viewProfile: function(profileId) {
 
-    // Set selectedProfileObject property
-    this.setSelectedProfileObject(profileId);
+    if (this.userFilteredCollection) {
 
-    // Add related affiliations
-    this.setRelatedAffiliations();
+      // Set selectedProfileObject property
+      this.setSelectedProfileObject(profileId);
 
-    this.message = 'viewProfile';
+      // Add related affiliations
+      this.setRelatedAffiliations();
 
-    // Send object out to all listeners
-    this.trigger(this);
+      // Add Supporting Documents
+      this.setSupportingDocs();
+
+      this.message = 'viewProfile';
+
+      // Send object out to all listeners
+      this.trigger(this);
+    }
   },
 
   // Set a property on this store object to indicate current selected profile
@@ -353,6 +359,36 @@ module.exports = Reflux.createStore({
     }
 
     this.relatedAffiliations = relatedAffiliations;
+  },
+
+  // Set supporting documents array property
+  setSupportingDocs: function() {
+
+    var supportingDocs = this.selectedProfileObject['Supporting Documents'];
+    var sourceCollection = dataSourceStore.dataSource.getCollection(config.SourcesCollection.name);
+    var relatedDocs;
+
+    var trim = function (item) {
+      return item.trim();
+    };
+
+    // Create array of Related people statements filtering out empty strings if last statement ends in a full stop
+    if (supportingDocs) {
+
+      relatedDocs = _.map(supportingDocs.split(',').filter(function (doc) {
+        return doc;
+      }), trim);
+
+      // Iterate through relatedDocs array
+      this.supportingDocs = sourceCollection.find({
+        'Short Name': {
+          '$in': relatedDocs
+        }
+      });
+      return;
+    }
+
+    this.supportingDocs = [];
   },
 
   // Check if any Affiliation name exists in Statement

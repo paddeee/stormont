@@ -93,8 +93,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       text-align: center;
     }
 
-    .related-profile {
+    .related-profile,
+    .related-source {
       cursor: pointer;
+      font-size: 14px;
       margin: 20px 0;
       padding: 8px;
     }
@@ -104,7 +106,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       margin: 0 8px 0 0;
     }
 
-    .no-related-profiles {
+    .no-related-profiles,
+    .no-related-sources {
       padding: 2vh 2vw;
     }
   </style>
@@ -176,7 +179,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                   on-tap="navigateToProfile">
                     <image class="related-profile-image"
                            src="[[getProfilePhoto(profile.Photo)]]"/>
-                    <div>[[getProfileFullName(profile)]]</div>
+                    <div>[[getFullName(profile)]]</div>
                   </paper-material>
                   </template>
                 </div>
@@ -189,7 +192,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
           </neon-animatable>
           <neon-animatable>
-            <div class="tabs-content">Sources</div>
+            <div class="tabs-content">
+
+              <template is="dom-repeat"
+                        items="[[supportingDocs]]"
+                        as="source"
+                        hidden="[[!supportingDocs.length]]">
+
+                <paper-material class="related-source layout horizontal center"
+                                source="[[source]]"
+                                on-tap="navigateToSource">
+                  <div class="source-full-name">[[getFullName(source)]]</div>
+                  <div class="source-full-name">[[source.description]]</div>
+                </paper-material>
+
+              </template>
+
+              <div class="no-related-sources"
+                   hidden="[[supportingDocs.length]]">
+                No Related Source Material
+              </div>
+            </div>
           </neon-animatable>
         </neon-animated-pages>
 
@@ -221,6 +244,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       relatedAffiliations: {
+        type: Array,
+        value: []
+      },
+
+      supportingDocs: {
         type: Array,
         value: []
       },
@@ -279,7 +307,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           this.selectedProfileObject = peopleStore.selectedProfileObject;
           this.relatedAffiliations = peopleStore.relatedAffiliations;
-          console.log(this.relatedAffiliations);
+          this.supportingDocs = peopleStore.supportingDocs;
 
           this.setSelectedProfileProperties();
 
@@ -321,8 +349,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Get Full Name as can't use bracket notation in template
-    getProfileFullName: function(profile) {
-      return profile['Full Name'];
+    getFullName: function(object) {
+      return object['Full Name'];
     },
 
     // Get Age from Date of Birth and Date of Death
@@ -385,6 +413,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (parseInt(this.profileId, 10) !== event.currentTarget.profile.$loki) {
         this.fire('navigate-to-profile', event.currentTarget.profile.$loki);
       }
+    },
+
+    // Navigate to a related source file
+    navigateToSource: function(event) {
+
+      var sourceObject = event.currentTarget.source;
+
+      // Hack based around need to trigger pdf creation in pdf element so we broadcast a change to null
+      // before sending out the object again.
+      this.sourceActions.viewSourceFile(null);
+      this.sourceActions.viewSourceFile(sourceObject);
     },
 
     profileChanged: function() {
