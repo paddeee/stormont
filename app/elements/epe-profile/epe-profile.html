@@ -110,6 +110,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .no-related-sources {
       padding: 2vh 2vw;
     }
+
+    .source-description {
+      color: grey;
+      font-size: 13px;
+      margin: 4px 0;
+    }
   </style>
   <template>
     <div class="profile layout horizontal">
@@ -199,11 +205,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         as="source"
                         hidden="[[!supportingDocs.length]]">
 
-                <paper-material class="related-source layout horizontal center"
+                <paper-material class="related-source layout vertical center"
                                 source="[[source]]"
                                 on-tap="navigateToSource">
                   <div class="source-full-name">[[getFullName(source)]]</div>
-                  <div class="source-full-name">[[source.description]]</div>
+                  <div class="source-description">[[source.Description]]</div>
                 </paper-material>
 
               </template>
