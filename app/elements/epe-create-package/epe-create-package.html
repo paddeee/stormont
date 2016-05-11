@@ -145,7 +145,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                  people-actions="[[peopleActions]]"
                  map-geo-json-store="[[mapGeoJsonStore]]"
                  selected-records-actions="[[selectedRecordsActions]]"
-                 time-line-store="[[timeLineStore]]"></epe-map>
+                 time-line-store="[[timeLineStore]]"
+                 on-navigate-to-profile="navigateToProfile"></epe-map>
       </section>
 
       <!-- Source View -->
@@ -391,13 +392,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       // FIRED BY EPE-SOURCE-VIEWER ELEMENT: Navigate to the profile view
-      navigateToProfile: function() {
+      navigateToProfile: function(event) {
 
         // ToDo: Fix this weirdness caused by having two epe-create-package elements
         if (this.editState === 'creating' && this.presentationState === 'creating') {
-          page('/create-package/profile');
+          page('/create-package/profile/' + event.detail);
         } else if (this.editState === 'editing' && this.presentationState !== 'creating') {
-          page('/edit-package/profile');
+          page('/edit-package/profile/' + event.detail);
         }
       },
 

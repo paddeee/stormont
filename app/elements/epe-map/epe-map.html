@@ -653,7 +653,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // FIRED BY EVENT CARD CALLING THIS METHOD BY TRAVERSING UP THE DOM TREE
     viewPersonProfile: function(personId) {
-      this.peopleActions.viewProfile(personId);
+      this.fire('navigate-to-profile', personId);
     },
 
     // FIRED FROM TIMELINE ELEMENT

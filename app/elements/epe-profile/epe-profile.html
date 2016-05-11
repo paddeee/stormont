@@ -17,7 +17,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .profile__display {
-      z-index: 1;
       width: 70vw;
     }
 
@@ -91,6 +90,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     h2 {
       font-size: 18px;
       font-weight: normal;
+      text-align: center;
     }
 
     .related-profile {
@@ -205,6 +205,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     properties: {
 
+      profileId: {
+        type: Number,
+        value: 0,
+        observer: 'profileChanged'
+      },
+
       selected: {
         type: Number,
         value: 0
@@ -278,10 +284,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.setSelectedProfileProperties();
 
           this.injectDescriptionHTML();
-
-          if (this.selectedProfileObject) {
-            this.fire('navigate-to-profile', this.selectedProfileObject);
-          }
         }.bind(this));
       }
     },
@@ -376,9 +378,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.affiliations = this.selectedProfileObject.Affiliation;
     },
 
-    // Navigate to arlated profile
+    // Navigate to a related profile
     navigateToProfile: function(event) {
-      this.peopleActions.viewProfile(event.currentTarget.profile.$loki);
+      this.fire('navigate-to-profile', event.currentTarget.profile.$loki);
+    },
+
+    profileChanged: function() {
+      if (this.profileId !== 0) {
+        this.peopleActions.viewProfile(parseInt(this.profileId, 10));
+      }
     }
   });
 })();
