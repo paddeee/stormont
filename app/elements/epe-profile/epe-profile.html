@@ -380,7 +380,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Navigate to a related profile
     navigateToProfile: function(event) {
-      this.fire('navigate-to-profile', event.currentTarget.profile.$loki);
+
+      // Don't navigate if related profile is same as one being viewed. Edge case, will likely never happen
+      if (parseInt(this.profileId, 10) !== event.currentTarget.profile.$loki) {
+        this.fire('navigate-to-profile', event.currentTarget.profile.$loki);
+      }
     },
 
     profileChanged: function() {

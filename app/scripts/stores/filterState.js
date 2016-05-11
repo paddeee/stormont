@@ -412,7 +412,6 @@ module.exports = Reflux.createStore({
       selectedSource.showRecord = true;
     });
 
-    // Update the collections
     eventsCollection.update(presentationObject.selectedEvents);
     placesCollection.update(presentationObject.selectedPlaces);
     peopleCollection.update(presentationObject.selectedPeople);

@@ -75,7 +75,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       EpeEditPackage.createPackageRoute = 'map';
     });
 
-    page('/edit-package/profile/:id', function () {
+    page('/edit-package/profile/:id', function (data) {
       app.route = 'edit-package';
       EpeEditPackage.createPackageRoute = 'profile';
       EpeProfileViewer[1].profileId = data.params.id;
