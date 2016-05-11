@@ -110,7 +110,7 @@ module.exports = Reflux.createStore({
     this.updateSelectedPresentationsData();
 
     // Save database
-    /*dataSource.saveDatabase(function() {
+    dataSource.saveDatabase(function() {
      console.log('DataBase saved');
 
      // Pass on to listeners
@@ -119,7 +119,7 @@ module.exports = Reflux.createStore({
      title: 'Import Successful',
      message: 'All files have been successfully imported'
      });
-     }.bind(this));*/
+     }.bind(this));
   },
 
   // Find and Replace by a dictionary
