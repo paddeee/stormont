@@ -16,18 +16,215 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       display: block;
     }
 
-    .profile {
-      height: 65vh;
+    .profile__display {
+      width: 70vw;
+    }
+
+    .profile__summary,
+    .profile__description {
+      margin: 4vh 2vw;
+    }
+
+    .profile__summary {
+      border-bottom: 1px solid var(--divider-color);
+      padding: 0 0 2vh;
+    }
+
+    .profile__description {
+      font-size: 14px;
+      font-style: italic;
+    }
+
+    .profile__image {
+      border-radius: 50%;
+      height: 188px;
+    }
+
+    .profile_summary-details {
+      padding: 0 12px;
+      width: 100%;
+    }
+
+    .profile_summary-details table {
+      width: 100%;
+    }
+
+    .profile__full-name {
+      font-size: 32px;
+      line-height: 1.2;
+    }
+
+    .profile__short-name {
+      font-size: 14px;
+    }
+
+    .profile__gender-age {
+      font-size: 20px;
+      line-height: 2.2;
+    }
+
+    .profile__summary-heading {
+      color: grey;
+    }
+
+    .profile__relationships-sources {
+      width: 28vw;
+      position: absolute;
+      right: 0;
+      height: 100%;
+      border-left: 1px solid var(--divider-color);
+    }
+
+    paper-tabs {
+      background: var(--primary-background-color);
+      border-bottom: 1px solid var(--divider-color);
+      color: var(--paper-grey-700);
+
+      --paper-tabs-selection-bar-color: var(--default-primary-color);
+    }
+
+    .tabs-content {
+      padding: 0 2vw;
+    }
+
+    h2 {
+      font-size: 18px;
+      font-weight: normal;
+      text-align: center;
+    }
+
+    .related-profile,
+    .related-source {
+      cursor: pointer;
+      font-size: 14px;
+      margin: 20px 0;
+      padding: 8px;
+    }
+
+    .related-profile-image {
+      border-radius: 50%;
+      height: 50px;
+      margin: 0 8px 0 0;
+    }
+
+    .no-related-profiles,
+    .no-related-sources {
       padding: 2vh 2vw;
     }
 
-    .placeholder {
-      width: 70%;
+    .source-description {
+      color: grey;
+      font-size: 13px;
+      margin: 4px 0;
     }
   </style>
   <template>
-    <div class="layout horizontal center-justified fit profile">
-      <img src="../../images/profile-mockup.png" class="placeholder"></img>
+    <div class="profile layout horizontal">
+
+      <!-- Profile Display -->
+      <div class="profile__display">
+        <div class="profile__summary layout horizontal">
+          <div class="profile__image-holder">
+            <img src="[[profilePhoto]]"
+              class="profile__image"/>
+          </div>
+          <div class="profile_summary-details">
+            <div class="profile__full-name">[[profileFullName]]</div>
+            <div class="profile__short-name">"<span>[[profileShortName]]</span>"</div>
+            <div class="profile__gender-age">[[genderAndAgeComma]]</div>
+            <table>
+              <tr>
+                <td class="profile__summary-heading  profile__dob-heading">Date of Birth - </td>
+                <td>[[dateOfBirth]]</td>
+              </tr>
+              <tr>
+                <td class="profile__summary-heading  profile__dod-heading">Date of Death - </td>
+                <td>[[dateOfDeath]]</td>
+              </tr>
+              <tr>
+                <td class="profile__summary-heading  profile__ethnicity-heading">Ethnicity - </td>
+                <td>[[ethnicity]]</td>
+              </tr>
+              <tr>
+                <td class="profile__summary-heading  profile__ethnicity-heading">Affiliations - </td>
+                <td>[[affiliations]]</td>
+              </tr>
+            </table>
+
+          </div>
+        </div>
+
+        <!-- Content of this injected with innerHTML as contains HTML which can't be bound with Polymer -->
+        <div id="ProfileDescription" class="profile__description"></div>
+      </div>
+
+      <!-- Relationships & Sources Display -->
+      <div class="profile__relationships-sources">
+
+        <paper-tabs selected="{{selected}}">
+          <paper-tab>RELATED</paper-tab>
+          <paper-tab>SOURCE</paper-tab>
+        </paper-tabs>
+
+        <neon-animated-pages class="flex"
+                             selected="[[selected]]"
+                             entry-animation="slide-from-right-animation"
+                             exit-animation="fade-out-animation">
+          <neon-animatable>
+            <div class="tabs-content">
+
+              <template is="dom-repeat"
+                        items="[[relatedAffiliations]]"
+                        hidden="[[!relatedAffiliations.length]]">
+                <div class="affiliation">
+                  <h2>[[item.affiliation]]</h2>
+                  <template is="dom-repeat"
+                            items="[[item.relatedProfiles]]"
+                            as="profile">
+                  <paper-material class="related-profile layout horizontal center"
+                                  profile="[[profile]]"
+                                  on-tap="navigateToProfile">
+                    <image class="related-profile-image"
+                           src="[[getProfilePhoto(profile.Photo)]]"/>
+                    <div>[[getFullName(profile)]]</div>
+                  </paper-material>
+                  </template>
+                </div>
+              </template>
+
+              <div class="no-related-profiles"
+                   hidden="[[relatedAffiliations.length]]">
+                No Related Profiles
+              </div>
+            </div>
+          </neon-animatable>
+          <neon-animatable>
+            <div class="tabs-content">
+
+              <template is="dom-repeat"
+                        items="[[supportingDocs]]"
+                        as="source"
+                        hidden="[[!supportingDocs.length]]">
+
+                <paper-material class="related-source layout vertical center"
+                                source="[[source]]"
+                                on-tap="navigateToSource">
+                  <div class="source-full-name">[[getFullName(source)]]</div>
+                  <div class="source-description">[[source.Description]]</div>
+                </paper-material>
+
+              </template>
+
+              <div class="no-related-sources"
+                   hidden="[[supportingDocs.length]]">
+                No Related Source Material
+              </div>
+            </div>
+          </neon-animatable>
+        </neon-animated-pages>
+
+      </div>
+
     </div>
   </template>
 </dom-module>
@@ -37,10 +234,209 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     is: 'epe-profile',
 
     properties: {
-      foo: {
+
+      profileId: {
+        type: Number,
+        value: 0,
+        observer: 'profileChanged'
+      },
+
+      selected: {
+        type: Number,
+        value: 0
+      },
+
+      selectedProfileObject: {
+        type: Object
+      },
+
+      relatedAffiliations: {
+        type: Array,
+        value: []
+      },
+
+      supportingDocs: {
+        type: Array,
+        value: []
+      },
+
+      profilePhoto: {
         type: String,
-        value: 'bar',
-        notify: true
+        value: '/images/profile-placeholder.png'
+      },
+
+      profileFullName: {
+        type: String,
+        value: 'Profile Name'
+      },
+
+      profileShortName: {
+        type: String,
+        value: 'Short Name'
+      },
+
+      genderAndAgeComma: {
+        type: String,
+        value: 'Gender, Age'
+      },
+
+      dateOfBirth: {
+        type: String,
+        value: 'D.O.B.'
+      },
+
+      dateOfDeath: {
+        type: String,
+        value: 'D.O.D.'
+      },
+
+      ethnicity: {
+        type: String,
+        value: 'Ethnicity'
+      },
+
+      affiliations: {
+        type: String,
+        value: 'Affiliations'
+      }
+    },
+
+    ready: function() {
+
+      if (this.peopleStore) {
+
+        // When the selected Profile is changed navigate to Profile
+        this.peopleStore.listen(function (peopleStore) {
+
+          if (peopleStore.message !== 'viewProfile') {
+            return;
+          }
+
+          this.selectedProfileObject = peopleStore.selectedProfileObject;
+          this.relatedAffiliations = peopleStore.relatedAffiliations;
+          this.supportingDocs = peopleStore.supportingDocs;
+
+          this.setSelectedProfileProperties();
+
+          this.injectDescriptionHTML();
+        }.bind(this));
+      }
+    },
+
+    // Show photo if valid, otherwise use default pic
+    getProfilePhoto: function(path) {
+
+      var photoPath = '/images/profile-placeholder.png';
+
+      path = path || this.selectedProfileObject.Photo;
+
+      if (path === '' || !path || path === 'path_to_file') {
+        return photoPath;
+      }
+
+      return path;
+    },
+
+    // Get Date of Death
+    getDateOfDeath: function() {
+
+      if (this.selectedProfileObject['Date of death'] === 'TBD') {
+        return '';
+      }
+
+      return this.selectedProfileObject['Date of death'];
+    },
+
+    // Check if a date is complete
+    isValidDate: function(date) {
+
+      if (date.indexOf('?') > -1) {
+        return false;
+      }
+      return true;
+    },
+
+    // Get Full Name as can't use bracket notation in template
+    getFullName: function(object) {
+      return object['Full Name'];
+    },
+
+    // Get Age from Date of Birth and Date of Death
+    getProfileAge: function() {
+
+      var age;
+
+      // If Date of Birth is incomplete date, then can't be sure of age
+      if (!this.isValidDate(this.selectedProfileObject['Date of birth'])) {
+        return '';
+      }
+
+      if (this.selectedProfileObject['Date of death'] !== 'TBD') {
+        age = 'Deceased';
+        return age;
+      }
+
+      age = app.moment(this.selectedProfileObject['Date of birth']).fromNow(true) + ' old';
+
+      return age;
+    },
+
+    // If Gender and Age then add a presentational comma separator in between
+    getGenderAndAgeComma: function() {
+
+      if (this.profileGender && this.profileAge) {
+        return this.profileGender + ', ' + this.profileAge;
+      } else if (this.profileGender) {
+        return this.profileGender;
+      } else if (this.profileAge) {
+        return this.profileAge;
+      } else {
+        return '';
+      }
+    },
+
+    // ToDo: Depending on formatting of description may need to perform some formatting here
+    injectDescriptionHTML: function() {
+      this.$.ProfileDescription.innerHTML = this.selectedProfileObject.Description;
+    },
+
+    setSelectedProfileProperties: function() {
+
+      this.profilePhoto = this.getProfilePhoto();
+      this.profileFullName = this.selectedProfileObject['Full Name'];
+      this.profileShortName = this.selectedProfileObject['Short Name'];
+      this.profileGender = this.selectedProfileObject.Gender;
+      this.profileAge = this.getProfileAge();
+      this.genderAndAgeComma = this.getGenderAndAgeComma();
+      this.dateOfBirth = this.selectedProfileObject['Date of birth'];
+      this.dateOfDeath = this.getDateOfDeath();
+      this.ethnicity = this.selectedProfileObject.Ethnicity;
+      this.affiliations = this.selectedProfileObject.Affiliation;
+    },
+
+    // Navigate to a related profile
+    navigateToProfile: function(event) {
+
+      // Don't navigate if related profile is same as one being viewed. Edge case, will likely never happen
+      if (parseInt(this.profileId, 10) !== event.currentTarget.profile.$loki) {
+        this.fire('navigate-to-profile', event.currentTarget.profile.$loki);
+      }
+    },
+
+    // Navigate to a related source file
+    navigateToSource: function(event) {
+
+      var sourceObject = event.currentTarget.source;
+
+      // Hack based around need to trigger pdf creation in pdf element so we broadcast a change to null
+      // before sending out the object again.
+      this.sourceActions.viewSourceFile(null);
+      this.sourceActions.viewSourceFile(sourceObject);
+    },
+
+    profileChanged: function() {
+      if (this.profileId !== 0) {
+        this.peopleActions.viewProfile(parseInt(this.profileId, 10));
       }
     }
   });

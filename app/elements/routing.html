@@ -17,6 +17,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     var EpeCreatePackage = document.getElementById('EpeCreatePackage');
     var EpeEditPackage = document.getElementById('EpeEditPackage');
     var EpeSourceViewer = document.querySelectorAll('#EpeSourceViewer');
+    var EpeProfileViewer = document.querySelectorAll('#Profile');
 
     // We use Page.js for routing. This is a Micro
     // client-side router inspired by the Express router
@@ -46,9 +47,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       EpeCreatePackage.createPackageRoute = 'map';
     });
 
-    page('/create-package/profile', function () {
+    page('/create-package/profile/:id', function (data) {
       app.route = 'create-package';
       EpeCreatePackage.createPackageRoute = 'profile';
+      EpeProfileViewer[0].profileId = data.params.id;
     });
 
     page('/create-package/source/:type', function (data) {
@@ -73,15 +75,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       EpeEditPackage.createPackageRoute = 'map';
     });
 
-    page('/edit-package/profile', function () {
+    page('/edit-package/profile/:id', function (data) {
       app.route = 'edit-package';
       EpeEditPackage.createPackageRoute = 'profile';
+      EpeProfileViewer[1].profileId = data.params.id;
     });
 
     page('/edit-package/source/:type', function (data) {
       app.route = 'edit-package';
       EpeEditPackage.createPackageRoute = 'source';
       EpeSourceViewer[1].route = data.params.type;
+    });
+
+    /* Offline routes */
+    page('/choose-package', function () {
+      app.route = 'choose-package';
     });
 
     // add #! before urls

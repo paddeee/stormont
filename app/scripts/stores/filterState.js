@@ -75,7 +75,7 @@ module.exports = Reflux.createStore({
 
     // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
     // method
-    this.autoFilterCollections(false, false, false);
+    this.autoFilterCollections(false, false, false, true);
   },
 
   // Convert a queryBuilder object into one that can be used by loki to apply a transform on the data
@@ -319,7 +319,7 @@ module.exports = Reflux.createStore({
   // Filter on datastore userFilteredCollections based on linkage rules between tables
   // Event Place field links to Places Shortname field
   // Event Suspects, Victims and Witnesses fields link to People's Shortname field
-  autoFilterCollections: function (selectAllCheckBoxes, sortCheckBoxes, sortEvents) {
+  autoFilterCollections: function (selectAllCheckBoxes, sortCheckBoxes, sortEvents, sortPerformed) {
 
     var eventsCollection = dataSourceStore.dataSource.getCollection(config.EventsCollection.name);
 
@@ -348,7 +348,10 @@ module.exports = Reflux.createStore({
     }
 
     // Update all data types checkboxes to only show records from filtered records
-    this.eventsCheckBoxUpdated(eventsCollection.data);
+    // Don't do this if called by column sorting
+    if (!sortPerformed) {
+      this.eventsCheckBoxUpdated(eventsCollection.data);
+    }
 
     // Let listeners know data has been updated
     this.selectedDataChanged(sortCheckBoxes, sortEvents);
@@ -409,7 +412,6 @@ module.exports = Reflux.createStore({
       selectedSource.showRecord = true;
     });
 
-    // Update the collections
     eventsCollection.update(presentationObject.selectedEvents);
     placesCollection.update(presentationObject.selectedPlaces);
     peopleCollection.update(presentationObject.selectedPeople);
@@ -450,6 +452,11 @@ module.exports = Reflux.createStore({
         // Manage the Source Collection Selected Records
         this.autoUpdateSourceCheckboxes(personObject, config.PeopleCollection.name);
       }.bind(this));
+
+      // Source
+    } else if (showAllObject.collectionName === config.SourcesCollection.name) {
+
+      this.selectAllCheckboxes(sourcesStore, showAllObject.showAllSelected);
     }
 
     // Sort the order of selected records
@@ -681,8 +688,13 @@ module.exports = Reflux.createStore({
     var relatedSourceArray = [];
 
     // Helper methods for parsing Source records
-    var trim = function (item) {
+    var getShortName = function (item) {
       if (item) {
+
+        // Account for Source Documents which relate to certain pages/ times, etc.
+        if (item.match(/^.*?(?=\s\()/g)) {
+          item = item.match(/^.*?(?=\s\()/g)[0];
+        }
         return item.trim();
       }
     };
@@ -723,8 +735,8 @@ module.exports = Reflux.createStore({
     mergedObjectArray = _.union(this.selectedEventDocuments, this.selectedPlaceDocuments, this.selectedPeopleDocuments);
 
     mergedObjectArray.forEach(function (item) {
-      relatedSourceArray.push(_.map(item['Supporting Documents'].toString().split(','), trim));
-    });
+      relatedSourceArray.push(_.map(this.splitStringByCommas(item['Supporting Documents'].toString()), getShortName));
+    }.bind(this));
 
     relatedSourceArray = _.uniq(_.flatten(relatedSourceArray));
 
@@ -793,5 +805,75 @@ module.exports = Reflux.createStore({
   // Needed because of scenario that all data tables can order sources
   sortBySelectedSourceRecords: function() {
     sourcesStore.userFilteredCollection.simplesort('showRecord', true).data();
+  },
+
+  // Helper to split string by commas not inside parentheses
+  splitStringByCommas: function(input) {
+
+    if (!input) {
+      return;
+    }
+
+    var out = [];
+    var iLen = input.length;
+    var parens = 0;
+    var state = '';
+    var buffer = ''; //using string for simplicity, but an array might be faster
+
+    for(var i=0; i<iLen; i++) {
+
+      if (input[i] === ',' && !parens && !state) {
+        out.push(buffer);
+        buffer = '';
+      } else {
+        buffer += input[i];
+      }
+      switch(input[i]) {
+        case '(':
+        case '[':
+        case '{':
+          if (!state) {
+            parens++;
+          }
+          break;
+        case ')':
+        case ']':
+        case '}':
+          if (!state) {
+            if (parens < 1) {
+              throw new SyntaxError('closing paren, but no opening');
+            }
+            parens--;
+          }
+          break;
+        case '"':
+          if (!state) {
+            state = '"';
+          }
+          else if (state === '"') {
+            state = '';
+          }
+          break;
+        case '\'':
+          if (!state) {
+            state = '\'';
+          }
+          else if (state === '\'') {
+            state = '';
+          }
+          break;
+        case '\\':
+          buffer += input[++i];
+          break;
+      }//end of switch-input
+    }//end of for-input
+
+    if (state || parens) {
+      throw new SyntaxError('unfinished input');
+    }
+
+    out.push(buffer);
+
+    return out;
   }
 });

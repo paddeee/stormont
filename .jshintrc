@@ -27,6 +27,9 @@
     "TL": true,
     "Tiff": true,
     "config": true,
-    "ipcRenderer": true
+    "ipcRenderer": true,
+    "presentationMode": true,
+    "EpeCreatePackage": true,
+    "EpeEditPackage": true
   }
 }

@@ -106,17 +106,20 @@ module.exports = Reflux.createStore({
     // Replace shortNames in description field of Event collection
     this.replaceShortnames(dataSource);
 
+    // Copies of selected data objects are stored in Presentations Collection. These need to be updated.
+    this.updateSelectedPresentationsData();
+
     // Save database
     dataSource.saveDatabase(function() {
-      console.log('DataBase saved');
+     console.log('DataBase saved');
 
-      // Pass on to listeners
-      this.trigger({
-        type: 'success',
-        title: 'Import Successful',
-        message: 'All files have been successfully imported'
-      });
-    }.bind(this));
+     // Pass on to listeners
+     this.trigger({
+     type: 'success',
+     title: 'Import Successful',
+     message: 'All files have been successfully imported'
+     });
+     }.bind(this));
   },
 
   // Find and Replace by a dictionary
@@ -416,5 +419,41 @@ module.exports = Reflux.createStore({
     });
 
     dataCollection.insert(collectionArray);
+  },
+
+  // Copies of selected data objects are stored in Presentations Collection. These need to be updated.
+  updateSelectedPresentationsData: function() {
+
+    var presentationsData = dataSourceStore.dataSource.getCollection(config.PresentationsCollection).data;
+    var eventsCollection = dataSourceStore.dataSource.getCollection(config.EventsCollection.name);
+    var placeCollection = dataSourceStore.dataSource.getCollection(config.PlacesCollection.name);
+    var personCollection = dataSourceStore.dataSource.getCollection(config.PeopleCollection.name);
+    var sourceCollection = dataSourceStore.dataSource.getCollection(config.SourcesCollection.name);
+
+    // For Each Presentation
+    presentationsData.forEach(function(presentation) {
+
+      presentation.selectedEvents = this.updateSelectedPresentationData(presentation.selectedEvents, eventsCollection);
+      presentation.selectedPlaces = this.updateSelectedPresentationData(presentation.selectedPlaces, placeCollection);
+      presentation.selectedPeople = this.updateSelectedPresentationData(presentation.selectedPeople, personCollection);
+      presentation.selectedSources = this.updateSelectedPresentationData(presentation.selectedSources, sourceCollection);
+
+    }.bind(this));
+  },
+
+  // Update the objects stored in arrays of Presentation Store that are used to export selected records
+  updateSelectedPresentationData: function(selectedCollection, eventsCollection) {
+
+    var selectedIds = [];
+
+    selectedCollection.forEach(function(selectedObject) {
+      selectedIds.push(selectedObject.$loki);
+    });
+
+    return eventsCollection.find({
+      '$loki': {
+        '$in': selectedIds
+      }
+    });
   }
 });

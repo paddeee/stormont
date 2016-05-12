@@ -18,12 +18,15 @@ var filterStateActions = require('./actions/filterState.js');
 var filterStateStore = require('./stores/filterState.js');
 var eventsStore = require('./stores/events.js');
 var placesStore = require('./stores/places.js');
+var peopleActions = require('./actions/people.js');
 var peopleStore = require('./stores/people.js');
 var sourceActions = require('./actions/source.js');
 var sourceStore = require('./stores/source.js');
 var userActions = require('./actions/users.js');
 var userStore = require('./stores/users.js');
 var presentationsActions = require('./actions/presentations.js');
+var importPackageActions = require('./actions/importPackage.js');
+var importPackageStore = global.config ? require('./stores/importPackage.js') : null;
 var presentationsStore = require('./stores/presentations.js');
 var importActions = require('./actions/import.js');
 var importStore = require('./stores/import.js');
@@ -32,7 +35,7 @@ var exportStore = global.config ? require('./stores/export.js') : null;
 var mapGeoJsonStore = require('./stores/mapGeoJSON.js');
 var timeLineStore = require('./stores/timeLine.js');
 
-(function(document, reflux, moment, config, sourceActions, selectedRecordsActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore, timeLineStore) {
+(function(document, reflux, moment, config, sourceActions, selectedRecordsActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleActions, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore, timeLineStore, importPackageActions, importPackageStore) {
   'use strict';
 
   // Grab a reference to our auto-binding template
@@ -41,6 +44,7 @@ var timeLineStore = require('./stores/timeLine.js');
   var app = document.querySelector('#app');
 
   // Set required modules as attributes on app
+  app.presentationMode = presentationMode;
   app.reflux = reflux;
   app.moment = moment;
   app.config = config;
@@ -55,12 +59,15 @@ var timeLineStore = require('./stores/timeLine.js');
   app.queryBuilderStore = queryBuilderStore;
   app.importActions = importActions;
   app.importStore = importStore;
+  app.importPackageActions = importPackageActions;
+  app.importPackageStore = importPackageStore;
   app.exportActions = exportActions;
   app.exportStore = exportStore;
   app.filterStateActions = filterStateActions;
   app.filterStateStore = filterStateStore;
   app.eventsStore = eventsStore;
   app.placesStore = placesStore;
+  app.peopleActions = peopleActions;
   app.peopleStore = peopleStore;
   app.sourceStore = sourceStore;
   app.sourceActions = sourceActions;
@@ -78,7 +85,11 @@ var timeLineStore = require('./stores/timeLine.js');
     console.log('Operation Farrell content all added to page!');
     console.log('dom-change');
 
-    app.route = 'login';
+    if (presentationMode === 'online') {
+      app.route = 'login';
+    } else if (presentationMode === 'offline') {
+      app.route = 'choose-package';
+    }
   });
 
   // See https://github.com/Polymer/polymer/issues/1381
@@ -88,8 +99,10 @@ var timeLineStore = require('./stores/timeLine.js');
     window.L.Icon.Default.imagePath = './images/leaflet/';
     console.log('components ready');
 
-    // Load Database
-    dataSourceActions.loadDatabase();
+    // Load Database in Networked Online mode
+    if (presentationMode === 'online') {
+      dataSourceActions.loadDatabase();
+    }
   });
 
   // Close drawer after menu item is selected if drawerPanel is narrow
@@ -104,4 +117,4 @@ var timeLineStore = require('./stores/timeLine.js');
   // Maybe dangerous but can change for different approach if needed
   NodeList.prototype.forEach = Array.prototype.forEach;
 
-})(document, reflux, moment, config, sourceActions, selectedRecordsActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore, timeLineStore);
+})(document, reflux, moment, config, sourceActions, selectedRecordsActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleActions, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore, timeLineStore, importPackageActions, importPackageStore);

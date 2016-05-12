@@ -251,9 +251,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     ready: function() {
 
       // Get element this way as parent element isn't yet available through document.querySelector
-      var $epeNetworked = app.$.epeNetworked;
+      var $epeElement;
 
-      $epeNetworked.addEventListener('not-image-route', function() {
+      if (presentationMode === 'online') {
+        $epeElement = app.$.epeNetworked;
+      } else if (presentationMode === 'offline') {
+        $epeElement = app.$.epeOffline;
+      }
+
+      $epeElement.addEventListener('not-image-route', function() {
         this.resetImage();
       }.bind(this));
 
@@ -327,6 +333,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         if (!this.$ || !this.$.Image || !this.$.Image.height) {
           return;
+        }
+
+        // If presentation is waiting for authorisation, for these purposes it is in the 'editing' state
+        if (this.presentationState === 'viewingLocked') {
+          this.presentationState = 'editing';
         }
 
         if (this.editState === this.presentationState) {

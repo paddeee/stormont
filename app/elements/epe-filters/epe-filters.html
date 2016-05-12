@@ -95,7 +95,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     h1 {
-      font-size: 1.8vw;
+      font-size: 18px;
     }
 
     .filter__button-add {
@@ -120,14 +120,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       position: absolute;
       bottom: 2vh;
       right: 1vw;
-      font-size: 1.6vw;
+      font-size: 14px;
       padding: 2vh 2vw;
       font-weight: bold;
       text-align: center;
     }
 
     .filters__no-filters {
-      font-size: 1.6vw;
+      font-size: 16px;
     }
 
     .add-filter-dialog {
@@ -163,7 +163,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .filter-info {
-      font-size: 1.7vw;
+      font-size: 14px;
     }
 
     .include-exclude-data-type {
@@ -351,7 +351,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <!-- Add Filter Dialog -->
     <paper-dialog id="AddFilterDialog" class="add-filter-dialog" modal>
       <h2>Add filter</h2>
-      <paper-dialog-scrollable>
 
         <div class="layout vertical">
 
@@ -388,8 +387,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </paper-radio-group>
 
         </div>
-
-      </paper-dialog-scrollable>
       <div class="buttons">
         <paper-button dialog-dismiss
                       on-tap="addFilterCancelled">Cancel</paper-button>
@@ -809,10 +806,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         });
       },
 
-      // Set state of hideSaveButton depending on presentation state
+      // Set state of hideSaveButton depending on presentation state and whether in online mode or not
       manageSaveButton: function(presentationState) {
 
-        if (presentationState === 'viewingLocked') {
+        if (presentationMode === 'offline' || presentationState === 'viewingLocked') {
           this.hideSaveButton = true;
         } else {
           this.hideSaveButton = false;

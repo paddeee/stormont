@@ -234,8 +234,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   Delete Package<iron-icon icon="delete"></iron-icon>
                 </paper-button>
               </div>
-              <div class="flex layout horizontal end-justified export"
-                   hidden$="[[hideExportButton(item.authoriserState)]]">
+              <div class="export-button-holder flex layout horizontal end-justified export"
+                   hidden$="[[item.hideExportButton]]">
                 <paper-button raised
                               class="export-button"
                               on-tap="exportPackageSelected">
@@ -312,7 +312,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <paper-dialog id="ExportErrorDialog" modal>
       <h2>Package Export Error</h2>
       <div>
-        <span>ToDO: Error message logic to go here</span>
+        <span>[[exportFailureMessage]]</span>
       </div>
       <div class="buttons">
         <paper-button dialog-confirm autofocus>OK</paper-button>
@@ -380,6 +380,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       exportLocation: {
         type: String,
         value: 'Not selected..'
+      },
+
+      exportFailureMessage: {
+        type: String,
+        value: ''
       }
     },
 
@@ -419,6 +424,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           this.presentationsData = presentationsStore.presentationsData;
 
+          this.manageExportButtons();
+
           this.$.List.items = this.presentationsData;
 
           if (presentationsStore.message === 'presentationDeleted') {
@@ -436,6 +443,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           if (exportStore.message) {
             this.handleExportStoreBroadcast(exportStore.message);
           }
+        }.bind(this));
+      }
+
+      if (this.userStore) {
+
+        // When the presentations data is updated, set this view's presentationsData
+        this.userStore.listen(function() {
+
+          this.manageExportButtons();
+
         }.bind(this));
       }
     },
@@ -457,8 +474,39 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.ExportSuccessDialog.open();
         this.$.ExportingPackage.close();
 
-      // Package export error
-      } else if (messageType === 'exportError') {
+      // Database Save error
+      } else if (messageType === 'dbCopyFailure') {
+        this.exportFailureMessage = 'There was a problem creating the export database File';
+        this.$.ExportErrorDialog.open();
+        this.$.ExportingPackage.close();
+
+        // Package export error
+      } else if (messageType === 'sourceFileCopyFailure') {
+        this.exportFailureMessage = 'There was a problem copying Source Files';
+        this.$.ExportErrorDialog.open();
+        this.$.ExportingPackage.close();
+
+        // Package export error
+      } else if (messageType === 'zipDirectoryFailure') {
+        this.exportFailureMessage = 'There was a problem creating a zip file for the package';
+        this.$.ExportErrorDialog.open();
+        this.$.ExportingPackage.close();
+
+        // Package export error
+      } else if (messageType === 'encryptionFailure') {
+        this.exportFailureMessage = 'There was a problem encrypting the zip file';
+        this.$.ExportErrorDialog.open();
+        this.$.ExportingPackage.close();
+
+        // Package export error
+      } else if (messageType === 'removeDirectoryFailure') {
+        this.exportFailureMessage = 'There was a problem removing the temporary directory';
+        this.$.ExportErrorDialog.open();
+        this.$.ExportingPackage.close();
+
+        // Package export error
+      } else if (messageType === 'removeZipFileFailure') {
+        this.exportFailureMessage = 'There was a problem removing the temporary zip file';
         this.$.ExportErrorDialog.open();
         this.$.ExportingPackage.close();
       }
@@ -474,15 +522,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var $item = event.currentTarget.closest('.item');
       var $authoriserTrafficLight = $item.querySelector('.authoriser-state iron-icon');
+      var $exportButton = $item.querySelector('.export-button-holder');
 
       if (event.target.checked) {
         event.model.item.authoriserState = 'green';
+        if (this.userStore.user.role === 'gatekeeper' || this.userStore.user.role === 'admin') {
+          event.model.item.hideExportButton = false;
+        }
       } else {
         event.model.item.authoriserState = 'red';
+        event.model.item.hideExportButton = true;
       }
 
       // Set the change to the DOM due to template not auto updating
       this.updateTrafficLights($authoriserTrafficLight, event.model.item.authoriserState);
+
+      // Set the change to the DOM due to template not auto updating
+      this.showHideExportButton($exportButton, event.model.item.hideExportButton);
 
       // Call approvalStateChanged action
       this.presentationsActions.approvalStateChanged(event.model.item);
@@ -494,6 +550,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     updateTrafficLights: function($authoriserTrafficLight, authoriserState) {
       $authoriserTrafficLight.classList.remove('green','red');
       $authoriserTrafficLight.classList.add(authoriserState);
+    },
+
+    // Have to do this manually as the functions inside the template don't get called
+    // when the presentationsData is updated.
+    // ToDo: Find a better way to let the iron-list manage this if its possible
+    showHideExportButton: function($exportButton, hideExportButton) {
+      $exportButton.hidden = hideExportButton;
     },
 
     // Used to set the checked state on the checkbox
@@ -600,8 +663,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Perform export if in packaged app. Otherwise log to alert that it won't work in browser
         if (typeof process === 'object') {
 
-          // ToDo: Let User select a location from file explorer
-          // For now just hardcode a location
+          // Let User select a location from file explorer
           packagePassword = event.target.value;
           filteredOrSelected = this.$.FilteredOrSelected.selected;
 
@@ -640,16 +702,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
-    // Export Package action button
-    hideExportButton: function(authoriserState) {
-
-      if ((this.userStore.user.role === 'gatekeeper' || this.userStore.user.role === 'admin') && authoriserState === 'green') {
-        return false;
-      } else {
-        return true;
-      }
-    },
-
     // Return Boolean based on gridData
     isPackages: function(presentationData) {
 
@@ -677,6 +729,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Send message to electron to open Open Dialog
     exportLocationTapped: function() {
       ipcRenderer.send('show-open-dialog', 'directory');
+    },
+
+    // When data changes make sure all Export buttons are displayed or hidden correctly
+    manageExportButtons: function() {
+
+      this.presentationsData.forEach(function(presentation) {
+
+        if ((this.userStore.user.role === 'gatekeeper' || this.userStore.user.role === 'admin') && presentation.authoriserState === 'green') {
+          presentation.hideExportButton = false;
+        } else {
+          presentation.hideExportButton = true;
+        }
+      }.bind(this));
     }
   });
 })();

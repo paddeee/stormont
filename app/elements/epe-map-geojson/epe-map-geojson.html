@@ -258,32 +258,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       setFeatureStyle: function(layer, feature) {
 
         // Set Style Depending on Geometry Category
-        switch (feature.properties.type) {
-
-          case 'Murder':
-            layer.options.color = this.color;
-            layer.options.weight = this.weight;
-            layer.options.opacity = this.opacity;
-            layer.options.fill = this.fill;
-            layer.options.fillColor = this.fillColor;
-            layer.options.dashArray = this.dashArray;
-            layer.options.lineCap = this.lineCap;
-            layer.options.lineJoin = this.lineJoin;
-            break;
-
-          case 'Arson':
-            layer.options.color = 'rgb(246, 151, 48)';
-            layer.options.weight = this.weight;
-            layer.options.opacity = this.opacity;
-            layer.options.fill = 'rgb(246, 151, 48)';
-            layer.options.fillColor = 'rgb(246, 151, 48)';
-            layer.options.dashArray = this.dashArray;
-            layer.options.lineCap = this.lineCap;
-            layer.options.lineJoin = this.lineJoin;
-            break;
-        }
-
-        // Set Style Depending on Geometry Category
         switch (feature.geometry.type) {
 
           case 'Point':
@@ -297,6 +271,62 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           case 'Polygon':
             layer.options.fill = true;
             break;
+        }
+
+        if (feature.properties.pointOfInterest) {
+
+          layer.options.color = 'rgb(27, 27, 27)';
+          layer.options.weight = this.weight;
+          layer.options.opacity = this.opacity;
+          layer.options.fillColor = 'rgb(47, 47, 47)';
+          layer.options.dashArray = this.dashArray;
+          layer.options.lineCap = this.lineCap;
+          layer.options.lineJoin = this.lineJoin;
+
+          return;
+        }
+
+        // Set Style Depending on Geometry Category
+        switch (feature.properties.type) {
+
+          case 'Murder':
+            layer.options.color = this.color;
+            layer.options.weight = this.weight;
+            layer.options.opacity = this.opacity;
+            layer.options.fillColor = this.fillColor;
+            layer.options.dashArray = this.dashArray;
+            layer.options.lineCap = this.lineCap;
+            layer.options.lineJoin = this.lineJoin;
+            break;
+
+          case 'Arson':
+            layer.options.color = 'rgb(246, 151, 48)';
+            layer.options.weight = this.weight;
+            layer.options.opacity = this.opacity;
+            layer.options.fillColor = 'rgb(246, 151, 48)';
+            layer.options.dashArray = this.dashArray;
+            layer.options.lineCap = this.lineCap;
+            layer.options.lineJoin = this.lineJoin;
+            break;
+
+          case 'Kidnapping':
+            layer.options.color = 'rgb(220, 82, 185)';
+            layer.options.weight = this.weight;
+            layer.options.opacity = this.opacity;
+            layer.options.fillColor = 'rgb(210, 82, 185)';
+            layer.options.dashArray = this.dashArray;
+            layer.options.lineCap = this.lineCap;
+            layer.options.lineJoin = this.lineJoin;
+            break;
+
+          default:
+            layer.options.color = 'rgb(240, 74, 25)';
+            layer.options.weight = this.weight;
+            layer.options.opacity = this.opacity;
+            layer.options.fillColor = 'rgb(230, 74, 25)';
+            layer.options.dashArray = this.dashArray;
+            layer.options.lineCap = this.lineCap;
+            layer.options.lineJoin = this.lineJoin;
         }
       },
 
@@ -436,6 +466,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           if (this.activeEvent === 'noEvent') {
             this.managePointOfInterest(feature);
+            return;
           }
 
           // If marker to jump to exists as marker on the map

@@ -83,9 +83,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <paper-card class="flex">
           <!-- ToDo: Set route and href to config option -->
-          <a data-route="create-package/data-grid/Event"
+          <a data-route="/create-package/data-grid/Event"
              href="/create-package/data-grid/Event"
-             class="card-link fit block"></a>
+             class="card-link fit block"
+            on-tap="resetPackage"></a>
           <div class="card-content">
 
             <div class="icon-holder  icon-holder--create">
@@ -171,6 +172,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return false;
       }
       return true;
+    },
+
+    // Clean out the presentation package
+    resetPackage: function (event) {
+
+      event.preventDefault();
+
+      // Reset the presentation package to no filters
+      this.fire('reset-package');
+
+      page(event.currentTarget.dataset.route);
     }
   });
 })();

@@ -14,7 +14,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <style>
     :host {
       display: block;
-      margin: 5vh 3vw;
+      margin: 28px 3vw 20px;
     }
 
     iron-list {
@@ -37,8 +37,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .data-grid__footer {
       background-color: var(--text-primary-color);
+      border-bottom: 1px var(--divider-color) solid;
       border-top: 1px var(--divider-color) solid;
-      height: 54px;
+      height: 50px;
       width: 100%;
     }
 
@@ -132,8 +133,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .selected-by-event {
-      margin: 0 0 0 8px;
-      padding: 0 10px 0 0;
+      text-align: center;
     }
 
     .selected-by-event__icon {
@@ -204,7 +204,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .data-grid__records tr:first-child td {
-      border-top: 0;
+      border-top-width: 0;
+    }
+
+    .data-grid__records tr:last-child td {
+      border-bottom-width: 0;
     }
 
     .source {
@@ -268,14 +272,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <table id="HeaderTable">
               <colgroup>
                 <col class="checkbox-col">
+                <col class="related-col"
+                     hidden$="[[hideRelatedToEventColumn]]">
                 <template is="dom-repeat"
                           items="[[toArray(gridDataFirstRecord)]]">
                   <col class="field-col"
                        heading-name$="[[item.name]]"
                        hidden$="[[!showField(item.name)]]">
                 </template>
-                <col class="related-col"
-                     hidden$="[[hideRelatedToEventColumn]]">
                 <col class="source-col"
                      hidden$="[[hideViewSourceButton]]">
               </colgroup>
@@ -290,6 +294,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     checked$="[[showAllSelected]]"
                     on-change="selectAllRecords"
                     on-iron-change="selectAllRecords"></paper-checkbox>
+                </th>
+                <th scope="col"
+                    id="SelectedByEventHeading"
+                    class="selected-by-event-heading"
+                    hidden$="[[hideRelatedToEventColumn]]">
+                  <iron-icon icon="event"
+                             class="selected-by-event__heading-icon"></iron-icon>
+                  <paper-tooltip for="SelectedByEventHeading" position="top">Item is<br/>related to<br/>a selected <br/>event</paper-tooltip>
                 </th>
                 <template is="dom-repeat"
                           items="[[toArray(gridDataFirstRecord)]]">
@@ -313,14 +325,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   </th>
                 </template>
                 <th scope="col"
-                    id="SelectedByEventHeading"
-                    class="selected-by-event-heading"
-                    hidden$="[[hideRelatedToEventColumn]]">
-                  <iron-icon icon="event"
-                             class="selected-by-event__heading-icon"></iron-icon>
-                  <paper-tooltip for="SelectedByEventHeading" position="top">Item is<br/>related to<br/>a selected <br/>event</paper-tooltip>
-                </th>
-                <th scope="col"
                     class="blank"
                     hidden$="[[hideViewSourceButton]]">
                 </th>
@@ -338,14 +342,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                  loading-data$="[[!dataLoaded]]">
             <colgroup>
               <col class="checkbox-col">
+              <col class="related-col"
+                   hidden$="[[hideRelatedToEventColumn]]">
               <template is="dom-repeat"
                         items="[[toArray(gridDataFirstRecord)]]">
                 <col class="field-col"
                      heading-name$="[[item.name]]"
                      hidden$="[[!showField(item.name)]]">
               </template>
-              <col class="related-col"
-                   hidden$="[[hideRelatedToEventColumn]]">
               <col class="source-col"
                    hidden$="[[hideViewSourceButton]]">
             </colgroup>
@@ -357,12 +361,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <tr class$="[[isApprovedForRelease(item)]]">
                 <td class="checkbox-holder">
                   <paper-checkbox class="record-checkbox"
-                                  on-iron-change="selectRecord"
                                   on-change="selectRecord"
                                   checked$="[[item.showRecord]]">
                   </paper-checkbox>
                 </td>
 
+                <td class="selected-by-event" hidden$="[[hideRelatedToEventColumn]]">
+                  <iron-icon icon="check"
+                             class="selected-by-event__icon"
+                             hidden$="[[!item.highlightAsRelatedToEvent]]"></iron-icon>
+                </td>
                 <template is="dom-repeat" items="[[toArray(item)]]">
                   <td class="field-record"
                       on-mouseover="showFullText"
@@ -371,11 +379,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <span>{{item.value}}</span>
                   </td>
                 </template>
-                <td hidden$="[[hideRelatedToEventColumn]]">
-                  <iron-icon icon="check"
-                             class="selected-by-event__icon"
-                             hidden$="[[!item.highlightAsRelatedToEvent]]"></iron-icon>
-                </td>
                 <td class="source"
                     hidden$="[[hideViewSourceButton]]">
                   <paper-button
@@ -621,7 +624,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           // Set table to relevant size depending on widths of heading names
           // Wrap in async to give template time to be stamped
-          this.async(this.setDefaultTableWidths);
+          // Don't calculate widths if not viewing data grid, ie added filters on map, as DOM won't be there
+          if (this.editState === 'creating' && this.presentationState === 'creating') {
+            if (EpeCreatePackage.createPackageRoute === 'data-grid') {
+              this.async(this.setDefaultTableWidths);
+            }
+          } else if (this.editState === 'editing' && this.presentationState !== 'creating') {
+            if (EpeEditPackage.createPackageRoute === 'data-grid') {
+              this.async(this.setDefaultTableWidths);
+            }
+          }
         }
       },
 
@@ -644,15 +656,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var sourceColWidth = 0;
         var $relatedToEventCol;
         var $sourceCol;
-
-        // Don't calculate if not on data-grid route as queries to the DOM won't work
-        if (window.EpeCreatePackage.createPackageRoute && window.EpeCreatePackage.createPackageRoute !== 'data-grid') {
-          return;
-        }
-
-        if (window.EpeEditPackage.createPackageRoute && window.EpeEditPackage.createPackageRoute !== 'data-grid') {
-          return;
-        }
 
         // Reset style widths on table and colGroup cols
         this.$.HeaderTable.style.width = '';
@@ -792,18 +795,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (this.gridData) {
 
           // Update all items in the data collection
-          this.gridData.forEach(function(record, index) {
+          this.gridData.forEach(function() {
 
             if (event.target.checked) {
               this.showAllSelected = true;
-              this.$.ListTemplate.set('items.' + index + '.showRecord', true);
             } else {
               this.showAllSelected = false;
-
-              // Only set checkbox to false if user has deselected Select All checkbox not when called programmatically
-              if (event.type === 'change') {
-                this.$.ListTemplate.set('items.' + index + '.showRecord', false);
-              }
             }
           }.bind(this));
 

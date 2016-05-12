@@ -11,6 +11,8 @@ const fs = require('fs');
 // be closed automatically when the JavaScript object is garbage collected.
 var mainWindow = null;
 
+var ldapPath;
+
 // Check for LDAP
 var checkForLDAP =  function () {
 
@@ -20,10 +22,10 @@ var checkForLDAP =  function () {
     LDAPExists()
       .then(function() {
         resolve();
-      }.bind(this))
+      })
       .catch(function() {
         reject();
-      }.bind(this));
+      });
   });
 };
 
@@ -39,13 +41,12 @@ var LDAPExists = function() {
     }
 
     var client = ldap.createClient({
-      //url: 'ldap://ldap.forumsys.com:389',
-      url: 'ldap://ldap.forumsys.com:388',
+      url: ldapPath,
       connectTimeout: 3000
     });
 
     client.on('connect', function() {
-      console.log('COnnected to LDAP');
+      console.log('Connected to LDAP');
       resolve();
     });
 
@@ -89,6 +90,7 @@ var getConfig =  function () {
 
       if (data) {
         global.config = data;
+        ldapPath = JSON.parse(data).paths.ldap;
         resolve();
       } else if (err) {
         reject(err);
@@ -126,7 +128,7 @@ electronApp.on('ready', function() {
         }.bind(this));
     })
     .catch(function() {
-      dialog.showErrorBox('Config File Missing', 'Please make sure the Config Directory resides in the Application.')
+      dialog.showErrorBox('Config File Missing', 'Please make sure the Config Directory resides in the Application.');
       reject();
     }.bind(this));
 
@@ -175,15 +177,26 @@ electronApp.on('window-all-closed', function() {
   }
 });
 
-ipcMain.on('show-open-dialog', function(event, arg) {
+ipcMain.on('show-open-dialog', function(event, property, type) {
 
-  var directorySelected;
+  var selection;
 
-  if (arg === 'directory') {
-    directorySelected = dialog.showOpenDialog({
+  if (property === 'directory') {
+    selection = dialog.showOpenDialog({
       properties: ['openDirectory']
     });
+  } else if (property === 'file') {
+
+    if (type === '.dat') {
+
+      selection = dialog.showOpenDialog({
+        properties: ['openFile'],
+        filters: [
+          { name: 'Package', extensions: ['dat'] }
+        ]
+      });
+    }
   }
 
-  event.sender.send(arg + '-selected', directorySelected);
+  event.sender.send(property + '-selected', selection);
 });

@@ -55,6 +55,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="elements/elements.html">
   <!-- endreplace-->
 
+  <script>
+    var presentationMode ='offline';
+  </script>
+
   <!-- Set up config for packagedApp -->
   <script src="packagedAppSetup.js"></script>
 
@@ -66,13 +70,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <template is="dom-bind" id="app">
 
-    <epe-networked
-      id="epeNetworked"
+    <epe-offline
+      id="epeOffline"
       class="layout vertical"
+      import-package-actions="[[importPackageActions]]"
+      import-package-store="[[importPackageStore]]"
       data-source-actions="[[dataSourceActions]]"
       selected-records-actions="[[selectedRecordsActions]]"
-      import-actions="[[importActions]]"
-      import-store="[[importStore]]"
       export-actions="[[exportActions]]"
       export-store="[[exportStore]]"
       query-builder-actions="[[queryBuilderActions]]"
@@ -85,15 +89,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       filter-state-store="[[filterStateStore]]"
       events-store="[[eventsStore]]"
       places-store="[[placesStore]]"
+      people-actions="[[peopleActions]]"
       people-store="[[peopleStore]]"
       source-actions="[[sourceActions]]"
       source-store="[[sourceStore]]"
       map-geo-json-store="[[mapGeoJsonStore]]"
       time-line-store="[[timeLineStore]]"
-      csv-parser="[[CSVParser]]"
+      presentation-mode="[[presentationMode]]"
       route="[[route]]">
 
-    </epe-networked>
+    </epe-offline>
 
     <!-- Uncomment next block to enable Service Worker support (1/2) -->
     <!--

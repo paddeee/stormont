@@ -3,6 +3,7 @@
 var ldap =  global.config ? window.electronRequire('ldapjs') : null;
 var Reflux = require('reflux');
 var UserActions = require('../actions/users.js');
+var config = global.config ? global.config : require('../config/config.js');
 
 module.exports = Reflux.createStore({
 
@@ -63,10 +64,10 @@ module.exports = Reflux.createStore({
       //}
 
       var client = ldap.createClient({
-        url: 'ldap://ldap.forumsys.com:389'
+        url: config.paths.ldap
       });
 
-      client.bind(userLoginObject.username, userLoginObject.password, function(err) {
+      client.bind('cn=' + userLoginObject.username, userLoginObject.password, function(err) {
         if (err) {
           reject('General Error searching LDAP for User: ' + err);
         } else {
