@@ -446,6 +446,11 @@ module.exports = Reflux.createStore({
 
     var selectedIds = [];
 
+    // Return empty array if selected records haven't previously been added to presentation
+    if (!selectedCollection) {
+      return [];
+    }
+
     selectedCollection.forEach(function(selectedObject) {
       selectedIds.push(selectedObject.$loki);
     });
