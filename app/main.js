@@ -11,6 +11,8 @@ const fs = require('fs');
 // be closed automatically when the JavaScript object is garbage collected.
 var mainWindow = null;
 
+var ldapPath;
+
 // Check for LDAP
 var checkForLDAP =  function () {
 
@@ -39,8 +41,7 @@ var LDAPExists = function() {
     }
 
     var client = ldap.createClient({
-      //url: 'ldap://ldap.forumsys.com:389',
-      url: 'ldap://ldap.forumsys.com:388',
+      url: ldapPath,
       connectTimeout: 3000
     });
 
@@ -89,6 +90,7 @@ var getConfig =  function () {
 
       if (data) {
         global.config = data;
+        ldapPath = JSON.parse(data).paths.ldap;
         resolve();
       } else if (err) {
         reject(err);

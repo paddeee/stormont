@@ -420,7 +420,7 @@ module.exports = Reflux.createStore({
   },
 
   // Check if any Profile names exists in Statement
-  getProfileShortnames: function(statement, profileCollection) {
+  getProfileShortnames: function(statement) {
 
     var profileShortNames = [];
 

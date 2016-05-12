@@ -28,6 +28,8 @@
     "Tiff": true,
     "config": true,
     "ipcRenderer": true,
-    "presentationMode": true
+    "presentationMode": true,
+    "EpeCreatePackage": true,
+    "EpeEditPackage": true
   }
 }

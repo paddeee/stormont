@@ -327,7 +327,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     getProfilePhoto: function(path) {
 
       var photoPath = '/images/profile-placeholder.png';
-      var path = path || this.selectedProfileObject.Photo;
+
+      path = path || this.selectedProfileObject.Photo;
 
       if (path === '' || !path || path === 'path_to_file') {
         return photoPath;
@@ -396,7 +397,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // ToDo: Depending on formatting of description may need to perform some formatting here
     injectDescriptionHTML: function() {
-      this.$.ProfileDescription.innerHTML = this.selectedProfileObject['Description'];
+      this.$.ProfileDescription.innerHTML = this.selectedProfileObject.Description;
     },
 
     setSelectedProfileProperties: function() {
