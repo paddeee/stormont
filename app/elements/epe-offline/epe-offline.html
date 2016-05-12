@@ -81,6 +81,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
        z-index: 2;
      };
     }
+
+    .publish-dialog {
+      height: 50vh;
+      width: 50vw;
+    }
+
+    paper-input {
+      --paper-input-container-color: var(--secondary-text-color);
+      --paper-input-container-focus-color: var(--dark-primary-color);
+      --paper-input-container-input-color: var(--secondary-text-color);
+      --paper-input-container-invalid-color: var(--google-red-500);
+      margin: 2vh 0;
+    }
+
+    paper-progress {
+      --paper-progress-active-color: var(--dark-primary-color);
+      --paper-progress-secondary-color: var(--paper-light-blue-100);
+      width: 100%;
+    }
   </style>
   <template>
 
@@ -163,6 +182,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                  on-tap="toggleFilterDisplay">
                 <paper-icon-button icon="filter-list"></paper-icon-button>
               </a>
+              <a id="PublishButton"
+                 on-tap="openPublishDialog"
+                 hidden="[[hidePublishButton()]]">
+                <paper-icon-button icon="image:photo-camera"></paper-icon-button>
+              </a>
             </div>
           </div>
 
@@ -172,6 +196,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-tooltip for="DataGridButton" offset="0">Data Grid</paper-tooltip>
           <paper-tooltip for="MapButton" offset="0">Map</paper-tooltip>
           <paper-tooltip for="FilterButton" offset="0">Search/Filter</paper-tooltip>
+          <paper-tooltip for="PublishButton" offset="0">Publish as Evidence</paper-tooltip>
 
           <!-- Application name -->
           <div id="MiddleContainer" class="middle middle-container center horizontal layout">
@@ -235,6 +260,69 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       user-store="[[userStore]]"
       on-show-dialog="showDialog"></epe-filters>
 
+    <paper-dialog id="PublishDialog"
+                  class="publish-dialog"
+                  modal>
+      <h2>Publish as Evidence</h2>
+      <div>
+
+        <!-- Get rid if no need to let user choose location
+        <paper-button class="publish-location"
+                      on-tap="publishLocationTapped"
+                      raised>Choose Publish Directory..</paper-button>
+
+        <div class="display-export-path">[[exportLocation]]</div>-->
+
+        <paper-radio-group id="OpenOnPublish" selected="open" class="layout vertical">>
+          <paper-radio-button name="open">Automatically open after saving</paper-radio-button>
+          <paper-radio-button name="just-save">Just save</paper-radio-button>
+        </paper-radio-group>
+
+        <paper-input
+          id="EvidenceName"
+          label="Enter Name For Published Evidence"
+          autovalidate
+          required
+          error-message="Please Enter Name For Published Evidence"></paper-input>
+
+      </div>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Cancel</paper-button>
+        <paper-button dialog-confirm
+                      on-tap="publishScreen">OK</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="Publishing"
+                  class="publish-dialog"
+                  modal>
+      <h2>Publishing Package</h2>
+      <div>[[publishMessage]]</div>
+      <div class="export-progress layout horizontal center center-justified">
+        <paper-progress indeterminate value="800" min="100" max="1000"></paper-progress>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="PublishErrorDialog" modal>
+      <h2>Publish Evidence Error</h2>
+      <div>
+        <span>[[publishMessage]]</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="PublishSuccessDialog" modal>
+      <h2>Evidence Successfully Exported</h2>
+      <div>
+        <span>[[publishMessage]]</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
   </template>
 </dom-module>
 <script>
@@ -275,6 +363,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Whether filters editor is shown
         showFilters: {
           type: Boolean
+        },
+
+        publishMessage: {
+          type: String,
+          value: ''
         }
       },
 
@@ -309,6 +402,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // Scale middleContainer appName
           Polymer.Base.transform('scale(' + scaleMiddle + ') translateZ(0)', sectionName);
         }.bind(this));
+
+        if (this.screenStore) {
+
+          // When the presentations data is updated, set this view's presentationsData
+          this.screenStore.listen(function(screenStore) {
+
+            if (screenStore.message) {
+              this.handleScreenStoreBroadcast(screenStore.message);
+            }
+          }.bind(this));
+        }
       },
 
       // FIRED BY IRON-PAGES ON-IRON-SELECTED EVENT
@@ -583,6 +687,74 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Show/Hide Filter Display
       toggleFilterDisplay: function () {
         this.showFilters = !this.showFilters;
+      },
+
+      // Hide Publish button if in browser
+      hidePublishButton: function() {
+
+        if (typeof process === 'object') {
+          return false;
+        }
+        return true;
+      },
+
+      // Open Publish Dialog
+      openPublishDialog: function() {
+        this.$.PublishDialog.open();
+      },
+
+      // Start publish screen process
+      publishScreen: function() {
+
+        var publishObject = {
+          openOnSave: this.$.OpenOnPublish.selected,
+          fileName: this.$.EvidenceName.value
+        };
+
+        if (this.publishValidate()) {
+          this.$.PublishDialog.close();
+
+          // Make sure the dialog is closed so it won't be captured on screengrab
+          this.async(function() {
+            this.screenActions.publishScreen(publishObject);
+          }, 400);
+        }
+      },
+
+      // Handle the broadcast from the screen Store
+      handleScreenStoreBroadcast: function(message) {
+
+          // If process started
+        if (message.type === 'gatheringScreens') {
+          this.publishMessage = message.text;
+          //this.$.Publishing.open();
+
+          // If publish successful
+        } else if (message.type === 'publishSuccess') {
+          this.$.EvidenceName.value = '';
+          this.publishMessage = message.text;
+          this.$.PublishSuccessDialog.open();
+
+          // If publish failed
+        } else if (message.type === 'publishFailure') {
+          this.$.EvidenceName.value = '';
+          this.publishMessage = message.text;
+          this.$.PublishErrorDialog.open();
+        }
+      },
+
+      // Check filename to be added is valid
+      publishValidate: function() {
+
+        var valid = true;
+
+        // If no data type has been selected
+        if (this.$.EvidenceName.value === '') {
+          valid = false;
+          this.$.EvidenceName.invalid = true;
+        }
+
+        return valid;
       }
     });
   })();

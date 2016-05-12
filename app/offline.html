@@ -31,6 +31,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <!-- Add to homescreen for Chrome on Android -->
   <meta name="mobile-web-app-capable" content="yes">
+
+  <!-- If changing this also need to change Publish Screen code as it uses this as a hook to publish the window -->
   <meta name="application-name" content="SITF Electronic Presentation of Evidence">
   <link rel="icon" sizes="192x192" href="images/touch/chrome-touch-icon-192x192.png">
 
@@ -77,6 +79,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       import-package-store="[[importPackageStore]]"
       data-source-actions="[[dataSourceActions]]"
       selected-records-actions="[[selectedRecordsActions]]"
+      screen-actions="[[screenActions]]"
+      screen-store="[[screenStore]]"
       export-actions="[[exportActions]]"
       export-store="[[exportStore]]"
       query-builder-actions="[[queryBuilderActions]]"

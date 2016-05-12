@@ -62,6 +62,9 @@ module.exports = Reflux.createStore({
                           type: 'dataBaseLoaded'
                         };
 
+                        // Add the package filesystem location so we can use it later for Publishing functionality
+                        global.config.packagePath = importFileAdapter.tempPackageDirectory;
+
                         dataSourceStore.trigger(dataSourceStore);
 
                         this.message = 'importSuccess';
