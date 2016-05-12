@@ -260,11 +260,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         value: []
       },
 
-      profilePhoto: {
-        type: String,
-        value: '/images/profile-placeholder.png'
-      },
-
       profileFullName: {
         type: String,
         value: 'Profile Name'
@@ -326,15 +321,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Show photo if valid, otherwise use default pic
     getProfilePhoto: function(path) {
 
-      var photoPath = '/images/profile-placeholder.png';
+      var photoPath;
+      var sourcePath = '';
+
+      // Set the src of the image if inside Electron
+      if (typeof process === 'object') {
+        sourcePath = config.paths.sourcePath;
+      }
+
+      photoPath = '/testmedia/profiles/profile-placeholder.png';
 
       path = path || this.selectedProfileObject.Photo;
 
       if (path === '' || !path || path === 'path_to_file') {
-        return photoPath;
+        return sourcePath + photoPath;
       }
 
-      return path;
+      return sourcePath + path;
     },
 
     // Get Date of Death

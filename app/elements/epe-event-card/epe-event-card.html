@@ -582,14 +582,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Show photo if valid, otherwise use default pic
     getProfilePhoto: function(path) {
 
-      var photoPath = '/images/profile-placeholder.png';
+      var photoPath;
+      var sourcePath = '';
 
-      if (path === '' || !path || path === 'path_to_file') {
-        return photoPath;
+      // Set the src of the image if inside Electron
+      if (typeof process === 'object') {
+        sourcePath = config.paths.sourcePath;
       }
 
-      return path;
-    },
+      photoPath = '/testmedia/profiles/profile-placeholder.png';
+
+      if (path === '' || !path || path === 'path_to_file') {
+        return sourcePath + photoPath;
+      }
+
+      return sourcePath + path;
+    }
   });
 })();
 </script>
