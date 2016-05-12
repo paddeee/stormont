@@ -78,15 +78,8 @@ var getConfig =  function () {
   return new Promise(function (resolve, reject) {
 
     var configDirectory = process.resourcesPath;
-    var platformPath;
 
-    if (process.platform != 'darwin') {
-      platformPath = '/SITFConfig/ConfigWindows/';
-    } else {
-      platformPath = '/SITFConfig/ConfigOSX/';
-    }
-
-    fs.readFile(configDirectory + platformPath + '/appConfig.json', 'utf-8', function(err, data) {
+    fs.readFile(configDirectory + '/appConfig.json', 'utf-8', function(err, data) {
 
       if (data) {
         global.config = data;

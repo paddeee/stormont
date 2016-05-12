@@ -424,21 +424,25 @@ module.exports = Reflux.createStore({
   // Copies of selected data objects are stored in Presentations Collection. These need to be updated.
   updateSelectedPresentationsData: function() {
 
-    var presentationsData = dataSourceStore.dataSource.getCollection(config.PresentationsCollection).data;
+    var presentationsCollection = dataSourceStore.dataSource.getCollection(config.PresentationsCollection);
     var eventsCollection = dataSourceStore.dataSource.getCollection(config.EventsCollection.name);
     var placeCollection = dataSourceStore.dataSource.getCollection(config.PlacesCollection.name);
     var personCollection = dataSourceStore.dataSource.getCollection(config.PeopleCollection.name);
     var sourceCollection = dataSourceStore.dataSource.getCollection(config.SourcesCollection.name);
 
     // For Each Presentation
-    presentationsData.forEach(function(presentation) {
 
-      presentation.selectedEvents = this.updateSelectedPresentationData(presentation.selectedEvents, eventsCollection);
-      presentation.selectedPlaces = this.updateSelectedPresentationData(presentation.selectedPlaces, placeCollection);
-      presentation.selectedPeople = this.updateSelectedPresentationData(presentation.selectedPeople, personCollection);
-      presentation.selectedSources = this.updateSelectedPresentationData(presentation.selectedSources, sourceCollection);
+    if (presentationsCollection) {
 
-    }.bind(this));
+      presentationsCollection.data.forEach(function(presentation) {
+
+        presentation.selectedEvents = this.updateSelectedPresentationData(presentation.selectedEvents, eventsCollection);
+        presentation.selectedPlaces = this.updateSelectedPresentationData(presentation.selectedPlaces, placeCollection);
+        presentation.selectedPeople = this.updateSelectedPresentationData(presentation.selectedPeople, personCollection);
+        presentation.selectedSources = this.updateSelectedPresentationData(presentation.selectedSources, sourceCollection);
+
+      }.bind(this));
+    }
   },
 
   // Update the objects stored in arrays of Presentation Store that are used to export selected records
