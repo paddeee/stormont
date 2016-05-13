@@ -531,6 +531,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           } else if (app.route === 'import') {
             this.sectionTitle = 'Import Casemap Files';
+            this.manageScrollHeader('import');
 
           } else if (app.route === 'create-package') {
 
@@ -641,6 +642,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var $scrollHeader = this.$.MainScrollHeader;
 
         switch (route) {
+          case 'import':
+            $scrollHeader.scroll(0, true);
+            this.$.MainScrollHeader.classList.remove('no-scrollbar');
+            this.$.MainScrollHeader.classList.remove('no-back-button');
+            break;
           case 'view-packages':
             $scrollHeader.scroll(0, true);
             this.$.MainScrollHeader.classList.remove('no-scrollbar');
