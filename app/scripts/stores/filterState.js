@@ -610,9 +610,9 @@ module.exports = Reflux.createStore({
 
     var split = function (item) {
 
-      var suspects = item.Suspects.split(',');
-      var victims = item.Victims.split(',');
-      var witnesses = item.Witnesses.split(',');
+      var suspects = item.Suspects ? item.Suspects.split(',') : [];
+      var victims = item.Victims ? item.Victims.split(',') : [];
+      var witnesses = item.Witnesses? item.Witnesses.split(',') : [];
 
       // Match any shortNames inside square brackets
       suspects = suspects.map(function(suspect) {

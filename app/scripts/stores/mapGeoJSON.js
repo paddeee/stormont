@@ -233,7 +233,7 @@ module.exports = Reflux.createStore({
   // Add Related Events data to the geoJSON Object
   addRelatedEventsDataToGeoJSON: function(featureObject, selectedEvent) {
 
-    var relatedEvents = selectedEvent['Linked events'].split(',');
+    var relatedEvents = selectedEvent['Linked events'] ? selectedEvent['Linked events'].split(',') : [];
 
     relatedEvents = _.map(relatedEvents, function(relatedEvent) {
       return relatedEvent.trim();
@@ -268,9 +268,9 @@ module.exports = Reflux.createStore({
       return item.trim();
     };
 
-    var suspectsArray = selectedEvent.Suspects.split(',');
-    var victimsArray = selectedEvent.Victims.split(',');
-    var witnessesArray = selectedEvent.Witnesses.split(',');
+    var suspectsArray = selectedEvent.Suspects ? selectedEvent.Suspects.split(',') : [];
+    var victimsArray = selectedEvent.Victims ? selectedEvent.Victims.split(',') : [];
+    var witnessesArray = selectedEvent.Witnesses ? selectedEvent.Witnesses.split(',') : [];
 
     var relatedSuspects = _.map(suspectsArray, getShortName);
     var relatedVictims = _.map(victimsArray, getShortName);
@@ -284,8 +284,14 @@ module.exports = Reflux.createStore({
   // Add Related Source data to the geoJSON Object
   addRelatedSourceDataToGeoJSON: function(featureObject, selectedEvent, relatedPlace) {
 
-    var supportingEventsSource = this.splitStringByCommas(selectedEvent['Supporting Documents'].toString());
+    var supportingEventsSource;
     var supportingPlaceSource;
+
+    if (!selectedEvent['Supporting Documents']) {
+      return;
+    }
+
+    supportingEventsSource = this.splitStringByCommas(selectedEvent['Supporting Documents'].toString());
 
     // Event may not have related place
     if (relatedPlace) {
