@@ -115,6 +115,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       font-size: 13px;
       margin: 4px 0;
     }
+
+    .source-icon-container {
+      margin: 0 8px 0 0;
+    }
+
+    .source-icon {
+      color: var(--default-primary-color);
+      height: 50px;
+      width: 50px;
+    }
   </style>
   <template>
     <div class="profile layout horizontal">
@@ -204,11 +214,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         as="source"
                         hidden="[[!supportingDocs.length]]">
 
-                <paper-material class="related-source layout vertical center"
+                <paper-material class="related-source layout horizontal"
                                 source="[[source]]"
                                 on-tap="navigateToSource">
-                  <div class="source-full-name">[[getFullName(source)]]</div>
-                  <div class="source-description">[[source.Description]]</div>
+                  <div class="source-icon-container">
+                    <iron-icon icon="[[getSourceIcon(source)]]" class="source-icon"/>
+                  </div>
+                  <div class="source-info layout vertical center">
+                    <div class="source-full-name">[[getFullName(source)]]</div>
+                    <div class="source-description">[[source.Description]]</div>
+                  </div>
                 </paper-material>
 
               </template>
@@ -394,6 +409,60 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       } else {
         return '';
       }
+    },
+
+    // Add an icon to related sources
+    getSourceIcon: function(source) {
+
+      var filePath = source['Linked File'];
+      var fileExtension = filePath.substr(filePath.lastIndexOf('.') + 1);
+      var icon;
+
+      switch (fileExtension) {
+        case 'pdf':
+          icon = 'image:picture-as-pdf';
+          break;
+        case 'jpg':
+          icon = 'image:photo';
+          break;
+        case 'jpeg':
+          icon = 'image:photo';
+          break;
+        case 'gif':
+          icon = 'image:photo';
+          break;
+        case 'png':
+          icon = 'image:photo';
+          break;
+        case 'm4a':
+          icon = 'av:surround-sound';
+          break;
+        case 'mp3':
+          icon = 'av:surround-sound';
+          break;
+        case 'wav':
+          icon = 'av:surround-sound';
+          break;
+        case 'mp4':
+          icon = 'image:movie-creation';
+          break;
+        case 'mov':
+          icon = 'image:movie-creation';
+          break;
+        case 'webm':
+          icon = 'image:movie-creation';
+          break;
+        case 'tif':
+          icon = 'image:picture-as-pdf';
+          break;
+        case 'tiff':
+          icon = 'image:picture-as-pdf';
+          break;
+        default:
+          icon = 'editor:insert-drive-file';
+      }
+
+      return icon;
     },
 
     // ToDo: Depending on formatting of description may need to perform some formatting here

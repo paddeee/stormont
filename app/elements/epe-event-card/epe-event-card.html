@@ -86,25 +86,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       right: 0;
     }
 
+    .source-icon {
+      height: 20px;
+      width: 20px;
+    }
+
     ul {
-      padding: 0 16px;
+      list-style-type: none;
+      padding: 0 0 16px;
     }
 
     li {
       font-weight: bold;
+      margin: 8px 0;
     }
 
     li span {
       font-weight: normal;
     }
 
-    .event-card__name {
-      margin: 8px 0;
-    }
-
     .event-card__profile-image {
       height: 30px;
       margin: 0 16px 0 0;
+    }
+
+    .source-icon-holder {
+      margin: 0 8px 0 0;
+    }
+
+    .event-card__description {
+      font-weight: normal;
     }
   </style>
   <template>
@@ -173,9 +184,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <ul>
                 <template is="dom-repeat"
                           items="[[eventData.supportingEvidence.eventsEvidence]]">
-                  <li on-tap="navigateToSource">
-                    <span class="event-card__name">[[item.shortName]]</span>
-                    <span>[[item.description]]</span>
+                  <li on-tap="navigateToSource"
+                      class="layout horizontal"
+                      hidden$="[[!item.supportingSourceObject]]">
+                    <div class="source-icon-holder">
+                      <iron-icon icon="[[getSourceIcon(item.supportingSourceObject)]]"
+                               class="source-icon"></iron-icon>
+                    </div>
+                    <div>
+                      <div class="event-card__name">[[item.shortName]]</div>
+                      <div class="event-card__description">[[item.description]]</div>
+                    </div>
                   </li>
                 </template>
                 </ul>
@@ -211,9 +230,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <ul>
                   <template is="dom-repeat"
                             items="[[eventData.supportingEvidence.placeEvidence]]">
-                    <li on-tap="navigateToSource">
-                      <span class="event-card__name">[[item.shortName]]</span>
-                      <span>[[item.description]]</span>
+                    <li on-tap="navigateToSource"
+                        class="layout horizontal"
+                        hidden$="[[!item.supportingSourceObject]]">
+                      <div class="source-icon-holder">
+                        <iron-icon icon="[[getSourceIcon(item.supportingSourceObject)]]"
+                                   class="source-icon"></iron-icon>
+                      </div>
+                      <div>
+                        <div class="event-card__name">[[item.shortName]]</div>
+                        <div class="event-card__description">[[item.description]]</div>
+                      </div>
                     </li>
                   </template>
                 </ul>
@@ -596,6 +623,65 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       return sourcePath + path;
+    },
+
+    // Add an icon to related sources
+    getSourceIcon: function(source) {
+
+      var filePath;
+      var fileExtension;
+      var icon;
+
+      if (source) {
+        filePath = source['Linked File'];
+        fileExtension = filePath.substr(filePath.lastIndexOf('.') + 1);
+      }
+
+      switch (fileExtension) {
+        case 'pdf':
+          icon = 'image:picture-as-pdf';
+          break;
+        case 'jpg':
+          icon = 'image:photo';
+          break;
+        case 'jpeg':
+          icon = 'image:photo';
+          break;
+        case 'gif':
+          icon = 'image:photo';
+          break;
+        case 'png':
+          icon = 'image:photo';
+          break;
+        case 'm4a':
+          icon = 'av:surround-sound';
+          break;
+        case 'mp3':
+          icon = 'av:surround-sound';
+          break;
+        case 'wav':
+          icon = 'av:surround-sound';
+          break;
+        case 'mp4':
+          icon = 'image:movie-creation';
+          break;
+        case 'mov':
+          icon = 'image:movie-creation';
+          break;
+        case 'webm':
+          icon = 'image:movie-creation';
+          break;
+        case 'tif':
+          icon = 'image:picture-as-pdf';
+          break;
+        case 'tiff':
+          icon = 'image:picture-as-pdf';
+          break;
+        default:
+          icon = 'editor:insert-drive-file';
+      }
+
+      return icon;
     }
   });
 })();
