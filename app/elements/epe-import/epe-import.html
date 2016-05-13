@@ -231,6 +231,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Close the Toast
     closeToast: function() {
+      page('/create-package/data-grid/' + app.config.EventsCollection.name);
       this.$.ImportToast.hide();
     }
   });
