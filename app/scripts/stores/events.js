@@ -235,7 +235,7 @@ module.exports = Reflux.createStore({
       fromDate = fromDefaultObject.value;
     }
 
-    if (toDate === '' || toDate === 'TBD') {
+    if (!toDate || toDate === '' || toDate === 'TBD') {
       toDate = toDefaultObject.value;
     }
 
