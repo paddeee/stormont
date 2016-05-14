@@ -6,7 +6,8 @@ var config = {
     fields: [{
       name: 'Full Name',
       display: 'true',
-      filter: 'regex'
+      filter: 'regex',
+      width: '400'
     },
     {
       name: 'Short Name',
@@ -17,59 +18,70 @@ var config = {
       name: 'Type',
       display: 'true',
       filter: 'select',
-      filterValues: ['Murder', 'Arson', 'Kidnap']
+      filterValues: ['Murder', 'Arson', 'Kidnap'],
+      width: '120'
     },
     {
       name: 'Linked events',
       display: 'true',
-      filter: 'regex'
+      filter: 'regex',
+      width: '150'
     },
     {
       name: 'Suspects',
       display: 'true',
-      filter: 'regex'
+      filter: 'regex',
+      width: '200'
     },
     {
       name: 'Victims',
       display: 'true',
-      filter: 'regex'
+      filter: 'regex',
+      width: '200'
     },
     {
       name: 'Witnesses',
       display: 'true',
-      filter: 'regex'
+      filter: 'regex',
+      width: '200'
     },
     {
       name: 'Place',
       display: 'true',
-      filter: 'regex'
+      filter: 'regex',
+      width: '150'
     },
     {
       name: 'Begin Date and Time',
       display: 'true',
       filter: 'gte',
-      value: '1900-01-01 00:00:00'
+      value: '1900-01-01 00:00:00',
+      width: '150'
     },
     {
       name: 'End Date and Time',
       display: 'true',
       filter: 'lte',
-      value: '2100-12-31 00:00:00'
+      value: '2100-12-31 00:00:00',
+      width: '150'
     },
     {
       name: 'Description',
       display: 'true',
-      filter: 'regex'
+      filter: 'regex',
+      width: '2000'
     },
     {
       name: 'Indictment Reference',
       display: 'true',
-      filter: 'regex'
+      filter: 'regex',
+      width: '120'
     },
     {
       name: 'Supporting Documents',
       display: 'true',
-      filter: 'regex'
+      filter: 'regex',
+      width: '150'
     }]
   },
   PeopleCollection: {
@@ -77,7 +89,8 @@ var config = {
     fields: [{
       name: 'Full Name',
       display: 'true',
-      filter: 'regex'
+      filter: 'regex',
+      width: '200'
     },
     {
       name: 'Short Name',
@@ -88,41 +101,48 @@ var config = {
       name: 'Gender',
       display: 'true',
       filter: 'select',
-      filterValues: ['Male', 'Female']
+      filterValues: ['Male', 'Female'],
+      width: '120'
     },
     {
       name: 'Date of birth',
       display: 'true',
       filter: 'gte',
-      value: '1900-01-01 00:00:00'
+      value: '1900-01-01 00:00:00',
+      width: '150'
     },
     {
       name: 'Date of death',
       display: 'true',
       filter: 'lte',
-      value: '2100-12-31 00:00:00'
+      value: '2100-12-31 00:00:00',
+      width: '150'
     },
     {
       name: 'Ethnicity',
       display: 'true',
       filter: 'select',
-      filterValues: ['White', 'Black', 'Asian']
+      filterValues: ['White', 'Black', 'Asian'],
+      width: '120'
     },
     {
       name: 'Affiliation',
       display: 'true',
       filter: 'select',
-      filterValues: ['Army Unit', 'Other']
+      filterValues: ['Army Unit', 'Other'],
+      width: '120'
     },
     {
       name: 'Linked persons',
       display: 'true',
-      filter: 'regex'
+      filter: 'regex',
+      width: '400'
     },
     {
       name: 'Description',
       display: 'true',
-      filter: 'regex'
+      filter: 'regex',
+      width: '1000'
     },
     {
       name: 'Photo',
@@ -132,12 +152,14 @@ var config = {
     {
       name: 'Profile',
       display: 'true',
-      filter: 'regex'
+      filter: 'regex',
+      width: '120'
     },
     {
       name: 'Supporting Documents',
       display: 'true',
-      filter: 'regex'
+      filter: 'regex',
+      width: '200'
     }]
   },
   PlacesCollection: {
@@ -145,7 +167,8 @@ var config = {
     fields: [{
       name: 'Full Name',
       display: 'true',
-      filter: 'regex'
+      filter: 'regex',
+      width: '200'
     },
     {
       name: 'Short Name',
@@ -156,40 +179,47 @@ var config = {
       name: 'Type',
       display: 'true',
       filter: 'select',
-      filterValues: ['Church', 'School', 'Army base', 'Point of interest']
+      filterValues: ['Church', 'School', 'Army base', 'Point of interest'],
+      width: '150'
     },
     {
       name: 'AOR_KFOR',
       display: 'true',
-      filter: 'regex'
+      filter: 'regex',
+      width: '100'
     },
     {
       name: 'AOR_KLA',
       display: 'true',
-      filter: 'regex'
+      filter: 'regex',
+      width: '100'
     },
     {
       name: 'AOR_Kumanovo',
       display: 'true',
-      filter: 'regex'
+      filter: 'regex',
+      width: '100'
     },
     {
       name: 'Country',
       display: 'true',
       filter: 'select',
-      filterValues: ['Kosovo', 'Serbia', 'Bosnia']
+      filterValues: ['Kosovo', 'Serbia', 'Bosnia'],
+      width: '150'
     },
     {
       name: 'Region',
       display: 'true',
       filter: 'select',
-      filterValues: ['North', 'South', 'East', 'West']
+      filterValues: ['North', 'South', 'East', 'West'],
+      width: '120'
     },
     {
       name: 'Municipality',
       display: 'true',
       filter: 'select',
-      filterValues: ['Municipality1', 'Municipality2', 'Municipality3', 'Municipality4']
+      filterValues: ['Municipality1', 'Municipality2', 'Municipality3', 'Municipality4'],
+      width: '120'
     },
     {
       name: 'Map location',
@@ -200,22 +230,26 @@ var config = {
       name: 'Time Range Start',
       display: 'true',
       filter: 'gte',
-      value: '1900-01-01 00:00:00'
+      value: '1900-01-01 00:00:00',
+      width: '150'
     },
     {
       name: 'Time Range End',
       display: 'true',
       filter: 'lte',
-      value: '2100-12-31 00:00:00'
+      value: '2100-12-31 00:00:00',
+      width: '150'
     },
     { name: 'Supporting Documents',
       display: 'true',
-      filter: 'regex'
+      filter: 'regex',
+      width: '200'
     },
     {
       name: 'Description',
       display: 'true',
-      filter: 'regex'
+      filter: 'regex',
+      width: '1000'
     }]
   },
   SourcesCollection: {
@@ -223,7 +257,8 @@ var config = {
     fields: [{
       name: 'Full Name',
       display: 'true',
-      filter: 'regex'
+      filter: 'regex',
+      width: '200'
     },
     {
       name: 'Short Name',
@@ -233,7 +268,8 @@ var config = {
     {
       name: 'Description',
       display: 'true',
-      filter: 'regex'
+      filter: 'regex',
+      width: '400'
     },
     {
       name: 'Pre-exhibit No',
@@ -258,12 +294,14 @@ var config = {
     {
       name: 'Language',
       display: 'true',
-      filter: 'regex'
+      filter: 'regex',
+      width: '100'
     },
     {
       name: 'Approved for release',
       display: 'true',
-      filter: 'none'
+      filter: 'none',
+      width: '100'
     }]
   },
   PresentationsCollection: 'Presentations',

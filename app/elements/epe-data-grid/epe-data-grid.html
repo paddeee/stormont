@@ -357,7 +357,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <tbody>
             <template id="ListTemplate"
                       is="dom-repeat"
-                      items="[[paginatedData]]">
+                      items="[[paginatedData]]"
+                      initialCount="[[perPage]]"
+                      on-dom-change="recordsTemplated">
               <tr class$="[[isApprovedForRelease(item)]]">
                 <td class="checkbox-holder">
                   <paper-checkbox class="record-checkbox"
@@ -399,7 +401,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <div class="layout horizontal center center-justified">
             <epe-paginator
               id="Paginator"
-              perpage="20"
+              perpage="[[perPage]]"
               items="{{paginatedData}}"
               data="[[gridData]]"
               show-first="true"
@@ -437,6 +439,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       is: 'epe-data-grid',
 
       properties: {
+
+        perPage: {
+          tye: String,
+          value: '20'
+        },
 
         dataLoaded: {
           tye: Boolean,
@@ -620,7 +627,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.updateCheckboxes();
 
           // Set table to relevant size depending on body height
-          this.setDefaultTableHeight();
+          /*this.setDefaultTableHeight();
 
           // Set table to relevant size depending on widths of heading names
           // Wrap in async to give template time to be stamped
@@ -633,8 +640,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             if (EpeEditPackage.createPackageRoute === 'data-grid') {
               this.async(this.setDefaultTableWidths);
             }
-          }
+          }*/
         }
+      },
+
+      // Called by template when it has rendered the records
+      recordsTemplated: function() {
+
+        // Set table to relevant size depending on body height
+        this.setDefaultTableHeight();
+
+        // Set table to relevant size depending on widths of heading names
+        this.async(this.setDefaultTableWidths);
       },
 
       // Set heights on table elements to ensure it fits the available height without scrolling
@@ -646,70 +663,95 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.DataGridRecords.style.height = bodyHeight - 265 + 'px';
       },
 
+      // Set column widths
+      getColumnWidths: function(fieldName) {
+
+        var collection;
+        var colSize = '';
+
+        switch (this.collectionName) {
+          case app.config.EventsCollection.name:
+            collection = app.config.EventsCollection;
+            break;
+          case app.config.PlacesCollection.name:
+            collection = app.config.PlacesCollection;
+            break;
+          case app.config.PeopleCollection.name:
+            collection = app.config.PeopleCollection;
+            break;
+          case app.config.SourcesCollection.name:
+            collection = app.config.SourcesCollection;
+            break;
+          default:
+            console.error('Sorry, no collectionName set');
+        }
+
+        collection.fields.forEach(function(field) {
+
+          if (field.name !== fieldName) {
+            return;
+          }
+
+          if (field.display === 'false') {
+            return;
+          }
+
+          if (field.width) {
+            colSize = field.width;
+            return;
+          }
+        });
+
+        return colSize;
+      },
+
       // Set default table and column widths
       setDefaultTableWidths: function() {
 
-        var fieldHeadings = this.querySelectorAll('.field-heading');
         var tableWidth = 0;
         var checkBoxColWidth = 51;
         var relatedToEventColWidth = 0;
         var sourceColWidth = 0;
-        var $relatedToEventCol;
-        var $sourceCol;
+        var $relatedToEventCol = this.querySelector('.selected-by-event-heading:not([hidden]');
+        var $sourceCol = this.querySelector('.blank:not([hidden]');
 
-        // Reset style widths on table and colGroup cols
+        // Reset style widths on table
         this.$.HeaderTable.style.width = '';
+
+        // Set col widths and calculate table width
         this.querySelectorAll('.field-col').forEach(function($col) {
+
+          var headingName = $col.getAttribute('heading-name');
+
           $col.style.width = '';
-        });
+          $col.style.width = this.getColumnWidths(headingName) + 'px';
 
-        // Set the colGroup width based on the width of the field heading
-        if (fieldHeadings.length > 0) {
+          tableWidth = tableWidth + $col.clientWidth + 1;
 
-          $relatedToEventCol = this.querySelector('.selected-by-event-heading:not([hidden]');
-          $sourceCol = this.querySelector('.blank:not([hidden]');
+        }.bind(this));
 
-          // Add borders to width if not hidden
-          if ($relatedToEventCol) {
-            relatedToEventColWidth = 61;
-          }
+        // Resizing the Columns will have made the scroll top position change so reset again
+        this.$.DataGridRecords.scrollTop = this.recordsScrollTopPosition;
 
-          if ($sourceCol) {
-            sourceColWidth = 101;
-          }
+        // Add borders to width if not hidden
+        if ($relatedToEventCol) {
+          relatedToEventColWidth = 61;
+        }
 
-          // Set each colGroup col's width
-          fieldHeadings.forEach(function(fieldHeading) {
+        if ($sourceCol) {
+          sourceColWidth = 101;
+        }
 
-            var headingName = fieldHeading.getAttribute('heading-name');
-            var $colElements;
+        // Calculate table width including all visible headers
+        tableWidth = tableWidth + checkBoxColWidth + relatedToEventColWidth + sourceColWidth;
 
-            if (fieldHeading.clientWidth > 0) {
-
-              $colElements = this.querySelectorAll('.field-col[heading-name="' + headingName + '"');
-
-              $colElements.forEach(function($col) {
-                $col.style.width = fieldHeading.clientWidth + 'px';
-              });
-
-              tableWidth = tableWidth + fieldHeading.clientWidth + 1;
-            }
-          }.bind(this));
-
-          // Resizing the Columns will have made the scroll top position change so reset again
-          this.$.DataGridRecords.scrollTop = this.recordsScrollTopPosition;
-
-          // Calculate table width including all visible headers
-          tableWidth = tableWidth + checkBoxColWidth + relatedToEventColWidth + sourceColWidth;
-
-          // If the table is less than this element's width, set it to 100%
-          if (tableWidth < document.querySelector('body').clientWidth) {
-            this.$.HeaderTable.style.width = '100%';
-            this.$.RecordsTable.style.width = '100%';
-          } else {
-            this.$.HeaderTable.style.width = tableWidth + 'px';
-            this.$.RecordsTable.style.width = tableWidth + 'px';
-          }
+        // If the table is less than this element's width, set it to 100%
+        if (tableWidth < document.querySelector('body').clientWidth) {
+          this.$.HeaderTable.style.width = '100%';
+          this.$.RecordsTable.style.width = '100%';
+        } else {
+          this.$.HeaderTable.style.width = tableWidth + 'px';
+          this.$.RecordsTable.style.width = tableWidth + 'px';
         }
 
         // Set the scrollHeader
