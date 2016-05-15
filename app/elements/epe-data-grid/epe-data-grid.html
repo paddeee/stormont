@@ -625,22 +625,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // Force template-repeat to show checkboxes in correct state after the
           // show record property has changed
           this.updateCheckboxes();
-
-          // Set table to relevant size depending on body height
-          /*this.setDefaultTableHeight();
-
-          // Set table to relevant size depending on widths of heading names
-          // Wrap in async to give template time to be stamped
-          // Don't calculate widths if not viewing data grid, ie added filters on map, as DOM won't be there
-          if (this.editState === 'creating' && this.presentationState === 'creating') {
-            if (EpeCreatePackage.createPackageRoute === 'data-grid') {
-              this.async(this.setDefaultTableWidths);
-            }
-          } else if (this.editState === 'editing' && this.presentationState !== 'creating') {
-            if (EpeEditPackage.createPackageRoute === 'data-grid') {
-              this.async(this.setDefaultTableWidths);
-            }
-          }*/
         }
       },
 
