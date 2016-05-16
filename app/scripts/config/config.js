@@ -25,7 +25,7 @@ var config = {
       name: 'Linked events',
       display: 'true',
       filter: 'regex',
-      width: '150'
+      width: '400'
     },
     {
       name: 'Suspects',

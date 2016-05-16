@@ -141,6 +141,14 @@ module.exports = Reflux.createStore({
     // Replace shortnames in Events
     eventData.forEach(function(event) {
 
+      if (event['Linked events']) {
+        event['Linked events'] = this.replaceUsingDictionary(shortNameDictionary, event['Linked events'], handlerFunction);
+      }
+
+      if (event.Place) {
+        event.Place = this.replaceUsingDictionary(shortNameDictionary, event.Place, handlerFunction);
+      }
+
       if (event.Suspects) {
         event.Suspects = this.replaceUsingDictionary(shortNameDictionary, event.Suspects, handlerFunction);
       }
