@@ -355,14 +355,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       return sourcePath + path;
     },
 
-    // Get Date of Death
-    getDateOfDeath: function() {
+    // Get Date
+    getDate: function(date) {
 
-      if (this.selectedProfileObject['Date of death'] === 'TBD') {
+      var formattedDate;
+
+      if (!date || date === 'TBD') {
         return '';
       }
 
-      return this.selectedProfileObject['Date of death'];
+      formattedDate = app.moment(date).format('MMMM Do, YYYY');
+
+      if (formattedDate === 'Invalid date') {
+        return date;
+      }
+
+      return formattedDate;
     },
 
     // Check if a date is complete
@@ -480,8 +488,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.profileGender = this.selectedProfileObject.Gender;
       this.profileAge = this.getProfileAge();
       this.genderAndAgeComma = this.getGenderAndAgeComma();
-      this.dateOfBirth = this.selectedProfileObject['Date of birth'];
-      this.dateOfDeath = this.getDateOfDeath();
+      this.dateOfBirth = this.getDate(this.selectedProfileObject['Date of birth']);
+      this.dateOfDeath = this.getDate(this.selectedProfileObject['Date of death']);
       this.ethnicity = this.selectedProfileObject.Ethnicity;
       this.affiliations = this.selectedProfileObject.Affiliation;
     },

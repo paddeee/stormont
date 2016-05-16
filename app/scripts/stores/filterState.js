@@ -560,6 +560,10 @@ module.exports = Reflux.createStore({
 
     itemArray.forEach(function (eventObject) {
 
+      if (!eventObject.Place) {
+        return;
+      }
+
       // Match any shortNames inside square brackets
       var place = eventObject.Place.replace(/(^.*\[|\].*$)/g, '');
 

@@ -189,9 +189,11 @@ module.exports = Reflux.createStore({
       return item.trim();
     };
 
+    var selectedPlace = selectedEvent.Place ? selectedEvent.Place : '';
+
     var relatedPlace = this.selectedPlaces.copy().find({
       'Short Name': {
-        '$eq': getShortName(selectedEvent.Place)
+        '$eq': getShortName(selectedPlace)
       }
     }).data()[0];
 
