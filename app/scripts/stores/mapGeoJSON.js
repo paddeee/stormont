@@ -181,9 +181,17 @@ module.exports = Reflux.createStore({
       }
     };
 
+    var getShortName = function (item) {
+
+      if (item.match(/[^[\]]+(?=])/g)) {
+        item = item.match(/[^[\]]+(?=])/g)[0];
+      }
+      return item.trim();
+    };
+
     var relatedPlace = this.selectedPlaces.copy().find({
       'Short Name': {
-        '$eq': selectedEvent.Place
+        '$eq': getShortName(selectedEvent.Place)
       }
     }).data()[0];
 
@@ -233,10 +241,18 @@ module.exports = Reflux.createStore({
   // Add Related Events data to the geoJSON Object
   addRelatedEventsDataToGeoJSON: function(featureObject, selectedEvent) {
 
+    var getShortName = function (item) {
+
+      if (item.match(/[^[\]]+(?=])/g)) {
+        item = item.match(/[^[\]]+(?=])/g)[0];
+      }
+      return item.trim();
+    };
+
     var relatedEvents = selectedEvent['Linked events'] ? selectedEvent['Linked events'].split(',') : [];
 
     relatedEvents = _.map(relatedEvents, function(relatedEvent) {
-      return relatedEvent.trim();
+      return getShortName(relatedEvent);
     });
 
     var eventDetails = this.selectedEvents.copy().find({
