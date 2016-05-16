@@ -317,6 +317,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var $image;
       var bottom;
+      var header = 128;
       var $containerWidth;
       var $containerHeight;
       var imageRatio;
@@ -356,7 +357,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           containerPaddingBottom = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue('padding-bottom'), 10);
           containerPaddingLeft = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue('padding-left'), 10);
           actualContainerWidth = this.$.ImageContent.clientWidth - containerPaddingLeft - containerPaddingRight;
-          actualContainerHeight = this.$.ImageContent.clientHeight - containerPaddingTop - containerPaddingBottom - bottom;
+          actualContainerHeight = this.$.ImageContent.clientHeight - containerPaddingTop - containerPaddingBottom - header - bottom;
 
           // Landscape Image
           if (imageRatio >= 1) {
