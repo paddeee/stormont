@@ -160,7 +160,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
 
       <!-- Media Footer -->
-      <div class="media__footer relative horizontal layout center center-justified">
+      <div id="MediaFooter" class="media__footer relative horizontal layout center center-justified">
 
         <!-- Annotations -->
         <div class="media_button-holder border-right horizontal layout center end-justified" hidden$="[[hideAnnotations]]">
@@ -503,6 +503,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       setVideoPlayerDimensions: function() {
 
         var nameAndDescriptionHeight = 100;
+        var headerHeight = 128;
         var aspectRatio = this.videoPlayer.videoHeight() / this.videoPlayer.videoWidth();
 
         // Container values
@@ -511,12 +512,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var containerPaddingTop = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue('padding-top'), 10);
         var containerPaddingBottom = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue('padding-bottom'), 10);
         var containerWidth = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue('width'), 10) - containerPaddingLeft - containerPaddingRight;
-        var containerHeight = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue('height'), 10) - containerPaddingTop - containerPaddingBottom - nameAndDescriptionHeight;
+        var containerHeight = parseInt(getComputedStyle(this.$.MediaContent).getPropertyValue('height'), 10) - containerPaddingTop - containerPaddingBottom - nameAndDescriptionHeight - headerHeight;
 
         if (containerWidth * aspectRatio >= containerHeight) {
           this.videoPlayerHeight = containerHeight;
         } else {
-          this.videoPlayerHeight = containerWidth * aspectRatio;
+          this.videoPlayerHeight = (containerWidth * aspectRatio) - containerPaddingTop - containerPaddingBottom;
         }
       },
 

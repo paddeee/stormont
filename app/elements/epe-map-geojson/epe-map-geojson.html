@@ -507,7 +507,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           boundsObject = L.latLngBounds(geoJSONBounds._southWest, geoJSONBounds._northEast);
         }
 
-        if (boundsObject) {
+        // If map client height is 0, the leaflet animation will throw a JavaScript error.
+        // So only do this if viewing the map.
+        if (boundsObject && this.closest('#LeafletMap').clientHeight) {
           map.fitBounds(boundsObject);
         }
       },
