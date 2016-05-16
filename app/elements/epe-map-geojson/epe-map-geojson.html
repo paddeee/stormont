@@ -405,9 +405,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           this.setUpFeaturesLayer();
 
+          this.zoomToFitBounds();
+
           // Add cluster and feature layers
           this.clusterLayer.addTo(this.container);
           this.geoJSONLayer.addTo(this.container);
+
+          this.zoomToFitBounds();
         }
       },
 
@@ -430,6 +434,82 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.markers.forEach(function(marker) {
           this.geoJSONLayer.removeLayer(marker);
         }.bind(this));
+      },
+
+      // Set zoom level to marker's clusterLayer
+      // ToDo: Merge the bounds of clusterLayer and GeoJson layer so the map zooms out to show everything
+      // not just markers
+      zoomToFitBounds: function() {
+
+        var map = this.closest('#LeafletMap').map;
+        var clusterBounds = this.clusterLayer.getBounds();
+        var geoJSONBounds = this.geoJSONLayer.getBounds();
+        var boundsObject;
+        var tempNELat;
+        var tempNELng;
+        var tempSWLat;
+        var tempSWLng;
+        var northEast;
+        var southWest;
+        var clusterNE;
+        var clusterSW;
+        var geoJSONNE;
+        var geoJSONSW;
+
+        // Need to check if clusterLayer contains any markers
+        if (clusterBounds._northEast) {
+          clusterNE = clusterBounds._northEast;
+          clusterSW = clusterBounds._southWest;
+        }
+
+        if (geoJSONBounds._northEast) {
+          geoJSONNE = geoJSONBounds._northEast;
+          geoJSONSW = geoJSONBounds._southWest;
+        }
+
+        if (clusterNE && geoJSONNE) {
+
+          // Get Most Easterly bounds
+          if (clusterNE.lat > geoJSONNE.lat) {
+            tempNELat = clusterNE.lat;
+          } else {
+            tempNELat = geoJSONNE.lat;
+          }
+
+          // Got most Northerly bounds
+          if (clusterNE.lng < geoJSONNE.lng) {
+            tempNELng = clusterNE.lng;
+          } else {
+            tempNELng = geoJSONNE.lng;
+          }
+
+          // Got most Westerly bounds
+          if (clusterSW.lat < geoJSONSW.lat) {
+            tempSWLat = clusterSW.lat;
+          } else {
+            tempSWLat = geoJSONSW.lat;
+          }
+
+          // Got most Southerly bounds
+          if (clusterSW.lng > geoJSONSW.lng) {
+            tempSWLng = clusterSW.lng;
+          } else {
+            tempSWLng = geoJSONSW.lng;
+          }
+
+          southWest = L.latLng(tempSWLat, tempSWLng);
+          northEast = L.latLng(tempNELat, tempNELng);
+          boundsObject = L.latLngBounds(southWest, northEast);
+
+        } else if (clusterNE) {
+          boundsObject = L.latLngBounds(clusterBounds._southWest, clusterBounds._northEast);
+        } else if (geoJSONNE) {
+          boundsObject = L.latLngBounds(geoJSONBounds._southWest, geoJSONBounds._northEast);
+        }
+
+        if (boundsObject) {
+          map.fitBounds(boundsObject);
+        }
       },
 
       // Delete markers and layers
