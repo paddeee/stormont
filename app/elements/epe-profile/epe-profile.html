@@ -36,6 +36,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .profile__image {
+      border: 1px solid rgb(109, 109, 109);
       height: 188px;
     }
 
@@ -101,7 +102,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .related-profile-image {
-      height: 50px;
+      border: 1px solid rgb(109, 109, 109);
+      width: 40px;
       margin: 0 8px 0 0;
     }
 
@@ -387,7 +389,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return '';
       }
 
-      if (this.selectedProfileObject['Date of death'] !== 'TBD') {
+      if (this.selectedProfileObject['Date of death'] && this.selectedProfileObject['Date of death'] !== 'TBD') {
         age = 'Deceased';
         return age;
       }
