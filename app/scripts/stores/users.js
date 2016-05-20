@@ -1,6 +1,7 @@
 'use strict';
 
 var ldap =  global.config ? window.electronRequire('ldapjs') : null;
+//var ActiveDirectory = global.config ? window.electronRequire('activedirectory') : null;
 var Reflux = require('reflux');
 var UserActions = require('../actions/users.js');
 var config = global.config ? global.config : require('../config/config.js');
@@ -20,6 +21,10 @@ module.exports = Reflux.createStore({
       status: 'loggedin',
       userName: 'Lena',
       role: 'gatekeeper'
+    };
+
+    this.adConfig = {
+
     };
 
     this.trigger(this.user);
@@ -59,9 +64,9 @@ module.exports = Reflux.createStore({
     return new Promise(function (resolve, reject) {
 
       // In browser
-      //if (!ldap) {
+      if (!ldap) {
         // resolve(userLoginObject);
-      //}
+      }
 
       var client = ldap.createClient({
         url: config.paths.ldap
