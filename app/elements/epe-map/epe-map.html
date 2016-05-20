@@ -318,6 +318,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                        selected-records-actions="[[selectedRecordsActions]]"
                        active-event="[[activeEvent]]"
                        active-place="[[activePlace]]"
+                       clustering="[[clustering]]"
+                       on-toggle-cluster="clusteringChanged"
                        on-toggle-event-card-no-location="toggleEventCardNoLocation">
       </epe-map-geojson>
 
@@ -787,16 +789,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Toggle cluster on/off
     toggleCluster: function(event) {
 
-      if (this.clustering) {
-        event.currentTarget.classList.remove('toggle-cluster-control--disabled');
-        this.$.MapGeoJSON.clusterLayer.disableClustering();
-        this.clustering = false;
-      } else {
-        event.currentTarget.classList.add('toggle-cluster-control--disabled');
-        this.$.MapGeoJSON.clusterLayer.enableClustering();
+      if (this.clustering === false) {
         this.clustering = true;
+      } else if (this.clustering === true) {
+        this.clustering = false;
       }
+    },
 
+    // CALLED BY OBSERVER ON CLUSTERING
+    clusteringChanged: function() {
+
+      var $clusterButton = this.querySelector('.toggle-cluster-control');
+
+      if (this.clustering === false) {
+        $clusterButton.classList.remove('toggle-cluster-control--disabled');
+      } else if (this.clustering === true) {
+        $clusterButton.classList.add('toggle-cluster-control--disabled');
+      }
     }
   });
 })();

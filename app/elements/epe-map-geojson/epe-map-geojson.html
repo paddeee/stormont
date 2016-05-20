@@ -176,6 +176,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         activeEventExistsInFeatures: {
           type: Boolean,
           value: false
+        },
+
+        clustering: {
+          type: Boolean,
+          observer: 'clusteringChanged',
+          value: true
         }
       },
 
@@ -412,6 +418,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.clusterLayer.addTo(this.container);
           this.geoJSONLayer.addTo(this.container);
 
+          this.clusteringChanged();
+
           this.zoomToFitBounds();
         }
       },
@@ -554,6 +562,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           // If marker to jump to exists as marker on the map
           if (this.activeEvent === feature.feature.properties.id.toString()) {
+
+            this.zoomToFitBounds();
             this.handlePopup(feature);
           }
         }.bind(this));
@@ -699,6 +709,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.activeEventChanged();
           });
         }
+      },
+
+      // CALLED BY OBSERVER ON CLUSTERING
+      clusteringChanged: function() {
+
+        if (!this.clusterLayer) {
+          return;
+        }
+
+        if (this.clustering === false) {
+          this.clusterLayer.disableClustering();
+        } else if (this.clustering === true) {
+          this.clusterLayer.enableClustering();
+        }
+
+        this.fire('toggle-cluster', this.clustering);
       }
     });
   })();
