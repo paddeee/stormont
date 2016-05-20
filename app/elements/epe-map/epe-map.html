@@ -319,6 +319,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                        active-event="[[activeEvent]]"
                        active-place="[[activePlace]]"
                        clustering="[[clustering]]"
+                       navigation-type="[[navigationType]]"
                        on-toggle-cluster="clusteringChanged"
                        on-toggle-event-card-no-location="toggleEventCardNoLocation">
       </epe-map-geojson>
@@ -458,6 +459,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       clustering: {
         type: Boolean,
         value: true
+      },
+
+      navigationType: {
+        type: String,
+        value: 'All'
       }
     },
 
@@ -482,18 +488,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.activeEvent = mapBroadcast.activeEvent;
             this.activePlace = mapBroadcast.activePlace;
           } else if (mapBroadcast.message.type === 'setToAll') {
+            this.navigationType = 'All';
             this.navigatingEvents = false;
             this.geoJSON = mapBroadcast.geoJSONObject;
             this.noneGeoJSONObject = mapBroadcast.noneGeoJSONObject;
             this.activeEvent = mapBroadcast.activeEvent;
             this.activePlace = mapBroadcast.activePlace;
           } else if (mapBroadcast.message.type === 'setToOneChanged') {
+            this.navigationType = 'One';
             this.navigatingEvents = false;
             this.geoJSON = mapBroadcast.geoJSONObject;
             this.noneGeoJSONObject = mapBroadcast.noneGeoJSONObject;
             this.activeEvent = mapBroadcast.activeEvent;
             this.activePlace = mapBroadcast.activePlace;
           } else if (mapBroadcast.message.type === 'setToPlusOneChanged') {
+            this.navigationType = 'PlusOne';
             this.navigatingEvents = false;
             this.geoJSON = mapBroadcast.geoJSONObject;
             this.noneGeoJSONObject = mapBroadcast.noneGeoJSONObject;
