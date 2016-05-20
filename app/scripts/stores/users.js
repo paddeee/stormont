@@ -60,22 +60,57 @@ module.exports = Reflux.createStore({
 
       // In browser
       //if (!ldap) {
-        resolve(userLoginObject);
+        // resolve(userLoginObject);
       //}
 
       var client = ldap.createClient({
         url: config.paths.ldap
       });
 
-      client.bind('cn=' + userLoginObject.username, userLoginObject.password, function(err) {
-        if (err) {
-          reject('General Error searching LDAP for User: ' + err);
-        } else {
-          resolve(userLoginObject);
-        }
+      console.log(client, 'cn=test epe,ou=external users,ou=mtf,dc=mtf-open,dc=local', userLoginObject);
+
+      client.on('connect', function() {
+        console.log('Connected to LDAP');
+
+        client.bind('cn=test epe,ou=External users,ou=mtf,dc=mtf-open,dc=local', userLoginObject.password, function(err) {
+          if (err) {
+            console.log(err);
+            reject('General Error searching LDAP for User: ' + err);
+          } else {
+            resolve(userLoginObject);
+          }
+        });
       });
     });
   },
+
+  /*
+
+   samaccountname
+
+   var opts = {
+   filter: '(&(l=Seattle)(email=*@foo.com))',
+   scope: 'sub',
+   attributes: ['dn', 'sn', 'cn']
+   };
+
+   client.search('o=example', opts, function(err, res) {
+   assert.ifError(err);
+
+   res.on('searchEntry', function(entry) {
+   console.log('entry: ' + JSON.stringify(entry.object));
+   });
+   res.on('searchReference', function(referral) {
+   console.log('referral: ' + referral.uris.join());
+   });
+   res.on('error', function(err) {
+   console.error('error: ' + err.message);
+   });
+   res.on('end', function(result) {
+   console.log('status: ' + result.status);
+   });
+   });
+   */
 
   // Return a user object for listeners to consume
   createUserObject: function (status, userLoginObject) {
