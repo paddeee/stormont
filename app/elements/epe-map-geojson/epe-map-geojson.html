@@ -27,6 +27,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 </dom-module>
 
 <script src="../../bower_components/leaflet.markercluster/dist/leaflet.markercluster-src.js"></script>
+<script src="../../scripts/vendor/leaflet/leaflet.markercluster.freezable-src.js"></script>
 <script src="../../scripts/vendor/leaflet/awesome-markers/leaflet.awesome-markers.js"></script>
 
 <script>
@@ -181,7 +182,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       ready: function() {
 
         // Initialise a ClusterLayer
-        this.clusterLayer = new window.L.MarkerClusterGroup({
+        this.clusterLayer = new L.markerClusterGroup({
           showCoverageOnHover: false,
           spiderfyOnMaxZoom: true
         });
@@ -242,7 +243,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Bind click event to marker so we can update TimeLine when a feature is selected
         layer.on('popupclose', this.popUpClosed.bind(this));
 
-        // Add feature to features array if it doesn't exist already
+        // Add feature to features array if it doesn't exist alady
         this.features.push(layer);
       },
 
