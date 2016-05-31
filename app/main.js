@@ -36,9 +36,9 @@ var LDAPExists = function() {
   return new Promise(function (resolve, reject) {
 
     // In browser
-    if (!ldap) {
+    //if (!ldap) {
       resolve();
-    }
+    //}
 
     var client = ldap.createClient({
       url: ldapPath,
@@ -126,7 +126,7 @@ electronApp.on('ready', function() {
     }.bind(this));
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  //mainWindow.webContents.openDevTools();
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {

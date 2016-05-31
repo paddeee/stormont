@@ -1,7 +1,7 @@
 'use strict';
 
-var ldap =  global.config ? window.electronRequire('ldapjs') : null;
-//var ActiveDirectory = global.config ? window.electronRequire('activedirectory') : null;
+//var ldap =  global.config ? window.electronRequire('ldapjs') : null;
+var ActiveDirectory = global.config ? window.electronRequire('activedirectory') : null;
 var Reflux = require('reflux');
 var UserActions = require('../actions/users.js');
 var config = global.config ? global.config : require('../config/config.js');
@@ -21,10 +21,6 @@ module.exports = Reflux.createStore({
       status: 'loggedin',
       userName: 'Lena',
       role: 'gatekeeper'
-    };
-
-    this.adConfig = {
-
     };
 
     this.trigger(this.user);
@@ -64,27 +60,34 @@ module.exports = Reflux.createStore({
     return new Promise(function (resolve, reject) {
 
       // In browser
-      if (!ldap) {
-        // resolve(userLoginObject);
+      if (!ActiveDirectory) {
+        resolve(userLoginObject);
       }
 
-      var client = ldap.createClient({
-        url: config.paths.ldap
-      });
+      var userName = userLoginObject.username + '@' + config.ldap.domain;
+      var password = userLoginObject.password;
 
-      console.log(client, 'cn=test epe,ou=external users,ou=mtf,dc=mtf-open,dc=local', userLoginObject);
+      var ldapConfig = {
+        url: config.ldap.url,
+        baseDN: config.ldap.baseDN,
+        username: userName,
+        password: password
+      };
 
-      client.on('connect', function() {
-        console.log('Connected to LDAP');
+      var activeDirectory = new ActiveDirectory(ldapConfig);
 
-        client.bind('cn=test epe,ou=External users,ou=mtf,dc=mtf-open,dc=local', userLoginObject.password, function(err) {
-          if (err) {
-            console.log(err);
-            reject('General Error searching LDAP for User: ' + err);
-          } else {
-            resolve(userLoginObject);
-          }
-        });
+      activeDirectory.authenticate(userName, password, function(err, auth) {
+        if (err) {
+          reject('ERROR: '+JSON.stringify(err));
+        }
+
+        if (auth) {
+          console.log('Authenticated!');
+          resolve(userLoginObject);
+        }
+        else {
+          reject('Authentication failed!');
+        }
       });
     });
   },

@@ -7,20 +7,7 @@
 
 // UMD
 (function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define(['leaflet'], function (L) {
-      return (root.L.MarkerClusterGroup = factory(L));
-    });
-  } else if (typeof module === 'object' && module.exports) {
-    // Node. Does not work with strict CommonJS, but
-    // only CommonJS-like environments that support module.exports,
-    // like Node.
-    module.exports = factory(require('leaflet'));
-  } else {
-    // Browser globals
-    root.L.MarkerClusterGroup = factory(root.L);
-  }
+  root.L.MarkerClusterGroup = factory(root.L);
 }(this, function (L, undefined) { // Does not actually expect the 'undefined' argument, it is just a trick to have an undefined variable.
 
   var LMCG = L.MarkerClusterGroup,

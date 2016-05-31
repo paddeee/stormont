@@ -629,7 +629,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             // Pan and zoom into the cluster or just to a marker if zoomed in enough already
             clusterLayer.zoomToShowLayer(feature, function () {
 
-              if (this.navigationType !== 'One') {
+              if (!this.clustering && this.navigationType !== 'One') {
                 this.zoomToFitBounds();
               }
 
