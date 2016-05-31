@@ -4,73 +4,11 @@ const BrowserWindow = electron.BrowserWindow;  // Module to create native browse
 const ipcMain = electron.ipcMain;
 const dialog = electron.dialog;
 const Menu = require("menu");
-const ldap =  require('ldapjs');
 const fs = require('fs');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 var mainWindow = null;
-
-var ldapPath;
-
-// Check for LDAP
-var checkForLDAP =  function () {
-
-  return new Promise(function (resolve, reject) {
-
-    // Check for LDAP
-    LDAPExists()
-      .then(function() {
-        resolve();
-      })
-      .catch(function() {
-        reject();
-      });
-  });
-};
-
-// Can we establish an LDAP connection
-// ToDo: Need to manage LDAP connectivity checks from here. For now, just return true
-var LDAPExists = function() {
-
-  return new Promise(function (resolve, reject) {
-
-    // In browser
-    //if (!ldap) {
-      resolve();
-    //}
-
-    var client = ldap.createClient({
-      url: ldapPath,
-      connectTimeout: 3000
-    });
-
-    client.on('connect', function() {
-      console.log('Connected to LDAP');
-      resolve();
-    });
-
-    client.on('error', function() {
-      console.log('LDAP Error');
-      resolve();
-    });
-
-    client.on('timeout', function() {
-      console.log('LDAP timeout');
-      reject();
-    });
-
-    client.on('connectError', function() {
-      console.log('LDAP connect error');
-      reject();
-    });
-
-    client.on('socketTimeout', function() {
-      console.log('LDAP socket timeout');
-      reject();
-    });
-  });
-};
 
 // Get the config file
 var getConfig =  function () {
@@ -103,22 +41,23 @@ electronApp.on('ready', function() {
     height: 720
   });
 
+  // Create the publish window.
+  publishWindow = new BrowserWindow({
+    webSecurity: false,
+    width: 1024,
+    height: 720,
+    show: true
+  });
+
+  publishWindow.loadURL('file://' + __dirname + '/publish.html');
+
   getConfig()
     .then(function() {
       console.log('Got config');
-      mainWindow.loadURL('file://' + __dirname + '/splash.html');
+      //mainWindow.loadURL('file://' + __dirname + '/splash.html');
 
-      checkForLDAP()
-        .then(function() {
-          console.log('Got LDAP');
-          setTimeout(function() {
-            mainWindow.loadURL('file://' + __dirname + '/online.html');
-          }, 2000);
-        }.bind(this))
-        .catch(function() {
-          console.log('No LDAP');
-          mainWindow.loadURL('file://' + __dirname + '/offline.html');
-        }.bind(this));
+      //mainWindow.loadURL('file://' + __dirname + '/online.html');
+      mainWindow.loadURL('file://' + __dirname + '/offline.html');
     })
     .catch(function() {
       dialog.showErrorBox('Config File Missing', 'Please make sure the Config Directory resides in the Application.');
@@ -126,7 +65,8 @@ electronApp.on('ready', function() {
     }.bind(this));
 
   // Open the DevTools.
-  //mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
+  publishWindow.webContents.openDevTools();
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {
@@ -192,4 +132,32 @@ ipcMain.on('show-open-dialog', function(event, property, type) {
   }
 
   event.sender.send(property + '-selected', selection);
+});
+
+// Send message to publish page to generate HTML with relevant data.
+ipcMain.on('create-pdf', function(event, pdfObject) {
+
+  publishWindow.webContents.send('create-pdf', pdfObject);
+});
+
+// Create and save the PDF.
+ipcMain.on('save-pdf', function(event, pdfObject) {
+
+  console.log(pdfObject);
+
+  publishWindow.webContents.printToPDF({}, function(error, data) {
+
+    if (error) {
+      console.log(error);
+    }
+
+    fs.writeFile(pdfObject.pdfPath, data, function(error) {
+
+      if (error) {
+        console.log(error);
+      }
+
+      console.log('Write PDF successfully.');
+    });
+  });
 });

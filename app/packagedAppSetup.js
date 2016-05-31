@@ -22,7 +22,7 @@ if (typeof process === 'object') {
   // remove non-printable and other non-valid JSON chars
   config = config.replace(/[\u0000-\u0019]+/g,"");
 
-  // Conver to JavaScript Object
+  // Convert to JavaScript Object
   config = JSON.parse(config);
 
   // Use for non browserify requires

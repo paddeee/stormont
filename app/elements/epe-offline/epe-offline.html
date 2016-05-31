@@ -729,6 +729,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.publishMessage = message.text;
           //this.$.Publishing.open();
 
+          // If screenshot successful
+        } else if (message.type === 'screenshotSuccess') {
+
+          // If screenshot failed
+        } else if (message.type === 'screenshotFailure') {
+          this.$.EvidenceName.value = '';
+          this.publishMessage = message.text;
+          this.$.PublishErrorDialog.open();
+
           // If publish successful
         } else if (message.type === 'publishSuccess') {
           this.$.EvidenceName.value = '';
