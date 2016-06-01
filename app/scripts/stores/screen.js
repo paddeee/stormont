@@ -8,6 +8,7 @@ const desktopCapturer = electron.desktopCapturer;
 
 const fs = window.electronRequire('fs');
 const path = window.electronRequire('path');
+const dataSourceStore = require('../stores/dataSource.js');
 
 module.exports = Reflux.createStore({
 
@@ -47,12 +48,21 @@ module.exports = Reflux.createStore({
         if (source.name === 'SITF Electronic Presentation of Evidence') {
 
           var screenshotPath = path.join(global.config.packagePath, fileName);
+          var userName = dataSourceStore.dataSource.getCollection('Presentations').data[0].userName;
 
           var pdfObject = {
             fileName: publishObject.fileName,
             imagePath: screenshotPath,
             pdfPath: path.join(global.config.packagePath, pdfName),
-            ernRefs: []
+            userName: userName,
+            ernRefs: [{
+              ref: 'A12344567',
+              description: 'Kosovo.mp4'
+            },
+            {
+              ref: 'B12344567',
+              description: 'KLA.pdf'
+            }]
           };
 
           fs.writeFile(screenshotPath, source.thumbnail.toPng(), function (error) {

@@ -143,8 +143,6 @@ ipcMain.on('create-pdf', function(event, pdfObject) {
 // Create and save the PDF.
 ipcMain.on('save-pdf', function(event, pdfObject) {
 
-  console.log(pdfObject);
-
   publishWindow.webContents.printToPDF({}, function(error, data) {
 
     if (error) {
@@ -156,8 +154,6 @@ ipcMain.on('save-pdf', function(event, pdfObject) {
       if (error) {
         console.log(error);
       }
-
-      console.log('Write PDF successfully.');
     });
   });
 });

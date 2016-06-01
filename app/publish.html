@@ -27,23 +27,62 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       background: #fff;
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       color: #333;
-      -webkit-user-select: none;
-      margin: 100px auto;
     }
 
     .bold {
       font-weight: bold;
     }
 
+    table {
+      margin: 8px 0;
+      table-layout: fixed;
+      width: 100%;
+    }
+
+    tr:first-child td {
+      border-top: 1px solid #e6e6e6;
+    }
+
+    td:first-child {
+      border-left: 1px solid #e6e6e6;
+    }
+
+    td {
+      border-bottom: 1px solid #e6e6e6;
+      border-right: 1px solid #e6e6e6;
+      border-collapse: collapse;
+      padding: 8px;
+      width: 25%;
+    }
+
+    .notes {
+      height: 100px;
+    }
+
+    @page {
+      size: 7in 9.25in;
+      margin: 27mm 16mm 27mm 16mm;
+    }
+
+    .image {
+      page-break-after: always;
+    }
+
+    @page :left {
+      @bottom-left {
+        content: counter(page);
+      }
+    }
+
   </style>
 </head>
 
 <body>
-  <div id="Page1">
+  <div class="page  image">
     <img src="" id="ScreenShot"/>
   </div>
 
-  <div id="Page2">
+  <div class="page">
     <table>
       <tr>
         <td class="bold">Publish Filename</td>
@@ -67,25 +106,99 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <td></td>
       </tr>
     </table>
+
+    <table id="MapTable" hidden>
+      <tr>
+        <td class="bold">Mappping Data</td>
+        <td id="MapName"></td>
+        <td></td>
+        <td></td>
+      </tr>
+    </table>
+
+    <table id="ErnTable" hidden>
+      <tr id="ErnHeading">
+        <td id="ErnRef" class="bold">ERN Reference</td>
+        <td id="ErnDescription" class="bold">Description</td>
+        <td></td>
+        <td></td>
+      </tr>
+    </table>
+
+    <table>
+      <tr>
+        <td colspan="4">Notes</td>
+      </tr>
+      <tr>
+        <td class="notes" colspan="4"></td>
+      </tr>
+      <tr>
+        <td class="bold">Signed</td>
+        <td></td>
+        <td>Role</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="bold">Dated</td>
+        <td></td>
+        <td>Role</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="bold">Signed</td>
+        <td></td>
+        <td>Role</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="bold">Dated</td>
+        <td></td>
+        <td>Role</td>
+        <td></td>
+      </tr>
+    </table>
   </div>
 
   <script>
     var ipcRenderer = require('electron').ipcRenderer;
     var moment = require('moment');
 
-    ipcRenderer.on('create-pdf', function(event, message) {
+    ipcRenderer.on('create-pdf', function(event, pdfObject) {
 
       var $screenShot = document.querySelector('#ScreenShot');
       var $fileName = document.querySelector('#FileName');
       var $time = document.querySelector('#Time');
       var $date = document.querySelector('#Date');
+      var $user = document.querySelector('#User');
+      var $mapTable = document.querySelector('#MapTable');
+      var $mapName = document.querySelector('#MapName');
+      var $ernTable = document.querySelector('#ErnTable');
+      var $ernHeading = document.querySelector('#ErnHeading');
 
-      $screenShot.src = message.imagePath;
-      $fileName.innerHTML = message.fileName;
-      $date.innerHTML = moment().format('DD MM YYYY');
+      $screenShot.src = pdfObject.imagePath;
+      $fileName.innerHTML = pdfObject.fileName;
+      $date.innerHTML = moment().format('DD-MM-YYYY');
       $time.innerHTML = moment().format('HH:mm:ss');
+      $user.innerHTML = pdfObject.userName;
 
-      console.log(document.querySelector('body'));
+      if (pdfObject.mapName) {
+        $mapName.innerHTML = pdfObject.mapName;
+        $mapTable.removeAttribute('hidden');
+      }
+
+      if (pdfObject.ernRefs.length) {
+
+        pdfObject.ernRefs.forEach(function(ernRef) {
+
+          var tableRow = '<tr><td>' + ernRef.ref + '</td><td>' + ernRef.description + '</td><td></td><td></td></tr>';
+          $ernHeading.insertAdjacentHTML('afterend', tableRow);
+        });
+
+        $ernTable.removeAttribute('hidden');
+      }
+
+      // Send message to Electron
+      ipcRenderer.send('save-pdf', pdfObject);
     });
   </script>
 </body>
