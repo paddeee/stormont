@@ -27,6 +27,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       background: #fff;
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       color: #333;
+      margin: 0;
     }
 
     .bold {
@@ -60,8 +61,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     @page {
-      size: 7in 9.25in;
-      margin: 27mm 16mm 27mm 16mm;
+      size: 9.25in 7in;
+      margin: 16mm 27mm 16mm 27mm;
     }
 
     .image {
@@ -188,9 +189,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       if (pdfObject.ernRefs.length) {
 
+        // Empty ERn Table
+        $ernHeading.insertAdjacentHTML('afterend', '');
+
         pdfObject.ernRefs.forEach(function(ernRef) {
 
-          var tableRow = '<tr><td>' + ernRef.ref + '</td><td>' + ernRef.description + '</td><td></td><td></td></tr>';
+          var tableRow = '<tr><td>' + ernRef['Full Name'] + '</td><td>' + ernRef.Description + '</td><td></td><td></td></tr>';
           $ernHeading.insertAdjacentHTML('afterend', tableRow);
         });
 

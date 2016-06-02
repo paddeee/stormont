@@ -708,7 +708,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         var publishObject = {
           openOnSave: this.$.OpenOnPublish.selected,
-          fileName: this.$.EvidenceName.value
+          fileName: this.$.EvidenceName.value,
+          ernRefs: this.getErnRefs()
         };
 
         if (this.publishValidate()) {
@@ -764,6 +765,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         return valid;
+      },
+
+      // Get associated ERN References when Publishing Screen
+      getErnRefs: function() {
+
+        var ernRefs = [];
+        var $packageElement = this.$.EpeCreatePackage;
+
+        // In Source View use the selctedSourceObject from source store
+        if ($packageElement.createPackageRoute === 'source') {
+          ernRefs.push(this.sourceStore.selectedSourceObject);
+
+        // In Profile View use supportingDocs from People store
+        } else if ($packageElement.createPackageRoute === 'profile') {
+          ernRefs = this.peopleStore.supportingDocs;
+        }
+
+        return ernRefs;
       }
     });
   })();

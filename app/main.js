@@ -36,6 +36,7 @@ electronApp.on('ready', function() {
 
   // Create the browser window.
   mainWindow = new BrowserWindow({
+    backgroundColor: 'fff',
     webSecurity: false,
     width: 1024,
     height: 720
@@ -46,7 +47,7 @@ electronApp.on('ready', function() {
     webSecurity: false,
     width: 1024,
     height: 720,
-    show: true
+    show: false
   });
 
   publishWindow.loadURL('file://' + __dirname + '/publish.html');
@@ -125,7 +126,10 @@ ipcMain.on('show-open-dialog', function(event, property, type) {
       selection = dialog.showOpenDialog({
         properties: ['openFile'],
         filters: [
-          { name: 'Package', extensions: ['dat'] }
+          {
+            name: 'Package',
+            extensions: ['dat']
+          }
         ]
       });
     }
