@@ -67,7 +67,7 @@ electronApp.on('ready', function() {
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
-  publishWindow.webContents.openDevTools();
+  // publishWindow.webContents.openDevTools();
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {

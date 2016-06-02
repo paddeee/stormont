@@ -194,6 +194,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         pdfObject.ernRefs.forEach(function(ernRef) {
 
+          // Handle edge case
+          if (!ernRef) {
+            return;
+          }
+
           var tableRow = '<tr><td>' + ernRef['Full Name'] + '</td><td>' + ernRef.Description + '</td><td></td><td></td></tr>';
           $ernHeading.insertAdjacentHTML('afterend', tableRow);
         });

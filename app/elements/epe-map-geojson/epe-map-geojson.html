@@ -249,7 +249,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Bind click event to marker so we can update TimeLine when a feature is selected
         layer.on('popupclose', this.popUpClosed.bind(this));
 
-        // Add feature to features array if it doesn't exist alady
+        // Add feature to features array if it doesn't exist already
         this.features.push(layer);
       },
 
@@ -728,6 +728,54 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         this.fire('toggle-cluster', this.clustering);
+      },
+
+      // Called from down the DOM tree to get ERN references
+      getMapErnRefs: function() {
+
+        var $map = this.closest('#LeafletMap');
+        var bounds = $map.map.getBounds();
+        var ernRefs = [];
+
+        // Get markers ERNs
+        this.clusterLayer.eachLayer(function(marker) {
+
+          var evidence = marker.feature.properties.supportingEvidence;
+
+          if (bounds.contains(marker.getLatLng())) {
+
+            // Add events sources
+            evidence.eventsEvidence.forEach(function(sourceObject) {
+              ernRefs.push(sourceObject.supportingSourceObject);
+            });
+
+            // Add place sources
+            evidence.placeEvidence.forEach(function(sourceObject) {
+              ernRefs.push(sourceObject.supportingSourceObject);
+            });
+          }
+        });
+
+        // Get polygons ERNs
+        this.geoJSONLayer.getLayers().forEach(function(polygon) {
+
+          var evidence = polygon.feature.properties.supportingEvidence;
+
+          if (bounds.contains(polygon.getBounds())) {
+
+            // Add events sources
+            evidence.eventsEvidence.forEach(function(sourceObject) {
+              ernRefs.push(sourceObject.supportingSourceObject);
+            });
+
+            // Add place sources
+            evidence.placeEvidence.forEach(function(sourceObject) {
+              ernRefs.push(sourceObject.supportingSourceObject);
+            });
+          }
+        });
+
+        return ernRefs;
       }
     });
   })();

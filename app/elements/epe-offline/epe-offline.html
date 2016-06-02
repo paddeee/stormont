@@ -780,8 +780,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // In Profile View use supportingDocs from People store
         } else if ($packageElement.createPackageRoute === 'profile') {
           ernRefs = this.peopleStore.supportingDocs;
-        }
 
+        // In Map View
+        } else if ($packageElement.createPackageRoute === 'map') {
+          ernRefs = this.$.EpeCreatePackage.getMapErnRefs();
+        }
         return ernRefs;
       }
     });

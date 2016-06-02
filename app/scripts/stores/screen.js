@@ -55,7 +55,7 @@ module.exports = Reflux.createStore({
             imagePath: screenshotPath,
             pdfPath: path.join(global.config.packagePath, pdfName),
             userName: userName,
-            ernRefs: publishObject.ernRefs
+            ernRefs: _.uniq(publishObject.ernRefs)
           };
 
           fs.writeFile(screenshotPath, source.thumbnail.toPng(), function (error) {

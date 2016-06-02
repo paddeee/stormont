@@ -408,6 +408,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Navigate back
       navigateBack: function() {
         history.back();
+      },
+
+      // Go down DOM Tree to get epe-map-geojson element to calculate visible ern references
+      getMapErnRefs: function() {
+        return this.$.Map.getMapErnRefs();
       }
     });
   })();
