@@ -33,7 +33,7 @@ module.exports = Reflux.createStore({
       types: ['window'],
       thumbnailSize: {
         width: 1024,
-        height: 768
+        height: 720
       }
     };
 
@@ -55,14 +55,7 @@ module.exports = Reflux.createStore({
             imagePath: screenshotPath,
             pdfPath: path.join(global.config.packagePath, pdfName),
             userName: userName,
-            ernRefs: [{
-              ref: 'A12344567',
-              description: 'Kosovo.mp4'
-            },
-            {
-              ref: 'B12344567',
-              description: 'KLA.pdf'
-            }]
+            ernRefs: publishObject.ernRefs
           };
 
           fs.writeFile(screenshotPath, source.thumbnail.toPng(), function (error) {

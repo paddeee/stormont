@@ -708,7 +708,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         var publishObject = {
           openOnSave: this.$.OpenOnPublish.selected,
-          fileName: this.$.EvidenceName.value
+          fileName: this.$.EvidenceName.value,
+          ernRefs: this.getErnRefs()
         };
 
         if (this.publishValidate()) {
@@ -764,6 +765,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         return valid;
+      },
+
+      // Get ERN refs for publish screen depending on the view
+      getErnRefs: function() {
+
+        var $packageElement = this.$.EpeCreatePackage;
+        var ernRefs = [];
+
+        // If Source view use the source store's selected source object
+        if ($packageElement.createPackageRoute === 'source') {
+          ernRefs.push(this.sourceStore.selectedSourceObject);
+
+        // If Profile view use the source store's selected source object
+        } else if ($packageElement.createPackageRoute === 'profile') {
+          ernRefs = this.peopleStore.supportingDocs;
+
+        // If Map view go down the DOM elements to call epe-map-geojson method
+        } else if ($packageElement.createPackageRoute === 'map') {
+          ernRefs = this.$.EpeCreatePackage.getErnRefs();
+        }
+
+        return ernRefs;
       }
     });
   })();

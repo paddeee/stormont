@@ -815,6 +815,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       } else if (this.clustering === true) {
         $clusterButton.classList.add('toggle-cluster-control--disabled');
       }
+    },
+
+    // Get ERN refs for publish screen depending on the view
+    getErnRefs: function() {
+      return this.$.MapGeoJSON.getErnRefs();
     }
   });
 })();

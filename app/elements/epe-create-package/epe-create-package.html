@@ -408,6 +408,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Navigate back
       navigateBack: function() {
         history.back();
+      },
+
+      // Get ERN refs for publish screen depending on the view
+      getErnRefs: function() {
+        return this.$.Map.getErnRefs();
       }
     });
   })();
