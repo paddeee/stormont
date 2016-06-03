@@ -1,9 +1,9 @@
 const electron = require('electron');
-const electronApp = electron.app;  // Module to control application life.
-const BrowserWindow = electron.BrowserWindow;  // Module to create native browser window.
-const ipcMain = electron.ipcMain;
-const dialog = electron.dialog;
-const Menu = require("menu");
+const {app} = electron;  // Module to control application life.
+const {BrowserWindow} = electron;  // Module to create native browser window.
+const {ipcMain} = electron;
+const {dialog} = electron;
+//const Menu = require("menu");
 const fs = require('fs');
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -32,7 +32,7 @@ var getConfig =  function () {
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
-electronApp.on('ready', function() {
+app.on('ready', function() {
 
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -83,7 +83,7 @@ electronApp.on('ready', function() {
     submenu: [
       { label: "About SITF EPE", selector: "orderFrontStandardAboutPanel:" },
       { type: "separator" },
-      { label: "Quit", accelerator: "Command+Q", click: function() { electronApp.quit(); }}
+      { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
     ]}, {
     label: "Edit",
     submenu: [
@@ -101,12 +101,12 @@ electronApp.on('ready', function() {
 });
 
 // Quit when all windows are closed.
-electronApp.on('window-all-closed', function() {
+app.on('window-all-closed', function() {
 
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
-    electronApp.quit();
+    app.quit();
   }
 });
 

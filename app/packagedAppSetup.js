@@ -29,7 +29,7 @@ if (typeof process === 'object') {
   electronRequire = require;
 
   // Use to communicate with Electron
-  var ipcRenderer = require('ipc');
+  var ipcRenderer = require('electron').ipcRenderer;
 }
 
 

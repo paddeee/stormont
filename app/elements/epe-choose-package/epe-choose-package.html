@@ -158,7 +158,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (typeof process === 'object') {
 
         // Listen to Electron when file is selected
-        ipcRenderer.on('file-selected', function (arg) {
+        ipcRenderer.on('file-selected', function (event, arg) {
 
           if (arg) {
             this.importLocation = arg[0];

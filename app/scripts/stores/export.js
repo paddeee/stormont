@@ -78,7 +78,7 @@ module.exports = Reflux.createStore({
     saveExportDatabase = new Promise(function (resolve, reject) {
 
       // Save database
-      exportDatabase.saveDatabase(function(error) {
+      exportDatabase.saveDatabase(function(response, error) {
 
         if (error) {
           reject(error);
