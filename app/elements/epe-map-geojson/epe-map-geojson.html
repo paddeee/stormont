@@ -746,12 +746,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             // Add Events evidence
             evidence.eventsEvidence.forEach(function(sourceObject) {
-              ernRefs.push(sourceObject.supportingSourceObject);
+              if (sourceObject.supportingSourceObject) {
+                ernRefs.push(sourceObject.supportingSourceObject);
+              }
             });
 
             // Add Place evidence
             evidence.placeEvidence.forEach(function(sourceObject) {
-              ernRefs.push(sourceObject.supportingSourceObject);
+              if (sourceObject.supportingSourceObject) {
+                ernRefs.push(sourceObject.supportingSourceObject);
+              }
             });
           }
         });
@@ -765,12 +769,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             // Add Events evidence
             evidence.eventsEvidence.forEach(function(sourceObject) {
-              ernRefs.push(sourceObject.supportingSourceObject);
+              if (sourceObject.supportingSourceObject) {
+                ernRefs.push(sourceObject.supportingSourceObject);
+              }
             });
 
             // Add Place evidence
             evidence.placeEvidence.forEach(function(sourceObject) {
-              ernRefs.push(sourceObject.supportingSourceObject);
+              if (sourceObject.supportingSourceObject) {
+                ernRefs.push(sourceObject.supportingSourceObject);
+              }
             });
           }
         });
