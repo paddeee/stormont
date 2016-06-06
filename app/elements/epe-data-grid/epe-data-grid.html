@@ -271,7 +271,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             <table id="HeaderTable">
               <colgroup>
-                <col class="checkbox-col">
+                <col class="checkbox-col"
+                     hidden$="[[hideCheckboxColumn]]">
                 <col class="related-col"
                      hidden$="[[hideRelatedToEventColumn]]">
                 <template is="dom-repeat"
@@ -288,7 +289,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <th id="checkBoxHolder"
                     scope="col"
                     class="checkbox-holder"
-                    hidden$="[[!noRecords]]">
+                    hidden$="[[hideCheckboxColumn]]">
                   <paper-checkbox
                     id="SelectAllCheckbox"
                     checked$="[[showAllSelected]]"
@@ -341,7 +342,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <table id="RecordsTable"
                  loading-data$="[[!dataLoaded]]">
             <colgroup>
-              <col class="checkbox-col">
+              <col class="checkbox-col"
+                   hidden$="[[hideCheckboxColumn]]">
               <col class="related-col"
                    hidden$="[[hideRelatedToEventColumn]]">
               <template is="dom-repeat"
@@ -361,7 +363,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       initialCount="[[perPage]]"
                       on-dom-change="recordsTemplated">
               <tr class$="[[isApprovedForRelease(item)]]">
-                <td class="checkbox-holder">
+                <td class="checkbox-holder"
+                    hidden$="[[hideCheckboxColumn]]">
                   <paper-checkbox class="record-checkbox"
                                   on-change="selectRecord"
                                   checked$="[[item.showRecord]]">
@@ -477,20 +480,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           computed: 'getTotalRecords(gridData)'
         },
 
-        noRecords: {
-          type: Boolean,
-          computed: 'areThereAnyRecords(gridData)',
-          value: false
-        },
-
         hideViewSourceButton: {
-          tye: Boolean,
+          type: Boolean,
           computed: 'isSource(collectionName)'
         },
 
         hideRelatedToEventColumn: {
-          tye: Boolean,
+          type: Boolean,
           computed: 'isEvent(collectionName)'
+        },
+
+        hideCheckboxColumn: {
+          type: Boolean,
+          value: false
+        },
+
+        noRecords: {
+          type: Boolean,
+          computed: 'areThereAnyRecords(gridData)',
+          value: false
         },
 
         fullText: {
@@ -621,6 +629,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           // This is the column headings
           this.gridDataFirstRecord = this.gridData[0];
+
+          // Decide whether to hide the checkboxes
+          this.hideCheckboxes();
 
           // Force template-repeat to show checkboxes in correct state after the
           // show record property has changed
@@ -925,6 +936,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Cancel debouncer
         this.cancelDebouncer('showFullText');
+      },
+
+      // Hide checkboxes when no records or in source view
+      hideCheckboxes: function() {
+
+        if (this.collectionName === app.config.SourcesCollection.name || !this.areThereAnyRecords(this.gridData)) {
+          this.hideCheckboxColumn = true;
+        } else {
+          this.hideCheckboxColumn = false;
+        }
       },
 
       // Computed function to return true if we're looking at a 'Source' data-grid
