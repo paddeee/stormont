@@ -189,11 +189,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       if (pdfObject.ernRefs.length) {
 
-        $ernHeading.insertAdjacentHTML('afterend', '');
+        $ernTable.innerHTML = '<tr id="ErnHeading"><td id="ErnRef" class="bold">ERN Reference</td>' +
+          '<td id="ErnDescription" class="bold">Description</td><td></td><td></td></tr>';
 
         pdfObject.ernRefs.forEach(function(ernRef) {
 
+          if (!ernRef) {
+            return;
+          }
+
           var tableRow = '<tr><td>' + ernRef['Full Name'] + '</td><td>' + ernRef.Description + '</td><td></td><td></td></tr>';
+          var $ernHeading = document.querySelector('#ErnHeading');
+
           $ernHeading.insertAdjacentHTML('afterend', tableRow);
         });
 
@@ -201,7 +208,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       // Send message to Electron
-      ipcRenderer.send('save-pdf', pdfObject);
+      setTimeout(function() {
+        ipcRenderer.send('save-pdf', pdfObject);
+      }, 0);
     });
   </script>
 </body>

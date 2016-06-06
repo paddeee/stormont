@@ -6,6 +6,13 @@ const {dialog} = electron;
 //const Menu = require("menu");
 const fs = require('fs');
 
+/*
+Networked: 0
+Offline: 1
+Court: 2
+ */
+const buildType = 0;
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 var mainWindow = null;
@@ -41,32 +48,49 @@ app.on('ready', function() {
     height: 720
   });
 
-  // Create the publish window.
-  publishWindow = new BrowserWindow({
-    webSecurity: false,
-    width: 1024,
-    height: 720,
-    show: true
-  });
+  // Open the DevTools.
+  mainWindow.webContents.openDevTools();
 
-  publishWindow.loadURL('file://' + __dirname + '/publish.html');
+  if (buildType === 1) {
+
+    // Create the publish window.
+    publishWindow = new BrowserWindow({
+      webSecurity: false,
+      width: 1024,
+      height: 720,
+      show: true
+    });
+
+    publishWindow.loadURL('file://' + __dirname + '/publish.html');
+
+    publishWindow.webContents.openDevTools();
+  }
 
   getConfig()
     .then(function() {
       console.log('Got config');
-      //mainWindow.loadURL('file://' + __dirname + '/splash.html');
 
-      //mainWindow.loadURL('file://' + __dirname + '/online.html');
-      mainWindow.loadURL('file://' + __dirname + '/offline.html');
+      switch(buildType) {
+        case 0:
+          mainWindow.loadURL('file://' + __dirname + '/online.html');
+          break;
+        case 1:
+          mainWindow.loadURL('file://' + __dirname + '/offline.html');
+          break;
+        case 2:
+          mainWindow.loadURL('file://' + __dirname + '/offline.html');
+          break;
+        default:
+          dialog.showErrorBox('Error with Build: No Valid Build Type specified');
+      }
     })
     .catch(function() {
       dialog.showErrorBox('Config File Missing', 'Please make sure the Config Directory resides in the Application.');
       reject();
     }.bind(this));
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
-  publishWindow.webContents.openDevTools();
+
+
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {
