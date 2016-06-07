@@ -96,7 +96,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       width: 60px;
     }
 
-    .source-col {
+    .button-col {
       width: 100px;
     }
 
@@ -211,7 +211,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       border-bottom-width: 0;
     }
 
-    .source {
+    .view-button {
       text-align: right;
     }
 
@@ -281,7 +281,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                        heading-name$="[[item.name]]"
                        hidden$="[[!showField(item.name)]]">
                 </template>
-                <col class="source-col"
+                <col class="button-col"
+                     hidden$="[[hideViewProfileButton]]">
+                <col class="button-col"
                      hidden$="[[hideViewSourceButton]]">
               </colgroup>
               <thead>
@@ -327,6 +329,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </template>
                 <th scope="col"
                     class="blank"
+                    hidden$="[[hideViewProfileButton]]">
+                </th>
+                <th scope="col"
+                    class="blank"
                     hidden$="[[hideViewSourceButton]]">
                 </th>
               </tr>
@@ -352,7 +358,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                      heading-name$="[[item.name]]"
                      hidden$="[[!showField(item.name)]]">
               </template>
-              <col class="source-col"
+              <col class="button-col"
+                   hidden$="[[hideViewProfileButton]]">
+              <col class="button-col"
                    hidden$="[[hideViewSourceButton]]">
             </colgroup>
 
@@ -384,7 +392,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <span>{{item.value}}</span>
                   </td>
                 </template>
-                <td class="source"
+                <td class="view-button"
+                    hidden$="[[hideViewProfileButton]]">
+                  <paper-button
+                    class="field__button"
+                    raised
+                    on-tap="viewProfile">View <iron-icon icon="social:person"></iron-icon>
+                  </paper-button>
+                </td>
+                <td class="view-button"
                     hidden$="[[hideViewSourceButton]]">
                   <paper-button
                     class="field__button"
@@ -483,6 +499,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         hideViewSourceButton: {
           type: Boolean,
           computed: 'isSource(collectionName)'
+        },
+
+        hideViewProfileButton: {
+          type: Boolean,
+          computed: 'isProfile(collectionName)'
         },
 
         hideRelatedToEventColumn: {
@@ -706,9 +727,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var tableWidth = 0;
         var checkBoxColWidth = 51;
         var relatedToEventColWidth = 0;
-        var sourceColWidth = 0;
+        var buttonColWidth = 0;
         var $relatedToEventCol = this.querySelector('.selected-by-event-heading:not([hidden]');
-        var $sourceCol = this.querySelector('.blank:not([hidden]');
+        var $buttonCol = this.querySelector('.blank:not([hidden]');
 
         // Reset style widths on table
         this.$.HeaderTable.style.width = '';
@@ -733,12 +754,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           relatedToEventColWidth = 61;
         }
 
-        if ($sourceCol) {
-          sourceColWidth = 101;
+        if ($buttonCol) {
+          buttonColWidth = 101;
         }
 
         // Calculate table width including all visible headers
-        tableWidth = tableWidth + checkBoxColWidth + relatedToEventColWidth + sourceColWidth;
+        tableWidth = tableWidth + checkBoxColWidth + relatedToEventColWidth + buttonColWidth;
 
         // If the table is less than this element's width, set it to 100%
         if (tableWidth < document.querySelector('body').clientWidth) {
@@ -893,6 +914,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         });
       },
 
+      // FIRED WHEN USER TAPS VIEW PROFILE BUTTON
+      viewProfile: function(event) {
+
+        var personId = event.model.item.$loki;
+
+        this.fire('navigate-to-profile', personId);
+      },
+
       // FIRED WHEN USER TAPS VIEW SOURCE BUTTON
       viewSourceFile: function(event) {
 
@@ -952,6 +981,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       isSource: function(collectionName) {
 
         if (collectionName !== app.config.SourcesCollection.name) {
+          return true;
+        }
+        return false;
+      },
+
+      // Computed function to return true if we're looking at a 'People' data-grid
+      isProfile: function(collectionName) {
+
+        if (collectionName !== app.config.PeopleCollection.name) {
           return true;
         }
         return false;

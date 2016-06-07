@@ -109,14 +109,14 @@ var config = {
       display: 'true',
       filter: 'gte',
       value: '1900-01-01 00:00:00',
-      width: '150'
+      width: '170'
     },
     {
       name: 'Date of death',
       display: 'true',
       filter: 'lte',
       value: '2100-12-31 00:00:00',
-      width: '150'
+      width: '170'
     },
     {
       name: 'Ethnicity',
