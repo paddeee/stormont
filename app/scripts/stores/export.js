@@ -194,15 +194,16 @@ module.exports = Reflux.createStore({
       exportEventData = eventsStore.userFilteredCollection.data();
       exportPlaceData = placesStore.userFilteredCollection.data();
       exportPeopleData = peopleStore.userFilteredCollection.data();
-      exportSourceData = sourcesStore.userFilteredCollection.data();
 
       // If exporting selected records, use the records stored in the presentations collection
     } else if (presentationObject.filteredOrSelected === 'selected') {
       exportEventData = selectedPresentationObject.selectedEvents;
       exportPlaceData = selectedPresentationObject.selectedPlaces;
       exportPeopleData = selectedPresentationObject.selectedPeople;
-      exportSourceData = selectedPresentationObject.selectedSources;
     }
+
+    // Always export just selected sources
+    exportSourceData = selectedPresentationObject.selectedSources;
 
     // Remove $loki properties from data so we can insert the documents afresh
     exportEventData = exportEventData.map(function(object) {
