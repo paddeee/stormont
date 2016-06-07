@@ -317,6 +317,13 @@ module.exports = Reflux.createStore({
 
     }.bind(this));
 
+    if (collectionName === config.EventsCollection.name && dataCollection.length > 500) {
+      return {
+        type: 'eventsLimitExceeded',
+        message: 'The Events CaseMap file exceeds the 500 Events limit. Please remove Events records in CaseMap and try again.'
+      };
+    }
+
     if (fileInvalid) {
       return fileInvalid;
     } else {
