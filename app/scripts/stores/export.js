@@ -9,7 +9,6 @@ var dataSourceStore = require('../stores/dataSource.js');
 var eventsStore = require('../stores/events.js');
 var placesStore = require('../stores/places.js');
 var peopleStore = require('../stores/people.js');
-var sourcesStore = require('../stores/source.js');
 var fs = window.electronRequire('fs-extra');
 var zipFolder = window.electronRequire('zip-folder');
 var encryptor = window.electronRequire('file-encryptor');

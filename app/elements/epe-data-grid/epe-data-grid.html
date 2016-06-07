@@ -655,8 +655,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.hideCheckboxes();
 
           // Force template-repeat to show checkboxes in correct state after the
-          // show record property has changed
-          this.updateCheckboxes();
+          // select all checkbox has been changed
+          if (this.selectAllRecordsChanged) {
+            this.updateCheckboxes();
+          }
+
+          // Reset flag
+          this.selectAllRecordsChanged = false;
         }
       },
 
@@ -852,6 +857,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         if (this.gridData) {
 
+          this.selectAllRecordsChanged = true;
+
           // Update all items in the data collection
           this.gridData.forEach(function() {
 
@@ -881,20 +888,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Deselect the Select All Checkbox if checkbox is being de-selected
         if (!event.target.checked) {
+
           checkBoxSelected = false;
           this.showAllSelected = false;
 
-          // Set the model showRecord and highlightAsRelatedToEvent properties
-          if(event.model.item) {
-            this.$.ListTemplate.set('items.' + event.model.index + '.showRecord', false);
-          }
         } else {
 
           checkBoxSelected = true;
 
           // Set the model showRecord property
           if(event.model.item) {
-            this.$.ListTemplate.set('items.' + event.model.index + '.showRecord', true);
+
+            //this.$.ListTemplate.set('items.' + event.model.index + '.showRecord', true);
 
             // Set highlight tick
             if (event.model.item.selectedByEvent) {
