@@ -317,10 +317,17 @@ module.exports = Reflux.createStore({
 
     }.bind(this));
 
-    if (collectionName === config.EventsCollection.name && dataCollection.length > 500) {
+    if (collectionName === config.EventsCollection.name && dataCollection.length > 550) {
       return {
         type: 'eventsLimitExceeded',
-        message: 'The Events CaseMap file exceeds the 500 Events limit. Please remove Events records in CaseMap and try again.'
+        message: 'The Events CaseMap file exceeds the 550 Events limit. Please remove Events records in CaseMap and try again.'
+      };
+    }
+
+    if (collectionName === config.PeopleCollection.name && dataCollection.length > 110) {
+      return {
+        type: 'eventsLimitExceeded',
+        message: 'The People CaseMap file exceeds the 110 people limit. Please remove People records in CaseMap and try again.'
       };
     }
 
