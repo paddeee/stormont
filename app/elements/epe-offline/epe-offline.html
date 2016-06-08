@@ -100,8 +100,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       --paper-progress-secondary-color: var(--paper-light-blue-100);
       width: 100%;
     }
+
+    epe-inactivity {
+      height: 100%;
+    }
   </style>
   <template>
+
+    <epe-inactivity
+      id="InActivityMask"
+      on-lock-application="lockApplication"
+      on-unlock-application="unlockApplication"
+      import-package-store="[[importPackageStore]]"
+      hidden>
+    </epe-inactivity>
 
     <paper-drawer-panel id="paperDrawerPanel"
                         force-narrow
@@ -787,6 +799,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         return ernRefs;
+      },
+
+      // FIRED FROM EPE-INACTIVITY ELEMENT
+      lockApplication: function() {
+
+        // Don't lock if on the Choose Package view
+        if (app.route === 'choose-package') {
+          return;
+        }
+
+        this.$.paperDrawerPanel.hidden = true;
+
+        this.async(function() {
+          this.$.InActivityMask.removeAttribute('hidden');
+        });
+      },
+
+      // FIRED FROM EPE-INACTIVITY ELEMENT
+      unlockApplication: function() {
+
+        this.$.InActivityMask.hidden = true;
+
+        this.async(function() {
+          this.$.paperDrawerPanel.removeAttribute('hidden');
+        });
       }
     });
   })();

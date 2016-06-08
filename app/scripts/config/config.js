@@ -306,7 +306,8 @@ var config = {
   },
   PresentationsCollection: 'Presentations',
   QueriesCollection: 'Queries',
-  MapGeoJSONCollection: 'MapGeoJSON'
+  MapGeoJSONCollection: 'MapGeoJSON',
+  activityTimeout: 120
 };
 
 module.exports = config;
