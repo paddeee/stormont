@@ -228,7 +228,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <!-- Choose Option Section -->
           <section data-route="choose-package">
             <epe-choose-package import-package-actions="[[importPackageActions]]"
-                                import-package-store="[[importPackageStore]]">
+                                import-package-store="[[importPackageStore]]"
+                                on-package-selected="packageSelected">
             </epe-choose-package>
           </section>
 
@@ -824,6 +825,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.async(function() {
           this.$.paperDrawerPanel.removeAttribute('hidden');
         });
+      },
+
+      // FIRED FROM EPE-CHOOSE-PACKAGE ELEMENT
+      packageSelected: function() {
+
+        // Reset the session timer on the epe-inactivity element
+        this.$.InActivityMask.setSessionExpireTimeOut();
       }
     });
   })();
