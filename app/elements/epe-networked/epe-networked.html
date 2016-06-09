@@ -315,6 +315,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       on-show-dialog="showDialog"></epe-filters>
 
     <!-- Dialogs -->
+
+    <paper-dialog id="LoginErrorDialog" modal>
+      <h2>Login Error</h2>
+      <div>
+        <span>[[user.message]]</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
     <paper-dialog id="SuccessDialog" modal>
       <h2>Presentation successfully saved</h2>
       <div>
@@ -427,10 +438,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           if (user.status === 'loggedin') {
             this.user = user;
+            this.displayUserMessage();
             this.navigateToChooseOption();
+          } else if (user.status === 'loggedout') {
+            this.user = user;
+            this.$.LoginErrorDialog.open();
           }
-
-          this.displayUserMessage();
 
         }.bind(this));
 

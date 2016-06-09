@@ -308,6 +308,9 @@ module.exports = Reflux.createStore({
       // Add related affiliations
       this.setRelatedAffiliations();
 
+      // Add related events
+      this.setRelatedEvents();
+
       // Add Supporting Documents
       this.setSupportingDocs();
 
@@ -360,6 +363,63 @@ module.exports = Reflux.createStore({
 
     this.relatedAffiliations = relatedAffiliations;
   },
+
+  // Set related events property
+  setRelatedEvents: function() {
+
+    var relatedEvents = [];
+    var relatedAsSuspect = this.getRoleObject('Suspects');
+    var relatedAsVictim = this.getRoleObject('Victims');
+    var relatedAsWitness = this.getRoleObject('Witnesses');
+
+    if (relatedAsSuspect.relatedEvents.length) {
+      relatedEvents.push(relatedAsSuspect);
+    }
+
+    if (relatedAsVictim.relatedEvents.length) {
+      relatedEvents.push(relatedAsVictim);
+    }
+
+    if (relatedAsWitness.relatedEvents.length) {
+      relatedEvents.push(relatedAsWitness);
+    }
+
+    this.relatedEvents = relatedEvents;
+  },
+
+  // Find a person in the specified column of the Events Collection and return a role object
+  getRoleObject: function(roleName) {
+
+    var role;
+    var roleObject = {};
+    var eventsCollection = dataSourceStore.dataSource.getCollection(config.EventsCollection.name);
+    var relatedEvents = eventsCollection.where(function(event) {
+
+      if (event[roleName] && event[roleName].indexOf('[' + this.selectedProfileObject['Short Name'] + ']') > -1) {
+        if (event.showRecord === true) {
+          return true;
+        }
+      }
+    }.bind(this));
+
+    switch(roleName) {
+      case 'Suspects':
+        role = 'Suspect';
+        break;
+      case 'Victims':
+        role = 'Victim';
+        break;
+      case 'Witnesses':
+        role = 'Witness';
+        break;
+    }
+
+    roleObject.role = role;
+    roleObject.relatedEvents = relatedEvents;
+
+    return roleObject;
+  },
+
 
   // Set supporting documents array property
   setSupportingDocs: function() {

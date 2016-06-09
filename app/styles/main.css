@@ -35,3 +35,7 @@ body {
 input, textarea, keygen, select, button {
   font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
+
+epe-offline {
+  height: 100%;
+}

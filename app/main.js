@@ -1,10 +1,16 @@
 const electron = require('electron');
-const electronApp = electron.app;  // Module to control application life.
-const BrowserWindow = electron.BrowserWindow;  // Module to create native browser window.
-const ipcMain = electron.ipcMain;
-const dialog = electron.dialog;
-const Menu = require("menu");
+const {app} = electron;  // Module to control application life.
+const {BrowserWindow} = electron;  // Module to create native browser window.
+const {ipcMain} = electron;
+const {dialog} = electron;
+//const Menu = require("menu");
 const fs = require('fs');
+
+/*
+ Networked: 0
+ Offline/Court: 1
+ */
+const buildType = 1;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -30,9 +36,34 @@ var getConfig =  function () {
   });
 };
 
+// Get the roles file
+var getRoles =  function () {
+
+  return new Promise(function (resolve, reject) {
+
+    if (buildType !== 0) {
+      global.roles = {};
+      resolve();
+    } else {
+
+      var rolesDirectory = process.resourcesPath;
+
+      fs.readFile(rolesDirectory + '/roles.json', 'utf-8', function(err, data) {
+
+        if (data) {
+          global.roles = data;
+          resolve();
+        } else if (err) {
+          reject(err);
+        }
+      });
+    }
+  });
+};
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
-electronApp.on('ready', function() {
+app.on('ready', function() {
 
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -42,32 +73,52 @@ electronApp.on('ready', function() {
     height: 720
   });
 
-  // Create the publish window.
-  publishWindow = new BrowserWindow({
-    webSecurity: false,
-    width: 1024,
-    height: 720,
-    show: false
-  });
+  // Open the DevTools.
+  mainWindow.webContents.openDevTools();
 
-  publishWindow.loadURL('file://' + __dirname + '/publish.html');
+  if (buildType === 1) {
+
+    // Create the publish window.
+    publishWindow = new BrowserWindow({
+      webSecurity: false,
+      width: 1024,
+      height: 720,
+      show: true
+    });
+
+    publishWindow.loadURL('file://' + __dirname + '/publish.html');
+
+    publishWindow.webContents.openDevTools();
+  }
 
   getConfig()
     .then(function() {
       console.log('Got config');
-      //mainWindow.loadURL('file://' + __dirname + '/splash.html');
 
-      //mainWindow.loadURL('file://' + __dirname + '/online.html');
-      mainWindow.loadURL('file://' + __dirname + '/offline.html');
+      getRoles()
+        .then(function() {
+          console.log('Got roles');
+
+          switch (buildType) {
+            case 0:
+              mainWindow.loadURL('file://' + __dirname + '/online.html');
+              break;
+            case 1:
+              mainWindow.loadURL('file://' + __dirname + '/offline.html');
+              break;
+            default:
+              dialog.showErrorBox('Error with Build: No Valid Build Type specified');
+          }
+        })
+        .catch(function() {
+          dialog.showErrorBox('Roles File Missing', 'Please make sure the Roles File resides in the Application.');
+          reject();
+        }.bind(this));
     })
     .catch(function() {
-      dialog.showErrorBox('Config File Missing', 'Please make sure the Config Directory resides in the Application.');
+      dialog.showErrorBox('Config File Missing', 'Please make sure the Config File resides in the Application.');
       reject();
     }.bind(this));
-
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
-  // publishWindow.webContents.openDevTools();
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {
@@ -84,7 +135,7 @@ electronApp.on('ready', function() {
     submenu: [
       { label: "About SITF EPE", selector: "orderFrontStandardAboutPanel:" },
       { type: "separator" },
-      { label: "Quit", accelerator: "Command+Q", click: function() { electronApp.quit(); }}
+      { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
     ]}, {
     label: "Edit",
     submenu: [
@@ -102,12 +153,12 @@ electronApp.on('ready', function() {
 });
 
 // Quit when all windows are closed.
-electronApp.on('window-all-closed', function() {
+app.on('window-all-closed', function() {
 
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
-    electronApp.quit();
+    app.quit();
   }
 });
 

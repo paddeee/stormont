@@ -96,7 +96,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       width: 60px;
     }
 
-    .source-col {
+    .button-col {
       width: 100px;
     }
 
@@ -211,7 +211,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       border-bottom-width: 0;
     }
 
-    .source {
+    .view-button {
       text-align: right;
     }
 
@@ -271,7 +271,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             <table id="HeaderTable">
               <colgroup>
-                <col class="checkbox-col">
+                <col class="checkbox-col"
+                     hidden$="[[hideCheckboxColumn]]">
                 <col class="related-col"
                      hidden$="[[hideRelatedToEventColumn]]">
                 <template is="dom-repeat"
@@ -280,7 +281,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                        heading-name$="[[item.name]]"
                        hidden$="[[!showField(item.name)]]">
                 </template>
-                <col class="source-col"
+                <col class="button-col"
+                     hidden$="[[hideViewProfileButton]]">
+                <col class="button-col"
                      hidden$="[[hideViewSourceButton]]">
               </colgroup>
               <thead>
@@ -288,7 +291,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <th id="checkBoxHolder"
                     scope="col"
                     class="checkbox-holder"
-                    hidden$="[[!noRecords]]">
+                    hidden$="[[hideCheckboxColumn]]">
                   <paper-checkbox
                     id="SelectAllCheckbox"
                     checked$="[[showAllSelected]]"
@@ -326,6 +329,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </template>
                 <th scope="col"
                     class="blank"
+                    hidden$="[[hideViewProfileButton]]">
+                </th>
+                <th scope="col"
+                    class="blank"
                     hidden$="[[hideViewSourceButton]]">
                 </th>
               </tr>
@@ -341,7 +348,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <table id="RecordsTable"
                  loading-data$="[[!dataLoaded]]">
             <colgroup>
-              <col class="checkbox-col">
+              <col class="checkbox-col"
+                   hidden$="[[hideCheckboxColumn]]">
               <col class="related-col"
                    hidden$="[[hideRelatedToEventColumn]]">
               <template is="dom-repeat"
@@ -350,7 +358,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                      heading-name$="[[item.name]]"
                      hidden$="[[!showField(item.name)]]">
               </template>
-              <col class="source-col"
+              <col class="button-col"
+                   hidden$="[[hideViewProfileButton]]">
+              <col class="button-col"
                    hidden$="[[hideViewSourceButton]]">
             </colgroup>
 
@@ -361,7 +371,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       initialCount="[[perPage]]"
                       on-dom-change="recordsTemplated">
               <tr class$="[[isApprovedForRelease(item)]]">
-                <td class="checkbox-holder">
+                <td class="checkbox-holder"
+                    hidden$="[[hideCheckboxColumn]]">
                   <paper-checkbox class="record-checkbox"
                                   on-change="selectRecord"
                                   checked$="[[item.showRecord]]">
@@ -381,7 +392,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <span>{{item.value}}</span>
                   </td>
                 </template>
-                <td class="source"
+                <td class="view-button"
+                    hidden$="[[hideViewProfileButton]]">
+                  <paper-button
+                    class="field__button"
+                    raised
+                    on-tap="viewProfile">View <iron-icon icon="social:person"></iron-icon>
+                  </paper-button>
+                </td>
+                <td class="view-button"
                     hidden$="[[hideViewSourceButton]]">
                   <paper-button
                     class="field__button"
@@ -441,12 +460,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       properties: {
 
         perPage: {
-          tye: String,
-          value: '20'
+          type: Number,
+          value: 20
         },
 
         dataLoaded: {
-          tye: Boolean,
+          type: Boolean,
           value: false
         },
 
@@ -477,20 +496,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           computed: 'getTotalRecords(gridData)'
         },
 
+        hideViewSourceButton: {
+          type: Boolean,
+          computed: 'isSource(collectionName)'
+        },
+
+        hideViewProfileButton: {
+          type: Boolean,
+          computed: 'isProfile(collectionName)'
+        },
+
+        hideRelatedToEventColumn: {
+          type: Boolean,
+          computed: 'isEvent(collectionName)'
+        },
+
+        hideCheckboxColumn: {
+          type: Boolean,
+          value: false
+        },
+
         noRecords: {
           type: Boolean,
           computed: 'areThereAnyRecords(gridData)',
           value: false
-        },
-
-        hideViewSourceButton: {
-          tye: Boolean,
-          computed: 'isSource(collectionName)'
-        },
-
-        hideRelatedToEventColumn: {
-          tye: Boolean,
-          computed: 'isEvent(collectionName)'
         },
 
         fullText: {
@@ -622,9 +651,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // This is the column headings
           this.gridDataFirstRecord = this.gridData[0];
 
+          // Decide whether to hide the checkboxes
+          this.hideCheckboxes();
+
           // Force template-repeat to show checkboxes in correct state after the
-          // show record property has changed
-          this.updateCheckboxes();
+          // select all checkbox has been changed
+          if (this.selectAllRecordsChanged) {
+            this.updateCheckboxes();
+          }
+
+          // Reset flag
+          this.selectAllRecordsChanged = false;
         }
       },
 
@@ -695,9 +732,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var tableWidth = 0;
         var checkBoxColWidth = 51;
         var relatedToEventColWidth = 0;
-        var sourceColWidth = 0;
+        var buttonColWidth = 0;
         var $relatedToEventCol = this.querySelector('.selected-by-event-heading:not([hidden]');
-        var $sourceCol = this.querySelector('.blank:not([hidden]');
+        var $buttonCol = this.querySelector('.blank:not([hidden]');
 
         // Reset style widths on table
         this.$.HeaderTable.style.width = '';
@@ -722,12 +759,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           relatedToEventColWidth = 61;
         }
 
-        if ($sourceCol) {
-          sourceColWidth = 101;
+        if ($buttonCol) {
+          buttonColWidth = 101;
         }
 
         // Calculate table width including all visible headers
-        tableWidth = tableWidth + checkBoxColWidth + relatedToEventColWidth + sourceColWidth;
+        tableWidth = tableWidth + checkBoxColWidth + relatedToEventColWidth + buttonColWidth;
 
         // If the table is less than this element's width, set it to 100%
         if (tableWidth < document.querySelector('body').clientWidth) {
@@ -820,6 +857,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         if (this.gridData) {
 
+          this.selectAllRecordsChanged = true;
+
           // Update all items in the data collection
           this.gridData.forEach(function() {
 
@@ -849,20 +888,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Deselect the Select All Checkbox if checkbox is being de-selected
         if (!event.target.checked) {
+
           checkBoxSelected = false;
           this.showAllSelected = false;
 
-          // Set the model showRecord and highlightAsRelatedToEvent properties
-          if(event.model.item) {
-            this.$.ListTemplate.set('items.' + event.model.index + '.showRecord', false);
-          }
         } else {
 
           checkBoxSelected = true;
 
           // Set the model showRecord property
           if(event.model.item) {
-            this.$.ListTemplate.set('items.' + event.model.index + '.showRecord', true);
+
+            //this.$.ListTemplate.set('items.' + event.model.index + '.showRecord', true);
 
             // Set highlight tick
             if (event.model.item.selectedByEvent) {
@@ -880,6 +917,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           checkBoxSelected: checkBoxSelected,
           userSelected: event.type === 'change'
         });
+      },
+
+      // FIRED WHEN USER TAPS VIEW PROFILE BUTTON
+      viewProfile: function(event) {
+
+        var personId = event.model.item.$loki;
+
+        this.fire('navigate-to-profile', personId);
       },
 
       // FIRED WHEN USER TAPS VIEW SOURCE BUTTON
@@ -927,10 +972,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.cancelDebouncer('showFullText');
       },
 
+      // Hide checkboxes when no records or in source view
+      hideCheckboxes: function() {
+
+        if (this.collectionName === app.config.SourcesCollection.name || !this.areThereAnyRecords(this.gridData)) {
+          this.hideCheckboxColumn = true;
+        } else {
+          this.hideCheckboxColumn = false;
+        }
+      },
+
       // Computed function to return true if we're looking at a 'Source' data-grid
       isSource: function(collectionName) {
 
         if (collectionName !== app.config.SourcesCollection.name) {
+          return true;
+        }
+        return false;
+      },
+
+      // Computed function to return true if we're looking at a 'People' data-grid
+      isProfile: function(collectionName) {
+
+        if (collectionName !== app.config.PeopleCollection.name) {
           return true;
         }
         return false;

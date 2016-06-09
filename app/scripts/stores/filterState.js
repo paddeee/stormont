@@ -471,6 +471,13 @@ module.exports = Reflux.createStore({
 
         // Start process of updating related data tables
         if (showRecordObject.userSelected) {
+
+          if (showRecordObject.checkBoxSelected) {
+            showRecordObject.item.showRecord = true;
+          } else {
+            showRecordObject.item.showRecord = false;
+          }
+
           this.eventsCheckBoxUpdated(showRecordObject.collectionData);
         }
 

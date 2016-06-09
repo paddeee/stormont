@@ -730,47 +730,55 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.fire('toggle-cluster', this.clustering);
       },
 
-      // Called from down the DOM tree to get ERN references
-      getMapErnRefs: function() {
+      // Get ERN refs for publish screen depending on the view
+      getErnRefs: function() {
 
         var $map = this.closest('#LeafletMap');
         var bounds = $map.map.getBounds();
         var ernRefs = [];
 
-        // Get markers ERNs
+        // Get marker ERNs
         this.clusterLayer.eachLayer(function(marker) {
 
           var evidence = marker.feature.properties.supportingEvidence;
 
           if (bounds.contains(marker.getLatLng())) {
 
-            // Add events sources
+            // Add Events evidence
             evidence.eventsEvidence.forEach(function(sourceObject) {
-              ernRefs.push(sourceObject.supportingSourceObject);
+              if (sourceObject.supportingSourceObject) {
+                ernRefs.push(sourceObject.supportingSourceObject);
+              }
             });
 
-            // Add place sources
+            // Add Place evidence
             evidence.placeEvidence.forEach(function(sourceObject) {
-              ernRefs.push(sourceObject.supportingSourceObject);
+              if (sourceObject.supportingSourceObject) {
+                ernRefs.push(sourceObject.supportingSourceObject);
+              }
             });
           }
         });
 
-        // Get polygons ERNs
-        this.geoJSONLayer.getLayers().forEach(function(polygon) {
+        // Get polygon ERNs if the whole polygon is in view
+        this.geoJSONLayer.eachLayer(function(polygon) {
 
           var evidence = polygon.feature.properties.supportingEvidence;
 
           if (bounds.contains(polygon.getBounds())) {
 
-            // Add events sources
+            // Add Events evidence
             evidence.eventsEvidence.forEach(function(sourceObject) {
-              ernRefs.push(sourceObject.supportingSourceObject);
+              if (sourceObject.supportingSourceObject) {
+                ernRefs.push(sourceObject.supportingSourceObject);
+              }
             });
 
-            // Add place sources
+            // Add Place evidence
             evidence.placeEvidence.forEach(function(sourceObject) {
-              ernRefs.push(sourceObject.supportingSourceObject);
+              if (sourceObject.supportingSourceObject) {
+                ernRefs.push(sourceObject.supportingSourceObject);
+              }
             });
           }
         });

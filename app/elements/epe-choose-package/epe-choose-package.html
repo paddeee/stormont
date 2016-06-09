@@ -119,7 +119,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <span>The package has been successfully imported into the application.</span>
       </div>
       <div class="buttons">
-        <paper-button dialog-confirm autofocus on-tap="navigateToDataGrid">OK</paper-button>
+        <paper-button dialog-confirm autofocus on-tap="navigateToMap">OK</paper-button>
       </div>
     </paper-dialog>
 
@@ -158,7 +158,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (typeof process === 'object') {
 
         // Listen to Electron when file is selected
-        ipcRenderer.on('file-selected', function (arg) {
+        ipcRenderer.on('file-selected', function (event, arg) {
 
           if (arg) {
             this.importLocation = arg[0];
@@ -260,9 +260,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
-    // Navigate to the Events Data Grid
-    navigateToDataGrid: function() {
-      page('/create-package/data-grid/' + app.config.EventsCollection.name);
+    // Navigate to the Map
+    navigateToMap: function() {
+      page('/create-package/map');
+      this.fire('package-selected');
     }
   });
 })();

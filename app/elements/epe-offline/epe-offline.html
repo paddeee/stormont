@@ -100,8 +100,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       --paper-progress-secondary-color: var(--paper-light-blue-100);
       width: 100%;
     }
+
+    epe-inactivity {
+      height: 100%;
+    }
   </style>
   <template>
+
+    <epe-inactivity
+      id="InActivityMask"
+      on-lock-application="lockApplication"
+      on-unlock-application="unlockApplication"
+      import-package-store="[[importPackageStore]]"
+      hidden>
+    </epe-inactivity>
 
     <paper-drawer-panel id="paperDrawerPanel"
                         force-narrow
@@ -216,7 +228,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <!-- Choose Option Section -->
           <section data-route="choose-package">
             <epe-choose-package import-package-actions="[[importPackageActions]]"
-                                import-package-store="[[importPackageStore]]">
+                                import-package-store="[[importPackageStore]]"
+                                on-package-selected="packageSelected">
             </epe-choose-package>
           </section>
 
@@ -767,25 +780,58 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return valid;
       },
 
-      // Get associated ERN References when Publishing Screen
+      // Get ERN refs for publish screen depending on the view
       getErnRefs: function() {
 
-        var ernRefs = [];
         var $packageElement = this.$.EpeCreatePackage;
+        var ernRefs = [];
 
-        // In Source View use the selctedSourceObject from source store
+        // If Source view use the source store's selected source object
         if ($packageElement.createPackageRoute === 'source') {
           ernRefs.push(this.sourceStore.selectedSourceObject);
 
-        // In Profile View use supportingDocs from People store
+        // If Profile view use the source store's selected source object
         } else if ($packageElement.createPackageRoute === 'profile') {
           ernRefs = this.peopleStore.supportingDocs;
 
-        // In Map View
+        // If Map view go down the DOM elements to call epe-map-geojson method
         } else if ($packageElement.createPackageRoute === 'map') {
-          ernRefs = this.$.EpeCreatePackage.getMapErnRefs();
+          ernRefs = this.$.EpeCreatePackage.getErnRefs();
         }
+
         return ernRefs;
+      },
+
+      // FIRED FROM EPE-INACTIVITY ELEMENT
+      lockApplication: function() {
+
+        // Don't lock if on the Choose Package view
+        if (app.route === 'choose-package') {
+          return;
+        }
+
+        this.$.paperDrawerPanel.hidden = true;
+
+        this.async(function() {
+          this.$.InActivityMask.removeAttribute('hidden');
+        });
+      },
+
+      // FIRED FROM EPE-INACTIVITY ELEMENT
+      unlockApplication: function() {
+
+        this.$.InActivityMask.hidden = true;
+
+        this.async(function() {
+          this.$.paperDrawerPanel.removeAttribute('hidden');
+        });
+      },
+
+      // FIRED FROM EPE-CHOOSE-PACKAGE ELEMENT
+      packageSelected: function() {
+
+        // Reset the session timer on the epe-inactivity element
+        this.$.InActivityMask.setSessionExpireTimeOut();
       }
     });
   })();
