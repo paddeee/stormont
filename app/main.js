@@ -7,8 +7,8 @@ const {dialog} = electron;
 const fs = require('fs');
 
 /*
-Networked: 0
-Offline/Court: 1
+ Networked: 0
+ Offline/Court: 1
  */
 const buildType = 1;
 
@@ -39,24 +39,25 @@ var getConfig =  function () {
 // Get the roles file
 var getRoles =  function () {
 
-  if (buildType !== 0) {
-    global.roles = {};
-    resolve();
-  }
-
   return new Promise(function (resolve, reject) {
 
-    var rolesDirectory = process.resourcesPath;
+    if (buildType !== 0) {
+      global.roles = {};
+      resolve();
+    } else {
 
-    fs.readFile(rolesDirectory + '/roles.json', 'utf-8', function(err, data) {
+      var rolesDirectory = process.resourcesPath;
 
-      if (data) {
-        global.roles = data;
-        resolve();
-      } else if (err) {
-        reject(err);
-      }
-    });
+      fs.readFile(rolesDirectory + '/roles.json', 'utf-8', function(err, data) {
+
+        if (data) {
+          global.roles = data;
+          resolve();
+        } else if (err) {
+          reject(err);
+        }
+      });
+    }
   });
 };
 
