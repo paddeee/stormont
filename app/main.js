@@ -36,6 +36,30 @@ var getConfig =  function () {
   });
 };
 
+// Get the roles file
+var getRoles =  function () {
+
+  if (buildType !== 0) {
+    global.roles = {};
+    resolve();
+  }
+
+  return new Promise(function (resolve, reject) {
+
+    var rolesDirectory = process.resourcesPath;
+
+    fs.readFile(rolesDirectory + '/roles.json', 'utf-8', function(err, data) {
+
+      if (data) {
+        global.roles = data;
+        resolve();
+      } else if (err) {
+        reject(err);
+      }
+    });
+  });
+};
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
@@ -69,27 +93,30 @@ app.on('ready', function() {
     .then(function() {
       console.log('Got config');
 
-      switch(buildType) {
-        case 0:
-          mainWindow.loadURL('file://' + __dirname + '/online.html');
-          break;
-        case 1:
-          mainWindow.loadURL('file://' + __dirname + '/offline.html');
-          break;
-        case 2:
-          mainWindow.loadURL('file://' + __dirname + '/offline.html');
-          break;
-        default:
-          dialog.showErrorBox('Error with Build: No Valid Build Type specified');
-      }
+      getRoles()
+        .then(function() {
+          console.log('Got roles');
+
+          switch (buildType) {
+            case 0:
+              mainWindow.loadURL('file://' + __dirname + '/online.html');
+              break;
+            case 1:
+              mainWindow.loadURL('file://' + __dirname + '/offline.html');
+              break;
+            default:
+              dialog.showErrorBox('Error with Build: No Valid Build Type specified');
+          }
+        })
+        .catch(function() {
+          dialog.showErrorBox('Roles File Missing', 'Please make sure the Roles File resides in the Application.');
+          reject();
+        }.bind(this));
     })
     .catch(function() {
-      dialog.showErrorBox('Config File Missing', 'Please make sure the Config Directory resides in the Application.');
+      dialog.showErrorBox('Config File Missing', 'Please make sure the Config File resides in the Application.');
       reject();
     }.bind(this));
-
-
-
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {

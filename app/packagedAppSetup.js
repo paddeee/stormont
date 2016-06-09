@@ -1,4 +1,5 @@
 var config;
+var roles;
 var electronRequire;
 var ipcRenderer;
 var remote;
@@ -8,6 +9,7 @@ if (typeof process === 'object') {
   remote = require('electron').remote;
 
   config = remote.getGlobal('config');
+  roles = remote.getGlobal('roles');
 
   // preserve newlines, etc - use valid JSON
   config = config.replace(/\\n/g, "\\n")
@@ -24,12 +26,13 @@ if (typeof process === 'object') {
 
   // Convert to JavaScript Object
   config = JSON.parse(config);
+  roles = JSON.parse(roles);
 
   // Use for non browserify requires
   electronRequire = require;
 
   // Use to communicate with Electron
-  var ipcRenderer = require('electron').ipcRenderer;
+  ipcRenderer = require('electron').ipcRenderer;
 }
 
 

@@ -370,7 +370,7 @@ module.exports = Reflux.createStore({
     var relatedEvents = [];
     var relatedAsSuspect = this.getRoleObject('Suspects');
     var relatedAsVictim = this.getRoleObject('Victims');
-    var relatedAsWitness = this.getRoleObject('Witness');
+    var relatedAsWitness = this.getRoleObject('Witnesses');
 
     if (relatedAsSuspect.relatedEvents.length) {
       relatedEvents.push(relatedAsSuspect);
