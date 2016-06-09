@@ -122,8 +122,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // FIRED FROM SEARCH INPUT ELEMENT OR DATE-TIME PICKER
     // NEEDED FOR FUNCTIONALITY WHERE PRESENTATION STATE CHANGES AFTER USER FIRST SELECTS A FILTER
     // CAN'T USE FILTERSCHANGED ABOVE AS THIS IS FIRED BY DEFAULT WHEN DATE-TIME CHANGES
-    userFilterOccurred: function() {
-      this.fire('filters-changed', this.createFilterObject());
+    userFilterOccurred: function(event) {
+
+      console.log(event);
+
+      var debouncedFiltersChanged = _.debounce(function() {
+        this.fire('filters-changed', this.createFilterObject());
+      }.bind(this), 800);
+
+      debouncedFiltersChanged();
     },
 
     // Create an object from the filter values

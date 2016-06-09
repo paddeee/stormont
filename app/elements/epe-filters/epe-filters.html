@@ -735,12 +735,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // FIRED FROM SEARCH INPUT ELEMENT
       userInputChanged: function(event) {
 
-        var filterObject = event.model.item;
+        var debouncedFiltersChanged = _.debounce(function() {
 
-        // Set the model value to what is in the element
-        filterObject.value = event.target.value;
+          var filterObject = event.model.item;
 
-        this.queryBuilderActions.queryFiltersChanged(filterObject, 'update');
+          // Set the model value to what is in the element
+          filterObject.value = event.target.value;
+
+          this.queryBuilderActions.queryFiltersChanged(filterObject, 'update');
+        }.bind(this), 200);
+
+        debouncedFiltersChanged();
       },
 
       // FIRED FROM SEARCH SELECT
