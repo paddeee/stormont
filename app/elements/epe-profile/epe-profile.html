@@ -68,11 +68,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .profile__relationships-sources {
+      border-left: 1px solid var(--divider-color);
       width: 28vw;
       position: absolute;
       right: 0;
       height: 100%;
-      border-left: 1px solid var(--divider-color);
     }
 
     paper-tabs {
@@ -84,6 +84,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .tabs-content {
+      margin-left: -1px;
       padding: 0 2vw;
     }
 
@@ -93,7 +94,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       text-align: center;
     }
 
+    h3 {
+      margin: 8px 0;
+      font-size: 16px;
+    }
+
     .related-profile,
+    .related-event,
     .related-source {
       cursor: pointer;
       font-size: 14px;
@@ -108,6 +115,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .no-related-profiles,
+    .no-related-events,
     .no-related-sources {
       padding: 2vh 2vw;
     }
@@ -172,7 +180,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <div class="profile__relationships-sources">
 
         <paper-tabs selected="{{selected}}">
-          <paper-tab>RELATED</paper-tab>
+          <paper-tab>AFFILIATIONS</paper-tab>
+          <paper-tab>EVENTS</paper-tab>
           <paper-tab>SOURCE</paper-tab>
         </paper-tabs>
 
@@ -180,6 +189,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                              selected="[[selected]]"
                              entry-animation="slide-from-right-animation"
                              exit-animation="fade-out-animation">
+
           <neon-animatable>
             <div class="tabs-content">
 
@@ -191,23 +201,52 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   <template is="dom-repeat"
                             items="[[item.relatedProfiles]]"
                             as="profile">
-                  <paper-material class="related-profile layout horizontal center"
-                                  profile="[[profile]]"
-                                  on-tap="navigateToProfile">
-                    <image class="related-profile-image"
-                           src="[[getProfilePhoto(profile.Photo)]]"/>
-                    <div>[[getFullName(profile)]]</div>
-                  </paper-material>
+                    <paper-material class="related-profile layout horizontal center"
+                                    profile="[[profile]]"
+                                    on-tap="navigateToProfile">
+                      <image class="related-profile-image"
+                             src="[[getProfilePhoto(profile.Photo)]]"/>
+                      <div>[[getFullName(profile)]]</div>
+                    </paper-material>
                   </template>
                 </div>
               </template>
 
               <div class="no-related-profiles"
                    hidden="[[relatedAffiliations.length]]">
-                No Related Profiles
+                No Related Affiliations
               </div>
             </div>
           </neon-animatable>
+
+          <neon-animatable>
+            <div class="tabs-content">
+
+              <template is="dom-repeat"
+                        items="[[relatedEvents]]"
+                        hidden="[[!relatedEvents.length]]">
+                <div class="role">
+                  <h2 hidden="[[!item.relatedEvents.length]]">[[item.role]]</h2>
+                  <template is="dom-repeat"
+                            items="[[item.relatedEvents]]"
+                            as="event">
+                  <paper-material class="related-event layout vertical"
+                                  event="[[event]]"
+                                  on-tap="navigateToEvent">
+                    <h3>[[event.Type]]</h3>
+                    <div>[[getFullName(event)]]</div>
+                  </paper-material>
+                  </template>
+                </div>
+              </template>
+
+              <div class="no-related-events"
+                   hidden="[[relatedEvents.length]]">
+                No Related Events
+              </div>
+            </div>
+          </neon-animatable>
+
           <neon-animatable>
             <div class="tabs-content">
 
@@ -270,6 +309,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         value: []
       },
 
+      relatedEvents: {
+        type: Array,
+        value: []
+      },
+
       supportingDocs: {
         type: Array,
         value: []
@@ -324,6 +368,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           this.selectedProfileObject = peopleStore.selectedProfileObject;
           this.relatedAffiliations = peopleStore.relatedAffiliations;
+          this.relatedEvents = peopleStore.relatedEvents;
           this.supportingDocs = peopleStore.supportingDocs;
 
           this.setSelectedProfileProperties();
