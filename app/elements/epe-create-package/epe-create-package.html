@@ -139,7 +139,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                      source-actions="[[sourceActions]]"
                      people-actions="[[peopleActions]]"
                      people-store="[[peopleStore]]"
-                     on-navigate-to-profile="navigateToProfile"></epe-profile>
+                     on-navigate-to-profile="navigateToProfile"
+                     on-navigate-to-event="navigateToEvent"></epe-profile>
       </section>
 
       <!-- Map View -->
@@ -404,6 +405,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         } else if (this.editState === 'editing' && this.presentationState !== 'creating') {
           page('/edit-package/profile/' + event.detail);
         }
+      },
+
+      // FIRED BY EPE-SOURCE-VIEWER ELEMENT: Navigate to the map event view
+      navigateToEvent: function(event) {
+
+        // ToDo: Fix this weirdness caused by having two epe-create-package elements
+        if (this.editState === 'creating' && this.presentationState === 'creating') {
+          page('/create-package/map');
+        } else if (this.editState === 'editing' && this.presentationState !== 'creating') {
+          page('/edit-package/map');
+        }
+
+        this.async(function() {
+          this.$.Map.navigateToEvent(event.detail);
+        }, 400);
       },
 
       // Navigate back

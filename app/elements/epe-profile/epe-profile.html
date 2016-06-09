@@ -548,6 +548,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
+    // Navigate to a related event
+    navigateToEvent: function(event) {
+
+      var eventId = event.currentTarget.event.$loki.toString();
+
+      this.fire('navigate-to-event', eventId);
+    },
+
     // Navigate to a related source file
     navigateToSource: function(event) {
 

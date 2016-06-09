@@ -737,6 +737,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.fire('navigate-to-profile', personId);
     },
 
+    // FIRED BY PARENT CREATE-PACKAGE ELEMENT
+    navigateToEvent: function(eventId) {
+      this.$.TimeLineElement.goToId(eventId);
+    },
+
     // FIRED FROM TIMELINE ELEMENT
     timelineButtonStateChanged: function(event) {
 
