@@ -9,7 +9,6 @@ var dataSourceStore = require('../stores/dataSource.js');
 var eventsStore = require('../stores/events.js');
 var placesStore = require('../stores/places.js');
 var peopleStore = require('../stores/people.js');
-var sourcesStore = require('../stores/source.js');
 var fs = window.electronRequire('fs-extra');
 var zipFolder = window.electronRequire('zip-folder');
 var encryptor = window.electronRequire('file-encryptor');
@@ -78,7 +77,7 @@ module.exports = Reflux.createStore({
     saveExportDatabase = new Promise(function (resolve, reject) {
 
       // Save database
-      exportDatabase.saveDatabase(function(error) {
+      exportDatabase.saveDatabase(function(response, error) {
 
         if (error) {
           reject(error);
@@ -194,15 +193,16 @@ module.exports = Reflux.createStore({
       exportEventData = eventsStore.userFilteredCollection.data();
       exportPlaceData = placesStore.userFilteredCollection.data();
       exportPeopleData = peopleStore.userFilteredCollection.data();
-      exportSourceData = sourcesStore.userFilteredCollection.data();
 
       // If exporting selected records, use the records stored in the presentations collection
     } else if (presentationObject.filteredOrSelected === 'selected') {
       exportEventData = selectedPresentationObject.selectedEvents;
       exportPlaceData = selectedPresentationObject.selectedPlaces;
       exportPeopleData = selectedPresentationObject.selectedPeople;
-      exportSourceData = selectedPresentationObject.selectedSources;
     }
+
+    // Always export just selected sources
+    exportSourceData = selectedPresentationObject.selectedSources;
 
     // Remove $loki properties from data so we can insert the documents afresh
     exportEventData = exportEventData.map(function(object) {

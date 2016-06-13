@@ -4,10 +4,11 @@ const Reflux = require('reflux');
 const ScreenActions = require('../actions/screen.js');
 const electron = window.electronRequire('electron');
 const desktopCapturer = electron.desktopCapturer;
-const shell = electron.shell;
+//const shell = electron.shell;
 
 const fs = window.electronRequire('fs');
 const path = window.electronRequire('path');
+const dataSourceStore = require('../stores/dataSource.js');
 
 module.exports = Reflux.createStore({
 
@@ -20,6 +21,7 @@ module.exports = Reflux.createStore({
 
     var options;
     var fileName = publishObject.fileName + '.png';
+    var pdfName = publishObject.fileName + '.pdf';
 
     this.message = {
       type: 'gatheringScreens'
@@ -27,11 +29,12 @@ module.exports = Reflux.createStore({
 
     this.trigger(this);
 
-    const thumbSize = this.determineScreenShotSize();
-
     options = {
       types: ['window'],
-      thumbnailSize: thumbSize
+      thumbnailSize: {
+        width: 1024,
+        height: 720
+      }
     };
 
     desktopCapturer.getSources(options, function (error, sources) {
@@ -44,14 +47,23 @@ module.exports = Reflux.createStore({
 
         if (source.name === 'SITF Electronic Presentation of Evidence') {
 
-          const screenshotPath = path.join(global.config.packagePath, fileName);
+          var screenshotPath = path.join(global.config.packagePath, fileName);
+          var userName = dataSourceStore.dataSource.getCollection('Presentations').data[0].userName;
+
+          var pdfObject = {
+            fileName: publishObject.fileName,
+            imagePath: screenshotPath,
+            pdfPath: path.join(global.config.packagePath, pdfName),
+            userName: userName,
+            ernRefs: publishObject.ernRefs
+          };
 
           fs.writeFile(screenshotPath, source.thumbnail.toPng(), function (error) {
 
             if (error) {
 
               this.message = {
-                type: 'publishFailure',
+                type: 'screenshotFailure',
                 text: error
               };
 
@@ -60,14 +72,17 @@ module.exports = Reflux.createStore({
             }
 
             // View file if user requested
-            if (publishObject.openOnSave === 'open') {
+            /*if (publishObject.openOnSave === 'open') {
               shell.openItem(screenshotPath);
-            }
+            }*/
 
             this.message = {
-              type: 'publishSuccess',
+              type: 'screenshotSuccess',
               text: 'Saved screenshot to: ' + screenshotPath
             };
+
+            // Send message to Electron
+            ipcRenderer.send('create-pdf', pdfObject);
 
             this.trigger(this);
 
@@ -75,15 +90,5 @@ module.exports = Reflux.createStore({
         }
       }.bind(this));
     }.bind(this));
-  },
-
-  determineScreenShotSize: function() {
-
-    const windowSize = remote.getCurrentWindow().getBounds();
-
-    return {
-      width: windowSize.width,
-      height: windowSize.height
-    };
   }
 });

@@ -1,76 +1,20 @@
 const electron = require('electron');
-const electronApp = electron.app;  // Module to control application life.
-const BrowserWindow = electron.BrowserWindow;  // Module to create native browser window.
-const ipcMain = electron.ipcMain;
-const dialog = electron.dialog;
-const Menu = require("menu");
-const ldap =  require('ldapjs');
+const {app} = electron;  // Module to control application life.
+const {BrowserWindow} = electron;  // Module to create native browser window.
+const {ipcMain} = electron;
+const {dialog} = electron;
+//const Menu = require("menu");
 const fs = require('fs');
+
+/*
+ Networked: 0
+ Offline/Court: 1
+ */
+const buildType = 1;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 var mainWindow = null;
-
-var ldapPath;
-
-// Check for LDAP
-var checkForLDAP =  function () {
-
-  return new Promise(function (resolve, reject) {
-
-    // Check for LDAP
-    LDAPExists()
-      .then(function() {
-        resolve();
-      })
-      .catch(function() {
-        reject();
-      });
-  });
-};
-
-// Can we establish an LDAP connection
-// ToDo: Need to manage LDAP connectivity checks from here. For now, just return true
-var LDAPExists = function() {
-
-  return new Promise(function (resolve, reject) {
-
-    // In browser
-    if (!ldap) {
-      resolve();
-    }
-
-    var client = ldap.createClient({
-      url: ldapPath,
-      connectTimeout: 3000
-    });
-
-    client.on('connect', function() {
-      console.log('Connected to LDAP');
-      resolve();
-    });
-
-    client.on('error', function() {
-      console.log('LDAP Error');
-      resolve();
-    });
-
-    client.on('timeout', function() {
-      console.log('LDAP timeout');
-      reject();
-    });
-
-    client.on('connectError', function() {
-      console.log('LDAP connect error');
-      reject();
-    });
-
-    client.on('socketTimeout', function() {
-      console.log('LDAP socket timeout');
-      reject();
-    });
-  });
-};
 
 // Get the config file
 var getConfig =  function () {
@@ -92,41 +36,89 @@ var getConfig =  function () {
   });
 };
 
+// Get the roles file
+var getRoles =  function () {
+
+  return new Promise(function (resolve, reject) {
+
+    if (buildType !== 0) {
+      global.roles = null;
+      resolve();
+    } else {
+
+      var rolesDirectory = process.resourcesPath;
+
+      fs.readFile(rolesDirectory + '/roles.json', 'utf-8', function(err, data) {
+
+        if (data) {
+          global.roles = data;
+          resolve();
+        } else if (err) {
+          reject(err);
+        }
+      });
+    }
+  });
+};
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
-electronApp.on('ready', function() {
+app.on('ready', function() {
 
   // Create the browser window.
   mainWindow = new BrowserWindow({
+    backgroundColor: 'fff',
     webSecurity: false,
     width: 1024,
     height: 720
   });
 
+  // Open the DevTools.
+  mainWindow.webContents.openDevTools();
+
+  if (buildType === 1) {
+
+    // Create the publish window.
+    publishWindow = new BrowserWindow({
+      webSecurity: false,
+      width: 1024,
+      height: 720,
+      show: false
+    });
+
+    publishWindow.loadURL('file://' + __dirname + '/publish.html');
+
+    publishWindow.webContents.openDevTools();
+  }
+
   getConfig()
     .then(function() {
       console.log('Got config');
-      mainWindow.loadURL('file://' + __dirname + '/splash.html');
 
-      checkForLDAP()
+      getRoles()
         .then(function() {
-          console.log('Got LDAP');
-          setTimeout(function() {
-            mainWindow.loadURL('file://' + __dirname + '/online.html');
-          }, 2000);
-        }.bind(this))
+          console.log('Got roles');
+
+          switch (buildType) {
+            case 0:
+              mainWindow.loadURL('file://' + __dirname + '/online.html');
+              break;
+            case 1:
+              mainWindow.loadURL('file://' + __dirname + '/offline.html');
+              break;
+            default:
+              dialog.showErrorBox('Error with Build: No Valid Build Type specified');
+          }
+        })
         .catch(function() {
-          console.log('No LDAP');
-          mainWindow.loadURL('file://' + __dirname + '/offline.html');
+          dialog.showErrorBox('Roles File Missing', 'Please make sure the Roles File resides in the Application.');
+          reject();
         }.bind(this));
     })
     .catch(function() {
-      dialog.showErrorBox('Config File Missing', 'Please make sure the Config Directory resides in the Application.');
+      dialog.showErrorBox('Config File Missing', 'Please make sure the Config File resides in the Application.');
       reject();
     }.bind(this));
-
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {
@@ -143,7 +135,7 @@ electronApp.on('ready', function() {
     submenu: [
       { label: "About SITF EPE", selector: "orderFrontStandardAboutPanel:" },
       { type: "separator" },
-      { label: "Quit", accelerator: "Command+Q", click: function() { electronApp.quit(); }}
+      { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
     ]}, {
     label: "Edit",
     submenu: [
@@ -161,12 +153,12 @@ electronApp.on('ready', function() {
 });
 
 // Quit when all windows are closed.
-electronApp.on('window-all-closed', function() {
+app.on('window-all-closed', function() {
 
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
-    electronApp.quit();
+    app.quit();
   }
 });
 
@@ -185,11 +177,38 @@ ipcMain.on('show-open-dialog', function(event, property, type) {
       selection = dialog.showOpenDialog({
         properties: ['openFile'],
         filters: [
-          { name: 'Package', extensions: ['dat'] }
+          {
+            name: 'Package',
+            extensions: ['dat']
+          }
         ]
       });
     }
   }
 
   event.sender.send(property + '-selected', selection);
+});
+
+// Send message to publish page to generate HTML with relevant data.
+ipcMain.on('create-pdf', function(event, pdfObject) {
+
+  publishWindow.webContents.send('create-pdf', pdfObject);
+});
+
+// Create and save the PDF.
+ipcMain.on('save-pdf', function(event, pdfObject) {
+
+  publishWindow.webContents.printToPDF({}, function(error, data) {
+
+    if (error) {
+      console.log(error);
+    }
+
+    fs.writeFile(pdfObject.pdfPath, data, function(error) {
+
+      if (error) {
+        console.log(error);
+      }
+    });
+  });
 });

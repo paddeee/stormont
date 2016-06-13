@@ -29,6 +29,7 @@ var through = require('through2');
 var rename = require('gulp-rename');
 var historyApiFallback = require('connect-history-api-fallback');
 var useref = require('gulp-useref');
+var gutil = require('gulp-util');
 
 var AUTOPREFIXER_BROWSERS = [
   'ie >= 10',
@@ -166,7 +167,7 @@ gulp.task('html', function () {
     .pipe($.if('*.html', $.replace('elements/elements.html', 'elements/elements.vulcanized.html')))
     .pipe(assets)
     // Concatenate And Minify JavaScript
-    .pipe($.if('*.js', $.uglify({preserveComments: 'some'})))
+    .pipe($.if('*.js', $.uglify({preserveComments: 'some'}).on('error', gutil.log)))
     // Concatenate And Minify Styles
     // In case you are still using useref build blocks
     .pipe($.if('*.css', $.cssmin()))

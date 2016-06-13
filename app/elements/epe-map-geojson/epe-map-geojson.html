@@ -27,6 +27,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 </dom-module>
 
 <script src="../../bower_components/leaflet.markercluster/dist/leaflet.markercluster-src.js"></script>
+<script src="../../scripts/vendor/leaflet/leaflet.markercluster.freezable-src.js"></script>
 <script src="../../scripts/vendor/leaflet/awesome-markers/leaflet.awesome-markers.js"></script>
 
 <script>
@@ -175,13 +176,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         activeEventExistsInFeatures: {
           type: Boolean,
           value: false
+        },
+
+        clustering: {
+          type: Boolean,
+          observer: 'clusteringChanged',
+          value: true
         }
       },
 
       ready: function() {
 
         // Initialise a ClusterLayer
-        this.clusterLayer = new window.L.MarkerClusterGroup({
+        this.clusterLayer = new L.markerClusterGroup({
           showCoverageOnHover: false,
           spiderfyOnMaxZoom: true
         });
@@ -405,13 +412,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           this.setUpFeaturesLayer();
 
-          this.zoomToFitBounds();
-
           // Add cluster and feature layers
           this.clusterLayer.addTo(this.container);
           this.geoJSONLayer.addTo(this.container);
 
-          this.zoomToFitBounds();
+          this.clusteringChanged();
+
+          if (this.navigationType === 'All') {
+            this.zoomToFitBounds();
+          }
         }
       },
 
@@ -553,6 +562,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           // If marker to jump to exists as marker on the map
           if (this.activeEvent === feature.feature.properties.id.toString()) {
+
             this.handlePopup(feature);
           }
         }.bind(this));
@@ -619,9 +629,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             // Pan and zoom into the cluster or just to a marker if zoomed in enough already
             clusterLayer.zoomToShowLayer(feature, function () {
 
+              if (!this.clustering && this.navigationType !== 'One') {
+                this.zoomToFitBounds();
+              }
+
               // Open marker popup
               feature.openPopup();
-            });
+            }.bind(this));
           }
 
           // If a Line or Polygon
@@ -698,6 +712,78 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.activeEventChanged();
           });
         }
+      },
+
+      // CALLED BY OBSERVER ON CLUSTERING
+      clusteringChanged: function() {
+
+        if (!this.clusterLayer) {
+          return;
+        }
+
+        if (this.clustering === false) {
+          this.clusterLayer.disableClustering();
+        } else if (this.clustering === true) {
+          this.clusterLayer.enableClustering();
+        }
+
+        this.fire('toggle-cluster', this.clustering);
+      },
+
+      // Get ERN refs for publish screen depending on the view
+      getErnRefs: function() {
+
+        var $map = this.closest('#LeafletMap');
+        var bounds = $map.map.getBounds();
+        var ernRefs = [];
+
+        // Get marker ERNs
+        this.clusterLayer.eachLayer(function(marker) {
+
+          var evidence = marker.feature.properties.supportingEvidence;
+
+          if (bounds.contains(marker.getLatLng())) {
+
+            // Add Events evidence
+            evidence.eventsEvidence.forEach(function(sourceObject) {
+              if (sourceObject.supportingSourceObject) {
+                ernRefs.push(sourceObject.supportingSourceObject);
+              }
+            });
+
+            // Add Place evidence
+            evidence.placeEvidence.forEach(function(sourceObject) {
+              if (sourceObject.supportingSourceObject) {
+                ernRefs.push(sourceObject.supportingSourceObject);
+              }
+            });
+          }
+        });
+
+        // Get polygon ERNs if the whole polygon is in view
+        this.geoJSONLayer.eachLayer(function(polygon) {
+
+          var evidence = polygon.feature.properties.supportingEvidence;
+
+          if (bounds.contains(polygon.getBounds())) {
+
+            // Add Events evidence
+            evidence.eventsEvidence.forEach(function(sourceObject) {
+              if (sourceObject.supportingSourceObject) {
+                ernRefs.push(sourceObject.supportingSourceObject);
+              }
+            });
+
+            // Add Place evidence
+            evidence.placeEvidence.forEach(function(sourceObject) {
+              if (sourceObject.supportingSourceObject) {
+                ernRefs.push(sourceObject.supportingSourceObject);
+              }
+            });
+          }
+        });
+
+        return ernRefs;
       }
     });
   })();

@@ -96,6 +96,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       line-height: 29px;
     }
 
+    .toggle-cluster-control-holder {
+      left: 10px;
+      position: fixed;
+      top: 450px;
+      height: 29px;
+      width: 29px;
+    }
+
+    .toggle-cluster-control {
+      background-color: var(--primary-background-color);
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .toggle-cluster-control--disabled {
+      background-color: rgb(244, 244, 244);
+      color: rgb(187, 187, 187);
+    }
+
     .timeline-control-holder {
       background-color: var(--primary-background-color);
       position: fixed;
@@ -269,6 +288,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .marker-cluster-large {
       background-color: rgba(253, 156, 115, 0.6);
     }
+
     .marker-cluster-large div {
       background-color: rgba(241, 128, 23, 0.6);
     }
@@ -298,6 +318,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                        selected-records-actions="[[selectedRecordsActions]]"
                        active-event="[[activeEvent]]"
                        active-place="[[activePlace]]"
+                       clustering="[[clustering]]"
+                       navigation-type="[[navigationType]]"
+                       on-toggle-cluster="clusteringChanged"
                        on-toggle-event-card-no-location="toggleEventCardNoLocation">
       </epe-map-geojson>
 
@@ -307,6 +330,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       event-data="[[activeEventData]]"></epe-event-card>
 
     </leaflet-map>
+
+    <!-- Toggle Clusters control -->
+    <paper-material id="ToggleClustersControl"
+                    class="toggle-cluster-control-holder layout horizontal">
+      <div class="toggle-cluster-control  toggle-cluster-control--disabled  layout horizontal center center-justified"
+           on-tap="toggleCluster">
+        <iron-icon class="toggle-timeline"
+                   icon="maps:place"></iron-icon>
+      </div>
+    </paper-material>
+
+    <paper-tooltip for="ToggleClustersControl"
+                   position="right"
+                   class="timeline-tooltip">Toggle Clusters On/Off</paper-tooltip>
 
     <!-- Navigate Previous control -->
     <paper-material id="NavigatePreviousControl"
@@ -417,6 +454,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       mapTilesSrc: {
         type: String,
         value: ''
+      },
+
+      clustering: {
+        type: Boolean,
+        value: true
+      },
+
+      navigationType: {
+        type: String,
+        value: 'All'
       }
     },
 
@@ -441,18 +488,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.activeEvent = mapBroadcast.activeEvent;
             this.activePlace = mapBroadcast.activePlace;
           } else if (mapBroadcast.message.type === 'setToAll') {
+            this.navigationType = 'All';
             this.navigatingEvents = false;
             this.geoJSON = mapBroadcast.geoJSONObject;
             this.noneGeoJSONObject = mapBroadcast.noneGeoJSONObject;
             this.activeEvent = mapBroadcast.activeEvent;
             this.activePlace = mapBroadcast.activePlace;
           } else if (mapBroadcast.message.type === 'setToOneChanged') {
+            this.navigationType = 'One';
             this.navigatingEvents = false;
             this.geoJSON = mapBroadcast.geoJSONObject;
             this.noneGeoJSONObject = mapBroadcast.noneGeoJSONObject;
             this.activeEvent = mapBroadcast.activeEvent;
             this.activePlace = mapBroadcast.activePlace;
           } else if (mapBroadcast.message.type === 'setToPlusOneChanged') {
+            this.navigationType = 'PlusOne';
             this.navigatingEvents = false;
             this.geoJSON = mapBroadcast.geoJSONObject;
             this.noneGeoJSONObject = mapBroadcast.noneGeoJSONObject;
@@ -687,6 +737,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.fire('navigate-to-profile', personId);
     },
 
+    // FIRED BY PARENT CREATE-PACKAGE ELEMENT
+    navigateToEvent: function(eventId) {
+      this.$.TimeLineElement.goToId(eventId);
+    },
+
     // FIRED FROM TIMELINE ELEMENT
     timelineButtonStateChanged: function(event) {
 
@@ -743,6 +798,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       } else {
         this.mapTilesSrc = 'https://{s}.tile.openstreetmap.org' + mapTilesDirectories;
       }
+    },
+
+    // Toggle cluster on/off
+    toggleCluster: function() {
+
+      if (this.clustering === false) {
+        this.clustering = true;
+      } else if (this.clustering === true) {
+        this.clustering = false;
+      }
+    },
+
+    // CALLED BY OBSERVER ON CLUSTERING
+    clusteringChanged: function() {
+
+      var $clusterButton = this.querySelector('.toggle-cluster-control');
+
+      if (this.clustering === false) {
+        $clusterButton.classList.remove('toggle-cluster-control--disabled');
+      } else if (this.clustering === true) {
+        $clusterButton.classList.add('toggle-cluster-control--disabled');
+      }
+    },
+
+    // Get ERN refs for publish screen depending on the view
+    getErnRefs: function() {
+      return this.$.MapGeoJSON.getErnRefs();
     }
   });
 })();

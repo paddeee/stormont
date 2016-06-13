@@ -1,0 +1,218 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<html lang="">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="SITF Electronic Presentation of Evidence" />
+  <meta name="robots" content="noindex" />
+  <title>Publish Window</title>
+  <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+  <!-- Chrome for Android theme color -->
+  <meta name="theme-color" content="#303F9F">
+  <style>
+    body {
+      background: #fff;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      color: #333;
+      margin: 0;
+    }
+
+    .bold {
+      font-weight: bold;
+    }
+
+    table {
+      margin: 8px 0;
+      table-layout: fixed;
+      width: 100%;
+    }
+
+    tr:first-child td {
+      border-top: 1px solid #e6e6e6;
+    }
+
+    td:first-child {
+      border-left: 1px solid #e6e6e6;
+    }
+
+    td {
+      border-bottom: 1px solid #e6e6e6;
+      border-right: 1px solid #e6e6e6;
+      border-collapse: collapse;
+      padding: 8px;
+      width: 25%;
+    }
+
+    .notes {
+      height: 100px;
+    }
+
+    @page {
+      size: 9.25in 7in;
+      margin: 16mm 27mm 16mm 27mm;
+    }
+
+    .image {
+      page-break-after: always;
+    }
+
+    @page :left {
+      @bottom-left {
+        content: counter(page);
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="page  image">
+    <img src="" id="ScreenShot"/>
+  </div>
+
+  <div class="page">
+    <table>
+      <tr>
+        <td class="bold">Publish Filename</td>
+        <td id="FileName"></td>
+        <td></td>
+        <td></td>
+      </tr>
+    </table>
+
+    <table>
+      <tr>
+        <td class="bold">Time</td>
+        <td id="Time"></td>
+        <td class="bold">Date</td>
+        <td id="Date"></td>
+      </tr>
+      <tr>
+        <td class="bold">UserID</td>
+        <td id="User"></td>
+        <td></td>
+        <td></td>
+      </tr>
+    </table>
+
+    <table id="MapTable" hidden>
+      <tr>
+        <td class="bold">Mappping Data</td>
+        <td id="MapName"></td>
+        <td></td>
+        <td></td>
+      </tr>
+    </table>
+
+    <table id="ErnTable" hidden>
+      <tr id="ErnHeading">
+        <td id="ErnRef" class="bold">ERN Reference</td>
+        <td id="ErnDescription" class="bold">Description</td>
+        <td></td>
+        <td></td>
+      </tr>
+    </table>
+
+    <table>
+      <tr>
+        <td colspan="4">Notes</td>
+      </tr>
+      <tr>
+        <td class="notes" colspan="4"></td>
+      </tr>
+      <tr>
+        <td class="bold">Signed</td>
+        <td></td>
+        <td>Role</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="bold">Dated</td>
+        <td></td>
+        <td>Role</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="bold">Signed</td>
+        <td></td>
+        <td>Role</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="bold">Dated</td>
+        <td></td>
+        <td>Role</td>
+        <td></td>
+      </tr>
+    </table>
+  </div>
+
+  <script>
+    var ipcRenderer = require('electron').ipcRenderer;
+    var moment = require('moment');
+
+    ipcRenderer.on('create-pdf', function(event, pdfObject) {
+
+      var $screenShot = document.querySelector('#ScreenShot');
+      var $fileName = document.querySelector('#FileName');
+      var $time = document.querySelector('#Time');
+      var $date = document.querySelector('#Date');
+      var $user = document.querySelector('#User');
+      var $mapTable = document.querySelector('#MapTable');
+      var $mapName = document.querySelector('#MapName');
+      var $ernTable = document.querySelector('#ErnTable');
+      var $ernHeading = document.querySelector('#ErnHeading');
+
+      $screenShot.src = pdfObject.imagePath;
+      $fileName.innerHTML = pdfObject.fileName;
+      $date.innerHTML = moment().format('DD-MM-YYYY');
+      $time.innerHTML = moment().format('HH:mm:ss');
+      $user.innerHTML = pdfObject.userName;
+
+      if (pdfObject.mapName) {
+        $mapName.innerHTML = pdfObject.mapName;
+        $mapTable.removeAttribute('hidden');
+      }
+
+      if (pdfObject.ernRefs.length) {
+
+        $ernTable.innerHTML = '<tr id="ErnHeading"><td id="ErnRef" class="bold">ERN Reference</td>' +
+          '<td id="ErnDescription" class="bold">Description</td><td></td><td></td></tr>';
+
+        pdfObject.ernRefs.forEach(function(ernRef) {
+
+          if (!ernRef) {
+            return;
+          }
+
+          var tableRow = '<tr><td>' + ernRef['Full Name'] + '</td><td>' + ernRef.Description + '</td><td></td><td></td></tr>';
+          var $ernHeading = document.querySelector('#ErnHeading');
+
+          $ernHeading.insertAdjacentHTML('afterend', tableRow);
+        });
+
+        $ernTable.removeAttribute('hidden');
+      }
+
+      // Send message to Electron
+      setTimeout(function() {
+        ipcRenderer.send('save-pdf', pdfObject);
+      }, 0);
+    });
+  </script>
+</body>
+
+</html>

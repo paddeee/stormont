@@ -70,12 +70,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       --paper-progress-secondary-color: var(--paper-light-blue-100);
       width: 100%;
     }
+
+    paper-toggle-button {
+      --paper-toggle-button-label-color: var(--text-primary-color);
+      --paper-toggle-button-checked-bar-color: var(--accent-color);
+      --paper-toggle-button-checked-button-color: var(--accent-color);
+      --paper-toggle-button-checked-ink-color: var(--accent-color);
+    }
   </style>
   <template>
 
     <div class="main flex layout vertical center">
       <paper-material elevation="1" class="card card--choose-package flex fit layout vertical center">
         <h1>Choose Package To Import</h1>
+        <!--<div class="toggle-mode">
+          <paper-toggle-button
+            id="CourtModeToggle"
+            on-change="courtModeChanged">Court Mode</paper-toggle-button>
+        </div>-->
         <div class="choose-button-holder layout horizontal center-justified">
           <paper-button
             raised
@@ -119,7 +131,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <span>The package has been successfully imported into the application.</span>
       </div>
       <div class="buttons">
-        <paper-button dialog-confirm autofocus on-tap="navigateToDataGrid">OK</paper-button>
+        <paper-button dialog-confirm autofocus on-tap="navigateToMap">OK</paper-button>
       </div>
     </paper-dialog>
 
@@ -158,7 +170,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (typeof process === 'object') {
 
         // Listen to Electron when file is selected
-        ipcRenderer.on('file-selected', function (arg) {
+        ipcRenderer.on('file-selected', function (event, arg) {
 
           if (arg) {
             this.importLocation = arg[0];
@@ -260,9 +272,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
-    // Navigate to the Events Data Grid
-    navigateToDataGrid: function() {
-      page('/create-package/data-grid/' + app.config.EventsCollection.name);
+    // Navigate to the Map
+    navigateToMap: function() {
+      page('/create-package/map');
+      this.fire('package-selected');
+    },
+
+    // Court Mode toggle changed
+    courtModeChanged: function() {
+      this.fire('court-mode-changed', this.$.CourtModeToggle.active);
     }
   });
 })();

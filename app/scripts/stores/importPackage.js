@@ -64,6 +64,9 @@ module.exports = Reflux.createStore({
 
                         // Add the package filesystem location so we can use it later for Publishing functionality
                         global.config.packagePath = importFileAdapter.tempPackageDirectory;
+                        
+                        // Set packagePassword so we can access it if application locks
+                        this.packagePassword = packageObject.packagePassword;
 
                         dataSourceStore.trigger(dataSourceStore);
 
