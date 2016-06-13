@@ -229,7 +229,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <section data-route="choose-package">
             <epe-choose-package import-package-actions="[[importPackageActions]]"
                                 import-package-store="[[importPackageStore]]"
-                                on-package-selected="packageSelected">
+                                on-package-selected="packageSelected"
+                                on-court-mode-changed="courtModeChanged">
             </epe-choose-package>
           </section>
 
@@ -832,6 +833,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Reset the session timer on the epe-inactivity element
         this.$.InActivityMask.setSessionExpireTimeOut();
+      },
+
+      // Court Mode changed
+      courtModeChanged: function(event) {
+        console.log(event.detail);
       }
     });
   })();

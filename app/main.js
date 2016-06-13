@@ -83,7 +83,7 @@ app.on('ready', function() {
       webSecurity: false,
       width: 1024,
       height: 720,
-      show: true
+      show: false
     });
 
     publishWindow.loadURL('file://' + __dirname + '/publish.html');
