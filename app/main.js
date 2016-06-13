@@ -42,7 +42,7 @@ var getRoles =  function () {
   return new Promise(function (resolve, reject) {
 
     if (buildType !== 0) {
-      global.roles = {};
+      global.roles = null;
       resolve();
     } else {
 
