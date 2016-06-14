@@ -143,10 +143,13 @@ gulp.task('copy', function () {
   var testMedia = gulp.src(['app/testmedia/**/*'])
     .pipe(gulp.dest('dist/testmedia'));
 
-  var testMedia = gulp.src(['app/fonts/**/*'])
-    .pipe(gulp.dest('dist/testmedia'));
+  var profiles = gulp.src(['app/profiles/**/*'])
+    .pipe(gulp.dest('dist/profiles'));
 
-  return merge(app, bower, elements, vulcanized, swBootstrap, swToolbox, testMedia, vendorScripts, vendorStyles)
+  var fonts = gulp.src(['app/fonts/**/*'])
+    .pipe(gulp.dest('dist/fonts'));
+
+  return merge(app, bower, elements, vulcanized, swBootstrap, swToolbox, testMedia, profiles, vendorScripts, vendorStyles, fonts)
     .pipe($.size({title: 'copy'}));
 });
 

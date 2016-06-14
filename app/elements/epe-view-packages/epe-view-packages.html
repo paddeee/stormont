@@ -487,6 +487,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.ExportingPackage.close();
 
         // Package export error
+      } else if (messageType === 'profileImagesCopyFailure') {
+        this.exportFailureMessage = 'There was a problem copying Profile Images';
+        this.$.ExportErrorDialog.open();
+        this.$.ExportingPackage.close();
+
+        // Package export error
       } else if (messageType === 'zipDirectoryFailure') {
         this.exportFailureMessage = 'There was a problem creating a zip file for the package';
         this.$.ExportErrorDialog.open();

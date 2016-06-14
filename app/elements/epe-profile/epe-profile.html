@@ -382,23 +382,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Show photo if valid, otherwise use default pic
     getProfilePhoto: function(path) {
 
-      var photoPath;
-      var sourcePath = '';
+      var placeholderPath;
+      var profilesPath = '/profiles/';
 
       // Set the src of the image if inside Electron
       if (typeof process === 'object') {
-        sourcePath = config.paths.sourcePath;
+
+        // Use roles to determine if on network on offline
+        if (roles) {
+          profilesPath = config.paths.profilesPath;
+        } else {
+          profilesPath = global.config.packagePath + '/profiles';
+        }
       }
 
-      photoPath = '/testmedia/profiles/profile-placeholder.png';
+      placeholderPath = '/profile-placeholder.png';
 
       path = path || this.selectedProfileObject.Photo;
 
       if (path === '' || !path || path === 'path_to_file') {
-        return sourcePath + photoPath;
+        return profilesPath + placeholderPath;
       }
 
-      return sourcePath + path;
+      return profilesPath + path;
     },
 
     // Get Date
