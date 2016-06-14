@@ -7281,7 +7281,13 @@ function webViewerInitialized($pdfViewerElement) {
 
   // Set the src of the image if inside Electron
   if (typeof process === 'object') {
-    sourcePath = config.paths.sourcePath;
+
+    // Use roles to determine if on network on offline
+    if (roles) {
+      sourcePath = config.paths.sourcePath;
+    } else {
+      sourcePath = global.config.packagePath;
+    }
   }
 
   var file = sourcePath + $pdfViewerElement.pdfObject['Linked File'];

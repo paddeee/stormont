@@ -9,7 +9,7 @@ var dataSourceStore = require('../stores/dataSource.js');
 var eventsStore = require('../stores/events.js');
 var placesStore = require('../stores/places.js');
 var peopleStore = require('../stores/people.js');
-var fs = window.electronRequire('fs-extra');
+var fsExtra = window.electronRequire('fs-extra');
 var zipFolder = window.electronRequire('zip-folder');
 var encryptor = window.electronRequire('file-encryptor');
 //var usb = window.electronRequire('electron-usb');
@@ -50,20 +50,20 @@ module.exports = Reflux.createStore({
     this.packagePassword = presentationObject.packagePassword;
 
     // Create a temporary directory for database file and related source files
-    fs.mkdirs(exportFileAdapter.tempExportDirectory, function(err) {
+    fsExtra.mkdirs(exportFileAdapter.tempExportDirectory, function(err) {
 
       if (err) {
         return console.error(err);
+      } else {
+
+        // Load the Export Database Collections into the DB
+        // Then Update the collections depending on what the user has selected to export, filtered or selected
+        // When the Export Database file is successfully saved, start the Export sequence
+        exportDatabase.loadDatabase({}, function() {
+          this.updateDataCollections(exportDatabase, presentationObject);
+          this.commenceExportProcess(exportDatabase, presentationObject);
+        }.bind(this));
       }
-    });
-
-    // Load the Export Database Collections into the DB
-    // Then Update the collections depeneding on what the user has selected to export, filtered or selected
-    // When the Export Database file is successfully saved, start the Export sequence
-    exportDatabase.loadDatabase({}, function() {
-
-      this.updateDataCollections(exportDatabase, presentationObject);
-      this.commenceExportProcess(exportDatabase, presentationObject);
     }.bind(this));
   },
 
@@ -121,7 +121,7 @@ module.exports = Reflux.createStore({
           .then(function() {
             console.log('Package Encrypted');
 
-            // Delete temporary directory and zip file
+            // Delete temporary directory
             this.deleteTempDirectory(exportFileAdapter.tempExportDirectory)
             .then(function() {
               console.log('Temp directory removed');
@@ -136,12 +136,20 @@ module.exports = Reflux.createStore({
               .catch(function(reason) {
                 console.error(reason);
                 this.message = 'removeZipFileFailure';
+
+                  // Delete temporary directory
+                  this.deleteTempDirectory(exportFileAdapter.tempExportDirectory);
+
                 this.trigger(this);
               }.bind(this));
             }.bind(this))
             .catch(function(reason) {
               console.log(this);
               console.error(reason);
+
+                // Delete zip file
+                this.deleteZipFile(exportFileAdapter.tempExportDirectory + '.zip');
+
               this.message = 'removeDirectoryFailure';
               this.trigger(this);
             }.bind(this));
@@ -149,18 +157,39 @@ module.exports = Reflux.createStore({
             .catch(function(reason) {
               console.error(reason);
               this.message = 'encryptionFailure';
+
+              // Delete temporary directory
+              this.deleteTempDirectory(exportFileAdapter.tempExportDirectory);
+
+              // Delete zip file
+              this.deleteZipFile(exportFileAdapter.tempExportDirectory + '.zip');
+
               this.trigger(this);
             }.bind(this));
           }.bind(this))
           .catch(function(reason) {
             console.error(reason);
             this.message = 'zipDirectoryFailure';
+
+            // Delete temporary directory
+            this.deleteTempDirectory(exportFileAdapter.tempExportDirectory);
+
+            // Delete zip file
+            this.deleteZipFile(exportFileAdapter.tempExportDirectory + '.zip');
+
             this.trigger(this);
           }.bind(this));
       }.bind(this))
       .catch(function(reason) {
         console.error(reason);
         this.message = 'sourceFileCopyFailure';
+
+          // Delete temporary directory
+          this.deleteTempDirectory(exportFileAdapter.tempExportDirectory);
+
+          // Delete zip file
+          this.deleteZipFile(exportFileAdapter.tempExportDirectory + '.zip');
+
         this.trigger(this);
       }.bind(this));
     }.bind(this))
@@ -168,6 +197,10 @@ module.exports = Reflux.createStore({
     function(reason) {
       console.error(reason);
       this.message = 'dbCopyFailure';
+
+      // Delete temporary directory
+      this.deleteTempDirectory(exportFileAdapter.tempExportDirectory);
+
       this.trigger(this);
     }.bind(this));
   },
@@ -283,19 +316,55 @@ module.exports = Reflux.createStore({
       var sourceFilePath = config.paths.sourcePath;
 
       // Return a new Promise for every file to be copied
+      /*var copyFile = function(sourceFile) {
+
+        return new Promise(function(resolve, reject) {
+
+          var read = fsExtra.createReadStream(sourceFilePath + sourceFile['Linked File']);
+          var write = fsExtra.createWriteStream(tempExportDirectory + sourceFile['Linked File']);
+
+          //read.on('error', reject);
+          write.on('error', reject);
+          write.on('finish', resolve);
+          read.pipe(write);
+        });
+      };*/
+
+      // Return a new Promise for every file to be copied
       var copyFile = function (sourceFile) {
 
         return new Promise(function(resolve, reject) {
 
-          // Copy each source file to the temp directory
-          fs.copy(sourceFilePath + '/' + sourceFile['Linked File'], tempExportDirectory + '/' + sourceFile['Linked File'], function (err) {
+          fsExtra.stat(tempExportDirectory + '/' + sourceFile['Linked File'], function(err) {
 
-            if (err) {
-              console.log(sourceFile['Linked File'] + ' failed');
-              reject(err);
-            } else {
-              console.log(sourceFile['Linked File'] + ' copied');
+            // File exists
+            if (err === null) {
+              console.log(tempExportDirectory + '/' + sourceFile['Linked File'] + ' File exists');
               resolve();
+
+            } else if (err.code === 'ENOENT') {
+
+              // File does not exist
+              // Copy each source file to the temp directory
+              fsExtra.ensureLink(sourceFilePath + '/' + sourceFile['Linked File'], tempExportDirectory + '/' + sourceFile['Linked File'], function (error) {
+
+                if (error) {
+
+                  if (error.code === 'EEXIST') {
+                    console.log(sourceFile['Linked File'] + ' file exists');
+                    resolve();
+                  } else {
+                    console.log(sourceFile['Linked File'] + ' failed');
+                    reject(error);
+                  }
+                } else {
+                  console.log(sourceFile['Linked File'] + ' copied');
+                  resolve();
+                }
+              });
+
+            } else {
+              reject('Some other error: ', err.code);
             }
           });
         });
@@ -306,9 +375,9 @@ module.exports = Reflux.createStore({
 
       // Resolve or reject Promise when all Promises have been evaluated
       Promise.all(arrayOfPromises).then(function() {
-          console.log('All source files copied');
-          resolve();
-        })
+        console.log('All source files copied');
+        resolve();
+      })
         .catch(function(err) {
           reject(Error(err));
         });
@@ -320,7 +389,7 @@ module.exports = Reflux.createStore({
 
     return new Promise(function (resolve, reject) {
 
-      fs.remove(tempExportDirectory, function (err) {
+      fsExtra.remove(tempExportDirectory, function (err) {
 
         if (err) {
           reject(Error(err));
@@ -336,7 +405,7 @@ module.exports = Reflux.createStore({
 
     return new Promise(function (resolve, reject) {
 
-      fs.remove(zipPath, function (err) {
+      fsExtra.remove(zipPath, function (err) {
 
         if (err) {
           reject(Error(err));
