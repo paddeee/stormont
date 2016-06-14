@@ -99,7 +99,7 @@ module.exports = Reflux.createStore({
             resolve();
           }
         });
-      }, 100);
+      }, 500);
     });
 
     saveExportDatabase
@@ -111,52 +111,70 @@ module.exports = Reflux.createStore({
       .then(function() {
         console.log('Source Files Copied');
 
-        // Zip temporary directory
-        zipTempDirectory
-        .then(function() {
-          console.log('Folder Zipped');
-
-          // Encrypt zip file
-          this.encryptPackage(presentationObject)
+        // Iterate through each Person Object and copy the file from its Image Path into the temp directory
+        this.copyProfileImagesFiles(exportDatabase.getCollection(config.PeopleCollection.name).data, presentationObject, exportFileAdapter.tempExportDirectory)
           .then(function() {
-            console.log('Package Encrypted');
+            console.log('Profile Images Copied');
 
-            // Delete temporary directory
-            this.deleteTempDirectory(exportFileAdapter.tempExportDirectory)
+          // Zip temporary directory
+          zipTempDirectory
+          .then(function() {
+            console.log('Folder Zipped');
+
+            // Encrypt zip file
+            this.encryptPackage(presentationObject)
             .then(function() {
-              console.log('Temp directory removed');
+              console.log('Package Encrypted');
 
-              this.deleteZipFile(exportFileAdapter.tempExportDirectory + '.zip')
+              // Delete temporary directory
+              this.deleteTempDirectory(exportFileAdapter.tempExportDirectory)
               .then(function() {
-                console.log('Zip File removed');
+                console.log('Temp directory removed');
 
-                this.message = 'exportSuccess';
+                this.deleteZipFile(exportFileAdapter.tempExportDirectory + '.zip')
+                .then(function() {
+                  console.log('Zip File removed');
+
+                  this.message = 'exportSuccess';
+                  this.trigger(this);
+                }.bind(this))
+                .catch(function(reason) {
+                  console.error(reason);
+                  this.message = 'removeZipFileFailure';
+
+                    // Delete temporary directory
+                    this.deleteTempDirectory(exportFileAdapter.tempExportDirectory);
+
+                  this.trigger(this);
+                }.bind(this));
+              }.bind(this))
+              .catch(function(reason) {
+                console.log(this);
+                console.error(reason);
+
+                  // Delete zip file
+                  this.deleteZipFile(exportFileAdapter.tempExportDirectory + '.zip');
+
+                this.message = 'removeDirectoryFailure';
                 this.trigger(this);
+              }.bind(this));
               }.bind(this))
               .catch(function(reason) {
                 console.error(reason);
-                this.message = 'removeZipFileFailure';
+                this.message = 'encryptionFailure';
 
-                  // Delete temporary directory
-                  this.deleteTempDirectory(exportFileAdapter.tempExportDirectory);
+                // Delete temporary directory
+                this.deleteTempDirectory(exportFileAdapter.tempExportDirectory);
+
+                // Delete zip file
+                this.deleteZipFile(exportFileAdapter.tempExportDirectory + '.zip');
 
                 this.trigger(this);
               }.bind(this));
             }.bind(this))
             .catch(function(reason) {
-              console.log(this);
               console.error(reason);
-
-                // Delete zip file
-                this.deleteZipFile(exportFileAdapter.tempExportDirectory + '.zip');
-
-              this.message = 'removeDirectoryFailure';
-              this.trigger(this);
-            }.bind(this));
-            }.bind(this))
-            .catch(function(reason) {
-              console.error(reason);
-              this.message = 'encryptionFailure';
+              this.message = 'zipDirectoryFailure';
 
               // Delete temporary directory
               this.deleteTempDirectory(exportFileAdapter.tempExportDirectory);
@@ -166,10 +184,10 @@ module.exports = Reflux.createStore({
 
               this.trigger(this);
             }.bind(this));
-          }.bind(this))
+        }.bind(this))
           .catch(function(reason) {
             console.error(reason);
-            this.message = 'zipDirectoryFailure';
+            this.message = 'profileImagesCopyFailure';
 
             // Delete temporary directory
             this.deleteTempDirectory(exportFileAdapter.tempExportDirectory);
@@ -179,7 +197,7 @@ module.exports = Reflux.createStore({
 
             this.trigger(this);
           }.bind(this));
-      }.bind(this))
+        }.bind(this))
       .catch(function(reason) {
         console.error(reason);
         this.message = 'sourceFileCopyFailure';
@@ -316,21 +334,6 @@ module.exports = Reflux.createStore({
       var sourceFilePath = config.paths.sourcePath;
 
       // Return a new Promise for every file to be copied
-      /*var copyFile = function(sourceFile) {
-
-        return new Promise(function(resolve, reject) {
-
-          var read = fsExtra.createReadStream(sourceFilePath + sourceFile['Linked File']);
-          var write = fsExtra.createWriteStream(tempExportDirectory + sourceFile['Linked File']);
-
-          //read.on('error', reject);
-          write.on('error', reject);
-          write.on('finish', resolve);
-          read.pipe(write);
-        });
-      };*/
-
-      // Return a new Promise for every file to be copied
       var copyFile = function (sourceFile) {
 
         return new Promise(function(resolve, reject) {
@@ -378,6 +381,93 @@ module.exports = Reflux.createStore({
         console.log('All source files copied');
         resolve();
       })
+        .catch(function(err) {
+          reject(Error(err));
+        });
+    });
+  },
+
+  // Iterate through each Person Object and copy the file from its Image Path into the temp directory
+  copyProfileImagesFiles: function(profileImagesArray, presentationObject, tempExportDirectory) {
+
+    return new Promise(function (resolve, reject) {
+
+      var profileImagesPath = config.paths.profilesPath;
+
+      // Copy the placeholder image
+      (function copyPlaceholder() {
+
+        fsExtra.ensureLink(profileImagesPath + '/profile-placeholder.png', tempExportDirectory + '/profiles/profile-placeholder.png', function (error) {
+
+          if (error) {
+
+            if (error.code === 'EEXIST') {
+              console.log('Placeholder Image file exists');
+              resolve();
+            } else {
+              console.log('Placeholder Image file failed');
+              reject(error);
+            }
+          } else {
+            console.log('Placeholder Image file copied');
+            resolve();
+          }
+        });
+      })();
+
+      // Return a new Promise for every file to be copied
+      var copyFile = function (profile) {
+
+        return new Promise(function(resolve, reject) {
+
+          if (!profile.Photo) {
+            resolve();
+          } else {
+
+            fsExtra.stat(tempExportDirectory + '/profiles/' + profile.Photo, function(err) {
+
+              // File exists
+              if (err === null) {
+                console.log(tempExportDirectory + '/profiles/' + profile.Photo + ' File exists');
+                resolve();
+
+              } else if (err.code === 'ENOENT') {
+
+                // File does not exist
+                // Copy each source file to the temp directory
+                fsExtra.ensureLink(profileImagesPath + '/' + profile.Photo, tempExportDirectory + '/profiles/' + profile.Photo, function (error) {
+
+                  if (error) {
+
+                    if (error.code === 'EEXIST') {
+                      console.log(profile.Photo + ' file exists');
+                      resolve();
+                    } else {
+                      console.log(profile.Photo + ' failed');
+                      reject(error);
+                    }
+                  } else {
+                    console.log(profile.Photo + ' copied');
+                    resolve();
+                  }
+                });
+
+              } else {
+                reject('Some other error: ', err.code);
+              }
+            });
+          }
+        });
+      };
+
+      // run the function over all items.
+      var arrayOfPromises = profileImagesArray.map(copyFile);
+
+      // Resolve or reject Promise when all Promises have been evaluated
+      Promise.all(arrayOfPromises).then(function() {
+          console.log('All profile image files copied');
+          resolve();
+        })
         .catch(function(err) {
           reject(Error(err));
         });
