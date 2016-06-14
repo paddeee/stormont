@@ -279,8 +279,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         // Set the src of the image if inside Electron
-        if (config) {
-          sourcePath = config.paths.sourcePath;
+        if (typeof process === 'object') {
+
+          // Use roles to determine if on network on offline
+          if (roles) {
+            sourcePath = config.paths.sourcePath;
+          } else {
+            sourcePath = global.config.packagePath;
+          }
         }
 
         // Reset tiff page array

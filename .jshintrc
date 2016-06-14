@@ -31,6 +31,7 @@
     "ipcRenderer": true,
     "presentationMode": true,
     "EpeCreatePackage": true,
-    "EpeEditPackage": true
+    "EpeEditPackage": true,
+    "roles": true
   }
 }
