@@ -12,3 +12,4 @@ app.asar
 app/scripts/bundle.js
 
 app/testmedia
+app/profiles
