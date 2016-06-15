@@ -10,11 +10,11 @@ const fs = require('fs');
  Networked: 0
  Offline/Court: 1
  */
-const buildType = 0;
+const buildType = 1;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-var mainWindow = null;
+var controllerWindow = null;
 
 // Get the config file
 var getConfig =  function () {
@@ -65,30 +65,96 @@ var getRoles =  function () {
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
 
-  // Create the browser window.
-  mainWindow = new BrowserWindow({
-    backgroundColor: 'fff',
-    webSecurity: false,
-    width: 1024,
-    height: 720
+  electron.screen.on('display-added', function(event, newDisplay) {
+
+    console.log('display added', electron.screen.getAllDisplays().length);
+
+    // If only primary display, set up new court window.
+    if (electron.screen.getAllDisplays().length < 3) {
+      console.log('createExternalWindow called');
+      createExternalWindow(true);
+    }
   });
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  electron.screen.on('display-removed', function(event, oldDisplay) {
+
+    // If only primary display, set up new court window.
+    if (electron.screen.getAllDisplays().length === 2) {
+      courtWindow = null;
+    }
+  });
+
+  let createExternalWindow = function(showWindow) {
+
+    let externalDisplay = displays.find(function (display) {
+      return display.size.width > controllerWidth || display.size.height > controllerHeight;
+    });
+
+    // Get screen size of external display
+    let externalWidth = externalDisplay.workAreaSize.width;
+    let externalHeight = externalDisplay.workAreaSize.height;
+
+    // Create the court view window.
+    courtWindow = new BrowserWindow({
+      fullScreen: showWindow,
+      webSecurity: false,
+      width: externalWidth,
+      height: externalHeight,
+      x: externalDisplay.bounds.x,
+      y: externalDisplay.bounds.y,
+      show: showWindow
+    });
+
+    courtWindow.loadURL('file://' + __dirname + '/externalDisplay.html');
+
+    courtWindow.webContents.openDevTools();
+  };
+
+  let displays = electron.screen.getAllDisplays();
+
+// Get controller display based on smallest screen width
+  let controllerDisplay = displays.reduce(function(prev, current) {
+    return (prev.size.width < current.size.width) ? prev : current;
+  });
+
+// Get screen size of controller display
+  let controllerWidth = controllerDisplay.workAreaSize.width;
+  let controllerHeight = controllerDisplay.workAreaSize.height;
+
+// Create the browser window.
+  controllerWindow = new BrowserWindow({
+    backgroundColor: 'fff',
+    webSecurity: false,
+    width: Math.round(controllerWidth * 0.9),
+    height: Math.round(controllerHeight * 0.9),
+    x: Math.round(controllerDisplay.bounds.x + (controllerWidth * 0.05)),
+    y: Math.round(controllerDisplay.bounds.y + (controllerHeight * 0.05)),
+    show: true
+  });
+
+  console.log(controllerWindow.getBounds());
+
+// Open the DevTools.
+  controllerWindow.webContents.openDevTools();
 
   if (buildType === 1) {
 
     // Create the publish window.
     publishWindow = new BrowserWindow({
       webSecurity: false,
-      width: 1024,
-      height: 720,
+      width: controllerWidth * 0.9,
+      height: controllerHeight * 0.9,
       show: false
     });
 
     publishWindow.loadURL('file://' + __dirname + '/publish.html');
 
-    publishWindow.webContents.openDevTools();
+    //publishWindow.webContents.openDevTools();
+
+    // If detect more than one display
+    if (displays.length > 1) {
+      createExternalWindow(false);
+    }
   }
 
   getConfig()
@@ -101,10 +167,10 @@ app.on('ready', function() {
 
           switch (buildType) {
             case 0:
-              mainWindow.loadURL('file://' + __dirname + '/online.html');
+              controllerWindow.loadURL('file://' + __dirname + '/online.html');
               break;
             case 1:
-              mainWindow.loadURL('file://' + __dirname + '/offline.html');
+              controllerWindow.loadURL('file://' + __dirname + '/offline.html');
               break;
             default:
               dialog.showErrorBox('Error with Build: No Valid Build Type specified');
@@ -120,16 +186,16 @@ app.on('ready', function() {
       reject();
     }.bind(this));
 
-  // Emitted when the window is closed.
-  mainWindow.on('closed', function() {
+// Emitted when the window is closed.
+  controllerWindow.on('closed', function() {
 
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
-    mainWindow = null;
+    controllerWindow = null;
   });
 
-  // Create the Application's main menu
+// Create the Application's main menu
   var template = [{
     label: "Application",
     submenu: [
@@ -149,7 +215,7 @@ app.on('ready', function() {
     ]}
   ];
 
-  //Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+//Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 });
 
 // Quit when all windows are closed.
@@ -211,4 +277,19 @@ ipcMain.on('save-pdf', function(event, pdfObject) {
       }
     });
   });
+});
+
+// Manage screens when Court mode is enabled/disabled
+ipcMain.on('court-mode-changed', function(event, courtMode) {
+
+  if (courtMode) {
+    courtWindow.setFullScreen(true);
+  } else {
+    courtWindow.setFullScreen(false);
+
+    // Timeout needed as can't close in fullscreen mode
+    setTimeout(function() {
+      courtWindow.hide();
+    }, 2000);
+  }
 });
