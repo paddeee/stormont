@@ -22,6 +22,13 @@ module.exports = Reflux.createStore({
     var options;
     var fileName = publishObject.fileName + '.png';
     var pdfName = publishObject.fileName + '.pdf';
+    var windows = electron.remote.BrowserWindow.getAllWindows();
+    var controllerWindow;
+    var controllerWindowBounds;
+    var rect = {
+      x: 0,
+      y: 0
+    };
 
     this.message = {
       type: 'gatheringScreens'
@@ -29,6 +36,60 @@ module.exports = Reflux.createStore({
 
     this.trigger(this);
 
+    controllerWindow = windows.filter(function (window) {
+      return window.getTitle() === 'SITF Electronic Presentation of Evidence';
+    })[0];
+
+    controllerWindowBounds = controllerWindow.getContentSize();
+
+    rect.width = controllerWindowBounds[0];
+    rect.height = controllerWindowBounds[1];
+
+    controllerWindow.capturePage(rect, function(image) {
+
+      var screenshotPath = path.join(global.config.packagePath, fileName);
+      var userName = dataSourceStore.dataSource.getCollection('Presentations').data[0].userName;
+
+      var pdfObject = {
+        fileName: publishObject.fileName,
+        imagePath: screenshotPath,
+        pdfPath: path.join(global.config.packagePath, pdfName),
+        userName: userName,
+        ernRefs: publishObject.ernRefs
+      };
+
+      fs.writeFile(screenshotPath, image.toPng(), function (error) {
+
+        if (error) {
+
+          this.message = {
+            type: 'screenshotFailure',
+            text: error
+          };
+
+          this.trigger(this);
+          return console.error(error);
+        }
+
+        // View file if user requested
+        if (publishObject.openOnSave === 'open') {
+          shell.openItem(screenshotPath);
+        }
+
+        this.message = {
+          type: 'screenshotSuccess',
+          text: 'Saved screenshot to: ' + screenshotPath
+        };
+
+        // Send message to Electron
+        ipcRenderer.send('create-pdf', pdfObject);
+
+        this.trigger(this);
+
+      }.bind(this));
+    }.bind(this));
+
+    /*
     options = {
       types: ['window'],
       thumbnailSize: {
@@ -72,9 +133,9 @@ module.exports = Reflux.createStore({
             }
 
             // View file if user requested
-            /*if (publishObject.openOnSave === 'open') {
+            if (publishObject.openOnSave === 'open') {
               shell.openItem(screenshotPath);
-            }*/
+            }
 
             this.message = {
               type: 'screenshotSuccess',
@@ -90,5 +151,6 @@ module.exports = Reflux.createStore({
         }
       }.bind(this));
     }.bind(this));
+    */
   }
 });

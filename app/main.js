@@ -12,6 +12,8 @@ const fs = require('fs');
  */
 const buildType = 1;
 
+const externalDisplay = false;
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 var controllerWindow = null;
@@ -64,6 +66,28 @@ var getRoles =  function () {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
+
+  // Manage screens when Court mode is enabled/disabled
+  ipcMain.on('court-mode-changed', function(event, courtMode) {
+
+    externalDisplay = courtMode;
+
+    // If only one screen when the court mode is changed, do nothing
+    if (electron.screen.getAllDisplays().length < 2) {
+      return;
+    }
+
+    if (courtMode) {
+      courtWindow.setFullScreen(true);
+    } else {
+      courtWindow.setFullScreen(false);
+
+      // Timeout needed as can't close in fullscreen mode
+      setTimeout(function() {
+        courtWindow.hide();
+      }, 2000);
+    }
+  });
 
   electron.screen.on('display-added', function(event, newDisplay) {
 
@@ -277,19 +301,4 @@ ipcMain.on('save-pdf', function(event, pdfObject) {
       }
     });
   });
-});
-
-// Manage screens when Court mode is enabled/disabled
-ipcMain.on('court-mode-changed', function(event, courtMode) {
-
-  if (courtMode) {
-    courtWindow.setFullScreen(true);
-  } else {
-    courtWindow.setFullScreen(false);
-
-    // Timeout needed as can't close in fullscreen mode
-    setTimeout(function() {
-      courtWindow.hide();
-    }, 2000);
-  }
 });
