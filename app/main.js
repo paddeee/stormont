@@ -158,7 +158,7 @@ app.on('ready', function() {
 
   console.log(controllerWindow.getBounds());
 
-// Open the DevTools.
+  // Open the DevTools.
   controllerWindow.webContents.openDevTools();
 
   if (buildType === 1) {
@@ -166,9 +166,11 @@ app.on('ready', function() {
     // Create the publish window.
     publishWindow = new BrowserWindow({
       webSecurity: false,
-      width: controllerWidth * 0.9,
-      height: controllerHeight * 0.9,
-      show: false
+      width: Math.round(controllerWidth * 0.9),
+      height: Math.round(controllerHeight * 0.9),
+      x: Math.round(controllerDisplay.bounds.x + (controllerWidth * 0.05)),
+      y: Math.round(controllerDisplay.bounds.y + (controllerHeight * 0.05)),
+      show: true
     });
 
     publishWindow.loadURL('file://' + __dirname + '/publish.html');

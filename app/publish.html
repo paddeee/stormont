@@ -177,6 +177,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var $ernHeading = document.querySelector('#ErnHeading');
 
       $screenShot.src = pdfObject.imagePath;
+      $screenShot.style.width = pdfObject.imageSize[0] + 'px';
+      $screenShot.style.height = pdfObject.imageSize[1] + 'px';
       $fileName.innerHTML = pdfObject.fileName;
       $date.innerHTML = moment().format('DD-MM-YYYY');
       $time.innerHTML = moment().format('HH:mm:ss');
@@ -210,7 +212,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Send message to Electron
       setTimeout(function() {
         ipcRenderer.send('save-pdf', pdfObject);
-      }, 0);
+      }, 100);
     });
   </script>
 </body>

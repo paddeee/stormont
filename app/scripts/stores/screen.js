@@ -53,6 +53,7 @@ module.exports = Reflux.createStore({
       var pdfObject = {
         fileName: publishObject.fileName,
         imagePath: screenshotPath,
+        imageSize: controllerWindowBounds,
         pdfPath: path.join(global.config.packagePath, pdfName),
         userName: userName,
         ernRefs: publishObject.ernRefs
