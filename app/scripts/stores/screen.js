@@ -71,8 +71,7 @@ module.exports = Reflux.createStore({
         }
 
         this.message = {
-          type: 'screenshotSuccess',
-          text: 'Saved screenshot to: ' + screenshotPath
+          type: 'screenshotSuccess'
         };
 
         // Send message to Electron

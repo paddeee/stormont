@@ -449,6 +449,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
           }.bind(this));
         }
+
+        if (typeof process === 'object') {
+
+          // Listen to Electron pdf created errors
+          ipcRenderer.on('pdf-error', function (event, arg) {
+            console.log(arg);
+            this.publishMessage = 'Error creating PDF: ' + arg.code;
+            this.$.PublishErrorDialog.open();
+          }.bind(this));
+
+          // Listen to Electron when a pdf is created successfully
+          ipcRenderer.on('pdf-created', function (event, arg) {
+
+            this.publishMessage = 'PDF created at ' + arg.pdfPath;
+            this.$.PublishSuccessDialog.open();
+          }.bind(this));
+        }
       },
 
       // FIRED BY IRON-PAGES ON-IRON-SELECTED EVENT

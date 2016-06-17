@@ -174,11 +174,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var $mapTable = document.querySelector('#MapTable');
       var $mapName = document.querySelector('#MapName');
       var $ernTable = document.querySelector('#ErnTable');
-      var $ernHeading = document.querySelector('#ErnHeading');
+      var imageWidth;
 
       $screenShot.src = pdfObject.imagePath;
-      $screenShot.style.width = (pdfObject.imageSize[0] * 0.9) + 'px';
-      $screenShot.style.height = (pdfObject.imageSize[1] * 0.9) + 'px';
+
+      // If image wider than 1024, set it to 1024 and the height to the correct dimension
+      if (pdfObject.imageSize[0] > 1024) {
+        imageHeight = ((pdfObject.imageSize[1] / pdfObject.imageSize[0]) * 1024) + 'px';
+        imageWidth = 1024 + 'px';
+      } else {
+        imageHeight = pdfObject.imageSize[1] + 'px';
+        imageWidth = pdfObject.imageSize[0] + 'px';
+      }
+
+      $screenShot.style.width = imageWidth;
+      $screenShot.style.height = imageHeight;
       $fileName.innerHTML = pdfObject.fileName;
       $date.innerHTML = moment().format('DD-MM-YYYY');
       $time.innerHTML = moment().format('HH:mm:ss');

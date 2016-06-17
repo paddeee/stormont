@@ -167,7 +167,7 @@ app.on('ready', function() {
   // Open the DevTools.
   controllerWindow.webContents.openDevTools();
 
-  if (buildType === 1) {
+  if (buildType === 0) {
 
     // Create the publish window.
     publishWindow = new BrowserWindow({
@@ -176,7 +176,7 @@ app.on('ready', function() {
       height: Math.round(controllerHeight * 0.9),
       x: Math.round(controllerDisplay.bounds.x + (controllerWidth * 0.05)),
       y: Math.round(controllerDisplay.bounds.y + (controllerHeight * 0.05)),
-      show: true
+      show: false
     });
 
     publishWindow.loadURL('file://' + __dirname + '/publish.html');
@@ -205,7 +205,7 @@ app.on('ready', function() {
               controllerWindow.loadURL('file://' + __dirname + '/offline.html');
               break;
             default:
-              dialog.showErrorBox('Error with Build: No Valid Build Type specified');
+              dialog.showErrorBox('Error with Build', 'No Valid Build Type specified');
           }
         })
         .catch(function() {
@@ -237,13 +237,15 @@ app.on('ready', function() {
   });
 
   // Emitted when the window is closed.
-  courtWindow.on('closed', function() {
+  if (courtWindow) {
+    courtWindow.on('closed', function() {
 
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    courtWindow = null;
-  });
+      // Dereference the window object, usually you would store windows
+      // in an array if your app supports multi windows, this is the time
+      // when you should delete the corresponding element.
+      courtWindow = null;
+    });
+  }
 
 // Create the Application's main menu
   var template = [{
@@ -334,7 +336,9 @@ ipcMain.on('save-pdf', function(event, pdfObject) {
     fs.writeFile(pdfObject.pdfPath, data, function(error) {
 
       if (error) {
-        console.log(error);
+        controllerWindow.webContents.send('pdf-error', error);
+      } else {
+        controllerWindow.webContents.send('pdf-created', pdfObject);
       }
     });
   });
