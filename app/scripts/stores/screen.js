@@ -3,8 +3,6 @@
 const Reflux = require('reflux');
 const ScreenActions = require('../actions/screen.js');
 const electron = window.electronRequire('electron');
-const desktopCapturer = electron.desktopCapturer;
-//const shell = electron.shell;
 
 const fs = window.electronRequire('fs');
 const path = window.electronRequire('path');
@@ -19,7 +17,6 @@ module.exports = Reflux.createStore({
 
   onPublishScreen: function(publishObject) {
 
-    var options;
     var fileName = publishObject.fileName + '.png';
     var pdfName = publishObject.fileName + '.pdf';
     var windows = electron.remote.BrowserWindow.getAllWindows();
@@ -56,7 +53,8 @@ module.exports = Reflux.createStore({
         imageSize: controllerWindowBounds,
         pdfPath: path.join(global.config.packagePath, pdfName),
         userName: userName,
-        ernRefs: publishObject.ernRefs
+        ernRefs: publishObject.ernRefs,
+        openOnSave: publishObject.openOnSave
       };
 
       fs.writeFile(screenshotPath, image.toPng(), function (error) {
@@ -72,86 +70,17 @@ module.exports = Reflux.createStore({
           return console.error(error);
         }
 
-        // View file if user requested
-        if (publishObject.openOnSave === 'open') {
-          shell.openItem(screenshotPath);
-        }
-
         this.message = {
           type: 'screenshotSuccess',
           text: 'Saved screenshot to: ' + screenshotPath
         };
 
         // Send message to Electron
-        ipcRenderer.send('create-pdf', pdfObject);
+        ipcRenderer.send('screenshot-published', pdfObject);
 
         this.trigger(this);
 
       }.bind(this));
     }.bind(this));
-
-    /*
-    options = {
-      types: ['window'],
-      thumbnailSize: {
-        width: 1024,
-        height: 720
-      }
-    };
-
-    desktopCapturer.getSources(options, function (error, sources) {
-
-      if (error) {
-        return console.log(error);
-      }
-
-      sources.forEach(function (source) {
-
-        if (source.name === 'SITF Electronic Presentation of Evidence') {
-
-          var screenshotPath = path.join(global.config.packagePath, fileName);
-          var userName = dataSourceStore.dataSource.getCollection('Presentations').data[0].userName;
-
-          var pdfObject = {
-            fileName: publishObject.fileName,
-            imagePath: screenshotPath,
-            pdfPath: path.join(global.config.packagePath, pdfName),
-            userName: userName,
-            ernRefs: publishObject.ernRefs
-          };
-
-          fs.writeFile(screenshotPath, source.thumbnail.toPng(), function (error) {
-
-            if (error) {
-
-              this.message = {
-                type: 'screenshotFailure',
-                text: error
-              };
-
-              this.trigger(this);
-              return console.error(error);
-            }
-
-            // View file if user requested
-            if (publishObject.openOnSave === 'open') {
-              shell.openItem(screenshotPath);
-            }
-
-            this.message = {
-              type: 'screenshotSuccess',
-              text: 'Saved screenshot to: ' + screenshotPath
-            };
-
-            // Send message to Electron
-            ipcRenderer.send('create-pdf', pdfObject);
-
-            this.trigger(this);
-
-          }.bind(this));
-        }
-      }.bind(this));
-    }.bind(this));
-    */
   }
 });

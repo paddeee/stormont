@@ -95,6 +95,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       margin: 2vh 0;
     }
 
+    paper-toggle-button {
+      --paper-toggle-button-label-color: var(--text-primary-color);
+      --paper-toggle-button-checked-bar-color: var(--accent-color);
+      --paper-toggle-button-checked-button-color: var(--accent-color);
+      --paper-toggle-button-checked-ink-color: var(--accent-color);
+    }
+
     paper-progress {
       --paper-progress-active-color: var(--dark-primary-color);
       --paper-progress-secondary-color: var(--paper-light-blue-100);
@@ -103,6 +110,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     epe-inactivity {
       height: 100%;
+    }
+
+    .court-holder {
+      margin-right: 20px;
     }
   </style>
   <template>
@@ -173,7 +184,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             class="menu-button"
             icon="menu"
             on-tap="toggleMenu"></paper-icon-button>-->
-          <div class="flex"></div>
+          <div class="court-holder flex layout horizontal end-justified">
+            <div class="toggle-mode">
+              <paper-toggle-button
+                id="CourtModeToggle"
+                on-change="toggleCourtModeChanged">Court</paper-toggle-button>
+            </div>
+          </div>
 
           <!-- Toolbar icons -->
           <div hidden$="[[hideHeaderPackageNavigation]]" class="package-navigation">
@@ -287,7 +304,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <div class="display-export-path">[[exportLocation]]</div>-->
 
-        <paper-radio-group id="OpenOnPublish" selected="open" class="layout vertical">>
+        <paper-radio-group id="OpenOnPublish" selected="open" class="layout vertical" hidden$="[[courtMode]]">
           <paper-radio-button name="open">Automatically open after saving</paper-radio-button>
           <paper-radio-button name="just-save">Just save</paper-radio-button>
         </paper-radio-group>
@@ -382,6 +399,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         publishMessage: {
           type: String,
           value: ''
+        },
+
+        courtMode: {
+          type: Boolean,
+          value: false
         }
       },
 
@@ -721,7 +743,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       publishScreen: function() {
 
         var publishObject = {
-          openOnSave: this.$.OpenOnPublish.selected,
+          openOnSave: this.courtMode ? false : this.$.OpenOnPublish.selected,
           fileName: this.$.EvidenceName.value,
           ernRefs: this.getErnRefs()
         };
@@ -835,8 +857,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.InActivityMask.setSessionExpireTimeOut();
       },
 
+      // ToggleCourt Mode changed
+      toggleCourtModeChanged: function(event) {
+        this.courtMode = event.currentTarget.active;
+        ipcRenderer.send('court-mode-changed', event.currentTarget.active);
+      },
+
       // Court Mode changed
       courtModeChanged: function(event) {
+        this.courtMode = event.detail;
+        this.$.CourtModeToggle.checked = event.detail;
         ipcRenderer.send('court-mode-changed', event.detail);
       }
     });

@@ -3,6 +3,7 @@ const {app} = electron;  // Module to control application life.
 const {BrowserWindow} = electron;  // Module to create native browser window.
 const {ipcMain} = electron;
 const {dialog} = electron;
+const {shell} = electron;
 //const Menu = require("menu");
 const fs = require('fs');
 
@@ -12,11 +13,13 @@ const fs = require('fs');
  */
 const buildType = 1;
 
-const externalDisplay = false;
+let externalDisplay = false;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 var controllerWindow = null;
+var courtWindow = null;
+var publishWindow = null;
 
 // Get the config file
 var getConfig =  function () {
@@ -82,20 +85,17 @@ app.on('ready', function() {
     } else {
       courtWindow.setFullScreen(false);
 
-      // Timeout needed as can't close in fullscreen mode
+      // Timeout needed as can't hide in fullscreen mode
       setTimeout(function() {
         courtWindow.hide();
-      }, 2000);
+      }, 1000);
     }
   });
 
   electron.screen.on('display-added', function(event, newDisplay) {
 
-    console.log('display added', electron.screen.getAllDisplays().length);
-
     // If only primary display, set up new court window.
-    if (electron.screen.getAllDisplays().length < 3) {
-      console.log('createExternalWindow called');
+    if (electron.screen.getAllDisplays().length < 3 && externalDisplay) {
       createExternalWindow(true);
     }
   });
@@ -103,8 +103,14 @@ app.on('ready', function() {
   electron.screen.on('display-removed', function(event, oldDisplay) {
 
     // If only primary display, set up new court window.
-    if (electron.screen.getAllDisplays().length === 2) {
-      courtWindow = null;
+    if (electron.screen.getAllDisplays().length === 1) {
+
+      courtWindow.setFullScreen(false);
+
+      // Timeout needed as can't hide in fullscreen mode
+      setTimeout(function() {
+        courtWindow.hide();
+      }, 1000);
     }
   });
 
@@ -212,13 +218,31 @@ app.on('ready', function() {
       reject();
     }.bind(this));
 
-// Emitted when the window is closed.
+  // Emitted when the window is closed.
   controllerWindow.on('closed', function() {
 
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     controllerWindow = null;
+  });
+
+  // Emitted when the window is closed.
+  publishWindow.on('closed', function() {
+
+    // Dereference the window object, usually you would store windows
+    // in an array if your app supports multi windows, this is the time
+    // when you should delete the corresponding element.
+    publishWindow = null;
+  });
+
+  // Emitted when the window is closed.
+  courtWindow.on('closed', function() {
+
+    // Dereference the window object, usually you would store windows
+    // in an array if your app supports multi windows, this is the time
+    // when you should delete the corresponding element.
+    courtWindow = null;
   });
 
 // Create the Application's main menu
@@ -282,7 +306,12 @@ ipcMain.on('show-open-dialog', function(event, property, type) {
 });
 
 // Send message to publish page to generate HTML with relevant data.
-ipcMain.on('create-pdf', function(event, pdfObject) {
+ipcMain.on('screenshot-published', function(event, pdfObject) {
+
+  // Send image to external display
+  if (externalDisplay) {
+    courtWindow.webContents.send('publish', pdfObject);
+  }
 
   publishWindow.webContents.send('create-pdf', pdfObject);
 });
@@ -294,6 +323,12 @@ ipcMain.on('save-pdf', function(event, pdfObject) {
 
     if (error) {
       console.log(error);
+    } else {
+
+      // View file if user requested
+      if (pdfObject.openOnSave === 'open') {
+        shell.openItem(pdfObject.imagePath);
+      }
     }
 
     fs.writeFile(pdfObject.pdfPath, data, function(error) {
