@@ -81,7 +81,7 @@ app.on('ready', function() {
     }
 
     if (courtMode) {
-      courtWindow.setFullScreen(true);
+      createExternalWindow(true);
     } else {
       courtWindow.setFullScreen(false);
 
@@ -104,27 +104,19 @@ app.on('ready', function() {
 
     // If only primary display, set up new court window.
     if (electron.screen.getAllDisplays().length === 1) {
-
-      courtWindow.setFullScreen(false);
-
-      // Timeout needed as can't hide in fullscreen mode
-      setTimeout(function() {
-        courtWindow.hide();
-      }, 1000);
+      courtWindow.destroy();
     }
   });
 
   let createExternalWindow = function(showWindow) {
 
     let externalDisplay = displays.find(function (display) {
-      return display.size.width > controllerWidth || display.size.height > controllerHeight;
+      return display.workAreaSize.width > controllerWidth || display.workAreaSize.height > controllerHeight;
     });
 
     // Get screen size of external display
     let externalWidth = externalDisplay.workAreaSize.width;
     let externalHeight = externalDisplay.workAreaSize.height;
-
-    dialog.showErrorBox(externalDisplay.bounds.x.toString(), ': External Bounds X');
 
     // Create the court view window.
     courtWindow = new BrowserWindow({
@@ -163,8 +155,6 @@ app.on('ready', function() {
     y: Math.round(controllerDisplay.bounds.y + (controllerHeight * 0.05)),
     show: true
   });
-
-  console.log(controllerWindow.getBounds());
 
   // Open the DevTools.
   controllerWindow.webContents.openDevTools();
