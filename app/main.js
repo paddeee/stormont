@@ -124,6 +124,8 @@ app.on('ready', function() {
     let externalWidth = externalDisplay.workAreaSize.width;
     let externalHeight = externalDisplay.workAreaSize.height;
 
+    dialog.showErrorBox(externalDisplay.bounds.x.toString(), ': External Bounds X');
+
     // Create the court view window.
     courtWindow = new BrowserWindow({
       fullScreen: showWindow,
@@ -167,7 +169,7 @@ app.on('ready', function() {
   // Open the DevTools.
   controllerWindow.webContents.openDevTools();
 
-  if (buildType === 0) {
+  if (buildType === 1) {
 
     // Create the publish window.
     publishWindow = new BrowserWindow({
