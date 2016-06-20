@@ -72,32 +72,33 @@ app.on('ready', function() {
 
   var createExternalWindow = function() {
 
-    let controllerBounds = getControllerBounds();
+    // Get controller display based on smallest screen width
+    let controllerDisplay = electron.screen.getAllDisplays().reduce(function (prev, current) {
+      return (prev.workAreaSize.width < current.workAreaSize.width) ? prev : current;
+    });
 
     // Using find so will only return one external display. Need to know how this should work with
     // multiple displays before changing to use filter.
     let externalDisplay = electron.screen.getAllDisplays().find(function (display) {
-      return display.workAreaSize.width > controllerBounds.width || display.workAreaSize.height > controllerBounds.height;
+      return display.workAreaSize.width > controllerDisplay.workAreaSize.width || display.workAreaSize.height > controllerDisplay.workAreaSize.height;
     });
-
-    // Get screen size of external display
-    let externalWidth = externalDisplay.workAreaSize.width;
-    let externalHeight = externalDisplay.workAreaSize.height;
 
     // Create the court view window.
     courtWindow = new BrowserWindow({
-      fullScreen: true,
       webSecurity: false,
-      width: externalWidth,
-      height: externalHeight,
+      width: externalDisplay.workAreaSize.width,
+      height: externalDisplay.workAreaSize.height,
       x: externalDisplay.bounds.x,
       y: externalDisplay.bounds.y,
-      show: true
+      show: false
     });
+
+    courtWindow.setFullScreen(true);
+    courtWindow.showInactive();
 
     courtWindow.loadURL('file://' + __dirname + '/externalDisplay.html');
 
-    courtWindow.webContents.openDevTools();
+    //courtWindow.webContents.openDevTools();
   };
 
   var createControllerWindow = function() {
@@ -117,7 +118,7 @@ app.on('ready', function() {
     });
 
     // Open the DevTools.
-    controllerWindow.webContents.openDevTools();
+    //controllerWindow.webContents.openDevTools();
   }
 
   var createPublishWindow = function() {
@@ -127,7 +128,7 @@ app.on('ready', function() {
       // Create the publish window.
       publishWindow = new BrowserWindow({
         webSecurity: false,
-        show: true
+        show: false
       });
 
       publishWindow.setBounds(getControllerBounds());
@@ -144,7 +145,7 @@ app.on('ready', function() {
 
     // Get controller display based on smallest screen width
     let controllerDisplay = electron.screen.getAllDisplays().reduce(function (prev, current) {
-      return (prev.size.width < current.size.width) ? prev : current;
+      return (prev.workAreaSize.width < current.workAreaSize.width) ? prev : current;
     });
 
     // Get screen size of controller display
@@ -247,7 +248,12 @@ app.on('ready', function() {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
-    controllerWindow = null;
+    controllerWindow.destroy();
+    publishWindow.destroy();
+
+    if (courtWindow) {
+      courtWindow.destroy()
+    }
   });
 
   // Emitted when the window is closed.
@@ -267,7 +273,7 @@ app.on('ready', function() {
       // in an array if your app supports multi windows, this is the time
       // when you should delete the corresponding element.
       externalDisplay = false;
-      courtWindow = null;
+      courtWindow.destroy();
     });
   }
 
@@ -335,7 +341,7 @@ ipcMain.on('show-open-dialog', function(event, property, type) {
 ipcMain.on('screenshot-published', function(event, pdfObject) {
 
   // Send image to external display
-  if (externalDisplay) {
+  if (externalDisplay && courtWindow) {
     courtWindow.webContents.send('publish', pdfObject);
   }
 
