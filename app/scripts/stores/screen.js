@@ -44,17 +44,28 @@ module.exports = Reflux.createStore({
 
     controllerWindow.capturePage(rect, function(image) {
 
-      var screenshotPath = path.join(global.config.packagePath, fileName);
+      var screenshotPath;
+      var pdfPath;
       var userName = dataSourceStore.dataSource.getCollection('Presentations').data[0].userName;
+
+      // Save log in different location depending on court mode state
+      if (publishObject.courtMode) {
+        screenshotPath = path.join(global.config.paths.courtLogPath, fileName);
+        pdfPath = path.join(global.config.paths.courtLogPath, pdfName);
+      } else {
+        screenshotPath = path.join(global.config.packagePath, fileName);
+        pdfPath = path.join(global.config.packagePath, pdfName);
+      }
 
       var pdfObject = {
         fileName: publishObject.fileName,
         imagePath: screenshotPath,
         imageSize: controllerWindowBounds,
-        pdfPath: path.join(global.config.packagePath, pdfName),
+        pdfPath: pdfPath,
         userName: userName,
         ernRefs: publishObject.ernRefs,
-        openOnSave: publishObject.openOnSave
+        openOnSave: publishObject.openOnSave,
+        courtMode: publishObject.courtMode
       };
 
       fs.writeFile(screenshotPath, image.toPng(), function (error) {

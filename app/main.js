@@ -70,6 +70,92 @@ var getRoles =  function () {
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
 
+  var createExternalWindow = function() {
+
+    let controllerBounds = getControllerBounds();
+
+    // Using find so will only return one external display. Need to know how this should work with
+    // multiple displays before changing to use filter.
+    let externalDisplay = electron.screen.getAllDisplays().find(function (display) {
+      return display.workAreaSize.width > controllerBounds.width || display.workAreaSize.height > controllerBounds.height;
+    });
+
+    // Get screen size of external display
+    let externalWidth = externalDisplay.workAreaSize.width;
+    let externalHeight = externalDisplay.workAreaSize.height;
+
+    // Create the court view window.
+    courtWindow = new BrowserWindow({
+      fullScreen: true,
+      webSecurity: false,
+      width: externalWidth,
+      height: externalHeight,
+      x: externalDisplay.bounds.x,
+      y: externalDisplay.bounds.y,
+      show: true
+    });
+
+    courtWindow.loadURL('file://' + __dirname + '/externalDisplay.html');
+
+    courtWindow.webContents.openDevTools();
+  };
+
+  var createControllerWindow = function() {
+
+// Create the browser window.
+    controllerWindow = new BrowserWindow({
+      backgroundColor: 'fff',
+      webSecurity: false,
+      show: true
+    });
+
+    controllerWindow.setBounds(getControllerBounds());
+
+    // If controller window is resized, keep publish window bounds in sync
+    controllerWindow.on('resize', function() {
+      publishWindow.setBounds(controllerWindow.getBounds());
+    });
+
+    // Open the DevTools.
+    controllerWindow.webContents.openDevTools();
+  }
+
+  var createPublishWindow = function() {
+
+    if (buildType === 1) {
+
+      // Create the publish window.
+      publishWindow = new BrowserWindow({
+        webSecurity: false,
+        show: true
+      });
+
+      publishWindow.setBounds(getControllerBounds());
+
+      publishWindow.loadURL('file://' + __dirname + '/publish.html');
+
+      //publishWindow.webContents.openDevTools();
+    }
+  };
+
+  var getControllerBounds = function() {
+
+    let controllerBounds = {};
+
+    // Get controller display based on smallest screen width
+    let controllerDisplay = electron.screen.getAllDisplays().reduce(function (prev, current) {
+      return (prev.size.width < current.size.width) ? prev : current;
+    });
+
+    // Get screen size of controller display
+    controllerBounds.width = Math.round(controllerDisplay.workAreaSize.width * 0.9);
+    controllerBounds.height = Math.round(controllerDisplay.workAreaSize.height * 0.9);
+    controllerBounds.x = Math.round(controllerDisplay.bounds.x + (controllerBounds.width * 0.05));
+    controllerBounds.y = Math.round(controllerDisplay.bounds.y + (controllerBounds.height * 0.05));
+
+    return controllerBounds;
+  };
+
   // Manage screens when Court mode is enabled/disabled
   ipcMain.on('court-mode-changed', function(event, courtMode) {
 
@@ -80,105 +166,50 @@ app.on('ready', function() {
       return;
     }
 
-    if (courtMode) {
-      createExternalWindow(true);
-    } else {
-      courtWindow.setFullScreen(false);
+    // If court mode is on
+    if (externalDisplay) {
 
-      // Timeout needed as can't hide in fullscreen mode
-      setTimeout(function() {
-        courtWindow.hide();
-      }, 1000);
+      // Create external display window
+      createExternalWindow();
+
+      // If court mode is off
+    } else {
+      courtWindow.destroy();
     }
   });
 
   electron.screen.on('display-added', function(event, newDisplay) {
 
-    // If only primary display, set up new court window.
-    if (electron.screen.getAllDisplays().length < 3 && externalDisplay) {
-      createExternalWindow(true);
+    if (externalDisplay) {
+      createExternalWindow();
     }
+
+    // Controller Window may have moved to external display so reposition it
+    controllerWindow.setBounds(getControllerBounds());
   });
 
   electron.screen.on('display-removed', function(event, oldDisplay) {
 
     // If only primary display, set up new court window.
     if (electron.screen.getAllDisplays().length === 1) {
-      courtWindow.destroy();
+
+      externalDisplay = false;
+
+      if (courtWindow) {
+        courtWindow.destroy();
+      }
     }
   });
 
-  let createExternalWindow = function(showWindow) {
+  // Create controller Window
+  createControllerWindow();
 
-    let externalDisplay = displays.find(function (display) {
-      return display.workAreaSize.width > controllerWidth || display.workAreaSize.height > controllerHeight;
-    });
+  // Create publish log hidden Window
+  createPublishWindow();
 
-    // Get screen size of external display
-    let externalWidth = externalDisplay.workAreaSize.width;
-    let externalHeight = externalDisplay.workAreaSize.height;
-
-    // Create the court view window.
-    courtWindow = new BrowserWindow({
-      fullScreen: showWindow,
-      webSecurity: false,
-      width: externalWidth,
-      height: externalHeight,
-      x: externalDisplay.bounds.x,
-      y: externalDisplay.bounds.y,
-      show: showWindow
-    });
-
-    courtWindow.loadURL('file://' + __dirname + '/externalDisplay.html');
-
-    courtWindow.webContents.openDevTools();
-  };
-
-  let displays = electron.screen.getAllDisplays();
-
-// Get controller display based on smallest screen width
-  let controllerDisplay = displays.reduce(function(prev, current) {
-    return (prev.size.width < current.size.width) ? prev : current;
-  });
-
-// Get screen size of controller display
-  let controllerWidth = controllerDisplay.workAreaSize.width;
-  let controllerHeight = controllerDisplay.workAreaSize.height;
-
-// Create the browser window.
-  controllerWindow = new BrowserWindow({
-    backgroundColor: 'fff',
-    webSecurity: false,
-    width: Math.round(controllerWidth * 0.9),
-    height: Math.round(controllerHeight * 0.9),
-    x: Math.round(controllerDisplay.bounds.x + (controllerWidth * 0.05)),
-    y: Math.round(controllerDisplay.bounds.y + (controllerHeight * 0.05)),
-    show: true
-  });
-
-  // Open the DevTools.
-  controllerWindow.webContents.openDevTools();
-
-  if (buildType === 1) {
-
-    // Create the publish window.
-    publishWindow = new BrowserWindow({
-      webSecurity: false,
-      width: Math.round(controllerWidth * 0.9),
-      height: Math.round(controllerHeight * 0.9),
-      x: Math.round(controllerDisplay.bounds.x + (controllerWidth * 0.05)),
-      y: Math.round(controllerDisplay.bounds.y + (controllerHeight * 0.05)),
-      show: false
-    });
-
-    publishWindow.loadURL('file://' + __dirname + '/publish.html');
-
-    //publishWindow.webContents.openDevTools();
-
-    // If detect more than one display
-    if (displays.length > 1) {
-      createExternalWindow(false);
-    }
+  // If detect more than one display and court mode is on
+  if (externalDisplay && electron.screen.getAllDisplays().length > 1) {
+    createExternalWindow();
   }
 
   getConfig()
@@ -235,6 +266,7 @@ app.on('ready', function() {
       // Dereference the window object, usually you would store windows
       // in an array if your app supports multi windows, this is the time
       // when you should delete the corresponding element.
+      externalDisplay = false;
       courtWindow = null;
     });
   }
@@ -316,22 +348,22 @@ ipcMain.on('save-pdf', function(event, pdfObject) {
   publishWindow.webContents.printToPDF({}, function(error, data) {
 
     if (error) {
-      console.log(error);
+      controllerWindow.webContents.send('pdf-error', error);
     } else {
 
-      // View file if user requested
-      if (pdfObject.openOnSave === 'open') {
-        shell.openItem(pdfObject.imagePath);
-      }
+      fs.writeFile(pdfObject.pdfPath, data, function(error) {
+
+        if (error) {
+          controllerWindow.webContents.send('pdf-error', error);
+        } else {
+          controllerWindow.webContents.send('pdf-created', pdfObject);
+
+          // View file if user requested
+          if (pdfObject.openOnSave === 'open') {
+            shell.openItem(pdfPath);
+          }
+        }
+      });
     }
-
-    fs.writeFile(pdfObject.pdfPath, data, function(error) {
-
-      if (error) {
-        controllerWindow.webContents.send('pdf-error', error);
-      } else {
-        controllerWindow.webContents.send('pdf-created', pdfObject);
-      }
-    });
   });
 });

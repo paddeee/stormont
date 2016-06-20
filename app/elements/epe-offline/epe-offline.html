@@ -762,7 +762,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var publishObject = {
           openOnSave: this.courtMode ? false : this.$.OpenOnPublish.selected,
           fileName: this.$.EvidenceName.value,
-          ernRefs: this.getErnRefs()
+          ernRefs: this.getErnRefs(),
+          courtMode: this.courtMode
         };
 
         if (this.publishValidate()) {
