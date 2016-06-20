@@ -46,9 +46,10 @@ module.exports = Reflux.createStore({
 
       }.bind(this))
     .catch(function(error) {
-      console.error(error.message);
+
+      console.error(error);
       this.user.status = 'loggedout';
-      this.user.message = error.message;
+      this.user.message = error;
       this.trigger(this.user);
     }.bind(this));
   },
@@ -77,7 +78,7 @@ module.exports = Reflux.createStore({
 
       activeDirectory.authenticate(userName, password, function(err, auth) {
         if (err) {
-          reject('ERROR: '+JSON.stringify(err));
+          reject(err);
         }
 
         if (auth) {

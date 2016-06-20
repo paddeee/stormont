@@ -11,7 +11,7 @@ const fs = require('fs');
  Networked: 0
  Offline/Court: 1
  */
-const buildType = 1;
+const buildType = 0;
 
 let externalDisplay = false;
 
@@ -249,21 +249,26 @@ app.on('ready', function() {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     controllerWindow.destroy();
-    publishWindow.destroy();
+
+    if (publishWindow) {
+      publishWindow.destroy();
+    }
 
     if (courtWindow) {
       courtWindow.destroy()
     }
   });
 
-  // Emitted when the window is closed.
-  publishWindow.on('closed', function() {
+  if (publishWindow) {
+    // Emitted when the window is closed.
+    publishWindow.on('closed', function () {
 
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    publishWindow = null;
-  });
+      // Dereference the window object, usually you would store windows
+      // in an array if your app supports multi windows, this is the time
+      // when you should delete the corresponding element.
+      publishWindow = null;
+    });
+  }
 
   // Emitted when the window is closed.
   if (courtWindow) {
