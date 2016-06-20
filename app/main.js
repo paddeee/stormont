@@ -11,7 +11,7 @@ const fs = require('fs');
  Networked: 0
  Offline/Court: 1
  */
-const buildType = 1;
+const buildType = 0;
 
 let externalDisplay = false;
 
@@ -107,10 +107,11 @@ app.on('ready', function() {
     controllerWindow = new BrowserWindow({
       backgroundColor: 'fff',
       webSecurity: false,
-      show: true
+      show: false
     });
 
     controllerWindow.setBounds(getControllerBounds());
+    controllerWindow.show();
 
     // If controller window is resized, keep publish window bounds in sync
     controllerWindow.on('resize', function() {
