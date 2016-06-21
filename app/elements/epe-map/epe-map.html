@@ -104,15 +104,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       width: 29px;
     }
 
-    .toggle-cluster-control {
+    .toggle-cluster-control,
+    .toggle-tiles-control {
       background-color: var(--primary-background-color);
       cursor: pointer;
       width: 100%;
     }
 
-    .toggle-cluster-control--disabled {
+    .toggle-cluster-control--disabled,
+    .toggle-tiles-control--disabled {
       background-color: rgb(244, 244, 244);
       color: rgb(187, 187, 187);
+    }
+
+    .toggle-tiles-control-holder {
+      left: 10px;
+      position: fixed;
+      top: 490px;
+      height: 29px;
+      width: 29px;
     }
 
     .timeline-control-holder {
@@ -345,6 +355,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                    position="right"
                    class="timeline-tooltip">Toggle Clusters On/Off</paper-tooltip>
 
+    <!-- Toggle Map/Satellite tiles control -->
+    <paper-material id="ToggleTilesControl"
+                    class="toggle-tiles-control-holder layout horizontal">
+      <div class="toggle-tiles-control  toggle-tiles-control--disabled  layout horizontal center center-justified"
+           on-tap="toggleTiles">
+        <iron-icon class="toggle-timeline"
+                   icon="maps:satellite"></iron-icon>
+      </div>
+    </paper-material>
+
+    <paper-tooltip for="ToggleTilesControl"
+                   position="right"
+                   class="timeline-tooltip">Toggle Satellite Map On/Off</paper-tooltip>
+
     <!-- Navigate Previous control -->
     <paper-material id="NavigatePreviousControl"
                     class="timeline-control-holder timeline-control-previous timeline-control-previous--hide layout horizontal">
@@ -464,6 +488,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       navigationType: {
         type: String,
         value: 'All'
+      },
+
+      mapTilesType: {
+        type: String,
+        value: 'map',
+        observer: 'setMapTilesSrc'
       }
     },
 
@@ -789,14 +819,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     setMapTilesSrc: function() {
 
       var mapTilesDirectories = '/{z}/{x}/{y}.png';
+      var satelliteMapTilesDirectories = '/{z}/{x}/{y}.jpg';
+      var $tilesButton = this.querySelector('.toggle-tiles-control');
 
-      // Set the src of the mapTiles if inside Electron or not
-      // Online tiles for now if in a browser
-      //if (typeof process === 'object') {
-      if (!true) { // temp line of code to always use online maps. Remove for previous line when offline maps are working
-        this.mapTilesSrc = 'file:///' + config.paths.tilesPath + mapTilesDirectories;
-      } else {
-        this.mapTilesSrc = 'https://{s}.tile.openstreetmap.org' + mapTilesDirectories;
+      // Map tiles
+      if (this.mapTilesType === 'map') {
+
+        $tilesButton.classList.add('toggle-tiles-control--disabled');
+
+        // Set the src of the mapTiles if inside Electron or not
+        // Online tiles for now if in a browser
+        //if (typeof process === 'object') {
+        if (!true) { // temp line of code to always use online maps. Remove for previous line when offline maps are working
+          this.mapTilesSrc = 'file:///' + config.paths.mapTiles + mapTilesDirectories;
+        } else {
+          this.mapTilesSrc = 'https://{s}.tile.openstreetmap.org' + mapTilesDirectories;
+        }
+      } else if (this.mapTilesType === 'satellite') {
+
+        $tilesButton.classList.remove('toggle-tiles-control--disabled');
+
+        // Set the src of the mapTiles if inside Electron or not
+        // Online tiles for now if in a browser
+        //if (typeof process === 'object') {
+        if (!true) { // temp line of code to always use online maps. Remove for previous line when offline maps are working
+          this.mapTilesSrc = 'file:///' + config.paths.satelliteMapTiles + mapTilesDirectories;
+        } else {
+          this.mapTilesSrc = 'http://otile1.mqcdn.com/tiles/1.0.0/sat' + satelliteMapTilesDirectories;
+        }
       }
     },
 
@@ -807,6 +857,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.clustering = true;
       } else if (this.clustering === true) {
         this.clustering = false;
+      }
+    },
+
+    // Toggle satellite tiles on/off
+    toggleTiles: function() {
+
+      if (this.mapTilesType === 'map') {
+        this.mapTilesType = 'satellite';
+      } else if (this.mapTilesType === 'satellite') {
+        this.mapTilesType = 'map';
       }
     },
 
