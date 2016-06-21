@@ -119,7 +119,7 @@ app.on('ready', function() {
 
     // Open the DevTools.
     //controllerWindow.webContents.openDevTools();
-  }
+  };
 
   var createPublishWindow = function() {
 
@@ -371,7 +371,7 @@ ipcMain.on('save-pdf', function(event, pdfObject) {
 
           // View file if user requested
           if (pdfObject.openOnSave === 'open') {
-            shell.openItem(pdfPath);
+            shell.openItem(pdfObject.pdfPath);
           }
         }
       });

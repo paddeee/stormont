@@ -314,7 +314,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           label="Enter Name For Published Evidence"
           autovalidate
           required
-          error-message="Please Enter Name For Published Evidence"></paper-input>
+          error-message="Please Enter Name For Published Evidence">
+          <div prefix>[[timeStamp]]</div>
+        </paper-input>
 
       </div>
       <div class="buttons">
@@ -404,6 +406,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         courtMode: {
           type: Boolean,
           value: false
+        },
+
+        timeStamp: {
+          type: String,
+          value: ''
         }
       },
 
@@ -624,7 +631,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.$.MainScrollHeader.classList.add('no-scrollbar');
             break;
           case 'profile':
-            $scrollHeader.scroll(0, true);
+            $scrollHeader.scroll(128, true);
             this.$.MainScrollHeader.classList.remove('no-scrollbar');
             break;
           case 'source':
@@ -692,7 +699,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       },
 
-      // Navigate to newly saved even
+      // Navigate to newly saved event
       navigateToSavedEvent: function(presentation) {
 
         this.savedPresentation = presentation;
@@ -728,7 +735,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // If in Source View or Data Grid
         if (app.route === 'create-package') {
 
-          if ($packageElement.createPackageRoute === 'source' || $packageElement.createPackageRoute === 'data-grid') {
+          if ($packageElement.createPackageRoute === 'source' || $packageElement.createPackageRoute === 'data-grid' || $packageElement.createPackageRoute === 'profile') {
 
             if ($header.scrollTop < 128) {
               this.$.MainScrollHeader.scroll(128, false);
@@ -753,17 +760,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Open Publish Dialog
       openPublishDialog: function() {
+        this.timeStamp = Date.now() + '-';
         this.$.PublishDialog.open();
       },
 
       // Start publish screen process
       publishScreen: function() {
 
-        var publishObject = {
+        var publishObject;
+
+        publishObject = {
           openOnSave: this.courtMode ? false : this.$.OpenOnPublish.selected,
-          fileName: this.$.EvidenceName.value,
+          fileName: this.timeStamp + this.$.EvidenceName.value,
           ernRefs: this.getErnRefs(),
-          courtMode: this.courtMode
+          courtMode: this.courtMode,
+          screenView: this.$.EpeCreatePackage.createPackageRoute
         };
 
         if (this.publishValidate()) {
@@ -783,9 +794,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (message.type === 'gatheringScreens') {
           this.publishMessage = message.text;
           //this.$.Publishing.open();
-
-          // If screenshot successful
-        } else if (message.type === 'screenshotSuccess') {
 
           // If screenshot failed
         } else if (message.type === 'screenshotFailure') {
