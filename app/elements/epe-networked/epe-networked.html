@@ -677,7 +677,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.$.MainScrollHeader.classList.remove('no-back-button');
             break;
           case 'profile':
-            $scrollHeader.scroll(0, true);
+            $scrollHeader.scroll(128, true);
             this.$.MainScrollHeader.classList.remove('no-scrollbar');
             this.$.MainScrollHeader.classList.remove('no-back-button');
             break;
@@ -810,7 +810,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // If in Source View
         if (app.route === 'create-package' || app.route === 'edit-package') {
 
-          if ($packageElement.createPackageRoute === 'source' || $packageElement.createPackageRoute === 'data-grid') {
+          if ($packageElement.createPackageRoute === 'source' || $packageElement.createPackageRoute === 'data-grid' || $packageElement.createPackageRoute === 'profile') {
 
             if ($header.scrollTop < 128) {
               this.$.MainScrollHeader.scroll(128, false);

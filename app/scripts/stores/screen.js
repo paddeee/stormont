@@ -22,10 +22,7 @@ module.exports = Reflux.createStore({
     var windows = electron.remote.BrowserWindow.getAllWindows();
     var controllerWindow;
     var controllerWindowBounds;
-    var rect = {
-      x: 0,
-      y: 0
-    };
+    var rect;
 
     this.message = {
       type: 'gatheringScreens'
@@ -33,14 +30,11 @@ module.exports = Reflux.createStore({
 
     this.trigger(this);
 
-    controllerWindow = windows.filter(function (window) {
+    controllerWindow = windows.find(function (window) {
       return window.getTitle() === 'SITF Electronic Presentation of Evidence';
-    })[0];
+    });
 
-    controllerWindowBounds = controllerWindow.getContentSize();
-
-    rect.width = controllerWindowBounds[0];
-    rect.height = controllerWindowBounds[1];
+    rect = this.getPageCrop(publishObject, controllerWindow);
 
     controllerWindow.capturePage(rect, function(image) {
 
@@ -60,7 +54,7 @@ module.exports = Reflux.createStore({
       var pdfObject = {
         fileName: publishObject.fileName,
         imagePath: screenshotPath,
-        imageSize: controllerWindowBounds,
+        imageSize: [rect.width, rect.height],
         pdfPath: pdfPath,
         userName: userName,
         ernRefs: publishObject.ernRefs,
@@ -81,10 +75,6 @@ module.exports = Reflux.createStore({
           return console.error(error);
         }
 
-        this.message = {
-          type: 'screenshotSuccess'
-        };
-
         // Send message to Electron
         ipcRenderer.send('screenshot-published', pdfObject);
 
@@ -92,5 +82,25 @@ module.exports = Reflux.createStore({
 
       }.bind(this));
     }.bind(this));
+  },
+
+  // Get rectangle coordinates of screen to capture
+  getPageCrop: function(publishObject, controllerWindow) {
+
+    var rect = {};
+    var controllerWindowBounds = controllerWindow.getContentSize();
+    var headerSize = 64;
+    var footerSize = 0;
+
+    if (publishObject.screenView === 'source') {
+      footerSize = 52;
+    }
+
+    rect.x = 0;
+    rect.y = headerSize;
+    rect.width = controllerWindowBounds[0];
+    rect.height = controllerWindowBounds[1] - headerSize - footerSize;
+
+    return rect;
   }
 });
