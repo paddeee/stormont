@@ -13,15 +13,12 @@ module.exports = Reflux.createStore({
   // this will set up listeners to all publishers in ScreenActions, using onKeyname (or keyname) as callbacks
   listenables: [ScreenActions],
 
-  user: null,
-
   onPublishScreen: function(publishObject) {
 
     var fileName = publishObject.fileName + '.png';
     var pdfName = publishObject.fileName + '.pdf';
     var windows = electron.remote.BrowserWindow.getAllWindows();
     var controllerWindow;
-    var controllerWindowBounds;
     var rect;
 
     this.message = {

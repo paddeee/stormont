@@ -316,6 +316,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <!-- Dialogs -->
 
+    <paper-dialog id="LoggingErrorDialog" modal>
+      <h2>Logging Error</h2>
+      <div>
+        <span>[[loggingMessage]]</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
     <paper-dialog id="LoginErrorDialog" modal>
       <h2>Login Error</h2>
       <div>
@@ -456,6 +466,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // Need to call this if presentation state changes but not if it was just because of an approval state change
           if (presentationsStore.lastAction !== 'approvalStateChanged') {
             this.setSectionTitle();
+          }
+
+        }.bind(this));
+
+        // Listen to Logging Store
+        this.loggingStore.listen(function (loggingStore) {
+
+          if (loggingStore.message.type === 'noInfoLogFile') {
+            this.loggingMessage = loggingStore.message.text;
+            this.$.LoggingErrorDialog.open();
           }
 
         }.bind(this));

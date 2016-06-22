@@ -5,6 +5,7 @@ var config = global.config ? global.config : require('../config/config.js');
 var ImportActions = require('../actions/import.js');
 var DataSourceActions = require('../actions/dataSource.js');
 var dataSourceStore = require('../stores/dataSource.js');
+var loggingStore = require('../stores/logging.js');
 
 module.exports = Reflux.createStore({
 
@@ -80,14 +81,15 @@ module.exports = Reflux.createStore({
   },
 
   // When a bunch of data files have been imported by an Administrator
-  onFilesImported: function (filesArray) {
+  onFilesImported: function (importObject) {
 
     var dataSource = dataSourceStore.dataSource;
+    this.importDirectory = importObject.directoryName;
 
     this.createSchemaArrays();
 
     // If any files failed set flag so we don't save the database
-    filesArray.forEach(function(fileObject) {
+    importObject.sheetsArray.forEach(function(fileObject) {
 
       var importFile = this.importFile(fileObject);
 
@@ -111,14 +113,18 @@ module.exports = Reflux.createStore({
 
     // Save database
     dataSource.saveDatabase(function() {
-     console.log('DataBase saved');
 
-     // Pass on to listeners
-     this.trigger({
-     type: 'success',
-     title: 'Import Successful',
-     message: 'All files have been successfully imported'
-     });
+      console.log('DataBase saved');
+
+      // Pass on to listeners
+      this.trigger({
+        type: 'success',
+        title: 'Import Successful',
+        message: 'All files have been successfully imported'
+      });
+
+      this.logImport();
+
      }.bind(this));
   },
 
@@ -486,5 +492,17 @@ module.exports = Reflux.createStore({
         '$in': selectedIds
       }
     });
+  },
+
+  // Log on successfull import
+  logImport: function() {
+
+    var importLogObject = {
+      directoryName: this.importDirectory
+    };
+
+    if (global.config) {
+      loggingStore.dataImported(importLogObject);
+    }
   }
 });

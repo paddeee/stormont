@@ -86,7 +86,7 @@ L.StyleForms = L.Class.extend({
 
   createMarkerColor: function() {
     var label = L.DomUtil.create('label', 'leaflet-styleeditor-label', this.options.styleEditorUi);
-    label.innerHTML = 'Color:';
+    label.innerHTML = 'Colour:';
 
     this.createColorPicker(this.options.styleEditorUi, function(e) {
       var color = this.rgbToHex(e.target.style.backgroundColor);
@@ -121,7 +121,7 @@ L.StyleForms = L.Class.extend({
 
   createColor: function() {
     var label = L.DomUtil.create('label', 'leaflet-styleeditor-label', this.options.styleEditorUi);
-    label.innerHTML = 'Color:';
+    label.innerHTML = 'Colour:';
 
     this.createColorPicker(this.options.styleEditorUi, function(e) {
       var color = this.rgbToHex(e.target.style.backgroundColor);
@@ -167,7 +167,7 @@ L.StyleForms = L.Class.extend({
 
   createFillColor: function() {
     var label = L.DomUtil.create('label', 'leaflet-styleeditor-label', this.options.styleEditorUi);
-    label.innerHTML = 'Fill Color:';
+    label.innerHTML = 'Fill Colour:';
 
     this.createColorPicker(this.options.styleEditorUi, function(e) {
       var color = this.rgbToHex(e.target.style.backgroundColor);

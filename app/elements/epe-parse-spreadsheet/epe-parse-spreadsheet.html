@@ -220,6 +220,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Folder? Copy the DirectoryEntry over to our local filesystem.
         if (entry.isDirectory) {
 
+          this.directoryName = entry.name;
+
           this.getDirectoryFiles(entry.createReader())
             .then(function(files) {
               this.parseSheet(files);
@@ -319,6 +321,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var collectionName;
       var data = event.target.result;
       var importData = data.split('[ImportData]')[1].trim();
+      var importObject = {
+        directoryName: this.directoryName
+      };
 
       /* if binary string, read with type 'binary' */
       var CSV = this.csvParser.read(importData, {
@@ -336,7 +341,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // When all sheets have been loaded in, call filesImported action
       if (this.sheetsArray.length === this.validFiles.length) {
-        this.importActions.filesImported(this.sheetsArray);
+        importObject.sheetsArray = this.sheetsArray;
+        this.importActions.filesImported(importObject);
       }
 
       // Avoid flash of spinner if import is very quick, by delaying a minimum of 1 second

@@ -335,7 +335,7 @@ gulp.task('default', ['clean'], function (cb) {
     'browserify',
     ['copy', 'styles'],
     'elements',
-    ['images', 'fonts', 'html', /*'unit-tests'*/],
+    ['jshint', 'images', 'fonts', 'html', /*'unit-tests'*/],
     //'vulcanize',
     cb);
     // Note: add , 'precache' , after 'vulcanize', if your are going to use Service Worker
