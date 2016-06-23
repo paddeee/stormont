@@ -5,6 +5,7 @@ var config = {
     name: 'Event',
     fields: [{
       name: 'Full Name',
+      displayName: 'Event Name',
       display: 'true',
       filter: 'regex',
       width: '400'
@@ -88,6 +89,7 @@ var config = {
     name: 'Person',
     fields: [{
       name: 'Full Name',
+      displayName: 'Name',
       display: 'true',
       filter: 'regex',
       width: '200'
@@ -166,6 +168,7 @@ var config = {
     name: 'Place',
     fields: [{
       name: 'Full Name',
+      displayName: 'Place Name',
       display: 'true',
       filter: 'regex',
       width: '200'
@@ -256,6 +259,7 @@ var config = {
     name: 'Document',
     fields: [{
       name: 'Full Name',
+      displayName: 'Source Name',
       display: 'true',
       filter: 'regex',
       width: '200'

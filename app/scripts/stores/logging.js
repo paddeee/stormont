@@ -6,33 +6,36 @@ const config = global.config ? global.config : require('../config/config.js');
 const usersStore = require('../stores/users.js');
 const fsExtra = global.config ? window.electronRequire('fs-extra') : null;
 const path = global.config ? window.electronRequire('path') : null;
-const winston = window.electronRequire('winston');
+const winston = global.config ? window.electronRequire('winston') : null;
 
 module.exports = Reflux.createStore({
 
   init: function() {
 
-    // Instantiate the logger
-    this.logger = new (winston.Logger)({
-      transports: [
-        new (winston.transports.File)({
-          name: 'info-file',
-          filename: path.join(config.paths.logPath, '/info.log'),
-          level: 'info',
-          timestamp: function() {
-            return moment().format('Do MMMM YYYY, h:mm:ss a');
-          }
-        }),
-        new (winston.transports.File)({
-          name: 'error-file',
-          filename: path.join(config.paths.logPath, '/error.log'),
-          level: 'error',
-          timestamp: function() {
-            return moment().format('Do MMMM YYYY, h:mm:ss a');
-          }
-        })
-      ]
-    });
+    if (global.config) {
+
+      // Instantiate the logger
+      this.logger = new (winston.Logger)({
+        transports: [
+          new (winston.transports.File)({
+            name: 'info-file',
+            filename: path.join(config.paths.logPath, '/info.log'),
+            level: 'info',
+            timestamp: function () {
+              return moment().format('Do MMMM YYYY, h:mm:ss a');
+            }
+          }),
+          new (winston.transports.File)({
+            name: 'error-file',
+            filename: path.join(config.paths.logPath, '/error.log'),
+            level: 'error',
+            timestamp: function () {
+              return moment().format('Do MMMM YYYY, h:mm:ss a');
+            }
+          })
+        ]
+      });
+    }
   },
 
   // Log when a data is imported

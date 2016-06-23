@@ -318,7 +318,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       on-tap="sortByColumn">
                     <div class="field-heading__name"
                          on-tap="reOrderColumn">
-                      <span>{{item.name}}</span>
+                      <span>{{getHeadingName(item.name)}}</span>
                         <span class="chevron-holder">
                           <iron-icon
                             icon="arrow-drop-up"
@@ -1019,6 +1019,39 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         return className;
+      },
+
+      // Method to meet requirement that Full Name should display what is specified in config file
+      getHeadingName: function(headingName) {
+
+        var collection;
+
+        switch (this.collectionName) {
+          case app.config.EventsCollection.name:
+            collection = app.config.EventsCollection;
+            break;
+          case app.config.PlacesCollection.name:
+            collection = app.config.PlacesCollection;
+            break;
+          case app.config.PeopleCollection.name:
+            collection = app.config.PeopleCollection;
+            break;
+          case app.config.SourcesCollection.name:
+            collection = app.config.SourcesCollection;
+            break;
+          default:
+            console.error('Sorry, no collectionName set');
+        }
+
+        collection.fields.forEach(function(field) {
+
+          if (field.name === headingName && field.displayName) {
+            headingName = field.displayName;
+            return;
+          }
+        });
+
+        return headingName;
       }
     });
   })();
