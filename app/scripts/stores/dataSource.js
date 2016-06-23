@@ -5,6 +5,7 @@ var config = global.config ? global.config : require('../config/config.js');
 var loki = require('lokijs');
 var fileAdapter = require('../adapters/loki-file-adapter.js');
 var DataSourceActions = require('../actions/dataSource.js');
+var loggingStore = require('../stores/logging.js');
 
 module.exports = Reflux.createStore({
 
@@ -71,6 +72,9 @@ module.exports = Reflux.createStore({
       this.dataSource.saveDatabase(function() {
         this.message = 'presentationSaved';
         this.trigger(this);
+
+        this.logPackageSave('created', presentationName);
+
       }.bind(this));
     }
   },
@@ -103,6 +107,9 @@ module.exports = Reflux.createStore({
       this.dataSource.saveDatabase(function () {
         this.message = 'presentationSaved';
         this.trigger(this);
+
+        this.logPackageSave('updated', presentationName);
+
       }.bind(this));
     }
   },
@@ -275,6 +282,23 @@ module.exports = Reflux.createStore({
       queryBuilderCollection.removeWhere({
         packageName: presentationObject.presentationName
       });
+    }
+  },
+
+  // Log on package creation or update
+  logPackageSave: function(type, presentationName) {
+
+    var saveLogObject = {
+      presentationName: presentationName
+    };
+
+    if (global.config) {
+
+      if (type === 'created') {
+        loggingStore.packageCreated(saveLogObject);
+      } else if (type === 'updated') {
+        loggingStore.packageUpdated(saveLogObject);
+      }
     }
   }
 });

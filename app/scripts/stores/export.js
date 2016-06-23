@@ -12,6 +12,7 @@ var peopleStore = require('../stores/people.js');
 var fsExtra = window.electronRequire('fs-extra');
 var zipFolder = window.electronRequire('zip-folder');
 var encryptor = window.electronRequire('file-encryptor');
+var loggingStore = require('../stores/logging.js');
 //var usb = window.electronRequire('electron-usb');
 
 module.exports = Reflux.createStore({
@@ -137,6 +138,9 @@ module.exports = Reflux.createStore({
 
                   this.message = 'exportSuccess';
                   this.trigger(this);
+
+                  this.logPackageExport(presentationObject.packageName);
+
                 }.bind(this))
                 .catch(function(reason) {
                   console.error(reason);
@@ -504,5 +508,17 @@ module.exports = Reflux.createStore({
         }
       }.bind(this));
     });
+  },
+
+  // Log on package creation or update
+  logPackageExport: function(presentationName) {
+
+    var exportLogObject = {
+      presentationName: presentationName
+    };
+
+    if (global.config) {
+      loggingStore.packageExported(exportLogObject);
+    }
   }
 });
