@@ -254,7 +254,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <div class="filter-type  filter-type--input"
                   showing$="[[showFilterType('regex',item.filter)]]">
                   <paper-input type="search"
-                               label="[[item.fieldName]]"
+                               label="[[getHeadingName(item.fieldName)]]"
                                value="[[item.value]]"
                                on-keyup="userInputChanged"
                                on-search="userInputChanged">
@@ -295,7 +295,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         class="include-exclude">In </span>
                   <span showing$="[[showIncludeExcludeFilter('exclude',item.includeExclude)]]"
                         class="include-exclude">Not in </span>
-                  <span class="include-exclude-data-type">[[item.fieldName]]</span>
+                  <span class="include-exclude-data-type">[[getHeadingName(item.fieldName)]]</span>
                   <span>field of </span>
                   <span class="include-exclude-data-type">[[item.collectionDisplayName]]</span>
                   <span> table.</span>
@@ -376,7 +376,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-listbox id="AddFieldList"
                          class="dropdown-content">
             <template id="AddFieldTemplate" is="dom-repeat" items="[[fields]]">
-              <paper-item value$="[[item]]">[[item.name]]</paper-item>
+              <paper-item value$="[[item]]">[[getHeadingName(item.name)]]</paper-item>
             </template>
           </paper-listbox>
         </paper-dropdown-menu>
@@ -458,6 +458,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
 
         invalidFilterMessage: {
+          type: String
+        },
+
+        selectedDataType: {
           type: String
         },
 
@@ -586,23 +590,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         this.deselectField(this.$.AddFieldList);
 
-        switch (event.detail.item.innerText) {
-          case 'Events':
+        switch (event.detail.item.getAttribute('value')) {
+          case this.eventsName:
+            this.selectedDataType = this.eventsName;
             this.fields = app.config.EventsCollection.fields.filter(function(item) {
               return item.display === 'true';
             });
             break;
-          case 'Places':
+          case this.placesName:
+            this.selectedDataType = this.placesName;
             this.fields = app.config.PlacesCollection.fields.filter(function(item) {
               return item.display === 'true';
             });
             break;
-          case 'People':
+          case this.peopleName:
+            this.selectedDataType = this.peopleName;
             this.fields = app.config.PeopleCollection.fields.filter(function(item) {
               return item.display === 'true';
             });
             break;
-          case 'Source Material':
+          case this.sourcesName:
+            this.selectedDataType = this.sourcesName;
             this.fields = app.config.SourcesCollection.fields.filter(function(item) {
               return item.display === 'true';
             });
@@ -830,6 +838,39 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.hideNoSaveMessage = true;
         }
       },
+
+      // Method to meet requirement that Full Name should display what is specified in config file
+      getHeadingName: function(headingName) {
+
+        var collection;
+
+        switch (this.selectedDataType) {
+          case app.config.EventsCollection.name:
+            collection = app.config.EventsCollection;
+            break;
+          case app.config.PlacesCollection.name:
+            collection = app.config.PlacesCollection;
+            break;
+          case app.config.PeopleCollection.name:
+            collection = app.config.PeopleCollection;
+            break;
+          case app.config.SourcesCollection.name:
+            collection = app.config.SourcesCollection;
+            break;
+          default:
+            console.error('Sorry, no collectionName set');
+        }
+
+        collection.fields.forEach(function(field) {
+
+          if (field.name === headingName && field.displayName) {
+            headingName = field.displayName;
+            return;
+          }
+        });
+
+        return headingName;
+      }
     });
   })();
 </script>
