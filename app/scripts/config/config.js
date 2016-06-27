@@ -1,6 +1,213 @@
 'use strict';
 
 var config = {
+  Categories: {
+    main: [
+      {
+        name: 'Murder',
+        colour: 'darkred'
+      },
+      {
+        name: 'Kidnap',
+        colour: 'purple'
+      },
+      {
+        name: 'Arson',
+        colour: 'orange'
+      },
+      {
+        name: 'Rape',
+        colour: 'darkgreen'
+      },
+      {
+        name: 'Extortion',
+        colour: 'cadetblue'
+      },
+      {
+        name: 'Expulsion',
+        colour: 'gray'
+      },
+      {
+        name: 'Bombing',
+        colour: 'darkpurple'
+      },
+      {
+        name: 'Torture',
+        colour: 'red'
+      },
+      {
+        name: 'Robbery',
+        colour: 'blue'
+      }
+    ],
+    sub: [
+      {
+        name: 'category1',
+        category: 'Murder',
+        icon: 'adjust'
+      },
+      {
+        name: 'category2',
+        category: 'Murder',
+        icon: 'area-chart'
+      },
+      {
+        name: 'category3',
+        category: 'Murder',
+        icon: 'asl-interpreting'
+      },
+      {
+        name: 'category4',
+        category: 'Murder',
+        icon: 'audio-description'
+      },
+      {
+        name: 'category5',
+        category: 'Kidnap',
+        icon: 'bank'
+      },
+      {
+        name: 'category6',
+        category: 'Kidnap',
+        icon: 'beer'
+      },
+      {
+        name: 'category7',
+        category: 'Kidnap',
+        icon: 'blind'
+      },
+      {
+        name: 'category8',
+        category: 'Kidnap',
+        icon: 'bomb'
+      },
+      {
+        name: 'category9',
+        category: 'Arson',
+        icon: 'braille'
+      },
+      {
+        name: 'category10',
+        category: 'Arson',
+        icon: 'building-o'
+      },
+      {
+        name: 'category11',
+        category: 'Arson',
+        icon: 'cab'
+      },
+      {
+        name: 'category12',
+        category: 'Arson',
+        icon: 'camera'
+      },
+      {
+        name: 'category13',
+        category: 'Rape',
+        icon: 'child'
+      },
+      {
+        name: 'category14',
+        category: 'Rape',
+        icon: 'cloud'
+      },
+      {
+        name: 'category15',
+        category: 'Rape',
+        icon: 'fax'
+      },
+      {
+        name: 'category16',
+        category: 'Rape',
+        icon: 'fire'
+      },
+      {
+        name: 'category17',
+        category: 'Extortion',
+        icon: 'futbol-o'
+      },
+      {
+        name: 'category18',
+        category: 'Extortion',
+        icon: 'gears'
+      },
+      {
+        name: 'category19',
+        category: 'Extortion',
+        icon: 'hotel'
+      },
+      {
+        name: 'category20',
+        category: 'Expulsion',
+        icon: 'industry'
+      },
+      {
+        name: 'category21',
+        category: 'Expulsion',
+        icon: 'key'
+      },
+      {
+        name: 'category22',
+        category: 'Expulsion',
+        icon: 'leaf'
+      },
+      {
+        name: 'category23',
+        category: 'Bombing',
+        icon: 'university'
+      },
+      {
+        name: 'category24',
+        category: 'Bombing',
+        icon: 'wheelchair'
+      },
+      {
+        name: 'category25',
+        category: 'Bombing',
+        icon: 'tree'
+      },
+      {
+        name: 'category26',
+        category: 'Torture',
+        icon: 'trophy'
+      },
+      {
+        name: 'category27',
+        category: 'Torture',
+        icon: 'umbrella'
+      },
+      {
+        name: 'category28',
+        category: 'Torture',
+        icon: 'wrench'
+      },
+      {
+        name: 'category29',
+        category: 'Torture',
+        icon: 'truck'
+      },
+      {
+        name: 'category30',
+        category: 'Robbery',
+        icon: 'suitcase'
+      },
+      {
+        name: 'category31',
+        category: 'Robbery',
+        icon: 'rocket'
+      },
+      {
+        name: 'category32',
+        category: 'Robbery',
+        icon: 'plane'
+      },
+      {
+        name: 'category33',
+        category: 'Robbery',
+        icon: 'money'
+      }
+    ]
+  },
   EventsCollection: {
     name: 'Event',
     fields: [{
@@ -19,7 +226,7 @@ var config = {
       name: 'Type',
       display: 'true',
       filter: 'select',
-      filterValues: ['Murder', 'Arson', 'Kidnap'],
+      filterValues: ['category1', 'category2', 'category3', 'category4', 'category5', 'category6', 'category7', 'category8'],
       width: '120'
     },
     {

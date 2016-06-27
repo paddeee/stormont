@@ -43,22 +43,58 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       background-color: rgb(47, 47, 47);
     }
 
-    :host .leaflet-popup.arson .event-card__header,
-    .leaflet-popup.arson .leaflet-popup-tip,
-    .event-card--arson .event-card__header {
+    :host .leaflet-popup.orange .event-card__header,
+    .leaflet-popup.orange .leaflet-popup-tip,
+    .event-card--orange .event-card__header {
       background-color: rgb(246, 151, 48);
     }
 
-    :host .leaflet-popup.kidnapping .event-card__header,
-    .leaflet-popup.kidnapping .leaflet-popup-tip,
-    .event-card--kidnapping .event-card__header {
+    :host .leaflet-popup.purple .event-card__header,
+    .leaflet-popup.purple .leaflet-popup-tip,
+    .event-card--purple .event-card__header {
       background-color: rgb(210, 82, 185);
     }
 
-    :host .leaflet-popup.murder .event-card__header,
-    .leaflet-popup.murder .leaflet-popup-tip,
-    .event-card--murder .event-card__header {
+    :host .leaflet-popup.red .event-card__header,
+    .leaflet-popup.red .leaflet-popup-tip,
+    .event-card--red .event-card__header {
       background-color: rgb(214, 62, 42);
+    }
+
+    :host .leaflet-popup.darkgreen .event-card__header,
+    .leaflet-popup.darkgreen .leaflet-popup-tip,
+    .event-card--darkgreen .event-card__header {
+      background-color: rgb(114, 130, 36);
+    }
+
+    :host .leaflet-popup.gray .event-card__header,
+    .leaflet-popup.gray .leaflet-popup-tip,
+    .event-card--gray .event-card__header {
+      background-color: rgb(87, 87, 87);
+    }
+
+    :host .leaflet-popup.cadetblue .event-card__header,
+    .leaflet-popup.cadetblue .leaflet-popup-tip,
+    .event-card--cadetblue .event-card__header {
+      background-color: rgb(67, 105, 120);
+    }
+
+    :host .leaflet-popup.darkpurple .event-card__header,
+    .leaflet-popup.darkpurple .leaflet-popup-tip,
+    .event-card--darkpurple .event-card__header {
+      background-color: rgb(91, 57, 107);
+    }
+
+    :host .leaflet-popup.darkred .event-card__header,
+    .leaflet-popup.darkred .leaflet-popup-tip,
+    .event-card--darkred .event-card__header {
+      background-color: rgb(162, 51, 54);
+    }
+
+    :host .leaflet-popup.blue .event-card__header,
+    .leaflet-popup.blue .leaflet-popup-tip,
+    .event-card--blue .event-card__header {
+      background-color: rgb(56, 170, 221);
     }
 
     .leaflet-control-attribution.leaflet-control {
@@ -733,23 +769,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Manage the Event Card style based on its category type
     manageEventCategoryClass: function() {
 
-      var className;
+      var className = 'event-card--default';
+      var mainCategory;
 
-      switch(this.activeEventData.type) {
-        case 'Kidnap':
-          className = 'event-card--kidnapping';
-          break;
-        case 'Arson':
-          className = 'event-card--arson';
-          break;
-        case 'Murder':
-          className = 'event-card--murder';
-          break;
-        default:
-          className = 'event-card--default';
-      }
+      app.config.Categories.sub.forEach(function(subCategory) {
 
-      this.$.EventCard.classList.remove('event-card--default', 'event-card--murder', 'event-card--kidnapping', 'event-card--arson');
+        if (subCategory.name.toLowerCase() === this.activeEventData.type.toLowerCase()) {
+
+          mainCategory = app.config.Categories.main.find(function(category) {
+            return category.name.toLowerCase() === subCategory.category.toLowerCase();
+          });
+
+          className = 'event-card--' + mainCategory.colour;
+        }
+      });
+
+      this.$.EventCard.classList.remove('event-card--default', 'event-card--red', 'event-card--darkred', 'event-card--orange', 'event-card--green', 'event-card--darkgreen', 'event-card--blue', 'event-card--purple', 'event-card--darkpurple', 'event-card--cadetblue');
       this.$.EventCard.classList.add(className);
     },
 

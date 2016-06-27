@@ -264,6 +264,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Set the style dynamically for a feature
       setFeatureStyle: function(layer, feature) {
 
+        var mainCategoryColour;
+
         // Set Style Depending on Geometry Category
         switch (feature.geometry.type) {
 
@@ -293,72 +295,97 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           return;
         }
 
+        layer.options.weight = this.weight;
+        layer.options.opacity = this.opacity;
+        layer.options.dashArray = this.dashArray;
+        layer.options.lineCap = this.lineCap;
+        layer.options.lineJoin = this.lineJoin;
+        layer.options.color = 'rgb(240, 74, 25)';
+        layer.options.fillColor = 'rgb(230, 74, 25)';
+
+        app.config.Categories.sub.forEach(function(subCategory) {
+
+          if (subCategory.name.toLowerCase() === feature.properties.type.toLowerCase()) {
+
+            mainCategoryColour = app.config.Categories.main.find(function(category) {
+              return category.name.toLowerCase() === subCategory.category.toLowerCase();
+            }).colour;
+          } else {
+            return;
+          }
+        });
+
         // Set Style Depending on Geometry Category
-        switch (feature.properties.type) {
+        switch (mainCategoryColour) {
 
-          case 'Murder':
-            layer.options.color = this.color;
-            layer.options.weight = this.weight;
-            layer.options.opacity = this.opacity;
-            layer.options.fillColor = this.fillColor;
-            layer.options.dashArray = this.dashArray;
-            layer.options.lineCap = this.lineCap;
-            layer.options.lineJoin = this.lineJoin;
+          case 'red':
+            layer.options.color = 'rgb(214, 62, 42)';
+            layer.options.fillColor = 'rgb(214, 62, 42)';
             break;
 
-          case 'Arson':
+          case 'orange':
             layer.options.color = 'rgb(246, 151, 48)';
-            layer.options.weight = this.weight;
-            layer.options.opacity = this.opacity;
             layer.options.fillColor = 'rgb(246, 151, 48)';
-            layer.options.dashArray = this.dashArray;
-            layer.options.lineCap = this.lineCap;
-            layer.options.lineJoin = this.lineJoin;
             break;
 
-          case 'Kidnap':
+          case 'purple':
             layer.options.color = 'rgb(220, 82, 185)';
-            layer.options.weight = this.weight;
-            layer.options.opacity = this.opacity;
             layer.options.fillColor = 'rgb(210, 82, 185)';
-            layer.options.dashArray = this.dashArray;
-            layer.options.lineCap = this.lineCap;
-            layer.options.lineJoin = this.lineJoin;
             break;
 
-          default:
-            layer.options.color = 'rgb(240, 74, 25)';
-            layer.options.weight = this.weight;
-            layer.options.opacity = this.opacity;
-            layer.options.fillColor = 'rgb(230, 74, 25)';
-            layer.options.dashArray = this.dashArray;
-            layer.options.lineCap = this.lineCap;
-            layer.options.lineJoin = this.lineJoin;
+          case 'darkgreen':
+            layer.options.color = 'rgb(114, 130, 36)';
+            layer.options.fillColor = 'rgb(114, 130, 36)';
+            break;
+
+          case 'gray':
+            layer.options.color = 'rgb(87, 87, 87)';
+            layer.options.fillColor = 'rgb(87, 87, 87)';
+            break;
+
+          case 'cadetblue':
+            layer.options.color = 'rgb(67, 105, 120)';
+            layer.options.fillColor = 'rgb(67, 105, 120)';
+            break;
+
+          case 'darkpurple':
+            layer.options.color = 'rgb(91, 57, 107)';
+            layer.options.fillColor = 'rgb(91, 57, 107)';
+            break;
+
+          case 'darkred':
+            layer.options.color = 'rgb(162, 51, 54)';
+            layer.options.fillColor = 'rgb(162, 51, 54)';
+            break;
+
+          case 'blue':
+            layer.options.color = 'rgb(56, 170, 221)';
+            layer.options.fillColor = 'rgb(56, 170, 221)';
+            break;
         }
       },
 
-      // Get clas name to style popup based on different criteria
+      // Get class name to style popup based on different criteria
       getPopupClassName: function(featureProperties) {
 
         var className = '';
+        var mainCategory;
 
         if (featureProperties.pointOfInterest) {
           return 'point-of-interest';
         }
 
-        switch(featureProperties.type) {
-          case 'Kidnap':
-            className = 'kidnapping';
-            break;
-          case 'Arson':
-            className = 'arson';
-            break;
-          case 'Murder':
-            className = 'murder';
-            break;
-          default:
-            className = '';
-        }
+        app.config.Categories.sub.forEach(function(subCategory) {
+
+          if (subCategory.name.toLowerCase() === featureProperties.type.toLowerCase()) {
+
+            mainCategory = app.config.Categories.main.find(function(category) {
+              return category.name.toLowerCase() === subCategory.category.toLowerCase();
+            });
+
+            className = mainCategory.colour;
+          }
+        });
 
         return className;
       },
@@ -366,6 +393,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Set relevant marker icon
       setMarkerIcon: function(marker, feature, pointOfInterest, category) {
 
+        var mainCategory;
         var markerToSet = L.AwesomeMarkers.icon({
           icon: 'info',
           prefix: 'fa'
@@ -378,17 +406,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           return;
         }
 
-        switch(category) {
-          case 'Kidnap':
-            markerToSet.options.markerColor = 'purple';
-            break;
-          case 'Arson':
-            markerToSet.options.markerColor = 'orange';
-            break;
-          case 'Murder':
-            markerToSet.options.markerColor = 'red';
-            break;
-        }
+        app.config.Categories.sub.forEach(function(subCategory) {
+
+          if (subCategory.name.toLowerCase() === category.toLowerCase()) {
+
+            mainCategory = app.config.Categories.main.find(function(categoryObject) {
+              return categoryObject.name.toLowerCase() === subCategory.category.toLowerCase();
+            });
+
+            markerToSet.options.icon = subCategory.icon;
+            markerToSet.options.markerColor = mainCategory.colour;
+          }
+        });
 
         marker.setIcon(markerToSet);
         return;
