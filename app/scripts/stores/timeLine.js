@@ -158,7 +158,7 @@ module.exports = Reflux.createStore({
     var url;
 
     switch(category) {
-      case 'Kidnapping':
+      case 'Kidnap':
         url = '//www.flickr.com/photos/';
         break;
       case 'Arson':

@@ -131,24 +131,24 @@ module.exports = Reflux.createStore({
         return user.userName === userLoginObject.username;
       })[0];
 
-      // If no user matched in roles file
+      // If user matched in roles file
       if (userObject) {
 
         userObject.status = 'loggedin';
-
         userObject.message = userObject.userName + ' has logged in as ' + userObject.role;
 
-        resolve(userObject);
-
+      // If no match in roles file log in as A User
       } else {
 
         userObject = {
-          message: 'User does not exist in Application',
-          status: 'loggedout'
+          userName: userLoginObject.username,
+          role: 'user',
+          message: userObject.userName + ' has logged in as ' + userObject.role,
+          status: 'loggedin'
         };
-
-        reject(userObject);
       }
+
+      resolve(userObject);
     });
   }
 });
