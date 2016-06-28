@@ -45,55 +45,64 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     :host .leaflet-popup.orange .event-card__header,
     .leaflet-popup.orange .leaflet-popup-tip,
-    .event-card--orange .event-card__header {
+    .event-card--orange .event-card__header,
+    .legend__swatch[swatch="orange"] {
       background-color: rgb(246, 151, 48);
     }
 
     :host .leaflet-popup.purple .event-card__header,
     .leaflet-popup.purple .leaflet-popup-tip,
-    .event-card--purple .event-card__header {
+    .event-card--purple .event-card__header,
+    .legend__swatch[swatch="purple"] {
       background-color: rgb(210, 82, 185);
     }
 
     :host .leaflet-popup.red .event-card__header,
     .leaflet-popup.red .leaflet-popup-tip,
-    .event-card--red .event-card__header {
+    .event-card--red .event-card__header,
+    .legend__swatch[swatch="red"] {
       background-color: rgb(214, 62, 42);
     }
 
     :host .leaflet-popup.darkgreen .event-card__header,
     .leaflet-popup.darkgreen .leaflet-popup-tip,
-    .event-card--darkgreen .event-card__header {
+    .event-card--darkgreen .event-card__header,
+    .legend__swatch[swatch="darkgreen"] {
       background-color: rgb(114, 130, 36);
     }
 
     :host .leaflet-popup.gray .event-card__header,
     .leaflet-popup.gray .leaflet-popup-tip,
-    .event-card--gray .event-card__header {
+    .event-card--gray .event-card__header,
+    .legend__swatch[swatch="gray"] {
       background-color: rgb(87, 87, 87);
     }
 
     :host .leaflet-popup.cadetblue .event-card__header,
     .leaflet-popup.cadetblue .leaflet-popup-tip,
-    .event-card--cadetblue .event-card__header {
+    .event-card--cadetblue .event-card__header,
+    .legend__swatch[swatch="cadetblue"] {
       background-color: rgb(67, 105, 120);
     }
 
     :host .leaflet-popup.darkpurple .event-card__header,
     .leaflet-popup.darkpurple .leaflet-popup-tip,
-    .event-card--darkpurple .event-card__header {
+    .event-card--darkpurple .event-card__header,
+    .legend__swatch[swatch="darkpurple"] {
       background-color: rgb(91, 57, 107);
     }
 
     :host .leaflet-popup.darkred .event-card__header,
     .leaflet-popup.darkred .leaflet-popup-tip,
-    .event-card--darkred .event-card__header {
+    .event-card--darkred .event-card__header,
+    .legend__swatch[swatch="darkred"] {
       background-color: rgb(162, 51, 54);
     }
 
     :host .leaflet-popup.blue .event-card__header,
     .leaflet-popup.blue .leaflet-popup-tip,
-    .event-card--blue .event-card__header {
+    .event-card--blue .event-card__header,
+    .legend__swatch[swatch="blue"] {
       background-color: rgb(56, 170, 221);
     }
 
@@ -107,6 +116,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .leaflet-container a.leaflet-popup-close-button:hover {
       color: var(--accent-color);
+    }
+
+    .leaflet-left .leaflet-control > a,
+    .leaflet-left .leaflet-bar > a {
+      border-radius: 0;
     }
 
     .leaflet-popup-content-wrapper {
@@ -132,6 +146,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       line-height: 29px;
     }
 
+    .toggle-cluster-control,
+    .toggle-tiles-control,
+    .toggle-legend-control {
+      background-color: var(--primary-background-color);
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .toggle-cluster-control--disabled,
+    .toggle-tiles-control--disabled,
+    .toggle-legend-control--disabled {
+      background-color: rgb(244, 244, 244);
+      color: rgb(187, 187, 187);
+    }
+
     .toggle-cluster-control-holder {
       left: 10px;
       position: fixed;
@@ -140,17 +169,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       width: 29px;
     }
 
-    .toggle-cluster-control,
-    .toggle-tiles-control {
+    .toggle-cluster-control:hover {
       background-color: var(--primary-background-color);
-      cursor: pointer;
-      width: 100%;
-    }
-
-    .toggle-cluster-control--disabled,
-    .toggle-tiles-control--disabled {
-      background-color: rgb(244, 244, 244);
-      color: rgb(187, 187, 187);
     }
 
     .toggle-tiles-control-holder {
@@ -159,6 +179,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       top: 490px;
       height: 29px;
       width: 29px;
+    }
+
+    .toggle-tiles-control:hover {
+      background-color: var(--primary-background-color);
+    }
+
+    .toggle-legend-control-holder {
+      right: 0;
+      position: fixed;
+      top: 45%;
+      height: 29px;
+      width: 29px;
+    }
+
+    .toggle-legend-control-holder.legend--showing {
+      -webkit-transition-duration: 300ms;
+      transition-duration: 300ms;
+      -webkit-transition-timing-function: ease-in-out;
+      transition-timing-function: ease-in-out;
+      -ms-transform: translateX(-232px);
+      -webkit-transform: translateX(-232px);
+      transform: translateX(-232px);
+    }
+
+    .toggle-legend-control:hover {
+      background-color: var(--map-control-hover-colour);
     }
 
     .timeline-control-holder {
@@ -272,6 +318,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       box-shadow: 0 1px 7px rgba(0, 0, 0, 0.65);
     }
 
+    .legend {
+      right: 0;
+      top: calc(64px + 10%);
+      width: 200px;
+      padding: 16px;
+      background-color: white;
+      height: 70%;
+      position: fixed;
+      overflow: hidden;
+      -webkit-transition-duration: 300ms;
+      transition-duration: 300ms;
+      -webkit-transition-timing-function: ease-in-out;
+      transition-timing-function: ease-in-out;
+      -ms-transform: translateX(240px);
+      -webkit-transform: translateX(240px);
+      transform: translateX(240px);
+      z-index: 2;
+    }
+
+    .legend.legend--showing {
+      overflow-y: scroll;
+      -ms-transform: translateX(0);
+      -webkit-transform: translateX(0);
+      transform: translateX(0);
+    }
+
     .event-card-no-location {
       box-shadow: rgba(0, 0, 0, 0.4) 0px 3px 14px;
       font-size: 12px;
@@ -337,6 +409,49 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .marker-cluster-large div {
       background-color: rgba(241, 128, 23, 0.6);
+    }
+
+    h2 {
+      font-size: 16px;
+      font-weight: bold;
+      margin: 0 0 16px 0;
+    }
+
+    h3 {
+      font-size: 13px;
+      margin: 0;
+    }
+
+    .legend__category {
+      margin: 16px 0;
+      padding: 8px;
+    }
+
+    .legend__swatch-holder {
+      margin: 0 0 8px 0;
+    }
+
+    .legend__swatch {
+      height: 14px;
+      width: 24px;
+      margin: 0 0 0 8px;
+    }
+
+    .legend__icon-holder {
+      margin: 0 0 8px 0;
+    }
+
+    .legend__icon {
+      normal normal normal 16px FontAwesome;
+      height: 20px;
+      text-align: center;
+      width: 20px;
+      margin: 0 8px 0 0;
+    }
+
+    .legend__category-name {
+      font-size: 14px;
+      margin-bottom: 6px;
     }
 
   </style>
@@ -405,6 +520,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                    position="right"
                    class="timeline-tooltip">Toggle Satellite Map On/Off</paper-tooltip>
 
+    <!-- Toggle Legend control -->
+    <paper-material id="ToggleLegendControl"
+                    class="toggle-legend-control-holder layout horizontal"
+                    elevation="3">
+      <div class="toggle-legend-control  layout horizontal center center-justified"
+           on-tap="toggleLegend">
+        <iron-icon class="toggle-timeline"
+                   icon="info-outline"></iron-icon>
+      </div>
+    </paper-material>
+
+    <paper-tooltip for="ToggleLegendControl"
+                   position="right"
+                   class="timeline-tooltip">Toggle Map Legend On/Off</paper-tooltip>
+
     <!-- Navigate Previous control -->
     <paper-material id="NavigatePreviousControl"
                     class="timeline-control-holder timeline-control-previous timeline-control-previous--hide layout horizontal">
@@ -457,6 +587,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                    position="left"
                    class="timeline-tooltip">Show Next Event Information</paper-tooltip>
 
+    <paper-material id="Legend"
+                    class="legend"
+                    elevation="3"
+                    on-tap="toggleLegend">
+      <h2>Legend</h2>
+
+      <template is="dom-repeat"
+                items="[[mapLegend]]"
+                as="item">
+          <paper-material class="legend__category layout vertical">
+            <div class="layout horizontal center legend__swatch-holder">
+              <h3 class="flex">[[item.categoryType]]</h3>
+              <div class="legend__swatch" swatch$="[[item.categoryColour]]"></div>
+            </div>
+          <template is="dom-repeat"
+                    items="[[item.categories]]"
+                    as="category">
+            <div class="layout horizontal center legend__icon-holder">
+              <div class$="[[getIconClass(category.icon)]]"></div>
+              <div class="legend__category-name">[[category.name]]</div>
+            </div>
+          </template>
+          </paper-material>
+      </template>
+    </paper-material>
+
+
     <paper-material id="TimeLine"
                     class="timeline"
                     elevation="3">
@@ -498,6 +655,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         value: false
       },
 
+      legendShowing: {
+        type: Boolean,
+        value: false
+      },
+
       activeEvent: {
         type: String,
         value: ''
@@ -530,6 +692,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         type: String,
         value: 'map',
         observer: 'setMapTilesSrc'
+      },
+
+      mapLegend: {
+        type: Array,
+        value: []
       }
     },
 
@@ -538,6 +705,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.scopeSubtree(this.$.LeafletMap, true);
 
       this.setMapTilesSrc();
+
+      this.createMapLegendArray();
 
       if (this.mapGeoJsonStore) {
 
@@ -898,6 +1067,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
+    // Show/Hide Legend
+    toggleLegend: function() {
+
+      this.legendShowing = !this.legendShowing;
+
+      if (this.legendShowing) {
+        this.$.Legend.classList.add('legend--showing');
+        this.$.ToggleLegendControl.classList.add('legend--showing');
+      } else {
+        this.$.Legend.classList.remove('legend--showing');
+        this.$.ToggleLegendControl.classList.remove('legend--showing');
+      }
+    },
+
     // CALLED BY OBSERVER ON CLUSTERING
     clusteringChanged: function() {
 
@@ -913,6 +1096,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Get ERN refs for publish screen depending on the view
     getErnRefs: function() {
       return this.$.MapGeoJSON.getErnRefs();
+    },
+
+    // Create Array to template out the map legend
+    createMapLegendArray: function() {
+
+      this.mapLegend = [];
+
+      app.config.Categories.main.forEach(function(mainCategory) {
+
+        var subCategories;
+        var legendObject = {
+          categoryColour: mainCategory.colour,
+          categoryType: mainCategory.name,
+          categories: []
+        };
+
+        subCategories = app.config.Categories.sub.filter(function(subCategory) {
+          return legendObject.categoryType.toLowerCase() === subCategory.category.toLowerCase();
+        });
+
+        legendObject.categories = subCategories;
+
+        this.push('mapLegend', legendObject);
+      }.bind(this));
+
+      this.mapLegend = _.sortBy(this.mapLegend, 'categoryType');
+      console.log(this.mapLegend);
+    },
+
+    getIconClass: function(icon) {
+      return 'legend__icon fa icon-black fa-' + icon;
     }
   });
 })();
