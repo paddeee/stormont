@@ -54,12 +54,12 @@ var config = {
       {
         name: 'category3',
         category: 'Murder',
-        icon: 'asl-interpreting'
+        icon: 'clock-o'
       },
       {
         name: 'category4',
         category: 'Murder',
-        icon: 'audio-description'
+        icon: 'plug'
       },
       {
         name: 'category5',
@@ -84,7 +84,7 @@ var config = {
       {
         name: 'category9',
         category: 'Arson',
-        icon: 'braille'
+        icon: 'home'
       },
       {
         name: 'category10',
