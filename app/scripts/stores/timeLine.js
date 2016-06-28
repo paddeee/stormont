@@ -156,17 +156,59 @@ module.exports = Reflux.createStore({
   getUrlFromCategory: function(category) {
 
     var url;
+    var mainCategory;
+    var categoryColour;
 
-    switch(category) {
-      case 'Kidnap':
-        url = '//www.flickr.com/photos/';
+    config.Categories.sub.forEach(function(subCategory) {
+
+      if (subCategory.name.toLowerCase() === category.toLowerCase()) {
+
+        mainCategory = app.config.Categories.main.find(function(category) {
+          return category.name.toLowerCase() === subCategory.category.toLowerCase();
+        });
+
+        categoryColour = mainCategory.colour;
+      }
+    });
+
+    switch(categoryColour) {
+
+      case 'red':
+        url = 'twitter.com';
         break;
-      case 'Arson':
-        url = 'https://en.wikipedia.org/wiki/Evidentiality';
+
+      case 'orange':
+        url = 'wikipedia.org';
         break;
-      case 'Murder':
-        url = 'https://twitter.com';
+
+      case 'purple':
+        url = 'flic.kr/';
         break;
+
+      case 'darkgreen':
+        url = 'dailymotion.com';
+        break;
+
+      case 'gray':
+        url = 'vimeo.com';
+        break;
+
+      case 'cadetblue':
+        url = 'vine.co';
+        break;
+
+      case 'darkpurple':
+        url = 'soundcloud.com';
+        break;
+
+      case 'darkred':
+        url = 'plus.google';
+        break;
+
+      case 'blue':
+        url = 'documentcloud.org/';
+        break;
+
       default:
         url = '//evidential.com';
     }

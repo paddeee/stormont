@@ -29,16 +29,49 @@
   content: "" !important;
 }
 
+/* orange */
 .tl-icon-wikipedia {
   background-color: rgb(246, 151, 48);
 }
 
+/* red */
 .tl-icon-twitter {
   background-color: rgb(214, 62, 42);
 }
 
+/* purple */
 .tl-icon-flickr {
   background-color: rgb(210, 82, 185);
+}
+
+/* darkgreen */
+.tl-icon-dailymotion {
+  background-color: rgb(114, 130, 36);
+}
+
+/* grey */
+.tl-icon-vimeo {
+  background-color: rgb(87, 87, 87);
+}
+
+/* cadetblue */
+.tl-icon-vine {
+  background-color: rgb(67, 105, 120);
+}
+
+/* darkpurple */
+.tl-icon-soundcloud {
+  background-color: rgb(91, 57, 107);
+}
+
+/* darkred */
+.tl-icon-googleplus {
+  background-color: rgb(162, 51, 54);
+}
+
+/* blue */
+.tl-icon-documentcloud {
+  background-color: rgb(56, 170, 221);
 }
 
 .tl-timeaxis-background {

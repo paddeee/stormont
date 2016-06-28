@@ -678,14 +678,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.$.LeafletMap.map.addControl(drawControl);
 
       this.$.LeafletMap.map.on('draw:created', function(e) {
-        //var type = e.layerType;
-        var layer = e.layer;
-
-        /*if (type === 'marker') {
-          layer.bindPopup('A popup!');
-        }*/
-
-        drawnItems.addLayer(layer);
+        drawnItems.addLayer(e.layer);
       });
 
       this.$.LeafletMap.map.on('styleeditor:changed', function(element) {
@@ -782,7 +775,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           className = 'event-card--' + mainCategory.colour;
         }
-      });
+      }.bind(this));
 
       this.$.EventCard.classList.remove('event-card--default', 'event-card--red', 'event-card--darkred', 'event-card--orange', 'event-card--green', 'event-card--darkgreen', 'event-card--blue', 'event-card--purple', 'event-card--darkpurple', 'event-card--cadetblue');
       this.$.EventCard.classList.add(className);

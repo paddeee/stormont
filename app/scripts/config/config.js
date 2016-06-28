@@ -74,7 +74,7 @@ var config = {
       {
         name: 'category7',
         category: 'Kidnap',
-        icon: 'blind'
+        icon: 'binoculars'
       },
       {
         name: 'category8',

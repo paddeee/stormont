@@ -123,7 +123,7 @@ module.exports = Reflux.createStore({
   // Return a user object for listeners to consume
   createUserObject: function (userLoginObject) {
 
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve) {
 
       var userObject;
 
