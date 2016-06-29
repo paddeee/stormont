@@ -10,7 +10,6 @@ var eventsStore = require('../stores/events.js');
 var placesStore = require('../stores/places.js');
 var peopleStore = require('../stores/people.js');
 var fsExtra = window.electronRequire('fs-extra');
-var zipFolder = window.electronRequire('zip-folder');
 var encryptor = window.electronRequire('file-encryptor');
 var loggingStore = require('../stores/logging.js');
 //var usb = window.electronRequire('electron-usb');
@@ -51,18 +50,26 @@ module.exports = Reflux.createStore({
     this.packagePassword = presentationObject.packagePassword;
 
     // Create a temporary directory for database file and related source files
-    fsExtra.mkdirs(exportFileAdapter.tempExportDirectory, function(err) {
+    fsExtra.mkdirs(exportFileAdapter.tempExportDirectory + '/profiles', function(err) {
 
       if (err) {
         return console.error(err);
       } else {
 
-        // Load the Export Database Collections into the DB
-        // Then Update the collections depending on what the user has selected to export, filtered or selected
-        // When the Export Database file is successfully saved, start the Export sequence
-        exportDatabase.loadDatabase({}, function() {
-          this.updateDataCollections(exportDatabase, presentationObject);
-          this.commenceExportProcess(exportDatabase, presentationObject);
+        fsExtra.mkdirs(exportFileAdapter.tempExportDirectory + '/sourcefiles', function(err) {
+
+          if (err) {
+            return console.error(err);
+          } else {
+
+            // Load the Export Database Collections into the DB
+            // Then Update the collections depending on what the user has selected to export, filtered or selected
+            // When the Export Database file is successfully saved, start the Export sequence
+            exportDatabase.loadDatabase({}, function () {
+              this.updateDataCollections(exportDatabase, presentationObject);
+              this.commenceExportProcess(exportDatabase, presentationObject, this.packagePassword);
+            }.bind(this));
+          }
         }.bind(this));
       }
     }.bind(this));
@@ -72,7 +79,6 @@ module.exports = Reflux.createStore({
   commenceExportProcess: function(exportDatabase, presentationObject) {
 
     var saveExportDatabase;
-    var zipTempDirectory;
 
     // Create promise for saving the export Database
     saveExportDatabase = new Promise(function (resolve, reject) {
@@ -88,24 +94,17 @@ module.exports = Reflux.createStore({
       }.bind(this));
     });
 
-    // Create promise for zipping the Temporary Directory
-    zipTempDirectory = new Promise(function (resolve, reject) {
-
-      // Add artificial timeout to make sure the directory is ready with all its contents
-      setTimeout(function() {
-        zipFolder(exportFileAdapter.tempExportDirectory, exportFileAdapter.tempExportDirectory + '.zip', function(err) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve();
-          }
-        });
-      }, 500);
-    });
-
     saveExportDatabase
     .then(function() {
       console.log('Export DB File Saved');
+
+        this.encryptExportDatabase(exportDatabase, exportFileAdapter.tempExportDirectory)
+          .then(function() {
+            console.log('Export DB File Encrypted');
+
+            this.deleteUnencryptedDBFile(exportFileAdapter.tempExportDirectory + '/' + exportDatabase.filename)
+              .then(function() {
+                console.log('Export DB File Encrypted');
 
       // Iterate through each Source Object and copy the file from its Source Path into the temp directory
       this.copySourceFiles(exportDatabase.getCollection(config.SourcesCollection.name).data, presentationObject, exportFileAdapter.tempExportDirectory)
@@ -113,12 +112,12 @@ module.exports = Reflux.createStore({
         console.log('Source Files Copied');
 
         // Iterate through each Person Object and copy the file from its Image Path into the temp directory
-        this.copyProfileImagesFiles(exportDatabase.getCollection(config.PeopleCollection.name).data, presentationObject, exportFileAdapter.tempExportDirectory)
+        this.copyProfileImagesFiles(exportDatabase.getCollection(config.PeopleCollection.name).data, presentationObject, exportFileAdapter.tempExportDirectory, this.packagePassword)
           .then(function() {
             console.log('Profile Images Copied');
 
           // Zip temporary directory
-          zipTempDirectory
+          /*zipTempDirectory
           .then(function() {
             console.log('Folder Zipped');
 
@@ -134,7 +133,7 @@ module.exports = Reflux.createStore({
 
                 this.deleteZipFile(exportFileAdapter.tempExportDirectory + '.zip')
                 .then(function() {
-                  console.log('Zip File removed');
+                  console.log('Zip File removed');*/
 
                   this.message = 'exportSuccess';
                   this.trigger(this);
@@ -142,7 +141,7 @@ module.exports = Reflux.createStore({
                   this.logPackageExport(presentationObject.packageName);
 
                 }.bind(this))
-                .catch(function(reason) {
+                /*.catch(function(reason) {
                   console.error(reason);
                   this.message = 'removeZipFileFailure';
 
@@ -156,9 +155,6 @@ module.exports = Reflux.createStore({
                 console.log(this);
                 console.error(reason);
 
-                  // Delete zip file
-                  this.deleteZipFile(exportFileAdapter.tempExportDirectory + '.zip');
-
                 this.message = 'removeDirectoryFailure';
                 this.trigger(this);
               }.bind(this));
@@ -170,9 +166,6 @@ module.exports = Reflux.createStore({
                 // Delete temporary directory
                 this.deleteTempDirectory(exportFileAdapter.tempExportDirectory);
 
-                // Delete zip file
-                this.deleteZipFile(exportFileAdapter.tempExportDirectory + '.zip');
-
                 this.trigger(this);
               }.bind(this));
             }.bind(this))
@@ -183,12 +176,9 @@ module.exports = Reflux.createStore({
               // Delete temporary directory
               this.deleteTempDirectory(exportFileAdapter.tempExportDirectory);
 
-              // Delete zip file
-              this.deleteZipFile(exportFileAdapter.tempExportDirectory + '.zip');
-
               this.trigger(this);
             }.bind(this));
-        }.bind(this))
+        }.bind(this))*/
           .catch(function(reason) {
             console.error(reason);
             this.message = 'profileImagesCopyFailure';
@@ -196,27 +186,40 @@ module.exports = Reflux.createStore({
             // Delete temporary directory
             this.deleteTempDirectory(exportFileAdapter.tempExportDirectory);
 
-            // Delete zip file
-            this.deleteZipFile(exportFileAdapter.tempExportDirectory + '.zip');
-
             this.trigger(this);
           }.bind(this));
         }.bind(this))
-      .catch(function(reason) {
-        console.error(reason);
-        this.message = 'sourceFileCopyFailure';
+        .catch(function(reason) {
+          console.error(reason);
+          this.message = 'sourceFileCopyFailure';
 
           // Delete temporary directory
           this.deleteTempDirectory(exportFileAdapter.tempExportDirectory);
 
-          // Delete zip file
-          this.deleteZipFile(exportFileAdapter.tempExportDirectory + '.zip');
+          this.trigger(this);
+        }.bind(this));
+          }.bind(this))
+              .catch(function(reason) {
+                console.error(reason);
+                this.message = 'dbFileDeletionError';
+
+                // Delete temporary directory
+                this.deleteTempDirectory(exportFileAdapter.tempExportDirectory);
+
+                this.trigger(this);
+              }.bind(this));
+          }.bind(this))
+      .catch(function(reason) {
+        console.error(reason);
+        this.message = 'dbFileEncryptionError';
+
+          // Delete temporary directory
+          this.deleteTempDirectory(exportFileAdapter.tempExportDirectory);
 
         this.trigger(this);
       }.bind(this));
     }.bind(this))
-    .catch(
-    function(reason) {
+    .catch(function(reason) {
       console.error(reason);
       this.message = 'dbCopyFailure';
 
@@ -305,29 +308,28 @@ module.exports = Reflux.createStore({
     sourceCollection.insert(exportSourceData);
   },
 
-  // Encrypt a zip file using aes-256 and the package password
-  encryptPackage: function (presentationObject) {
+  // Create promise for encrypting the export Database
+  encryptExportDatabase: function(exportDatabase, tempExportDirectory) {
+
+    var packagePassword = this.packagePassword;
+    var options = {
+      algorithm: 'aes256'
+    };
 
     return new Promise(function (resolve, reject) {
 
-      var packageName = presentationObject.packageName;
-      var tempDirectory = presentationObject.packageLocation;
-      var zipPath = tempDirectory + packageName + '.zip';
-      var options = {
-        algorithm: 'aes256'
-      };
+      // Encrypt DB file
+      encryptor.encryptFile(tempExportDirectory + '/' + exportDatabase.filename, tempExportDirectory + '/SITF.dat', packagePassword, options, function (error) {
 
-      // Encrypt file
-      encryptor.encryptFile(zipPath, tempDirectory + packageName + '.dat', this.packagePassword, options, function(err) {
-
-        if (err) {
-          reject('Error encrypting Zip file: ' + err);
+        if (error) {
+          console.log(tempExportDirectory + '/' + exportDatabase.filename + ' failed');
+          reject(error);
         } else {
+          console.log(tempExportDirectory + '/' + exportDatabase.filename + ' encrypted');
           resolve();
         }
       });
-
-    }.bind(this));
+    });
   },
 
   // Iterate through each Source Object and copy the file from its Source Path into the temp directory
@@ -494,12 +496,12 @@ module.exports = Reflux.createStore({
     });
   },
 
-  // Delete the zip file
-  deleteZipFile: function(zipPath) {
+  // Delete the unencrypted database file
+  deleteUnencryptedDBFile: function(dbPath) {
 
     return new Promise(function (resolve, reject) {
 
-      fsExtra.remove(zipPath, function (err) {
+      fsExtra.remove(dbPath, function (err) {
 
         if (err) {
           reject(Error(err));

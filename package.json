@@ -9,6 +9,7 @@
     "browserify-fs": "^1.0.0",
     "chai": "^3.2.0",
     "connect-history-api-fallback": "^1.1.0",
+    "crypto": "0.0.3",
     "decompress-zip": "^0.3.0",
     "del": "^1.1.1",
     "electron-usb": "0.0.11",

@@ -12,6 +12,7 @@ var dataSourceStore = require('../stores/dataSource.js');
 var fsExtra = window.electronRequire('fs-extra');
 var decompressZip = window.electronRequire('decompress-zip');
 var encryptor = window.electronRequire('file-encryptor');
+//var crypto = window.electronRequire('crypto');
 
 module.exports = Reflux.createStore({
 
@@ -33,7 +34,7 @@ module.exports = Reflux.createStore({
   commenceImportProcess: function(packageObject) {
 
     // Create a Temporary Package Directory
-    this.createTempDirectory()
+    /*this.createTempDirectory()
       .then(function() {
         console.log('Temp Package Directory Created');
 
@@ -50,7 +51,7 @@ module.exports = Reflux.createStore({
                 // Extract zip file to directory
                 this.deleteTempZipFile()
                   .then(function() {
-                    console.log('Zip File Deleted');
+                    console.log('Zip File Deleted');*/
 
                     // Load Loki DB into memory
                     this.loadDatabase()
@@ -64,7 +65,7 @@ module.exports = Reflux.createStore({
 
                         // Add the package filesystem location so we can use it later for Publishing functionality
                         global.config.packagePath = importFileAdapter.tempPackageDirectory;
-                        
+
                         // Set packagePassword so we can access it if application locks
                         this.packagePassword = packageObject.packagePassword;
 
@@ -73,7 +74,7 @@ module.exports = Reflux.createStore({
                         this.message = 'importSuccess';
                         this.trigger(this);
                       }.bind(this));
-                  }.bind(this))
+                    /*}.bind(this));
                   .catch(function(reason) {
                     console.error(reason);
                     // CleanUp
@@ -102,7 +103,7 @@ module.exports = Reflux.createStore({
         console.error(reason);
         this.message = 'createTempPackageDirectoryFailure';
         this.trigger(this);
-      }.bind(this));
+      }.bind(this));*/
   },
 
   // Decrypt a zip file using aes-256 and the package password

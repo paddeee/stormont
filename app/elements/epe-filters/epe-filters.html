@@ -858,7 +858,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             collection = app.config.SourcesCollection;
             break;
           default:
-            console.error('Sorry, no collectionName set');
+            return headingName;
         }
 
         collection.fields.forEach(function(field) {

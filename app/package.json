@@ -8,6 +8,7 @@
     "babyparse": "^0.4.3",
     "browserify": "^11.0.0",
     "browserify-fs": "^1.0.0",
+    "crypto": "0.0.3",
     "decompress-zip": "^0.3.0",
     "file-encryptor": "^0.1.0",
     "fs": "0.0.2",
