@@ -135,7 +135,7 @@ module.exports = Reflux.createStore({
       if (userObject) {
 
         userObject.status = 'loggedin';
-        userObject.message = userObject.userName + ' has logged in as ' + userObject.role;
+        userObject.message = userObject.userName + ' has logged in with ' + userObject.role + ' permissions';
 
       // If no match in roles file log in as A User
       } else {
@@ -143,7 +143,7 @@ module.exports = Reflux.createStore({
         userObject = {
           userName: userLoginObject.username,
           role: 'user',
-          message: userObject.userName + ' has logged in as ' + userObject.role,
+          message: userLoginObject.username + ' has logged in with User permissions',
           status: 'loggedin'
         };
       }
