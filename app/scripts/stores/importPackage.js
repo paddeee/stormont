@@ -5,14 +5,10 @@ var loki = require('lokijs');
 var importFileAdapter = require('../adapters/loki-import-file-adapter.js');
 var ImportPackageActions = require('../actions/importPackage.js');
 var dataSourceStore = require('../stores/dataSource.js');
-/*var eventsStore = require('../stores/events.js');
- var placesStore = require('../stores/places.js');
- var peopleStore = require('../stores/people.js');
- var sourcesStore = require('../stores/source.js');*/
 var fsExtra = window.electronRequire('fs-extra');
 var decompressZip = window.electronRequire('decompress-zip');
 var encryptor = window.electronRequire('file-encryptor');
-//var crypto = window.electronRequire('crypto');
+var crypto = window.electronRequire('crypto');
 
 module.exports = Reflux.createStore({
 
@@ -25,7 +21,7 @@ module.exports = Reflux.createStore({
   // ToDO: For now always saying true. Need to add npm yub to check for real
   onPackageSelected: function(packageObject) {
 
-    importFileAdapter.tempPackageDirectory = packageObject.packageLocation.substr(0, packageObject.packageLocation.lastIndexOf('.'));
+    importFileAdapter.tempPackageDirectory = packageObject.packageLocation;
 
     this.commenceImportProcess(packageObject);
   },
@@ -46,12 +42,12 @@ module.exports = Reflux.createStore({
             // Extract zip file to directory
             this.extractPackage()
               .then(function() {
-                console.log('Zip File Extracted');
+                console.log('Zip File Extracted');*/
 
-                // Extract zip file to directory
-                this.deleteTempZipFile()
+                // Decrypt the DB File
+                this.decryptDatabaseFile(packageObject)
                   .then(function() {
-                    console.log('Zip File Deleted');*/
+                    console.log('DB File Decrypted');
 
                     // Load Loki DB into memory
                     this.loadDatabase()
@@ -74,15 +70,13 @@ module.exports = Reflux.createStore({
                         this.message = 'importSuccess';
                         this.trigger(this);
                       }.bind(this));
-                    /*}.bind(this));
+                    }.bind(this))
                   .catch(function(reason) {
                     console.error(reason);
-                    // CleanUp
-                    this.deleteTempDirectory();
-                    this.message = 'deleteZipFailure';
+                    this.message = 'dbDecryptionFailure';
                     this.trigger(this);
                   }.bind(this));
-              }.bind(this))
+                /*}.bind(this))
               .catch(function(reason) {
                 console.error(reason);
                 // CleanUp
@@ -209,6 +203,30 @@ module.exports = Reflux.createStore({
     });
   },
 
+  // Decrypt the database file
+  decryptDatabaseFile: function(packageObject) {
+
+    return new Promise(function (resolve) {
+
+      var dbStream = fsExtra.createReadStream(importFileAdapter.tempPackageDirectory + '/SITF.dat');
+      var data;
+      var decrypt = function(buffer) {
+        var decipher = crypto.createDecipher('aes-256-ctr', packageObject.packagePassword);
+        var dec = Buffer.concat([decipher.update(buffer) , decipher.final()]);
+        return dec;
+      };
+
+      dbStream.on('data', function(chunk) {
+        data += chunk;
+      });
+
+      dbStream.on('end', function() {
+        console.log(decrypt(data).toString('utf8'));
+        resolve();
+      });
+    });
+  },
+
   // Load Database JSON File in to memory
   loadDatabase: function() {
 
@@ -222,5 +240,5 @@ module.exports = Reflux.createStore({
         resolve();
       }.bind(this));
     });
-  },
+  }
 });

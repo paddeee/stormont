@@ -171,10 +171,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (typeof process === 'object') {
 
         // Listen to Electron when file is selected
-        ipcRenderer.on('file-selected', function (event, arg) {
+        ipcRenderer.on('directory-selected', function (event, arg) {
 
           if (arg) {
             this.importLocation = arg[0];
+          } else {
+            this.importLocation = 'Not selected..';
           }
         }.bind(this));
       }
@@ -230,7 +232,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Perform export if in packaged app. Otherwise log so we know it won't work in browser
       if (typeof process === 'object') {
-        ipcRenderer.send('show-open-dialog', 'file', '.dat');
+        ipcRenderer.send('show-open-dialog', 'directory');
       } else {
         console.warn('Can\'t import in browser');
       }

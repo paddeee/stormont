@@ -10,7 +10,8 @@ var eventsStore = require('../stores/events.js');
 var placesStore = require('../stores/places.js');
 var peopleStore = require('../stores/people.js');
 var fsExtra = window.electronRequire('fs-extra');
-var encryptor = window.electronRequire('file-encryptor');
+//var encryptor = window.electronRequire('file-encryptor');
+var crypto = window.electronRequire('crypto');
 var loggingStore = require('../stores/logging.js');
 //var usb = window.electronRequire('electron-usb');
 
@@ -312,22 +313,35 @@ module.exports = Reflux.createStore({
   encryptExportDatabase: function(exportDatabase, tempExportDirectory) {
 
     var packagePassword = this.packagePassword;
-    var options = {
-      algorithm: 'aes256'
-    };
 
     return new Promise(function (resolve, reject) {
 
-      // Encrypt DB file
-      encryptor.encryptFile(tempExportDirectory + '/' + exportDatabase.filename, tempExportDirectory + '/SITF.dat', packagePassword, options, function (error) {
+      var dbReadStream = fsExtra.createReadStream(tempExportDirectory + '/' + exportDatabase.filename);
+      var data;
 
-        if (error) {
-          console.log(tempExportDirectory + '/' + exportDatabase.filename + ' failed');
-          reject(error);
-        } else {
-          console.log(tempExportDirectory + '/' + exportDatabase.filename + ' encrypted');
-          resolve();
-        }
+      var encrypt = function(buffer) {
+
+        var cipher = crypto.createDecipher('aes-256-ctr', packagePassword);
+        var crypted = Buffer.concat([cipher.update(buffer) , cipher.final()]);
+
+        return crypted;
+      };
+
+      dbReadStream.on('data', function(chunk) {
+        data += chunk;
+      });
+
+      dbReadStream.on('end', function() {
+
+        fsExtra.writeFile(tempExportDirectory + '/SITF.dat', encrypt(data).toString('utf8'), function(err) {
+
+          if (err) {
+            console.log(tempExportDirectory + '/SITF.dat failed');
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
       });
     });
   },
