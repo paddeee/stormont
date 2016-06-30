@@ -314,35 +314,21 @@ module.exports = Reflux.createStore({
 
     var packagePassword = this.packagePassword;
 
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve) {
 
+      // Input file
       var dbReadStream = fsExtra.createReadStream(tempExportDirectory + '/' + exportDatabase.filename);
-      var data;
 
-      var encrypt = function(buffer) {
+      // Encrypt content
+      var encrypt = crypto.createCipher('aes-256-ctr', packagePassword);
 
-        var cipher = crypto.createDecipher('aes-256-ctr', packagePassword);
-        var crypted = Buffer.concat([cipher.update(buffer) , cipher.final()]);
+      // Write file
+      var dbWriteStream = fsExtra.createWriteStream(tempExportDirectory + '/SITF.dat');
 
-        return crypted;
-      };
+      // Start pipe
+      dbReadStream.pipe(encrypt).pipe(dbWriteStream);
 
-      dbReadStream.on('data', function(chunk) {
-        data += chunk;
-      });
-
-      dbReadStream.on('end', function() {
-
-        fsExtra.writeFile(tempExportDirectory + '/SITF.dat', encrypt(data).toString('utf8'), function(err) {
-
-          if (err) {
-            console.log(tempExportDirectory + '/SITF.dat failed');
-            reject(err);
-          } else {
-            resolve();
-          }
-        });
-      });
+      resolve();
     });
   },
 
