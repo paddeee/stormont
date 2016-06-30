@@ -4,7 +4,11 @@ var Reflux = require('reflux');
 var dataSourceStore = require('../stores/dataSource.js');
 var config = global.config ? global.config : require('../config/config.js');
 var presentationsStore = require('../stores/presentations.js');
+var importPackageStore = require('../stores/importPackage.js');
 var SourceActions = require('../actions/source.js');
+var fsExtra = window.electronRequire('fs-extra');
+var crypto = window.electronRequire('crypto');
+var getRawBody = window.electronRequire('raw-body');
 
 module.exports = Reflux.createStore({
 
@@ -330,14 +334,20 @@ module.exports = Reflux.createStore({
     // Set selectedSourceObject property
     this.setSelectedSourceFileType(sourceObject);
 
-    // Set viewingSource property to true
-    this.viewingSource = true;
+    // Decrypt the file if in Offline Application
+    if (global.config && presentationMode === 'offline') {
+      this.decryptSourceFile(sourceObject);
+    } else {
 
-    // Send object out to all listeners
-    this.trigger(this);
+      // Set viewingSource property to true
+      this.viewingSource = true;
 
-    // Reset viewingSource property to false
-    this.viewingSource = false;
+      // Send object out to all listeners
+      this.trigger(this);
+
+      // Reset viewingSource property to false
+      this.viewingSource = false;
+    }
   },
 
   // Set a property on this store object to indicate current selected source object
@@ -371,6 +381,99 @@ module.exports = Reflux.createStore({
       case 'png':
         this.selectedSourceRoute = 'image';
         this.selectedSourceFileType = 'image';
+        break;
+      case 'm4a':
+        this.selectedSourceRoute = 'media';
+        this.selectedSourceFileType = 'audio';
+        break;
+      case 'mp3':
+        this.selectedSourceRoute = 'media';
+        this.selectedSourceFileType = 'audio';
+        break;
+      case 'wav':
+        this.selectedSourceRoute = 'media';
+        this.selectedSourceFileType = 'audio';
+        break;
+      case 'avi':
+        this.selectedSourceRoute = 'media';
+        this.selectedSourceFileType = 'video';
+        break;
+      case 'mp4':
+        this.selectedSourceRoute = 'media';
+        this.selectedSourceFileType = 'video';
+        break;
+      case 'mov':
+        this.selectedSourceRoute = 'media';
+        this.selectedSourceFileType = 'video';
+        break;
+      case 'webm':
+        this.selectedSourceRoute = 'media';
+        this.selectedSourceFileType = 'video';
+        break;
+      case 'tif':
+        this.selectedSourceRoute = 'tiff';
+        this.selectedSourceFileType = 'tiff';
+        break;
+      case 'tiff':
+        this.selectedSourceRoute = 'tiff';
+        this.selectedSourceFileType = 'tiff';
+        break;
+      default:
+        console.warn(fileExtension + 'not a supported type');
+    }
+  },
+
+  // Decrypt the selected source file
+  decryptSourceFile: function(sourceObject) {
+
+    // Input file
+    var readStream = fsExtra.createReadStream(global.config.packagePath + '/sourcefiles/' + sourceObject['Linked File']);
+
+    // Decrypt content
+    var decrypt = crypto.createDecipher('aes-256-ctr', importPackageStore.packagePassword);
+
+    // Start pipe
+    getRawBody(readStream.pipe(decrypt))
+      .then(function (buffer) {
+
+        this.setBlob(buffer);
+
+        // Set viewingSource property to true
+        this.viewingSource = true;
+
+        // Send object out to all listeners
+        this.trigger(this);
+
+        // Reset viewingSource property to false
+        this.viewingSource = false;
+
+      }.bind(this))
+      .catch(function (err) {
+        console.log('Error decrypting ' + sourceObject['Linked File'] + err);
+      });
+  },
+
+  // Set the blob property depending on the media type
+  setBlob: function(buffer) {
+
+    var filePath = this.selectedSourceObject['Linked File'];
+    var fileExtension = filePath.substr(filePath.lastIndexOf('.') + 1);
+
+    switch (fileExtension) {
+      case 'pdf':
+        this.selectedSourceObject.blob = 'data:application/pdf;base64,' + buffer.toString('base64');
+        break;
+      case 'jpg':
+        this.selectedSourceObject.blob = 'data:image/jpg;base64,' + buffer.toString('base64');
+        break;
+      case 'jpeg':
+        this.selectedSourceObject.blob = 'data:image/jpg;base64,' + buffer.toString('base64');
+        break;
+      case 'gif':
+        this.selectedSourceObject.blob = 'data:image/gif;base64,' + buffer.toString('base64');
+        break;
+      case 'png':
+        this.selectedSourceObject.blob = 'data:image/png;base64,' + buffer.toString('base64');
         break;
       case 'm4a':
         this.selectedSourceRoute = 'media';

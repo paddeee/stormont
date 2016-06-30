@@ -308,14 +308,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Set the src of the image if inside Electron
       if (typeof process === 'object') {
 
-        // Use roles to determine if on network on offline
-        if (roles) {
+        // Determine if on network on offline
+        if (presentationMode === 'online') {
           sourcePath = config.paths.sourcePath;
-        } else {
+          this.imageSource = sourcePath + this.imageObject['Linked File'];
+        } else if (presentationMode === 'offline') {
           sourcePath = global.config.packagePath;
+          this.imageSource = this.imageObject.blob;
         }
+      } else {
+        this.imageSource = sourcePath + this.imageObject['Linked File'];
       }
-      this.imageSource = sourcePath + this.imageObject['Linked File'];
+
+
     },
 
     // Resize the image container to the size of the image

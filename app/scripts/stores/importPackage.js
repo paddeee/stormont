@@ -2,6 +2,7 @@
 
 var Reflux = require('reflux');
 var loki = require('lokijs');
+var importFileAdapter = require('../adapters/loki-import-file-adapter.js');
 var ImportPackageActions = require('../actions/importPackage.js');
 var dataSourceStore = require('../stores/dataSource.js');
 var fsExtra = window.electronRequire('fs-extra');
@@ -19,7 +20,7 @@ module.exports = Reflux.createStore({
   // ToDO: For now always saying true. Need to add npm yub to check for real
   onPackageSelected: function(packageObject) {
 
-    this.tempPackageDirectory = packageObject.packageLocation;
+    importFileAdapter.tempPackageDirectory = packageObject.packageLocation;
 
     this.commenceImportProcess(packageObject);
   },
@@ -43,7 +44,7 @@ module.exports = Reflux.createStore({
             };
 
             // Add the package filesystem location so we can use it later for Publishing functionality
-            global.config.packagePath = this.tempPackageDirectory;
+            global.config.packagePath = importFileAdapter.tempPackageDirectory;
 
             // Set packagePassword so we can access it if application locks
             this.packagePassword = packageObject.packagePassword;
@@ -67,7 +68,7 @@ module.exports = Reflux.createStore({
     return new Promise(function (resolve, reject) {
 
       // Input file
-      var dbStream = fsExtra.createReadStream(this.tempPackageDirectory + '/SITF.dat');
+      var dbStream = fsExtra.createReadStream(importFileAdapter.tempPackageDirectory + '/SITF.dat');
 
       // Decrypt content
       var decrypt = crypto.createDecipher('aes-256-ctr', packageObject.packagePassword);

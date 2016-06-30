@@ -3,6 +3,7 @@ var roles;
 var electronRequire;
 var ipcRenderer;
 var remote;
+var presentationMode;
 
 if (typeof process === 'object') {
 
@@ -29,6 +30,9 @@ if (typeof process === 'object') {
 
   if (roles) {
 
+    // Set global property to use in stores
+    presentationMode = 'online';
+
     // preserve newlines, etc - use valid JSON
     roles = roles.replace(/\\n/g, "\\n")
       .replace(/\\'/g, "\\'")
@@ -44,6 +48,10 @@ if (typeof process === 'object') {
 
     // Convert to JavaScript Object
     roles = JSON.parse(roles);
+  } else {
+
+    // Set global property to use in stores
+    presentationMode = 'offline';
   }
 
   // Use for non browserify requires

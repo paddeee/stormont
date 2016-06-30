@@ -7278,20 +7278,23 @@ function webViewerInitialized($pdfViewerElement) {
   var queryString = document.location.search.substring(1);
   var params = parseQueryString(queryString);
   var sourcePath = '';
+  var file;
 
   // Set the src of the image if inside Electron
   if (typeof process === 'object') {
 
     // Use roles to determine if on network on offline
-    if (roles) {
+    if (presentationMode === 'online') {
       sourcePath = config.paths.sourcePath;
-    } else {
+      file = sourcePath + $pdfViewerElement.pdfObject['Linked File'];
+    } else if (presentationMode === 'offline') {
       sourcePath = global.config.packagePath;
+      file = $pdfViewerElement.pdfObject.blob;
     }
+  } else {
+    file = sourcePath + $pdfViewerElement.pdfObject['Linked File'];
+    //file =  'file' in params ? params.file : DEFAULT_URL;
   }
-
-  var file = sourcePath + $pdfViewerElement.pdfObject['Linked File'];
-  //var file =  'file' in params ? params.file : DEFAULT_URL;
 
   var fileInput = document.createElement('input');
   fileInput.id = 'fileInput';
