@@ -201,27 +201,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.ImportSuccessDialog.open();
         this.$.ImportingPackage.close();
 
-        // Create Temporary Package error
-      } else if (messageType === 'createTempPackageDirectoryFailure') {
-        this.importFailureMessage = 'There was a problem creating a Directory for the Package';
-        this.$.ImportErrorDialog.open();
-        this.$.ImportingPackage.close();
-
         // Decrypt temporary package error
-      } else if (messageType === 'decryptTempPackageFailure') {
-        this.importFailureMessage = 'There was a problem decrypting the Package. Please re-enter the password and press the Yubikey again';
-        this.$.ImportErrorDialog.open();
-        this.$.ImportingPackage.close();
-
-        // Extract Zip error
-      } else if (messageType === 'extractZipFailure') {
-        this.importFailureMessage = 'There was a problem extracting the contents of the Zip file';
-        this.$.ImportErrorDialog.open();
-        this.$.ImportingPackage.close();
-
-        // Delete temporary zip error
-      } else if (messageType === 'deleteZipFailure') {
-        this.importFailureMessage = 'There was a problem deleting the temporary zip file';
+      } else if (messageType === 'dbDecryptionFailure') {
+        this.importFailureMessage = 'There was a problem decrypting the Database File. Please re-enter the password and press the Yubikey again';
         this.$.ImportErrorDialog.open();
         this.$.ImportingPackage.close();
       }

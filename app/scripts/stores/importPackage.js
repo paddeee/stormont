@@ -56,7 +56,6 @@ module.exports = Reflux.createStore({
           }.bind(this));
         }.bind(this))
       .catch(function(reason) {
-        console.error(reason);
         this.message = 'dbDecryptionFailure';
         this.trigger(this);
       }.bind(this));
@@ -76,7 +75,13 @@ module.exports = Reflux.createStore({
       // Start pipe
       getRawBody(dbStream.pipe(decrypt))
         .then(function (buffer) {
-          resolve(buffer.toString());
+          try {
+            JSON.parse(buffer.toString());
+            resolve(buffer.toString());
+          } catch (err) {
+            console.log('Error decrypting DataBase file: ' + err);
+            reject(err);
+          }
         })
         .catch(function (err) {
           console.log('Error decrypting DataBase file: ' + err);
