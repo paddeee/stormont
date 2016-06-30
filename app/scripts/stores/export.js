@@ -10,9 +10,9 @@ var eventsStore = require('../stores/events.js');
 var placesStore = require('../stores/places.js');
 var peopleStore = require('../stores/people.js');
 var fsExtra = window.electronRequire('fs-extra');
-//var encryptor = window.electronRequire('file-encryptor');
 var crypto = window.electronRequire('crypto');
 var loggingStore = require('../stores/logging.js');
+//var path = window.electronRequire('path');
 //var usb = window.electronRequire('electron-usb');
 
 module.exports = Reflux.createStore({
@@ -57,20 +57,12 @@ module.exports = Reflux.createStore({
         return console.error(err);
       } else {
 
-        fsExtra.mkdirs(exportFileAdapter.tempExportDirectory + '/sourcefiles', function(err) {
-
-          if (err) {
-            return console.error(err);
-          } else {
-
-            // Load the Export Database Collections into the DB
-            // Then Update the collections depending on what the user has selected to export, filtered or selected
-            // When the Export Database file is successfully saved, start the Export sequence
-            exportDatabase.loadDatabase({}, function () {
-              this.updateDataCollections(exportDatabase, presentationObject);
-              this.commenceExportProcess(exportDatabase, presentationObject, this.packagePassword);
-            }.bind(this));
-          }
+        // Load the Export Database Collections into the DB
+        // Then Update the collections depending on what the user has selected to export, filtered or selected
+        // When the Export Database file is successfully saved, start the Export sequence
+        exportDatabase.loadDatabase({}, function () {
+          this.updateDataCollections(exportDatabase, presentationObject);
+          this.commenceExportProcess(exportDatabase, presentationObject, this.packagePassword);
         }.bind(this));
       }
     }.bind(this));
@@ -335,6 +327,8 @@ module.exports = Reflux.createStore({
   // Iterate through each Source Object and copy the file from its Source Path into the temp directory
   copySourceFiles: function(sourceFilesArray, presentationObject, tempExportDirectory) {
 
+    var packagePassword = this.packagePassword;
+
     return new Promise(function (resolve, reject) {
 
       var sourceFilePath = config.paths.sourcePath;
@@ -344,36 +338,34 @@ module.exports = Reflux.createStore({
 
         return new Promise(function(resolve, reject) {
 
-          fsExtra.stat(tempExportDirectory + '/' + sourceFile['Linked File'], function(err) {
+          // Create File if it does not exist
+          fsExtra.ensureFile(tempExportDirectory + '/sourcefiles/' + sourceFile['Linked File'], function (error) {
 
-            // File exists
-            if (err === null) {
-              console.log(tempExportDirectory + '/' + sourceFile['Linked File'] + ' File exists');
-              resolve();
+            if (error) {
 
-            } else if (err.code === 'ENOENT') {
-
-              // File does not exist
-              // Copy each source file to the temp directory
-              fsExtra.ensureLink(sourceFilePath + '/' + sourceFile['Linked File'], tempExportDirectory + '/' + sourceFile['Linked File'], function (error) {
-
-                if (error) {
-
-                  if (error.code === 'EEXIST') {
-                    console.log(sourceFile['Linked File'] + ' file exists');
-                    resolve();
-                  } else {
-                    console.log(sourceFile['Linked File'] + ' failed');
-                    reject(error);
-                  }
-                } else {
-                  console.log(sourceFile['Linked File'] + ' copied');
-                  resolve();
-                }
-              });
-
+              if (error.code === 'EEXIST') {
+                console.log(sourceFile['Linked File'] + ' exists');
+                resolve();
+              } else {
+                console.log(sourceFile['Linked File'] + ' failed');
+                reject(error);
+              }
             } else {
-              reject('Some other error: ', err.code);
+
+              // Input file
+              var dbReadStream = fsExtra.createReadStream(sourceFilePath + '/' + sourceFile['Linked File']);
+
+              // Encrypt content
+              var encrypt = crypto.createCipher('aes-256-ctr', packagePassword);
+
+              // Write file
+              var dbWriteStream = fsExtra.createWriteStream(tempExportDirectory + '/sourcefiles/' + sourceFile['Linked File']);
+
+              dbReadStream.pipe(encrypt).pipe(dbWriteStream);
+
+              console.log(sourceFile['Linked File'] + ' copied');
+
+              resolve();
             }
           });
         });
@@ -384,7 +376,6 @@ module.exports = Reflux.createStore({
 
       // Resolve or reject Promise when all Promises have been evaluated
       Promise.all(arrayOfPromises).then(function() {
-        console.log('All source files copied');
         resolve();
       })
         .catch(function(err) {
