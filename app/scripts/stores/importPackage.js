@@ -72,6 +72,10 @@ module.exports = Reflux.createStore({
       // Decrypt content
       var decrypt = crypto.createDecipher('aes-256-ctr', packageObject.packagePassword);
 
+      dbStream.on('error', function() {
+        reject();
+      });
+
       // Start pipe
       getRawBody(dbStream.pipe(decrypt))
         .then(function (buffer) {
