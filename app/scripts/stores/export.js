@@ -87,111 +87,57 @@ module.exports = Reflux.createStore({
       }.bind(this));
     });
 
+    // Save the export Database as a file
     saveExportDatabase
     .then(function() {
       console.log('Export DB File Saved');
 
+        // Encrypt the Database file
         this.encryptExportDatabase(exportDatabase, exportFileAdapter.tempExportDirectory)
           .then(function() {
             console.log('Export DB File Encrypted');
 
+            // Delete the unecrypted Database file
             this.deleteUnencryptedDBFile(exportFileAdapter.tempExportDirectory + '/' + exportDatabase.filename)
               .then(function() {
                 console.log('Export DB File Encrypted');
 
-      // Iterate through each Source Object and copy the file from its Source Path into the temp directory
-      this.copySourceFiles(exportDatabase.getCollection(config.SourcesCollection.name).data, presentationObject, exportFileAdapter.tempExportDirectory)
-      .then(function() {
-        console.log('Source Files Copied');
-
-        // Iterate through each Person Object and copy the file from its Image Path into the temp directory
-        this.copyProfileImagesFiles(exportDatabase.getCollection(config.PeopleCollection.name).data, presentationObject, exportFileAdapter.tempExportDirectory, this.packagePassword)
-          .then(function() {
-            console.log('Profile Images Copied');
-
-          // Zip temporary directory
-          /*zipTempDirectory
-          .then(function() {
-            console.log('Folder Zipped');
-
-            // Encrypt zip file
-            this.encryptPackage(presentationObject)
-            .then(function() {
-              console.log('Package Encrypted');
-
-              // Delete temporary directory
-              this.deleteTempDirectory(exportFileAdapter.tempExportDirectory)
+              // Iterate through each Source Object and copy the file from its Source Path into the temp directory
+              this.copySourceFiles(exportDatabase.getCollection(config.SourcesCollection.name).data, presentationObject, exportFileAdapter.tempExportDirectory)
               .then(function() {
-                console.log('Temp directory removed');
+                console.log('Source Files Copied');
 
-                this.deleteZipFile(exportFileAdapter.tempExportDirectory + '.zip')
-                .then(function() {
-                  console.log('Zip File removed');*/
+                // Iterate through each Person Object and copy the file from its Image Path into the temp directory
+                this.copyProfileImagesFiles(exportDatabase.getCollection(config.PeopleCollection.name).data, presentationObject, exportFileAdapter.tempExportDirectory, this.packagePassword)
+                  .then(function() {
+                    console.log('Profile Images Copied');
 
-                  this.message = 'exportSuccess';
-                  this.trigger(this);
+                          this.message = 'exportSuccess';
+                          this.trigger(this);
 
-                  this.logPackageExport(presentationObject.packageName);
+                          this.logPackageExport(presentationObject.packageName);
 
-                }.bind(this))
-                /*.catch(function(reason) {
-                  console.error(reason);
-                  this.message = 'removeZipFileFailure';
+                        }.bind(this))
+                  .catch(function(reason) {
+                    console.error(reason);
+                    this.message = 'profileImagesCopyFailure';
 
                     // Delete temporary directory
                     this.deleteTempDirectory(exportFileAdapter.tempExportDirectory);
 
+                    this.trigger(this);
+                  }.bind(this));
+                }.bind(this))
+                .catch(function(reason) {
+                  console.error(reason);
+                  this.message = 'sourceFileCopyFailure';
+
+                  // Delete temporary directory
+                  this.deleteTempDirectory(exportFileAdapter.tempExportDirectory);
+
                   this.trigger(this);
                 }.bind(this));
               }.bind(this))
-              .catch(function(reason) {
-                console.log(this);
-                console.error(reason);
-
-                this.message = 'removeDirectoryFailure';
-                this.trigger(this);
-              }.bind(this));
-              }.bind(this))
-              .catch(function(reason) {
-                console.error(reason);
-                this.message = 'encryptionFailure';
-
-                // Delete temporary directory
-                this.deleteTempDirectory(exportFileAdapter.tempExportDirectory);
-
-                this.trigger(this);
-              }.bind(this));
-            }.bind(this))
-            .catch(function(reason) {
-              console.error(reason);
-              this.message = 'zipDirectoryFailure';
-
-              // Delete temporary directory
-              this.deleteTempDirectory(exportFileAdapter.tempExportDirectory);
-
-              this.trigger(this);
-            }.bind(this));
-        }.bind(this))*/
-          .catch(function(reason) {
-            console.error(reason);
-            this.message = 'profileImagesCopyFailure';
-
-            // Delete temporary directory
-            this.deleteTempDirectory(exportFileAdapter.tempExportDirectory);
-
-            this.trigger(this);
-          }.bind(this));
-        }.bind(this))
-        .catch(function(reason) {
-          console.error(reason);
-          this.message = 'sourceFileCopyFailure';
-
-          // Delete temporary directory
-          this.deleteTempDirectory(exportFileAdapter.tempExportDirectory);
-
-          this.trigger(this);
-        }.bind(this));
-          }.bind(this))
               .catch(function(reason) {
                 console.error(reason);
                 this.message = 'dbFileDeletionError';
@@ -468,22 +414,6 @@ module.exports = Reflux.createStore({
         .catch(function(err) {
           reject(Error(err));
         });
-    });
-  },
-
-  // Delete the temporary Directory
-  deleteTempDirectory: function(tempExportDirectory) {
-
-    return new Promise(function (resolve, reject) {
-
-      fsExtra.remove(tempExportDirectory, function (err) {
-
-        if (err) {
-          reject(Error(err));
-        } else {
-          resolve();
-        }
-      }.bind(this));
     });
   },
 
