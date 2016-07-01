@@ -5,9 +5,9 @@ var loki = require('lokijs');
 var importFileAdapter = require('../adapters/loki-import-file-adapter.js');
 var ImportPackageActions = require('../actions/importPackage.js');
 var dataSourceStore = require('../stores/dataSource.js');
-var fsExtra = window.electronRequire('fs-extra');
-var crypto = window.electronRequire('crypto');
-var getRawBody = window.electronRequire('raw-body');
+var fsExtra = global.config ? window.electronRequire('fs-extra') : null;
+var crypto = global.config ? window.electronRequire('crypto') : null;
+var getRawBody = global.config ? window.electronRequire('raw-body') : null;
 
 module.exports = Reflux.createStore({
 
@@ -55,7 +55,7 @@ module.exports = Reflux.createStore({
             this.trigger(this);
           }.bind(this));
         }.bind(this))
-      .catch(function(reason) {
+      .catch(function() {
         this.message = 'dbDecryptionFailure';
         this.trigger(this);
       }.bind(this));

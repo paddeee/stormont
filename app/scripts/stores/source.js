@@ -6,9 +6,9 @@ var config = global.config ? global.config : require('../config/config.js');
 var presentationsStore = require('../stores/presentations.js');
 var importPackageStore = require('../stores/importPackage.js');
 var SourceActions = require('../actions/source.js');
-var fsExtra = window.electronRequire('fs-extra');
-var crypto = window.electronRequire('crypto');
-var getRawBody = window.electronRequire('raw-body');
+var fsExtra = global.config ? window.electronRequire('fs-extra') : null;
+var crypto = global.config ? window.electronRequire('crypto') : null;
+var getRawBody = global.config ? window.electronRequire('raw-body') : null;
 
 module.exports = Reflux.createStore({
 
@@ -476,40 +476,31 @@ module.exports = Reflux.createStore({
         this.selectedSourceObject.blob = 'data:image/png;base64,' + buffer.toString('base64');
         break;
       case 'm4a':
-        this.selectedSourceRoute = 'media';
-        this.selectedSourceFileType = 'audio';
+        this.selectedSourceObject.blob = buffer;
         break;
       case 'mp3':
-        this.selectedSourceRoute = 'media';
-        this.selectedSourceFileType = 'audio';
+        this.selectedSourceObject.blob = buffer;
         break;
       case 'wav':
-        this.selectedSourceRoute = 'media';
-        this.selectedSourceFileType = 'audio';
+        this.selectedSourceObject.blob = buffer;
         break;
       case 'avi':
-        this.selectedSourceRoute = 'media';
-        this.selectedSourceFileType = 'video';
+        this.selectedSourceObject.blob = buffer;
         break;
       case 'mp4':
-        this.selectedSourceRoute = 'media';
-        this.selectedSourceFileType = 'video';
+        this.selectedSourceObject.blob = buffer;
         break;
       case 'mov':
-        this.selectedSourceRoute = 'media';
-        this.selectedSourceFileType = 'video';
+        this.selectedSourceObject.blob = buffer;
         break;
       case 'webm':
-        this.selectedSourceRoute = 'media';
-        this.selectedSourceFileType = 'video';
+        this.selectedSourceObject.blob = buffer;
         break;
       case 'tif':
-        this.selectedSourceRoute = 'tiff';
-        this.selectedSourceFileType = 'tiff';
+        this.selectedSourceObject.blob = buffer;
         break;
       case 'tiff':
-        this.selectedSourceRoute = 'tiff';
-        this.selectedSourceFileType = 'tiff';
+        this.selectedSourceObject.blob = buffer;
         break;
       default:
         console.warn(fileExtension + 'not a supported type');

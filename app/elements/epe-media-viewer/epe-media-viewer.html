@@ -138,19 +138,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           annotation-height="{{annotationHeight}}"
           annotation-width="{{annotationWidth}}"
           pointer-events="[[pointerEvents]]"
-          hidden>
-
-          <!-- Create instance
-          <video id="Video"
-                 class="video-js vjs-default-skin vjs-big-play-centered"
-                 controls
-                 preload="[[preload]]"
-                 poster="[[poster]]">
-            <source src="[[videoSource]]" type='video/mp4'/>
-            <source src="[[videoSource]]" type='video/webm'/>
-          </video> -->
-
-        </epe-annotations>
+          hidden></epe-annotations>
 
         <audio id="Audio"
                class="audio-player video-js vjs-default-skin"
@@ -305,7 +293,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var $videoContainer;
         var $audioContainer;
         var $videoElement;
-        var sourcePath = '';
 
         if (this.videoPlayer) {
           this.videoPlayer.dispose();
@@ -315,14 +302,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (typeof process === 'object') {
 
           // Use roles to determine if on network on offline
-          if (roles) {
-            sourcePath = config.paths.sourcePath;
-          } else {
-            sourcePath = global.config.packagePath;
+          if (presentationMode === 'online') {
+            this.videoSource = config.paths.sourcePath + this.mediaObject['Linked File'];
+          } else if (presentationMode === 'offline') {
+            this.videoSource = URL.createObjectURL(new Blob([this.mediaObject.blob]));
           }
+        } else {
+          this.videoSource = this.mediaObject['Linked File'];
         }
-
-        this.videoSource = sourcePath + this.mediaObject['Linked File'];
 
         // Dynamically add video element to DOM
         this.createVideoElement();
@@ -454,24 +441,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Set the src file which needs to be done using a Blob if within packaged app as wavesurfer
         // XHR won't work
-        if (this.fs) {
+        if (typeof process === 'object') {
 
-          sourcePath = config.paths.sourcePath;
+          if (presentationMode === 'online') {
 
-          this.fs.readFile(sourcePath + this.mediaObject['Linked File'], function(err, data) {
+            sourcePath = config.paths.sourcePath;
 
-            src = new Blob([data], {type : 'audio/mp3'});
+            this.fs.readFile(sourcePath + this.mediaObject['Linked File'], function(err, data) {
 
-            this.initialiseWaveSurfer($audioElement, src);
+              src = new Blob([data], {type : 'audio/mp3'});
 
-          }.bind(this));
+            }.bind(this));
 
+          } else if (presentationMode === 'offline') {
+            src = new Blob([this.mediaObject.blob], {type : 'audio/mp3'});
+          }
         } else {
-
           src = this.mediaObject['Linked File'];
-
-          this.initialiseWaveSurfer($audioElement, src);
         }
+
+        this.initialiseWaveSurfer($audioElement, src);
       },
 
       // Initialise Player using WaveSurfer Plugin
