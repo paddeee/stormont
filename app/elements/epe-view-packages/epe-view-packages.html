@@ -30,7 +30,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       --iron-list-items-container: {
          max-width: 75vw;
          margin: auto;
-         margin-top: 20px;
+         margin-top: 16px;
          margin-bottom: 20px;
          border-bottom: 0 none;
        };
@@ -169,6 +169,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       --paper-progress-secondary-color: var(--paper-light-blue-100);
       width: 100%;
     }
+
+    .filters {
+      max-width: 75vw;
+      margin: auto;
+      padding: 0 8px;
+      box-sizing: border-box;
+    }
+
+    h2 {
+      font-size: 16px;
+      margin: 16px 0 0;
+    }
+
+    .search-input {
+      line-height: 2.3vh;
+      font-size: 1.6vh;
+      padding: 8px;
+    }
+
+    .filters__field {
+      margin: 16px 0 0 8px;
+    }
+
+    .filters__field:first-child {
+      margin: 16px 8px 0 0;
+    }
   </style>
   <template>
 
@@ -177,7 +203,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <div>There are no packages available for view/edit.</div>
     </div>
 
-    <iron-list id="List" items="[[presentationsData]]" as="item">
+    <div id="Filters" class="filters layout vertical">
+      <div class="filters__heading">
+        <h2>Filters</h2>
+      </div>
+      <div class="filters__fields layout horizontal">
+        <div class="filters__field filters__user flex layout horizontal">
+          <input is="iron-input"
+                 id="FilterUsers"
+                 class="flex search-input"
+                 placeholder="User"
+                 on-keyup="filterOccurred">
+          </input>
+        </div>
+        <div class="filters__field filters__name flex layout horizontal">
+          <input is="iron-input"
+                 id="FilterName"
+                 class="flex search-input"
+                 placeholder="Package Name"
+                 on-keyup="filterOccurred">
+          </input>
+        </div>
+      </div>
+    </div>
+
+    <iron-list id="List" items="[[filteredData]]" as="item">
       <template>
         <div class="item">
           <paper-card elevation="1" heading="[[item.presentationName]]">
@@ -367,6 +417,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         type: Array
       },
 
+      filteredData: {
+        type: Array
+      },
+
       hidePackagesList: {
         type: Boolean,
         computed: 'isPackages(presentationsData)',
@@ -423,6 +477,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.presentationsData = [];
 
           this.presentationsData = presentationsStore.presentationsData;
+          this.filteredData = presentationsStore.presentationsData;
 
           this.manageExportButtons();
 
@@ -751,6 +806,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }
         }.bind(this));
       }
+    },
+
+    // When a filter is typed in
+    filterOccurred: function() {
+
+      var userString = this.$.FilterUsers.value.toLowerCase();
+      var packageNameString = this.$.FilterName.value.toLowerCase();
+
+      this.filteredData = this.presentationsData.filter(function(presentation) {
+
+        return (presentation.userName.toLowerCase().indexOf(userString) !== -1) && (presentation.presentationName.toLowerCase().indexOf(packageNameString) !== -1);
+      }.bind(this));
     }
   });
 })();
