@@ -37,6 +37,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           pdf-object="[[selectedSourceObject]]"
           selected-source-file-type="[[selectedSourceFileType]]"
           edit-state="[[editState]]"
+          source-actions="[[sourceActions]]"
           presentation-state="[[presentationState]]"></epe-pdf-viewer>
       </section>
 
@@ -52,7 +53,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           edit-state="[[editState]]"
           presentation-state="[[presentationState]]"
           media-type="[[selectedSourceFileType]]"
-          media-object="[[selectedSourceObject]]">
+          media-object="[[selectedSourceObject]]"
+          source-actions="[[sourceActions]]">
         </epe-media-viewer>
       </section>
 
@@ -63,7 +65,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           presentation-mode="[[presentationMode]]"
           image-object="[[selectedSourceObject]]"
           edit-state="[[editState]]"
-          presentation-state="[[presentationState]]"></epe-image-viewer>
+          presentation-state="[[presentationState]]"
+          source-actions="[[sourceActions]]"></epe-image-viewer>
       </section>
 
       <!-- Tiff Viewer Section -->
@@ -73,7 +76,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           tiff-object="[[selectedSourceObject]]"
           edit-state="[[editState]]"
           selected-source-file-type="[[selectedSourceFileType]]"
-          presentation-state="[[presentationState]]"></epe-tiff-viewer>
+          presentation-state="[[presentationState]]"
+          source-actions="[[sourceActions]]"></epe-tiff-viewer>
       </section>
 
     </iron-pages>

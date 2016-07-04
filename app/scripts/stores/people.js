@@ -354,7 +354,7 @@ module.exports = Reflux.createStore({
         this.setAffiliation(statement, affiliationObject, affiliationCollection);
 
         // Add related profiles
-        this.addRelatedProfiles(statement, affiliationObject, affiliationCollection);
+        this.addRelatedProfiles(statement, affiliationObject);
 
         relatedAffiliations.push(affiliationObject);
 

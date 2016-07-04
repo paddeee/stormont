@@ -340,15 +340,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </div>
 
     <!-- Dialog -->
-    <paper-dialog id="InfoDialog" modal>
-      <h2>[[pdfName]]</h2>
-      <div>
-        <span>ToDO: PDF Description</span>
-      </div>
-      <div class="buttons">
-        <paper-button dialog-confirm autofocus>OK</paper-button>
-      </div>
-    </paper-dialog>
+    <epe-related-items id="RelatedItems"
+                       name="[[pdfName]]"
+                       description="[[pdfDescription]]"
+                       related-items="[[relatedItems]]"
+                       source-actions="[[sourceActions]]"></epe-related-items>
   </template>
 </dom-module>
 <script>
@@ -371,6 +367,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       pdfName: {
+        type: String
+      },
+
+      pdfDescription: {
         type: String
       },
 
@@ -399,6 +399,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         type: Boolean,
         value: true,
         observer: 'setAnnotationsPointerEvents'
+      },
+
+      relatedItems: {
+        type: Array,
+        value: []
       }
     },
 
@@ -446,7 +451,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       if (this.pdfObject && this.selectedSourceFileType === 'pdf') {
 
-        this.pdfName = this.pdfObject.Headline;
+        this.pdfName = this.pdfObject['Full Name'];
+        this.pdfDescription = this.pdfObject.Description;
+        this.relatedItems = this.pdfObject.relatedItems;
 
         if (window.PDFViewerApplication.page) {
           this.page = window.PDFViewerApplication.page;
@@ -623,7 +630,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Show associated source information
     showInfo: function() {
-      this.$.InfoDialog.open();
+      this.$.RelatedItems.openDialog();
     },
 
     // Free draw annotation
@@ -849,7 +856,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Add it to this button
       $button.classList.add('selected-icon');
     }
-
   });
 })();
 </script>

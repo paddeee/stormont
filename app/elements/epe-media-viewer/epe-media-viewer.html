@@ -78,6 +78,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       right: 0;
     }
 
+    .border-left {
+      border-left: 1px solid var(--divider-color);
+    }
+
     .border-right {
       border-right: 1px solid var(--divider-color);
     }
@@ -150,12 +154,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <!-- Media Footer -->
       <div id="MediaFooter" class="media__footer relative horizontal layout center center-justified">
 
-        <!-- Annotations -->
-        <div class="media_button-holder border-right horizontal layout center end-justified" hidden$="[[hideAnnotations]]">
-          <paper-icon-button id="ControlMedia" icon="av:movie" on-tap="controlMedia"></paper-icon-button>
+        <!-- General -->
+        <div class="media_button-holder horizontal layout center end-justified">
+          <paper-icon-button id="ShowInfo" icon="info" on-tap="showInfo"></paper-icon-button>
         </div>
 
-        <div class="media_button-holder border-right horizontal layout center" hidden$="[[hideAnnotations]]">
+        <!-- Annotations -->
+        <div class="media_button-holder border-left border-right horizontal layout center" hidden$="[[hideAnnotations]]">
           <paper-icon-button id="SelectAnnotations" icon="open-with" on-tap="selectAnnotations"></paper-icon-button>
           <paper-icon-button id="FreeDraw" icon="gesture" on-tap="freeDraw"></paper-icon-button>
           <paper-icon-button id="AddCircle" icon="image:panorama-fish-eye" on-tap="addCircle"></paper-icon-button>
@@ -166,7 +171,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
 
         <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
-        <paper-tooltip for="ControlMedia" position="top" offset="0">Control Video</paper-tooltip>
+        <paper-tooltip for="ShowInfo" position="top" offset="0">Show Media Info</paper-tooltip>
         <paper-tooltip for="SelectAnnotations" position="top" offset="0">Select Annotations</paper-tooltip>
         <paper-tooltip for="FreeDraw" position="top" offset="0">Free Draw</paper-tooltip>
         <paper-tooltip for="AddCircle" position="top" offset="0">Add Circle</paper-tooltip>
@@ -184,6 +189,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-tooltip for="DeleteAnnotation" position="top" offset="0">Delete Selected Annotations</paper-tooltip>
       </div>
     </div>
+
+    <!-- Dialog -->
+    <epe-related-items id="RelatedItems"
+                       name="[[mediaName]]"
+                       description="[[mediaDescription]]"
+                       related-items="[[relatedItems]]"
+                       source-actions="[[sourceActions]]"></epe-related-items>
   </template>
 </dom-module>
 <script>
@@ -269,6 +281,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // Set media titles
           this.mediaName = this.mediaObject['Full Name'];
           this.mediaDescription = this.mediaObject.Description;
+          this.relatedItems = this.mediaObject.relatedItems;
 
           // If presentation is waiting for authorisation, for these purposes it is in the 'editing' state
           if (this.presentationState === 'viewingLocked') {
@@ -308,7 +321,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.videoSource = URL.createObjectURL(new Blob([this.mediaObject.blob]));
           }
         } else {
-          this.videoSource = this.mediaObject['Linked File'];
+          this.videoSource = '/sourcefiles/' + this.mediaObject['Linked File'];
         }
 
         // Dynamically add video element to DOM
@@ -457,7 +470,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             src = new Blob([this.mediaObject.blob], {type : 'audio/mp3'});
           }
         } else {
-          src = this.mediaObject['Linked File'];
+          src = '/sourcefiles/' + this.mediaObject['Linked File'];
         }
 
         this.initialiseWaveSurfer($audioElement, src);
@@ -642,9 +655,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.MediaAnnotations.reset();
         this.$.MediaAnnotations.showEditor = false;
 
-        // Add selected class to selection button as default
-        this.manageSelectedButtonClass(this.$.ControlMedia);
-
         // Stop players
         if (this.audioPlayer) {
           this.audioPlayer.pause();
@@ -653,15 +663,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (this.videoPlayer) {
           this.videoPlayer.pause();
         }
-      },
-
-      // Return users control from annotations to video
-      controlMedia: function() {
-
-        this.pointerEvents = false;
-
-        // Add selected class to button
-        this.manageSelectedButtonClass(event.currentTarget);
       },
 
       // Free draw annotation
@@ -730,7 +731,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.MediaAnnotations.addLine();
       },
 
-      // Deleste selected annotation
+      // Delete selected annotation
       deleteAnnotation: function() {
 
         this.pointerEvents = true;
@@ -765,6 +766,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.resizeVideo();
           this.resizeAnnotations();
         }
+      },
+
+      // Show associated source information
+      showInfo: function() {
+        this.$.RelatedItems.openDialog();
       }
     });
   })();

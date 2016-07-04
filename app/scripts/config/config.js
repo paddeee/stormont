@@ -518,6 +518,7 @@ var config = {
   PresentationsCollection: 'Presentations',
   QueriesCollection: 'Queries',
   MapGeoJSONCollection: 'MapGeoJSON',
+  RelatedItemCollection: 'Relateditem',
   activityTimeout: 120
 };
 

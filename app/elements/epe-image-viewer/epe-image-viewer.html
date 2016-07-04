@@ -155,6 +155,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <!-- Image Footer -->
       <div class="image__footer relative horizontal layout center center-justified">
 
+        <!-- General -->
+        <div class="pdf_button-holder border-right horizontal layout center">
+          <paper-icon-button id="ShowInfo" icon="info" on-tap="showInfo"></paper-icon-button>
+        </div>
+
+        <paper-tooltip for="ShowInfo" position="top" offset="0">Show PDF Info</paper-tooltip>
+
         <!-- Zoom -->
         <div class="image_button-holder  border-right">
           <paper-icon-button id="ZoomOut" icon="zoom-out" on-tap="zoomOut" disabled></paper-icon-button>
@@ -197,6 +204,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
 
     </div>
+
+    <!-- Dialog -->
+    <epe-related-items id="RelatedItems"
+                       name="[[imageName]]"
+                       description="[[imageDescription]]"
+                       related-items="[[relatedItems]]"
+                       source-actions="[[sourceActions]]"></epe-related-items>
   </template>
 </dom-module>
 <script>
@@ -272,8 +286,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (this.imageObject && this.imageObject['Linked File']) {
 
         // Set image titles
-        this.imageName = this.imageObject.Headline;
+        this.imageName = this.imageObject['Full Name'];
         this.imageDescription = this.imageObject.Description;
+        this.relatedItems = this.imageObject.relatedItems;
 
         // Set overflow on content wrapper to fix a bug when zooming images
         this.$.ImageAnnotations.querySelector('.content-wrapper').style.overflow = 'hidden';
@@ -287,7 +302,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     renderImage: function() {
 
       var $image = this.$.Image;
-      var sourcePath = '';
+      var sourcePath = '/sourcefiles/';
 
       $image.addEventListener('load', function () {
 
@@ -732,6 +747,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Add it to this button
       $button.classList.add('selected-icon');
+    },
+
+    // Show associated source information
+    showInfo: function() {
+      this.$.RelatedItems.openDialog();
     }
   });
 })();

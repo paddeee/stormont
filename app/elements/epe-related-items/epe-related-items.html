@@ -1,0 +1,194 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="epe-related-items">
+  <style>
+    :host {
+      display: block;
+    }
+
+    h2 {
+      font-size: 16px;
+    }
+
+    h3 {
+      font-size: 15px;
+    }
+
+    hr {
+      border: 0;
+      height: 1px;
+      background: var(--divider-color);
+      width: 80%;
+    }
+
+    .info {
+      height: 50vh;
+      overflow: scroll;
+      width: 50vw;
+    }
+
+    .info__description,
+    .info__related {
+      margin-top: 0;
+    }
+
+    .source-description {
+      color: grey;
+      font-size: 13px;
+      margin: 0;
+    }
+
+    .related-source {
+      cursor: pointer;
+      font-size: 14px;
+      margin: 0;
+      padding: 4px 0;
+    }
+
+    .source-icon-container {
+      margin: 0 8px 0 0;
+    }
+
+    .source-icon {
+      color: var(--primary-text-color);
+      height: 20px;
+      width: 20px;
+    }
+  </style>
+  <template>
+
+    <paper-dialog id="InfoDialog" class="info" modal>
+      <h2>[[name]]</h2>
+      <div class="info__description">
+        [[description]]
+      </div>
+      <hr/>
+
+      <div class="info__related">
+        <h3 hidden="[[!relatedItems.length]]">Related Material</h3>
+        <template is="dom-repeat"
+                  items="[[relatedItems]]"
+                  as="source"
+                  hidden="[[!relatedItems.length]]">
+
+          <div class="related-source layout horizontal"
+               source="[[source]]"
+               on-tap="navigateToSource">
+            <div class="source-icon-container">
+              <iron-icon icon="[[getSourceIcon(source)]]" class="source-icon"/>
+            </div>
+            <div class="source-info layout vertical">
+              <div class="source-full-name">[[getFullName(source)]]</div>
+              <div class="source-description">[[source.Description]]</div>
+            </div>
+          </div>
+
+        </template>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+    is: 'epe-related-items',
+
+    properties: {
+      relatedItems: {
+        type: Array
+      }
+    },
+
+    // Get Full Name as can't use bracket notation in template
+    getFullName: function(object) {
+      return object['Full Name'];
+    },
+
+    // Add an icon to related sources
+    getSourceIcon: function(source) {
+
+      var filePath = source['Linked File'];
+      var fileExtension = filePath.substr(filePath.lastIndexOf('.') + 1);
+      var icon;
+
+      switch (fileExtension) {
+        case 'pdf':
+          icon = 'image:picture-as-pdf';
+          break;
+        case 'jpg':
+          icon = 'image:photo';
+          break;
+        case 'jpeg':
+          icon = 'image:photo';
+          break;
+        case 'gif':
+          icon = 'image:photo';
+          break;
+        case 'png':
+          icon = 'image:photo';
+          break;
+        case 'm4a':
+          icon = 'av:surround-sound';
+          break;
+        case 'mp3':
+          icon = 'av:surround-sound';
+          break;
+        case 'wav':
+          icon = 'av:surround-sound';
+          break;
+        case 'mp4':
+          icon = 'image:movie-creation';
+          break;
+        case 'mov':
+          icon = 'image:movie-creation';
+          break;
+        case 'webm':
+          icon = 'image:movie-creation';
+          break;
+        case 'tif':
+          icon = 'image:picture-as-pdf';
+          break;
+        case 'tiff':
+          icon = 'image:picture-as-pdf';
+          break;
+        default:
+          icon = 'description';
+      }
+
+      return icon;
+    },
+
+    // Navigate to a related source file
+    navigateToSource: function(event) {
+
+      var sourceObject = event.currentTarget.source;
+
+      this.$.InfoDialog.close();
+
+      // Hack based around need to trigger pdf creation in pdf element so we broadcast a change to null
+      // before sending out the object again.
+      this.sourceActions.viewSourceFile(null);
+      this.sourceActions.viewSourceFile(sourceObject);
+    },
+
+    // Called from Parent element
+    openDialog: function() {
+      this.$.InfoDialog.open();
+    }
+  });
+})();
+</script>

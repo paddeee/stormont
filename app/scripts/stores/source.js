@@ -324,6 +324,9 @@ module.exports = Reflux.createStore({
     // Set selectedSourceObject property
     this.setSelectedSourceObject(sourceObject);
 
+    // Add related items
+    this.setRelatedItems();
+
     // Hack based around need to trigger pdf creation in pdf element so we broadcast a change to null
     // before sending out the object again.
     if (!sourceObject) {
@@ -505,5 +508,46 @@ module.exports = Reflux.createStore({
       default:
         console.warn(fileExtension + 'not a supported type');
     }
+  },
+
+  // Set related items property
+  setRelatedItems: function() {
+
+    var relatedItemsArray = [];
+    var relatedItemsShortNames;
+    var relatedItems = this.selectedSourceObject ? this.selectedSourceObject['Related items'] : undefined;
+
+    // Create array of Related items
+    if (relatedItems) {
+
+      relatedItemsShortNames = relatedItems.split(',');
+
+      // Iterate through related item statements
+      relatedItemsShortNames.forEach(function(relatedItem) {
+
+        var trimmedItem = relatedItem.trim();
+
+        if (this.findRelatedItems(trimmedItem)) {
+          relatedItemsArray.push(this.findRelatedItems(trimmedItem));
+        }
+
+      }.bind(this));
+    }
+
+    if (this.selectedSourceObject) {
+      this.selectedSourceObject.relatedItems = relatedItemsArray;
+    }
+  },
+
+  // Find related items to the relatedItems array property of the relatedItemObject
+  findRelatedItems: function(relatedItem) {
+
+    var relatedItemCollection = dataSourceStore.dataSource.getCollection(config.RelatedItemCollection);
+
+    return relatedItemCollection.find({
+      'Short Name': {
+        '$eq': relatedItem
+      }
+    })[0];
   }
 });

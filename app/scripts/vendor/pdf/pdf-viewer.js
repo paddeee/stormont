@@ -7277,7 +7277,7 @@ function webViewerInitialized($pdfViewerElement) {
 
   var queryString = document.location.search.substring(1);
   var params = parseQueryString(queryString);
-  var sourcePath = '';
+  var sourcePath = '/sourcefiles/';
   var file;
 
   // Set the src of the image if inside Electron
