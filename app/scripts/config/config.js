@@ -264,14 +264,14 @@ var config = {
       display: 'true',
       filter: 'gte',
       value: '1900-01-01 00:00:00',
-      width: '150'
+      width: '180'
     },
     {
       name: 'End Date and Time',
       display: 'true',
       filter: 'lte',
       value: '2100-12-31 00:00:00',
-      width: '150'
+      width: '180'
     },
     {
       name: 'Description',

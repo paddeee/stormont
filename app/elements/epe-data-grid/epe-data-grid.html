@@ -142,7 +142,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       width: 2.4vh;
     }
 
-    .selected-by-event-heading {
+    .selected-by-event-heading,
+    .blank {
       padding: 0;
       margin: 0;
       line-height: 5vh;
@@ -258,6 +259,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       top: 150px;
     }
 
+    .resize-handle {
+      position: absolute;
+      height: 25px;
+      cursor: col-resize;
+      z-index: 2;
+    }
+
   </style>
   <template>
 
@@ -275,22 +283,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                      hidden$="[[hideCheckboxColumn]]">
                 <col class="related-col"
                      hidden$="[[hideRelatedToEventColumn]]">
+                <col class="button-col"
+                     hidden$="[[hideViewProfileButton]]">
+                <col class="button-col"
+                     hidden$="[[hideViewSourceButton]]">
                 <template is="dom-repeat"
                           items="[[toArray(gridDataFirstRecord)]]">
                   <col class="field-col"
                        heading-name$="[[item.name]]"
                        hidden$="[[!showField(item.name)]]">
                 </template>
-                <col class="button-col"
-                     hidden$="[[hideViewProfileButton]]">
-                <col class="button-col"
-                     hidden$="[[hideViewSourceButton]]">
               </colgroup>
               <thead>
               <tr>
                 <th id="checkBoxHolder"
                     scope="col"
                     class="checkbox-holder"
+                    on-mousemove="showResizeHandle"
                     hidden$="[[hideCheckboxColumn]]">
                   <paper-checkbox
                     id="SelectAllCheckbox"
@@ -301,10 +310,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <th scope="col"
                     id="SelectedByEventHeading"
                     class="selected-by-event-heading"
+                    on-mousemove="showResizeHandle"
                     hidden$="[[hideRelatedToEventColumn]]">
-                  <iron-icon icon="event"
-                             class="selected-by-event__heading-icon"></iron-icon>
-                  <paper-tooltip for="SelectedByEventHeading" position="top">Item is<br/>related to<br/>a selected <br/>event</paper-tooltip>
+                  <iron-icon icon="event" class="selected-by-event__heading-icon"></iron-icon>
+                </th>
+                <th scope="col"
+                    class="blank"
+                    on-mousemove="showResizeHandle"
+                    hidden$="[[hideViewProfileButton]]">
+                  <iron-icon icon="social:person" class="selected-by-event__heading-icon"></iron-icon>
+                </th>
+                <th scope="col"
+                    class="blank"
+                    on-mousemove="showResizeHandle"
+                    hidden$="[[hideViewSourceButton]]">
+                  <iron-icon icon="description" class="selected-by-event__heading-icon"></iron-icon>
                 </th>
                 <template is="dom-repeat"
                           items="[[toArray(gridDataFirstRecord)]]">
@@ -313,8 +333,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       hidden$="[[!showField(item.name)]]"
                       sort-status="neutral"
                       heading-name$="[[item.name]]"
-                      on-mouseover="showFullText"
-                      on-mouseout="hideFullText"
+                      on-mousemove="showResizeHandle"
                       on-tap="sortByColumn">
                     <div class="field-heading__name"
                          on-tap="reOrderColumn">
@@ -327,17 +346,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </div>
                   </th>
                 </template>
-                <th scope="col"
-                    class="blank"
-                    hidden$="[[hideViewProfileButton]]">
-                </th>
-                <th scope="col"
-                    class="blank"
-                    hidden$="[[hideViewSourceButton]]">
-                </th>
               </tr>
               </thead>
             </table>
+
+            <div id="ResizeHandle"
+                 class="resize-handle"
+                 on-track="resizeHeading"
+                 hidden></div>
           </div>
         </div>
 
@@ -352,16 +368,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                    hidden$="[[hideCheckboxColumn]]">
               <col class="related-col"
                    hidden$="[[hideRelatedToEventColumn]]">
+              <col class="button-col"
+                   hidden$="[[hideViewProfileButton]]">
+              <col class="button-col"
+                   hidden$="[[hideViewSourceButton]]">
               <template is="dom-repeat"
                         items="[[toArray(gridDataFirstRecord)]]">
                 <col class="field-col"
                      heading-name$="[[item.name]]"
                      hidden$="[[!showField(item.name)]]">
               </template>
-              <col class="button-col"
-                   hidden$="[[hideViewProfileButton]]">
-              <col class="button-col"
-                   hidden$="[[hideViewSourceButton]]">
             </colgroup>
 
             <tbody>
@@ -384,14 +400,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                              class="selected-by-event__icon"
                              hidden$="[[!item.highlightAsRelatedToEvent]]"></iron-icon>
                 </td>
-                <template is="dom-repeat" items="[[toArray(item)]]">
-                  <td class="field-record"
-                      on-mouseover="showFullText"
-                      on-mouseout="hideFullText"
-                      hidden$="[[!showField(item.name)]]">
-                    <span>{{item.value}}</span>
-                  </td>
-                </template>
                 <td class="view-button"
                     hidden$="[[hideViewProfileButton]]">
                   <paper-button
@@ -408,6 +416,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     on-tap="viewSourceFile">View <iron-icon icon="description"></iron-icon>
                   </paper-button>
                 </td>
+                <template is="dom-repeat" items="[[toArray(item)]]">
+                  <td class="field-record"
+                      hidden$="[[!showField(item.name)]]">
+                    <span>{{item.value}}</span>
+                  </td>
+                </template>
               </tr>
             </template>
             </tbody>
@@ -531,6 +545,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           type: Boolean,
           value: false,
           notify: true
+        },
+
+        handleWidth: {
+          type: Number,
+          value: 3
+        },
+
+        resizeHandleShowing: {
+          type: Boolean,
+          value: false
         }
       },
 
@@ -938,40 +962,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.sourceActions.viewSourceFile(sourceObject);
       },
 
-      // FIRED WHEN USER TAPS OR MOUSES OVER DATA FIELD
-      showFullText: function() {
-        /*Temporarily turned off
-        var dataText;
-
-        // Set text depending on whether method is called from mousing over column heading or data field
-        if (event.currentTarget.classList.contains('field-heading')) {
-          dataText = event.model.item.name;
-        } else {
-          dataText = event.model.item.value;
-        }
-
-        this.debounce('showFullText', function() {
-
-          // Set toast text
-          this.fullText = dataText;
-
-          // Show Toast
-          this.$.ShowFullTextToast.show();
-
-          this.cancelDebouncer('showFullText');
-        }, 1000);*/
-      },
-
-      // FIRED WHEN USER MOUSES OUT OF DATA FIELD
-      hideFullText: function() {
-
-        // Hide toast
-        this.$.ShowFullTextToast.hide();
-
-        // Cancel debouncer
-        this.cancelDebouncer('showFullText');
-      },
-
       // Hide checkboxes when no records or in source view
       hideCheckboxes: function() {
 
@@ -1052,6 +1042,78 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         });
 
         return headingName;
+      },
+
+      // When user mouses over end of table heading show the resize handle
+      showResizeHandle: function(event) {
+
+        var clientX = event.clientX;
+        var gridScrollLeft = this.$.DataGridRecords.scrollLeft;
+        var position = event.currentTarget.offsetLeft + event.currentTarget.offsetWidth + this.$.DataGridRecords.offsetLeft;
+
+        if (clientX + gridScrollLeft > position - this.handleWidth && clientX + gridScrollLeft < position + this.handleWidth) {
+          this.positionResizeHandle(event.currentTarget);
+        } else if (this.resizeHandleShowing) {
+          this.$.ResizeHandle.hidden = true;
+        }
+      },
+
+      // When user mouses over end of table heading show the resize handle
+      positionResizeHandle: function($heading) {
+
+        //Reset array of selected col elements
+        this.ResizedColElements = [];
+
+        // Resize related heading col
+        this.querySelectorAll('.field-col').forEach(function($col) {
+
+          var headingColName = $col.getAttribute('heading-name');
+          var headingName = $heading.getAttribute('heading-name');
+
+          if (headingColName === headingName) {
+            this.ResizedColElements.push($col);
+          }
+
+        }.bind(this));
+
+        this.$.ResizeHandle.style.top = $heading.offsetTop + 'px';
+        this.$.ResizeHandle.style.left = $heading.offsetLeft + $heading.offsetWidth - 20 + 'px';
+        this.$.ResizeHandle.style.height = $heading.clientHeight + 'px';
+        this.$.ResizeHandle.style.width = '40px';
+
+        this.$.ResizeHandle.hidden = false;
+      },
+
+      // Called when resizeHandle element is dragged
+      resizeHeading: function(event) {
+
+        var horizontalTrack;
+        console.log(event.detail);
+
+        // Set how many pixels since last track event (unless this is the first track event)
+        if (event.detail.state === 'start') {
+          horizontalTrack = event.detail.dx;
+        } else if (event.detail.state === 'track') {
+          horizontalTrack = event.detail.ddx;
+        } else if (event.detail.state === 'end') {
+
+          // Hide handle when dragging is finished
+          this.$.ResizeHandle.hidden = true;
+        }
+
+        // Reposition resizeHandle
+        this.$.ResizeHandle.style.left = this.$.ResizeHandle.offsetLeft + horizontalTrack + 'px';
+
+        // Resize related heading col
+        this.ResizedColElements.forEach(function($col) {
+
+          $col.style.width = parseInt($col.style.width) + horizontalTrack + 'px';
+
+        }.bind(this));
+
+        // Resize tables
+        this.$.HeaderTable.style.width = this.$.HeaderTable.clientWidth + horizontalTrack + 'px';
+        this.$.RecordsTable.style.width = this.$.RecordsTable.clientWidth + horizontalTrack + 'px';
       }
     });
   })();
