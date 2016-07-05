@@ -213,7 +213,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .view-button {
-      text-align: right;
+      text-align: center;
     }
 
     .data-grid__records .checkbox-holder {
@@ -757,11 +757,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var checkBoxColWidth = 51;
         var relatedToEventColWidth = 0;
         var buttonColWidth = 0;
-        var $relatedToEventCol = this.querySelector('.selected-by-event-heading:not([hidden]');
-        var $buttonCol = this.querySelector('.blank:not([hidden]');
+        var $relatedToEventCol = this.querySelectorAll('.related-col:not([hidden]');
+        var $buttonCol = this.querySelectorAll('.button-col:not([hidden]');
 
         // Reset style widths on table
         this.$.HeaderTable.style.width = '';
+
+        // Set col widths for selected by event col
+        this.querySelectorAll('.checkbox-col').forEach(function($col) {
+          $col.style.width = checkBoxColWidth + 'px';
+        }.bind(this));
 
         // Set col widths and calculate table width
         this.querySelectorAll('.field-col').forEach(function($col) {
@@ -781,10 +786,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Add borders to width if not hidden
         if ($relatedToEventCol) {
           relatedToEventColWidth = 61;
+
+          // Set col widths for checkbox
+          $relatedToEventCol.forEach(function($col) {
+            $col.style.width = relatedToEventColWidth + 'px';
+          }.bind(this));
         }
 
         if ($buttonCol) {
           buttonColWidth = 101;
+
+          // Set col widths for checkbox
+          $buttonCol.forEach(function($col) {
+            $col.style.width = buttonColWidth + 'px';
+          }.bind(this));
         }
 
         // Calculate table width including all visible headers
@@ -1070,8 +1085,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           var headingColName = $col.getAttribute('heading-name');
           var headingName = $heading.getAttribute('heading-name');
 
+          if ($heading.classList.contains('checkbox-holder')) {
+            this.ResizedColElements = this.querySelectorAll('.checkbox-col');
+            return;
+          }
+
+          if ($heading.classList.contains('selected-by-event-heading')) {
+            this.ResizedColElements = this.querySelectorAll('.related-col');
+            return;
+          }
+
+          if ($heading.classList.contains('blank')) {
+            this.ResizedColElements = this.querySelectorAll('.button-col');
+            return;
+          }
+
           if (headingColName === headingName) {
             this.ResizedColElements.push($col);
+            return;
           }
 
         }.bind(this));
@@ -1088,7 +1119,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       resizeHeading: function(event) {
 
         var horizontalTrack;
-        console.log(event.detail);
 
         // Set how many pixels since last track event (unless this is the first track event)
         if (event.detail.state === 'start') {
@@ -1099,6 +1129,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           // Hide handle when dragging is finished
           this.$.ResizeHandle.hidden = true;
+
+          return;
         }
 
         // Reposition resizeHandle
@@ -1108,12 +1140,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.ResizedColElements.forEach(function($col) {
 
           $col.style.width = parseInt($col.style.width) + horizontalTrack + 'px';
+          this.setColumnWidths($col.getAttribute('heading-name'), (parseInt($col.style.width) + horizontalTrack).toString());
 
         }.bind(this));
 
         // Resize tables
         this.$.HeaderTable.style.width = this.$.HeaderTable.clientWidth + horizontalTrack + 'px';
         this.$.RecordsTable.style.width = this.$.RecordsTable.clientWidth + horizontalTrack + 'px';
+      },
+
+      // Set column widths
+      setColumnWidths: function(fieldName, colSize) {
+
+        var collection;
+
+        switch (this.collectionName) {
+          case app.config.EventsCollection.name:
+            collection = app.config.EventsCollection;
+            break;
+          case app.config.PlacesCollection.name:
+            collection = app.config.PlacesCollection;
+            break;
+          case app.config.PeopleCollection.name:
+            collection = app.config.PeopleCollection;
+            break;
+          case app.config.SourcesCollection.name:
+            collection = app.config.SourcesCollection;
+            break;
+          default:
+            console.error('Sorry, no collectionName set');
+        }
+
+        collection.fields.forEach(function(field) {
+
+          if (field.name !== fieldName) {
+            return;
+          }
+
+          field.width = colSize;
+        });
       }
     });
   })();
