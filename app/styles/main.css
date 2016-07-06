@@ -30,3 +30,8 @@ input, textarea, keygen, select, button {
 epe-offline {
   height: 100%;
 }
+
+/* Override for leaflet popup not positioning correctly due to margin specidfied in bower leaflet */
+.leaflet-popup-content {
+  margin: 0 !important;
+}
