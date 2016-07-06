@@ -17,12 +17,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .content {
-      padding: 3vh 20vw;
+      padding: 3vh 2vw;
     }
 
-    paper-card {
+    paper-material {
+      background-color: var(--primary-background-color);
+      padding: 16px;
       cursor: pointer;
       margin: 16px;
+      height: 50vh;
+    }
+
+    paper-material:hover {
+      background-color: rgba(254,255,248,0.58);
     }
 
     .card-link {
@@ -37,6 +44,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       line-height: 10vh;
       color: #666;
       text-align: center;
+      position: absolute;
+      bottom: 2vh;
+      right: 2vw;
     }
 
     .icon-holder--import {
@@ -61,27 +71,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <div class="content">
 
-      <div class="layout vertical">
+      <div class="layout horizontal">
 
-        <paper-card class="flex"
+        <paper-material class="flex"
           hidden$="[[hideImport]]">
           <a data-route="import" href="/import" class="card-link fit block"></a>
           <div class="card-content">
+            <h1>Import Casemap Data</h1>
+            <p>Import data from CaseMap files.</p>
             <div class="icon-holder  icon-holder--import">
               <iron-icon icon="file-upload"></iron-icon>
             </div>
-            <h1>Import Casemap Data</h1>
-            <p>Import data from CaseMap files.</p>
           </div>
-
-          <div class="card-actions">
-            <paper-button>Some action</paper-button>
-          </div>
-
-        </paper-card>
+        </paper-material>
 
 
-        <paper-card class="flex">
+        <paper-material class="flex">
           <!-- ToDo: Set route and href to config option -->
           <a data-route="/create-package/data-grid/Event"
              href="/create-package/data-grid/Event"
@@ -89,39 +94,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
              on-tap="resetPackage"></a>
           <div class="card-content">
 
+            <h1>Create a Package</h1>
+            <p>Create a new presentation package. Can save and/or mark for Registry approval.</p>
+
             <div class="icon-holder  icon-holder--create">
               <iron-icon icon="create"></iron-icon>
             </div>
-
-            <h1>Create a Package</h1>
-            <p>Create a new presentation package. Can save and/or mark for Registry approval.</p>
           </div>
+        </paper-material>
 
-          <div class="card-actions">
-            <paper-button>Some action</paper-button>
-          </div>
-        </paper-card>
-
-        <paper-card class="flex">
+        <paper-material class="flex">
           <a data-route="view-packages"
              href="/view-packages"
              class="card-link fit block"></a>
           <div class="card-content">
 
-            <div class="icon-holder  icon-holder--view">
-              <iron-icon icon="view-list"></iron-icon>
-            </div>
-
             <h1>View/Edit Packages</h1>
             <p>View all presentation packages. A user can choose to carry on editing one of their
             existing presentations, create a new one from an existing one or view any presentation
             without editing.</p>
-          </div>
 
-          <div class="card-actions">
-            <paper-button>Some action</paper-button>
+            <div class="icon-holder  icon-holder--view">
+              <iron-icon icon="view-list"></iron-icon>
+            </div>
           </div>
-        </paper-card>
+        </paper-material>
       </div>
     </div>
   </template>
