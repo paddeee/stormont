@@ -164,9 +164,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           class="relative"
           source-actions="[[sourceActions]]"
           source-store="[[sourceStore]]"
+          on-source-error="sourceFileError"
           on-navigate-to-source-viewer="navigateToSourceViewer"></epe-source-viewer>
       </section>
     </iron-pages>
+
+    <paper-dialog id="SourceErrorDialog" modal>
+      <h2>Problem Viewing Source File</h2>
+      <div>
+        <span>[[sourceMessage]]</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
   </template>
 </dom-module>
 <script>
@@ -432,6 +444,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Get ERN refs for publish screen depending on the view
       getErnRefs: function() {
         return this.$.Map.getErnRefs();
+      },
+
+      // When error retrieving source file
+      sourceFileError: function(event) {
+
+        if (event.detail.messageName === 'invalid-file-type') {
+          this.sourceMessage = 'This type of file is unsupported in this application';
+          console.log(event.detail.sourceObject);
+        } else if (event.detail.messageName === 'file-does-not-exist') {
+          this.sourceMessage = 'The file does not exist in the location specified.';
+          console.log(event.detail.sourceObject);
+        }
+
+        this.$.SourceErrorDialog.open();
       }
     });
   })();

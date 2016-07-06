@@ -321,6 +321,16 @@ module.exports = Reflux.createStore({
   // Called when a user attempts to view a source file
   viewSourceFile: function(sourceObject) {
 
+    var sourcePath = '';
+
+    if (global.config && presentationMode === 'offline') {
+      sourcePath = global.config.packagePath + '/sourcefiles/';
+    } else if (global.config && presentationMode === 'online') {
+      sourcePath = global.config.paths.sourcePath;
+    }
+
+    this.message = '';
+
     // Set selectedSourceObject property
     this.setSelectedSourceObject(sourceObject);
 
@@ -337,20 +347,30 @@ module.exports = Reflux.createStore({
     // Set selectedSourceObject property
     this.setSelectedSourceFileType(sourceObject);
 
-    // Decrypt the file if in Offline Application
-    if (global.config && presentationMode === 'offline') {
-      this.decryptSourceFile(sourceObject);
-    } else {
+    // Check file exists first
+    fsExtra.stat(sourcePath + sourceObject['Linked File'], function(error) {
 
-      // Set viewingSource property to true
-      this.viewingSource = true;
+      if (error) {
+        this.message = 'fileDoesNotExist';
+        this.trigger(this);
+      } else {
 
-      // Send object out to all listeners
-      this.trigger(this);
+        // Decrypt the file if in Offline Application
+        if (global.config && presentationMode === 'offline') {
+          this.decryptSourceFile(sourceObject);
+        } else {
 
-      // Reset viewingSource property to false
-      this.viewingSource = false;
-    }
+          // Set viewingSource property to true
+          this.viewingSource = true;
+
+          // Send object out to all listeners
+          this.trigger(this);
+
+          // Reset viewingSource property to false
+          this.viewingSource = false;
+        }
+      }
+    }.bind(this));
   },
 
   // Set a property on this store object to indicate current selected source object
@@ -422,6 +442,7 @@ module.exports = Reflux.createStore({
         this.selectedSourceFileType = 'tiff';
         break;
       default:
+        this.message = 'invalidFileType';
         console.warn(fileExtension + 'not a supported type');
     }
   },

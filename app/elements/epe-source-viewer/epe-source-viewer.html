@@ -117,7 +117,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.selectedSourceObject = sourceData.selectedSourceObject;
 
           if (this.selectedSourceObject) {
-            this.fire('navigate-to-source-viewer', sourceData);
+
+            if (sourceData.message === 'invalidFileType') {
+              this.fire('source-error', {
+                messageName: 'invalid-file-type',
+                sourceObject: sourceData
+              });
+            } else if (sourceData.message === 'fileDoesNotExist') {
+              this.fire('source-error', {
+                messageName: 'file-does-not-exist',
+                sourceObject: sourceData
+              });
+            } else {
+              this.fire('navigate-to-source-viewer', sourceData);
+            }
           }
         }.bind(this));
       }

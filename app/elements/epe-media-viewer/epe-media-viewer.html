@@ -464,16 +464,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
               src = new Blob([data], {type : 'audio/mp3'});
 
+              this.initialiseWaveSurfer($audioElement, src);
+
             }.bind(this));
 
           } else if (presentationMode === 'offline') {
             src = new Blob([this.mediaObject.blob], {type : 'audio/mp3'});
+
+            this.initialiseWaveSurfer($audioElement, src);
           }
         } else {
           src = '/sourcefiles/' + this.mediaObject['Linked File'];
-        }
 
-        this.initialiseWaveSurfer($audioElement, src);
+          this.initialiseWaveSurfer($audioElement, src);
+        }
       },
 
       // Initialise Player using WaveSurfer Plugin
