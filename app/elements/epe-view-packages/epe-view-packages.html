@@ -475,6 +475,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // changes I would expect the template to update but it isn't. In meantime, forcing it
           // by clearing the array and resetting it.
           this.filteredData = [];
+          this.$.FilterName.value = '';
+          this.$.FilterUsers.value = '';
 
           this.presentationsData = presentationsStore.presentationsData;
           this.filteredData = presentationsStore.presentationsData;
