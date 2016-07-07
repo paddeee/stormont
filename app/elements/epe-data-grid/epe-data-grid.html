@@ -561,6 +561,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       ready: function() {
         var $scrollableContent = this.$.DataGridRecords;
         $scrollableContent.addEventListener('scroll', this.scrollHeader.bind(this));
+
+        window.addEventListener('resize', this.setDefaultTableHeight.bind(this));
       },
 
       // Iterate through keys of an object and return key/value pair
