@@ -348,29 +348,42 @@ module.exports = Reflux.createStore({
     this.setSelectedSourceFileType(sourceObject);
 
     // Check file exists first
-    fsExtra.stat(sourcePath + sourceObject['Linked File'], function(error) {
+    if (global.config) {
 
-      if (error) {
-        this.message = 'fileDoesNotExist';
-        this.trigger(this);
-      } else {
+      fsExtra.stat(sourcePath + sourceObject['Linked File'], function(error) {
 
-        // Decrypt the file if in Offline Application
-        if (global.config && presentationMode === 'offline') {
-          this.decryptSourceFile(sourceObject);
+        if (error) {
+          this.message = 'fileDoesNotExist';
+          this.trigger(this);
         } else {
 
-          // Set viewingSource property to true
-          this.viewingSource = true;
+          // Decrypt the file if in Offline Application
+          if (global.config && presentationMode === 'offline') {
+            this.decryptSourceFile(sourceObject);
+          } else {
 
-          // Send object out to all listeners
-          this.trigger(this);
+            // Set viewingSource property to true
+            this.viewingSource = true;
 
-          // Reset viewingSource property to false
-          this.viewingSource = false;
+            // Send object out to all listeners
+            this.trigger(this);
+
+            // Reset viewingSource property to false
+            this.viewingSource = false;
+          }
         }
-      }
-    }.bind(this));
+      }.bind(this));
+    } else {
+
+      // Set viewingSource property to true
+      this.viewingSource = true;
+
+      // Send object out to all listeners
+      this.trigger(this);
+
+      // Reset viewingSource property to false
+      this.viewingSource = false;
+    }
   },
 
   // Set a property on this store object to indicate current selected source object

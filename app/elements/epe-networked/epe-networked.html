@@ -154,16 +154,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             <!-- Creating Navigation Toolbar -->
             <div hidden$="[[editingPresentation]]" id="CreatingPackageViewNav" class="package-navigation">
-              <a data-route="/create-package/data-grid/Event"
-                 href="/create-package/data-grid/Event"
-                 id="DataGridButton">
-                <paper-icon-button icon="view-list"></paper-icon-button>
-              </a>
+              <paper-icon-button icon="view-list"
+                                 id="DataGridButton"
+                                 on-tap="navigateToEvent"></paper-icon-button>
               <a data-route="/create-package/map"
                  href="/create-package/map"
                  id="MapButton">
                 <paper-icon-button icon="maps:map"></paper-icon-button>
               </a>
+              <paper-icon-button icon="social:person"
+                                 id="ProfileButton"
+                                 on-tap="navigateToProfile"></paper-icon-button>
+              <paper-icon-button icon="av:web-asset"
+                                 id="SourceButton"
+                                 on-tap="navigateToSource"></paper-icon-button>
               <a id="FilterButton"
                  on-tap="toggleFilterDisplay">
                 <paper-icon-button icon="filter-list"></paper-icon-button>
@@ -172,16 +176,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             <!-- Editing Navigation Toolbar -->
             <div hidden$="[[!editingPresentation]]" id="EditingPackageViewNav" class="package-navigation">
-              <a data-route="/edit-package/data-grid/Event"
-                 href="/edit-package/data-grid/Event"
-                 id="DataGridButton">
-                <paper-icon-button icon="view-list"></paper-icon-button>
-              </a>
+              <paper-icon-button icon="view-list"
+                                 id="DataGridButton"
+                                 on-tap="navigateToEvent"></paper-icon-button>
               <a data-route="/edit-package/map"
                  href="/edit-package/map"
                  id="MapButton">
                 <paper-icon-button icon="maps:map"></paper-icon-button>
               </a>
+              <paper-icon-button icon="social:person"
+                                 id="ProfileButton"
+                                 on-tap="navigateToProfile"></paper-icon-button>
+              <paper-icon-button icon="perm-media"
+                                 id="SourceButton"
+                                 on-tap="navigateToSource"></paper-icon-button>
               <a id="FilterButton"
                  on-tap="toggleFilterDisplay">
                 <paper-icon-button icon="filter-list"></paper-icon-button>
@@ -194,6 +202,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-tooltip for="MenuButton" offset="0">Show Menu</paper-tooltip>
           <paper-tooltip for="DataGridButton" offset="0">Data Grid</paper-tooltip>
           <paper-tooltip for="MapButton" offset="0">Map</paper-tooltip>
+          <paper-tooltip for="ProfileButton" offset="0">Profile</paper-tooltip>
+          <paper-tooltip for="SourceButton" offset="0">Supporting Evidence</paper-tooltip>
           <paper-tooltip for="FilterButton" offset="0">Search/Filter</paper-tooltip>
 
           <!-- Application name -->
@@ -257,7 +267,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               presentations-actions="[[presentationsActions]]"
               presentations-store="[[presentationsStore]]"
               query-builder-actions="[[queryBuilderActions]]"
-              on-package-view-changed="packageViewChanged"></epe-create-package>
+              on-package-view-changed="packageViewChanged"
+              on-data-grid-changed="dataGridChanged"
+              on-profile-changed="profileChanged"
+              on-source-changed="sourceChanged"></epe-create-package>
           </section>
 
           <!-- Edit Package Section -->
@@ -282,7 +295,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               presentations-actions="[[presentationsActions]]"
               presentations-store="[[presentationsStore]]"
               query-builder-actions="[[queryBuilderActions]]"
-              on-package-view-changed="packageViewChanged"></epe-create-package>
+              on-package-view-changed="packageViewChanged"
+              on-data-grid-changed="dataGridChanged"
+              on-profile-changed="profileChanged"
+              on-source-changed="sourceChanged"></epe-create-package>
           </section>
 
           <!-- View Packages Section -->
@@ -352,6 +368,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <h2>Presentation name exists</h2>
       <div>
         <span>[[message]]</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="NoProfileDialog" modal>
+      <h2>No Profile Selected</h2>
+      <div>
+        <span>Can't navigate to Profile View as no profile has previously been viewed.</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="NoSourceDialog" modal>
+      <h2>No Source File Selected</h2>
+      <div>
+        <span>Can't navigate to Source View as no source file has previously been viewed.</span>
       </div>
       <div class="buttons">
         <paper-button dialog-confirm autofocus>OK</paper-button>
@@ -790,7 +826,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       },
 
-      // Navigate to newly saved even
+      // Navigate to newly saved event
       navigateToSavedEvent: function(presentation) {
 
         this.savedPresentation = presentation;
@@ -844,6 +880,64 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Show/Hide Filter Display
       toggleFilterDisplay: function () {
         this.showFilters = !this.showFilters;
+      },
+
+      // Navigate to last data-grid viewed
+      navigateToEvent: function() {
+
+        switch (this.currentDataGrid) {
+          case app.config.EventsCollection.name:
+            page('/' + app.route + '/data-grid/Event');
+            break;
+          case app.config.PlacesCollection.name:
+            page('/' + app.route + '/data-grid/Place');
+            break;
+          case app.config.PeopleCollection.name:
+            page('/' + app.route + '/data-grid/Person');
+            break;
+          case app.config.SourcesCollection.name:
+            page('/' + app.route + '/data-grid/Document');
+            break;
+          default:
+            page('/' + app.route + '/data-grid/Event');
+        }
+      },
+
+      // Navigate to last Profile viewed
+      navigateToProfile: function() {
+
+        if (this.currentProfileId) {
+          page('/' + app.route + '/profile/' + this.currentProfileId);
+        } else {
+          this.$.NoProfileDialog.open();
+        }
+      },
+
+      // Navigate to last Source viewed
+      navigateToSource: function() {
+
+        if (this.currentSourceObject) {
+          this.sourceActions.viewSourceFile(null);
+          this.sourceActions.viewSourceFile(this.currentSourceObject);
+          page('/' + app.route + '/source/' + this.currentSourceObject);
+        } else {
+          this.$.NoSourceDialog.open();
+        }
+      },
+
+      // Called from event on create-package element when data grid changes
+      dataGridChanged: function(event) {
+        this.currentDataGrid = event.detail.dataGrid;
+      },
+
+      // Called from event on create-package element when profile changes
+      profileChanged: function(event) {
+        this.currentProfileId = event.detail.profileId;
+      },
+
+      // Called from event on create-package element when source changes
+      sourceChanged: function(event) {
+        this.currentSourceObject = event.detail.sourceObject;
       }
     });
   })();

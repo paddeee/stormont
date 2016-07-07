@@ -197,16 +197,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             <!-- Creating Navigation Toolbar -->
             <div id="CreatingPackageViewNav" class="package-navigation">
-              <a data-route="/create-package/data-grid/Event"
-                 href="/create-package/data-grid/Event"
-                 id="DataGridButton">
-                <paper-icon-button icon="view-list"></paper-icon-button>
+              <paper-icon-button icon="view-list"
+                                 id="DataGridButton"
+                                 on-tap="navigateToEvent"></paper-icon-button>
               </a>
               <a data-route="/create-package/map"
                  href="/create-package/map"
                  id="MapButton">
                 <paper-icon-button icon="maps:map"></paper-icon-button>
               </a>
+              <paper-icon-button icon="social:person"
+                                 id="ProfileButton"
+                                 on-tap="navigateToProfile"></paper-icon-button>
+              <paper-icon-button icon="perm-media"
+                                 id="SourceButton"
+                                 on-tap="navigateToSource"></paper-icon-button>
               <a id="FilterButton"
                  on-tap="toggleFilterDisplay">
                 <paper-icon-button icon="filter-list"></paper-icon-button>
@@ -224,6 +229,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <!--<paper-tooltip for="MenuButton" offset="0">Show Menu</paper-tooltip>-->
           <paper-tooltip for="DataGridButton" offset="0">Data Grid</paper-tooltip>
           <paper-tooltip for="MapButton" offset="0">Map</paper-tooltip>
+          <paper-tooltip for="ProfileButton" offset="0">Profile</paper-tooltip>
+          <paper-tooltip for="SourceButton" offset="0">Supporting Evidence</paper-tooltip>
           <paper-tooltip for="FilterButton" offset="0">Search/Filter</paper-tooltip>
           <paper-tooltip for="PublishButton" offset="0">Publish as Evidence</paper-tooltip>
 
@@ -273,7 +280,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               presentations-actions="[[presentationsActions]]"
               presentations-store="[[presentationsStore]]"
               query-builder-actions="[[queryBuilderActions]]"
-              on-package-view-changed="packageViewChanged"></epe-create-package>
+              on-package-view-changed="packageViewChanged"
+              on-data-grid-changed="dataGridChanged"
+              on-profile-changed="profileChanged"></epe-create-package>
           </section>
         </iron-pages>
 
@@ -351,6 +360,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <h2>Evidence Successfully Exported</h2>
       <div>
         <span>[[publishMessage]]</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="NoProfileDialog" modal>
+      <h2>No Profile Selected</h2>
+      <div>
+        <span>Can't navigate to Profile View as no profile has previously been viewed.</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="NoSourceDialog" modal>
+      <h2>No Source File Selected</h2>
+      <div>
+        <span>Can't navigate to Source View as no source file has previously been viewed.</span>
       </div>
       <div class="buttons">
         <paper-button dialog-confirm autofocus>OK</paper-button>
@@ -895,6 +924,47 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.courtMode = event.detail;
         this.$.CourtModeToggle.checked = event.detail;
         ipcRenderer.send('court-mode-changed', event.detail);
+      },
+
+      // Navigate to last
+      navigateToEvent: function() {
+
+        switch (this.currentDataGrid) {
+          case app.config.EventsCollection.name:
+            page('/create-package/data-grid/Event');
+            break;
+          case app.config.PlacesCollection.name:
+            page('/create-package/data-grid/Place');
+            break;
+          case app.config.PeopleCollection.name:
+            page('/create-package/data-grid/Person');
+            break;
+          case app.config.SourcesCollection.name:
+            page('/create-package/data-grid/Document');
+            break;
+          default:
+            page('/create-package/data-grid/Event');
+        }
+      },
+
+      // Navigate to last Profile viewed
+      navigateToProfile: function() {
+
+        if (this.currentProfileId) {
+          page('/' + app.route + '/profile/' + this.currentProfileId);
+        } else {
+          this.$.NoProfileDialog.open();
+        }
+      },
+
+      // Called from event on create-package element when data grid changes
+      dataGridChanged: function(event) {
+        this.currentDataGrid = event.detail.dataGrid;
+      },
+
+      // Called from event on create-package element when data grid changes
+      profileChanged: function(event) {
+        this.currentProfileId = event.detail.profileId;
       }
     });
   })();

@@ -312,6 +312,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.setSectionTitle('data-grid');
 
         this.setUpGrid(tabChosen);
+
+        this.fire('data-grid-changed', { dataGrid: this.collectionName });
       },
 
       // Return Boolean based on gridData
@@ -407,6 +409,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           } else if (this.editState === 'editing' && this.presentationState !== 'creating') {
             page('/edit-package/source/' + event.detail.selectedSourceRoute);
           }
+
+          this.fire('source-changed', { sourceObject: event.detail.selectedSourceObject });
         }
       },
 
@@ -419,6 +423,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         } else if (this.editState === 'editing' && this.presentationState !== 'creating') {
           page('/edit-package/profile/' + event.detail);
         }
+
+        this.fire('profile-changed', { profileId: event.detail });
       },
 
       // FIRED BY EPE-SOURCE-VIEWER ELEMENT: Navigate to the map event view
