@@ -282,7 +282,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               query-builder-actions="[[queryBuilderActions]]"
               on-package-view-changed="packageViewChanged"
               on-data-grid-changed="dataGridChanged"
-              on-profile-changed="profileChanged"></epe-create-package>
+              on-profile-changed="profileChanged"
+              on-source-changed="sourceChanged"></epe-create-package>
           </section>
         </iron-pages>
 
@@ -957,6 +958,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       },
 
+      // Navigate to last Source viewed
+      navigateToSource: function() {
+
+        if (this.currentSourceObject) {
+          this.sourceActions.viewSourceFile(null);
+          this.sourceActions.viewSourceFile(this.currentSourceObject);
+          page('/' + app.route + '/source/' + this.currentSourceObject);
+        } else {
+          this.$.NoSourceDialog.open();
+        }
+      },
+
       // Called from event on create-package element when data grid changes
       dataGridChanged: function(event) {
         this.currentDataGrid = event.detail.dataGrid;
@@ -965,6 +978,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Called from event on create-package element when data grid changes
       profileChanged: function(event) {
         this.currentProfileId = event.detail.profileId;
+      },
+
+      // Called from event on create-package element when source changes
+      sourceChanged: function(event) {
+        this.currentSourceObject = event.detail.sourceObject;
       }
     });
   })();
