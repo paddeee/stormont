@@ -33,8 +33,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       background-color: var(--paper-deep-orange-700);
       color: var(--text-primary-color);
       font-size: 1.3em;
-      line-height: 1;
+      line-height: 2.6;
       padding: 4px 20px;
+    }
+
+    .event-card__title {
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 280px;
     }
 
     .event-card__detail {
@@ -47,7 +55,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .event-card.event-card__detail--show .event-card__detail {
       display: block;
       padding: 16px 20px;
-      height: 300px;
+      height: 260px;
     }
 
     .event-card__detail .expand-less {
@@ -128,42 +136,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
          class="event-card">
 
       <!-- Header toolbar for event card -->
-      <div class="event-card__header layout horizontal center">
+      <div class="event-card__header layout vertical center">
 
-        <div class="flex">
+        <div class="event-card__title" on-tap="showDetail">
           <span>[[eventCardTitle]]</span>
         </div>
 
-        <paper-icon-button
-          id="EventDetail"
-          icon="info"
-          on-tap="showDetail"
-          hidden$="[[!eventData.eventName]]"></paper-icon-button>
+        <div id="IconHolder" hidden>
+          <paper-icon-button
+            id="EventDetail"
+            icon="info"
+            on-tap="showDetail"
+            hidden$="[[!eventData.eventName]]"></paper-icon-button>
 
-        <paper-icon-button
-          id="PlaceInfo"
-          icon="maps:place"
-          on-tap="showDetail"
-          hidden$="[[!eventData.placeInfo]]"></paper-icon-button>
+          <paper-icon-button
+            id="PlaceInfo"
+            icon="maps:place"
+            on-tap="showDetail"
+            hidden$="[[!eventData.placeInfo]]"></paper-icon-button>
 
-        <paper-icon-button
-          id="RelatedEvents"
-          icon="social:public"
-          on-tap="showDetail"
-          hidden$="[[!eventData.relatedEvents.length]]"></paper-icon-button>
+          <paper-icon-button
+            id="RelatedEvents"
+            icon="social:public"
+            on-tap="showDetail"
+            hidden$="[[!eventData.relatedEvents.length]]"></paper-icon-button>
 
-        <paper-icon-button
-          id="RelatedPeople"
-          icon="social:group"
-          on-tap="showDetail"
-          hidden$="[[hidePeopleIcon]]"></paper-icon-button>
+          <paper-icon-button
+            id="RelatedPeople"
+            icon="social:group"
+            on-tap="showDetail"
+            hidden$="[[hidePeopleIcon]]"></paper-icon-button>
 
-        <!-- paper-icon-buttons have an inherent padding that will push the tooltip down.
-        offset undoes it -->
-        <paper-tooltip for="EventDetail" offset="0">More information</paper-tooltip>
-        <paper-tooltip for="PlaceInfo" offset="0">Place Information</paper-tooltip>
-        <paper-tooltip for="RelatedEvents" offset="0">Related Events</paper-tooltip>
-        <paper-tooltip for="RelatedPeople" offset="0">Related People</paper-tooltip>
+          <!-- paper-icon-buttons have an inherent padding that will push the tooltip down.
+          offset undoes it -->
+          <paper-tooltip for="EventDetail" offset="0">More information</paper-tooltip>
+          <paper-tooltip for="PlaceInfo" offset="0">Place Information</paper-tooltip>
+          <paper-tooltip for="RelatedEvents" offset="0">Related Events</paper-tooltip>
+          <paper-tooltip for="RelatedPeople" offset="0">Related People</paper-tooltip>
+        </div>
       </div>
 
       <!-- Container for event card detail Panels -->
@@ -424,7 +434,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var $popUp = this.closest('.leaflet-popup');
 
       if ($popUp) {
-        $popUp.style.bottom = '-356px';
+        $popUp.style.bottom = '-357px';
       }
     },
 
@@ -445,8 +455,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // If card is already expanded, show the relevant pane
       if (this.cardExpanded) {
-        this.selectPanel(event.currentTarget.id);
+
+        // If method called via clicking on title, close
+        if (event.currentTarget.classList.contains('event-card__title')) {
+          this.hideDetail();
+        } else {
+          this.selectPanel(event.currentTarget.id);
+        }
       } else {
+
+        this.$.IconHolder.hidden = false;
 
         this.setExpandedOffset();
 
@@ -463,6 +481,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     hideDetail: function() {
 
       this.cardExpanded = false;
+
+      this.$.IconHolder.hidden = true;
 
       this.setUnExpandedOffset();
 
