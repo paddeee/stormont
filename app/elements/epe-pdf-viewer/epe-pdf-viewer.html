@@ -203,7 +203,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           <!-- Annotations -->
           <div class="pdf_button-holder border-right horizontal layout center">
-            <paper-icon-button id="SelectAnnotations" icon="open-with" on-tap="selectAnnotations"></paper-icon-button>
             <paper-icon-button id="FreeDraw" icon="gesture" on-tap="freeDraw"></paper-icon-button>
             <paper-icon-button id="AddCircle" icon="image:panorama-fish-eye" on-tap="addCircle"></paper-icon-button>
             <paper-icon-button id="AddRect" icon="image:crop-landscape" on-tap="addRect"></paper-icon-button>
@@ -212,11 +211,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <paper-icon-button id="Redaction" icon="view-stream" on-tap="addRedaction"></paper-icon-button>
             <paper-icon-button id="AddLine" icon="icons:remove" on-tap="addLine"></paper-icon-button>
             <paper-icon-button id="AddPolygon" icon="image:panorama-horizontal" on-tap="addPolygon" hidden></paper-icon-button>
+          </div>
+
+
+          <div class="pdf_button-holder horizontal border-right layout center end-justified" hidden$="[[hideAnnotations]]">
+            <paper-icon-button id="SelectAnnotations" icon="open-with" on-tap="selectAnnotations"></paper-icon-button>
             <paper-icon-button id="DeleteAnnotation" icon="delete" on-tap="deleteAnnotation"></paper-icon-button>
           </div>
 
           <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
-          <paper-tooltip for="SelectAnnotations" position="top" offset="0">Select Annotations</paper-tooltip>
           <paper-tooltip for="FreeDraw" position="top" offset="0">Free Draw</paper-tooltip>
           <paper-tooltip for="AddCircle" position="top" offset="0">Add Circle</paper-tooltip>
           <paper-tooltip for="AddRect" position="top" offset="0">Add Rectangle</paper-tooltip>
@@ -225,6 +228,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-tooltip for="Redaction" position="top" offset="0">Add Redaction</paper-tooltip>
           <paper-tooltip for="AddLine" position="top" offset="0">Add Line</paper-tooltip>
           <paper-tooltip for="AddPolygon" position="top" offset="0">Add Polygon</paper-tooltip>
+          <paper-tooltip for="SelectAnnotations" position="top" offset="0">Select Annotations</paper-tooltip>
           <paper-tooltip for="DeleteAnnotation" position="top" offset="0">Delete Selected Annotations</paper-tooltip>
 
           <div class="pdf_page-info layout horizontal center center-justified flex">
