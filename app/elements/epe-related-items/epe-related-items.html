@@ -24,17 +24,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       font-size: 15px;
     }
 
-    hr {
-      border: 0;
-      height: 1px;
-      background: var(--divider-color);
-      width: 80%;
-    }
-
-    .info {
+    .info__related {
       height: 50vh;
       overflow: scroll;
       width: 50vw;
+    }
+
+    .info__heading {
+      background-color: var(--primary-text-color);
+      color: var(--text-primary-color);
+      margin: 0;
+      padding: 16px;
+      text-align: center;
     }
 
     .info__description,
@@ -68,11 +69,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <template>
 
     <paper-dialog id="InfoDialog" class="info">
-      <h2>[[name]]</h2>
-      <div class="info__description">
-        [[description]]
+      <div class="info__heading">
+        <h2>Source Name: [[name]]</h2>
+        <div class="info__description">
+          [[description]]
+        </div>
       </div>
-      <hr/>
 
       <div class="info__related">
         <h3 hidden="[[!relatedItems.length]]">Related Material</h3>
