@@ -122,6 +122,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <iron-icon icon="view-list"></iron-icon>
             <span>View/Edit Packages</span>
           </a>
+          <a data-route="/login"
+             href="/login"
+             on-tap="toggleMenu">
+            <iron-icon icon="exit-to-app"></iron-icon>
+            <span>Log Out</span>
+          </a>
         </paper-menu>
 
       </paper-scroll-header-panel>
@@ -488,7 +494,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.user = user;
             this.displayUserMessage();
             this.navigateToChooseOption();
-          } else if (user.status === 'loggedout') {
+          } else if (user.status === 'loginError') {
             this.user = user;
             this.$.LoginErrorDialog.open();
           }
@@ -572,6 +578,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         if (route) {
           page(route);
+
+          if (route === '/login') {
+            this.logOut();
+          }
         }
 
         this.$.paperDrawerPanel.togglePanel();
@@ -620,6 +630,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             // While we're here, scroll header to top
             this.manageScrollHeader('view-packages');
           }
+        } else {
+
+          // While we're here, scroll header to top
+          this.manageScrollHeader('login');
         }
       },
 
@@ -714,6 +728,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var $scrollHeader = this.$.MainScrollHeader;
 
         switch (route) {
+          case 'login':
+            $scrollHeader.scroll(0, false);
+            this.$.MainScrollHeader.classList.add('no-scrollbar');
+            break;
           case 'import':
             $scrollHeader.scroll(0, true);
             this.$.MainScrollHeader.classList.remove('no-scrollbar');
@@ -938,6 +956,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Called from event on create-package element when source changes
       sourceChanged: function(event) {
         this.currentSourceObject = event.detail.sourceObject;
+      },
+
+      // Log user out and clean up
+      logOut: function() {
+        this.currentSourceObject = null;
+        this.currentProfileId = 0;
+        this.currentDataGrid = app.config.EventsCollection.name;
+        this.userActions.logOut();
       }
     });
   })();

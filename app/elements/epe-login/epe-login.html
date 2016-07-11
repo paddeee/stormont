@@ -97,6 +97,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
+    ready: function() {
+
+      // Listen to User Store
+      this.userStore.listen(function (user) {
+
+        if (user.status === 'loggedout') {
+          this.$.UserName.value = '';
+          this.$.Password.value = '';
+        }
+
+      }.bind(this));
+    },
+
     // Validate form
     validateForm: function() {
 

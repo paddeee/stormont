@@ -509,5 +509,17 @@ module.exports = Reflux.createStore({
     }).data();
 
     affiliationObject.relatedProfiles = profiles;
+  },
+
+  // If user logs out cleanup state on this store
+  userStoreChanged: function(user) {
+
+    if (user.status === 'loggedout') {
+      this.selectedProfileObject = null;
+      this.relatedAffiliations = null;
+      this.supportingDocs = [];
+      this.relatedEvents = [];
+      this.trigger(this);
+    }
   }
 });

@@ -9,6 +9,7 @@ var SourceActions = require('../actions/source.js');
 var fsExtra = global.config ? window.electronRequire('fs-extra') : null;
 var crypto = global.config ? window.electronRequire('crypto') : null;
 var getRawBody = global.config ? window.electronRequire('raw-body') : null;
+var usersStore = require('../stores/users.js');
 
 module.exports = Reflux.createStore({
 
@@ -34,6 +35,9 @@ module.exports = Reflux.createStore({
     this.listenTo(dataSourceStore, this.dataSourceChanged);
 
     this.listenTo(presentationsStore, this.presentationsStoreChanged);
+
+    // Register usersStores's changes
+    this.listenTo(usersStore, this.userStoreChanged);
   },
 
   // Set the filteredData Object
@@ -583,5 +587,14 @@ module.exports = Reflux.createStore({
         '$eq': relatedItem
       }
     })[0];
+  },
+
+  // If user logs out cleanup state on this store
+  userStoreChanged: function(user) {
+
+    if (user.status === 'loggedout') {
+      this.selectedSourceObject = null;
+      this.trigger(this);
+    }
   }
 });

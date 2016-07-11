@@ -48,7 +48,7 @@ module.exports = Reflux.createStore({
     .catch(function(error) {
 
       console.error(error);
-      this.user.status = 'loggedout';
+      this.user.status = 'loginError';
       this.user.message = error;
       this.trigger(this.user);
     }.bind(this));
@@ -150,5 +150,17 @@ module.exports = Reflux.createStore({
 
       resolve(userObject);
     });
+  },
+
+  // Logout user
+  logOut: function() {
+
+    this.user = {
+      status: 'loggedout',
+      userName: '',
+      role: ''
+    };
+
+    this.trigger(this.user);
   }
 });
