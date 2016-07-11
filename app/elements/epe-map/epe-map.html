@@ -148,7 +148,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .toggle-cluster-control,
     .toggle-tiles-control,
-    .toggle-legend-control {
+    .toggle-legend-control,
+    .zoom-bounds-control {
       background-color: var(--primary-background-color);
       cursor: pointer;
       width: 100%;
@@ -159,6 +160,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .toggle-legend-control--disabled {
       background-color: rgb(244, 244, 244);
       color: rgb(187, 187, 187);
+    }
+
+    .zoom-bounds-control-holder {
+      left: 10px;
+      position: fixed;
+      top: 530px;
+      height: 29px;
+      width: 29px;
     }
 
     .toggle-cluster-control-holder {
@@ -491,6 +500,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       event-data="[[activeEventData]]"></epe-event-card>
 
     </leaflet-map>
+
+    <!-- Zoom To Fit bounds -->
+    <paper-material id="ZoomBoundsControl"
+                    class="zoom-bounds-control-holder layout horizontal">
+      <div class="zoom-bounds-control  zoom-bounds-control--disabled  layout horizontal center center-justified"
+           on-tap="zoomToFitBounds">
+        <iron-icon class="toggle-timeline"
+                   icon="maps:zoom-out-map"></iron-icon>
+      </div>
+    </paper-material>
+
+    <paper-tooltip for="ZoomBoundsControl"
+                   position="right"
+                   class="timeline-tooltip">Zoom to Fit Markers</paper-tooltip>
 
     <!-- Toggle Clusters control -->
     <paper-material id="ToggleClustersControl"
@@ -1124,8 +1147,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.mapLegend = _.sortBy(this.mapLegend, 'categoryType');
     },
 
+    // Used by template to add category class
     getIconClass: function(icon) {
       return 'legend__icon fa icon-black fa-' + icon;
+    },
+
+    // Calls method on epe-map-geojson elelment to let user quickly zoom and pan to view all markers on map
+    zoomToFitBounds: function() {
+      this.$.MapGeoJSON.zoomToFitBounds();
     }
   });
 })();
