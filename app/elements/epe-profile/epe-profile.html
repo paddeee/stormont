@@ -109,8 +109,49 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       padding: 8px;
     }
 
+    .related-event {
+      border-left-width: 5px;
+      border-left-style: solid;
+    }
+
+    .related-event[swatch="orange"] {
+      border-left-color: rgb(246, 151, 48);
+    }
+
+    .related-event[swatch="purple"] {
+      border-left-color: rgb(210, 82, 185);
+    }
+
+    .related-event[swatch="red"] {
+      border-left-color: rgb(214, 62, 42);
+    }
+
+    .related-event[swatch="darkgreen"] {
+      border-left-color: rgb(114, 130, 36);
+    }
+
+    .related-event[swatch="gray"] {
+      border-left-color: rgb(87, 87, 87);
+    }
+
+    .related-event[swatch="cadetblue"] {
+      border-left-color: rgb(67, 105, 120);
+    }
+
+    .related-event[swatch="darkpurple"] {
+      border-left-color: rgb(1, 57, 107);
+    }
+
+    .related-event[swatch="darkred"] {
+      border-left-color: rgb(162, 51, 54);
+    }
+
+    .related-event[swatch="blue"] {
+      border-left-color: rgb(246, 151, 48);
+    }
+
     .related-profile-image {
-      border: 1px solid rgb(109, 109, 109);
+      border: 1px solid rgb(56, 170, 221);
       width: 40px;
       margin: 0 8px 0 0;
     }
@@ -233,6 +274,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             as="event">
                   <paper-material class="related-event layout vertical"
                                   event="[[event]]"
+                                  swatch$="[[getCategoryColour(event)]]"
                                   on-tap="navigateToEvent">
                     <h3>[[event.Type]]</h3>
                     <div>[[getFullName(event)]]</div>
@@ -578,6 +620,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (this.profileId !== 0) {
         this.peopleActions.viewProfile(parseInt(this.profileId, 10));
       }
+    },
+
+    // Return the category colour for a category type
+    getCategoryColour: function(item) {
+
+      var category;
+
+      category = app.config.Categories.sub.find(function(subCategory) {
+        return item.Type.toLowerCase() === subCategory.name.toLowerCase();
+      });
+
+      return app.config.Categories.main.find(function(mainCategory) {
+        return mainCategory.name === category.category;
+      }).colour;
     }
   });
 })();
