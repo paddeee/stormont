@@ -348,7 +348,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.MediaAnnotations.removeAttribute('hidden');
 
         // Create new Video.js instance
-        this.videoPlayer = window.videojs(this.querySelector('#Video'));
+        this.videoPlayer = videojs(this.querySelector('#Video'));
+
+        this.videoPlayer.addChild('MuteToggle');
 
         // Set the default sizes to be used for the Video Player
         this.videoPlayer.on('loadedmetadata', this.setVideoPlayerDimensions.bind(this));
@@ -484,7 +486,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       initialiseWaveSurfer: function($audioElement, src) {
 
         // Create an audio player instance
-        this.audioPlayer = window.videojs($audioElement, {
+        this.audioPlayer = videojs($audioElement, {
           width: this.audioPlayerWidth,
           height: this.audioPlayerHeight,
           plugins: {

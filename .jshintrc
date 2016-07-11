@@ -32,6 +32,7 @@
     "presentationMode": true,
     "EpeCreatePackage": true,
     "EpeEditPackage": true,
-    "roles": true
+    "roles": true,
+    "videojs": true
   }
 }

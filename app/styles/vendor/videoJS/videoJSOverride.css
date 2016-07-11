@@ -17,3 +17,22 @@
 .video-js :focus {
   outline: none;
 }
+
+/* Hide Fullscreen */
+.video-js .vjs-fullscreen-control {
+  display: none;
+}
+
+/* Stop controls fading out */
+.vjs-has-started.vjs-user-inactive.vjs-playing .vjs-control-bar {
+  visibility: visible !important;
+  opacity: 1 !important;
+  transition-duration: 0s!important;
+}
+
+/* Duration times */
+.vjs-time-divider,
+.video-js .vjs-current-time, .vjs-no-flex .vjs-current-time,
+.video-js .vjs-duration, .vjs-no-flex .vjs-duration {
+    display: block;
+}
