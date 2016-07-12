@@ -479,6 +479,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // not just markers
       zoomToFitBounds: function() {
 
+        if (!this.clusterLayer || !this.geoJSONLayer) {
+          return;
+        }
+
         var map = this.closest('#LeafletMap').map;
         var clusterBounds = this.clusterLayer.getBounds();
         var geoJSONBounds = this.geoJSONLayer.getBounds();

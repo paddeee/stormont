@@ -383,6 +383,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // When the Map view is selected manage the third party components like Leaflet and Timeline
       mapViewSelected: function() {
 
+        this.$.Map.zoomToFitBounds();
+
         this.$.Map.resizeMap();
 
         this.$.Map.initialiseTimelineUI();
