@@ -833,9 +833,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // show record property has changed
       updateCheckboxes: function() {
 
-        this.gridData.forEach(function(item, index) {
+        this.$.ListTemplate.items.forEach(function(domItem, index) {
 
-          this.$.ListTemplate.set('items.' + index + '.showRecord', item.showRecord);
+          this.gridData.forEach(function(dataItem) {
+
+            // If the checkbox in the DOM template has the same data model as the gridData item
+            if (domItem.$loki === dataItem.$loki) {
+              this.$.ListTemplate.set('items.' + index + '.showRecord', dataItem.showRecord);
+            }
+          }.bind(this));
         }.bind(this));
       },
 
@@ -909,6 +915,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               this.showAllSelected = false;
             }
           }.bind(this));
+
+          // Nasty hack to force state change of all visible checkboxes as the UI checkbox state doesn't update always
+          // even when the updateCheckboxes method is called.
+          if (this.showAllSelected === true) {
+
+            this.querySelectorAll('.record-checkbox').forEach(function(checkBox) {
+              checkBox.checked = true;
+            });
+          }
 
           // Call showAllSelected action
           if (event.type === 'change') {
