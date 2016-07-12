@@ -496,23 +496,24 @@ module.exports = Reflux.createStore({
       case config.PlacesCollection.name:
 
         if (showRecordObject.userSelected) {
+
+          // Set property on the events store so the show All checkbox state will be maintained
+          placesStore.showAllSelected = showRecordObject.showAllSelected;
+
           this.checkBoxUpdatedByUser(showRecordObject.item, showRecordObject.checkBoxSelected, config.PlacesCollection.name);
           this.selectedDataChanged(false, false);
         }
 
-        // Set property on the events store so the show All checkbox state will be maintained
-        placesStore.showAllSelected = showRecordObject.showAllSelected;
-
         break;
       case config.PeopleCollection.name:
+
+        // Set property on the events store so the show All checkbox state will be maintained
+        peopleStore.showAllSelected = showRecordObject.showAllSelected;
 
         if (showRecordObject.userSelected) {
           this.checkBoxUpdatedByUser(showRecordObject.item, showRecordObject.checkBoxSelected, config.PeopleCollection.name);
           this.selectedDataChanged(false, false);
         }
-
-        // Set property on the events store so the show All checkbox state will be maintained
-        peopleStore.showAllSelected = showRecordObject.showAllSelected;
 
         break;
       case config.SourcesCollection.name:
