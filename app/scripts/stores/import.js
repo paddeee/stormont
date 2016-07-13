@@ -160,7 +160,8 @@ module.exports = Reflux.createStore({
 
       if (supportingDocObject) {
         supportingDocObject = JSON.stringify(supportingDocObject);
-        supportingDocsHTMLArray.push(`<span class='supporting-doc' data-source='${supportingDocObject}'>${supportingDoc.trim()}</span>`);
+        //supportingDocsHTMLArray.push(`<span class='supporting-doc' data-source='${supportingDocObject}'>${supportingDoc.trim()}</span>`);
+        supportingDocsHTMLArray.push(supportingDoc.trim());
       } else {
         supportingDocsHTMLArray.push(supportingDoc.trim());
       }
