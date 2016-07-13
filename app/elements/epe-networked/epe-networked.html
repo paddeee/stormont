@@ -75,6 +75,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       margin: 0 0 0 16px;
     }
 
+    .nav-icon--selected {
+      color: var(--accent-color);
+    }
+
     .package-navigation > a {
       display: inline-flex;
       text-decoration: none;
@@ -159,47 +163,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <div hidden$="[[hideHeaderPackageNavigation]]" class="package-navigation">
 
             <!-- Creating Navigation Toolbar -->
-            <div hidden$="[[editingPresentation]]" id="CreatingPackageViewNav" class="package-navigation">
+            <div id="CreatingPackageViewNav" class="package-navigation">
               <paper-icon-button icon="view-list"
                                  id="DataGridButton"
-                                 on-tap="navigateToEvent"></paper-icon-button>
-              <a data-route="/create-package/map"
-                 href="/create-package/map"
-                 id="MapButton">
-                <paper-icon-button icon="maps:map"></paper-icon-button>
-              </a>
+                                 class="nav-icon nav-icon--selected"
+                                 on-tap="navigateToDataGrid"></paper-icon-button>
+              <paper-icon-button id="MapButton"
+                                 icon="maps:map"
+                                 class="nav-icon"
+                                 on-tap="navigateToMap"></paper-icon-button>
               <paper-icon-button icon="social:person"
                                  id="ProfileButton"
+                                 class="nav-icon"
                                  on-tap="navigateToProfile"></paper-icon-button>
               <paper-icon-button icon="perm-media"
                                  id="SourceButton"
+                                 class="nav-icon"
                                  on-tap="navigateToSource"></paper-icon-button>
-              <a id="FilterButton"
-                 on-tap="toggleFilterDisplay">
-                <paper-icon-button icon="filter-list"></paper-icon-button>
-              </a>
-            </div>
-
-            <!-- Editing Navigation Toolbar -->
-            <div hidden$="[[!editingPresentation]]" id="EditingPackageViewNav" class="package-navigation">
-              <paper-icon-button icon="view-list"
-                                 id="DataGridButton"
-                                 on-tap="navigateToEvent"></paper-icon-button>
-              <a data-route="/edit-package/map"
-                 href="/edit-package/map"
-                 id="MapButton">
-                <paper-icon-button icon="maps:map"></paper-icon-button>
-              </a>
-              <paper-icon-button icon="social:person"
-                                 id="ProfileButton"
-                                 on-tap="navigateToProfile"></paper-icon-button>
-              <paper-icon-button icon="perm-media"
-                                 id="SourceButton"
-                                 on-tap="navigateToSource"></paper-icon-button>
-              <a id="FilterButton"
-                 on-tap="toggleFilterDisplay">
-                <paper-icon-button icon="filter-list"></paper-icon-button>
-              </a>
+              <paper-icon-button id="FilterButton"
+                                 on-tap="toggleFilterDisplay"
+                                 icon="filter-list"
+                                 class="nav-icon"
+                                 class="nav-icon"></paper-icon-button>
             </div>
           </div>
 
@@ -847,6 +832,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Navigate to newly saved event
       navigateToSavedEvent: function(presentation) {
 
+        // Manage classes on nav icons
+        this.manageNavIcons('data-grid');
+
         this.savedPresentation = presentation;
 
         // Call packageSelected filterState action
@@ -900,8 +888,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.showFilters = !this.showFilters;
       },
 
+      // Manage state of nav icons
+      manageNavIcons: function(icon) {
+
+        var navIcons = this.querySelectorAll('.nav-icon');
+
+        navIcons.forEach(function(navIcon) {
+          navIcon.classList.remove('nav-icon--selected');
+        });
+
+        switch (icon) {
+          case 'data-grid':
+            this.$.DataGridButton.classList.add('nav-icon--selected');
+            break;
+          case 'map':
+            this.$.MapButton.classList.add('nav-icon--selected');
+            break;
+          case 'profile':
+            this.$.ProfileButton.classList.add('nav-icon--selected');
+            break;
+          case 'source':
+            this.$.SourceButton.classList.add('nav-icon--selected');
+            break;
+          default:
+            this.$.DataGridButton.classList.add('nav-icon--selected');
+        }
+      },
+
       // Navigate to last data-grid viewed
-      navigateToEvent: function() {
+      navigateToDataGrid: function() {
+
+        // Manage classes on nav icons
+        this.manageNavIcons('data-grid');
 
         switch (this.currentDataGrid) {
           case app.config.EventsCollection.name:
@@ -921,10 +939,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       },
 
+      // Navigate to Map
+      navigateToMap: function() {
+
+        // Manage classes on nav icons
+        this.manageNavIcons('map');
+
+        page('/' + app.route + '/map/');
+      },
+
       // Navigate to last Profile viewed
       navigateToProfile: function() {
 
         if (this.currentProfileId) {
+
+          // Manage classes on nav icons
+          this.manageNavIcons('profile');
+
           page('/' + app.route + '/profile/' + this.currentProfileId);
         } else {
           this.$.NoProfileDialog.open();
@@ -935,6 +966,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       navigateToSource: function() {
 
         if (this.currentSourceObject) {
+
+          // Manage classes on nav icons
+          this.manageNavIcons('source');
+
           this.sourceActions.viewSourceFile(null);
           this.sourceActions.viewSourceFile(this.currentSourceObject);
           page('/' + app.route + '/source/' + this.currentSourceObject);
