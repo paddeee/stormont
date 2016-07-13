@@ -100,6 +100,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       width: 20px;
     }
 
+    .event-card__nav-icon:hover {
+      color: #E6E6E6;
+    }
+
+    .event-card__nav-icon--selected,
+    .event-card__nav-icon--selected:hover {
+      color: var(--accent-color);
+    }
+
     ul {
       list-style-type: none;
       padding: 0 0 16px;
@@ -146,24 +155,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div id="IconHolder" hidden>
           <paper-icon-button
             id="EventDetail"
+            class="event-card__nav-icon event-card__nav-icon--selected"
             icon="info"
             on-tap="showDetail"
             hidden$="[[!eventData.eventName]]"></paper-icon-button>
 
           <paper-icon-button
             id="PlaceInfo"
+            class="event-card__nav-icon"
             icon="maps:place"
             on-tap="showDetail"
             hidden$="[[!eventData.placeInfo]]"></paper-icon-button>
 
           <paper-icon-button
             id="RelatedEvents"
+            class="event-card__nav-icon"
             icon="social:public"
             on-tap="showDetail"
             hidden$="[[!eventData.relatedEvents.length]]"></paper-icon-button>
 
           <paper-icon-button
             id="RelatedPeople"
+            class="event-card__nav-icon"
             icon="social:group"
             on-tap="showDetail"
             hidden$="[[hidePeopleIcon]]"></paper-icon-button>
@@ -499,6 +512,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.slideEntryAnimation = 'slide-from-left-animation';
           this.slideExitAnimation = 'slide-right-animation';
 
+          this.manageNavIcons('detail');
           this.cardViewSelected = 0;
           break;
         case 'PlaceInfo':
@@ -511,6 +525,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.slideExitAnimation = 'slide-left-animation';
           }
 
+          this.manageNavIcons('place');
           this.cardViewSelected = 1;
           break;
         case 'RelatedEvents':
@@ -523,6 +538,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.slideExitAnimation = 'slide-left-animation';
           }
 
+          this.manageNavIcons('events');
           this.cardViewSelected = 2;
           break;
         case 'RelatedPeople':
@@ -535,10 +551,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.slideExitAnimation = 'slide-left-animation';
           }
 
+          this.manageNavIcons('people');
           this.cardViewSelected = 3;
           break;
         default:
           this.cardViewSelected = 0;
+      }
+    },
+
+    // Manage state of nav icons
+    manageNavIcons: function(icon) {
+
+      var navIcons = this.querySelectorAll('.event-card__nav-icon');
+
+      navIcons.forEach(function(navIcon) {
+        navIcon.classList.remove('event-card__nav-icon--selected');
+      });
+
+      switch (icon) {
+        case 'detail':
+          this.$.EventDetail.classList.add('event-card__nav-icon--selected');
+          break;
+        case 'place':
+          this.$.PlaceInfo.classList.add('event-card__nav-icon--selected');
+          break;
+        case 'events':
+          this.$.RelatedEvents.classList.add('event-card__nav-icon--selected');
+          break;
+        case 'people':
+          this.$.RelatedPeople.classList.add('event-card__nav-icon--selected');
+          break;
+        default:
+          this.$.EventDetail.classList.add('event-card__nav-icon--selected');
       }
     },
 

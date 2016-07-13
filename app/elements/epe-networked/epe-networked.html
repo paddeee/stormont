@@ -76,7 +76,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .nav-icon:hover {
-      color: var(--divider-color);
+      color: #E6E6E6;
     }
 
     .nav-icon--selected,
@@ -152,12 +152,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-toolbar class="tall">
           <paper-icon-button
             id="BackArrow"
-            class="back-button"
+            class="back-button nav-icon"
             icon="arrow-back"
             on-tap="navigateBack"></paper-icon-button>
           <paper-icon-button
             id="MenuButton"
-            class="menu-button"
+            class="menu-button nav-icon"
             icon="menu"
             on-tap="toggleMenu"></paper-icon-button>
           <div class="flex"></div>
@@ -188,7 +188,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <paper-icon-button id="FilterButton"
                                  on-tap="toggleFilterDisplay"
                                  icon="filter-list"
-                                 class="nav-icon"
                                  class="nav-icon"></paper-icon-button>
             </div>
           </div>
@@ -636,17 +635,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.sectionTitle = 'Create Package - ' + window.EpeCreatePackage.params.name;
           }
 
+          // Manage classes on nav icons
+          this.manageNavIcons('data-grid');
+
           // While we're here, scroll header to top
           this.manageScrollHeader('data-grid');
 
         } else if (window.EpeCreatePackage.createPackageRoute === 'map') {
           this.sectionTitle = 'Create Package - Map';
 
+          // Manage classes on nav icons
+          this.manageNavIcons('map');
+
         } else if (window.EpeCreatePackage.createPackageRoute === 'profile') {
           this.sectionTitle = 'Create Package - Profile';
 
+          // Manage classes on nav icons
+          this.manageNavIcons('profile');
+
         } else if (window.EpeCreatePackage.createPackageRoute === 'source') {
           this.sectionTitle = 'Create Package - Supporting Evidence';
+
+          // Manage classes on nav icons
+          this.manageNavIcons('source');
         }
       },
 
@@ -837,9 +848,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Navigate to newly saved event
       navigateToSavedEvent: function(presentation) {
 
-        // Manage classes on nav icons
-        this.manageNavIcons('data-grid');
-
         this.savedPresentation = presentation;
 
         // Call packageSelected filterState action
@@ -923,9 +931,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Navigate to last data-grid viewed
       navigateToDataGrid: function() {
 
-        // Manage classes on nav icons
-        this.manageNavIcons('data-grid');
-
         switch (this.currentDataGrid) {
           case app.config.EventsCollection.name:
             page('/' + app.route + '/data-grid/Event');
@@ -947,9 +952,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Navigate to Map
       navigateToMap: function() {
 
-        // Manage classes on nav icons
-        this.manageNavIcons('map');
-
         page('/' + app.route + '/map/');
       },
 
@@ -957,9 +959,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       navigateToProfile: function() {
 
         if (this.currentProfileId) {
-
-          // Manage classes on nav icons
-          this.manageNavIcons('profile');
 
           page('/' + app.route + '/profile/' + this.currentProfileId);
         } else {
@@ -971,9 +970,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       navigateToSource: function() {
 
         if (this.currentSourceObject) {
-
-          // Manage classes on nav icons
-          this.manageNavIcons('source');
 
           this.sourceActions.viewSourceFile(null);
           this.sourceActions.viewSourceFile(this.currentSourceObject);
@@ -990,6 +986,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Called from event on create-package element when profile changes
       profileChanged: function(event) {
+
         this.currentProfileId = event.detail.profileId;
       },
 
