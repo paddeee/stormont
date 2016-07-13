@@ -30,6 +30,7 @@ var rename = require('gulp-rename');
 var historyApiFallback = require('connect-history-api-fallback');
 var useref = require('gulp-useref');
 var gutil = require('gulp-util');
+var packager = require('electron-packager');
 
 var AUTOPREFIXER_BROWSERS = [
   'ie >= 10',
@@ -286,6 +287,23 @@ gulp.task("browser-unit-tests", function () {
       baseDir: ["./app/test/", "./"],
       index: "testrunner.html"
     }
+  });
+});
+
+gulp.task('packager:osxonline', function () {
+
+  var options = {
+    'app-version': '1.0',
+    'asar': true,
+    'arch': 'all',
+    'dir': './app',
+    'icon': './icons/SITFonline.ico.icns',
+    'platform': [/*win32,*/'darwin'],
+    'version': '1.2.1'
+  };
+
+  packager(options, function done_callback(err, appPaths) {
+    console.log(err, appPaths);
   });
 });
 
