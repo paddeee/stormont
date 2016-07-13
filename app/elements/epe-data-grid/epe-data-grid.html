@@ -266,6 +266,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       z-index: 2;
     }
 
+    .supporting-doc {
+      color: var(--default-primary-color);
+      cursor: pointer;
+    }
+
+    .supporting-doc:hover {
+      text-decoration: underline;
+    }
+
   </style>
   <template>
 
@@ -418,8 +427,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </td>
                 <template is="dom-repeat" items="[[toArray(item)]]">
                   <td class="field-record"
-                      hidden$="[[!showField(item.name)]]">
-                    <span>{{item.value}}</span>
+                      field-name$="[[item.name]]"
+                      hidden$="[[!showField(item.name)]]">{{item.value}}
                   </td>
                 </template>
               </tr>
@@ -697,8 +706,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Set table to relevant size depending on body height
         this.setDefaultTableHeight();
 
+        // Set all valid Supporting Documents to link to the corresponding Source View
+        //this.async(this.setSupportingDocLinks);
+
         // Set table to relevant size depending on widths of heading names
         this.async(this.setDefaultTableWidths);
+      },
+
+      // Set all valid Supporting Documents to link to the corresponding Source View
+      setSupportingDocLinks: function() {
+
+        var gridCell = this.querySelectorAll('.field-record');
+
+        // Iterate through every cell in the data grid
+        gridCell.forEach(function(cell) {
+
+          var supportingDocLinks;
+
+          if (cell.getAttribute('field-name') === 'Supporting Documents') {
+
+            supportingDocLinks = cell.parentNode.querySelector('.field-record[field-name="Supporting Document Links"');
+
+            // If the Supporting Doc has had a link added
+            if (supportingDocLinks && supportingDocLinks.innerText.indexOf('supporting-doc') > -1) {
+
+              cell.innerHTML = supportingDocLinks.textContent;
+
+              if (cell.querySelector('.supporting-doc')) {
+                cell.querySelector('.supporting-doc').classList.add('supporting-doc');
+                this.listen(cell, 'tap', 'navigateToSupportingDoc');
+              }
+            }
+          }
+        }.bind(this));
+
+        this.scopeSubtree(this.$.RecordsTable, true);
       },
 
       // Set heights on table elements to ensure it fits the available height without scrolling
@@ -1196,6 +1238,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           field.width = colSize;
         });
+      },
+
+      // Triggered by user selecting a supporting doc via the field
+      navigateToSupportingDoc: function(event) {
+
+        if (!event.target.dataset.source) {
+          return;
+        }
+
+        var sourceObject = JSON.parse(event.target.dataset.source);
+
+        // Hack based around need to trigger pdf creation in pdf element so we broadcast a change to null
+        // before sending out the object again.
+        this.sourceActions.viewSourceFile(null);
+        this.sourceActions.viewSourceFile(sourceObject);
       }
     });
   })();

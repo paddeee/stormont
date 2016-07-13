@@ -108,6 +108,9 @@ module.exports = Reflux.createStore({
     // Replace shortNames in description field of Event collection
     this.replaceShortnames(dataSource);
 
+    // Replace shortNames in description field of Event collection
+    this.generateSupportingDocsHTML(dataSource);
+
     // Copies of selected data objects are stored in Presentations Collection. These need to be updated.
     this.updateSelectedPresentationsData();
 
@@ -126,6 +129,57 @@ module.exports = Reflux.createStore({
       this.logImport();
 
      }.bind(this));
+  },
+
+  // For Supporting Documents in each collection, add HTML
+  generateSupportingDocsHTML: function(dataSource) {
+
+    var eventData = dataSource.getCollection(config.EventsCollection.name).data;
+
+    // Replace shortnames in Events
+    eventData.forEach(function(event) {
+
+      if (event['Supporting Documents']) {
+        event['Supporting Document Links'] = this.addSupportingDocsHTML(event, dataSource);
+      }
+    }.bind(this));
+  },
+
+  // Add HTML to supporting documents so they can be linked from the data grid
+  addSupportingDocsHTML: function(event, dataSource) {
+
+    var supportingDocuments = event['Supporting Documents'];
+
+    var supportingDocsHTMLArray = [];
+
+    supportingDocuments = supportingDocuments.split(',');
+
+    supportingDocuments.forEach(function(supportingDoc) {
+
+      var supportingDocObject = this.getSupportingDocId(supportingDoc.trim(), dataSource);
+
+      if (supportingDocObject) {
+        supportingDocObject = JSON.stringify(supportingDocObject);
+        supportingDocsHTMLArray.push(`<span class='supporting-doc' data-source='${supportingDocObject}'>${supportingDoc.trim()}</span>`);
+      } else {
+        supportingDocsHTMLArray.push(supportingDoc.trim());
+      }
+
+    }.bind(this));
+
+    return supportingDocsHTMLArray.join(', ');
+  },
+
+  // Get the id of the Supporting document from the Source Collection
+  getSupportingDocId: function(docShortName, dataSource) {
+
+    var sourceCollection = dataSource.getCollection(config.SourcesCollection.name);
+
+    return sourceCollection.find({
+      'Short Name': {
+        '$eq': docShortName
+      }
+    })[0];
   },
 
   // Find and Replace by a dictionary
@@ -170,7 +224,6 @@ module.exports = Reflux.createStore({
       if (event.Description) {
         event.Description = this.replaceUsingDictionary(shortNameDictionary, event.Description, handlerFunction);
       }
-
     }.bind(this));
 
     // Replace shortnames in Places
