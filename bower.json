@@ -14,7 +14,6 @@
     "paper-dropdown-menu": "PolymerElements/paper-dropdown-menu#~1.2.0",
     "paper-listbox": "polymerelements/paper-listbox#~1.1.2",
     "paper-toggle-button": "PolymerElements/paper-toggle-button#^1.1.2",
-    "font-roboto": "PolymerElements/font-roboto-local#^1.0.1",
     "font-roboto-local": "PolymerElements/font-roboto-local#^1.0.1"
   },
   "devDependencies": {
