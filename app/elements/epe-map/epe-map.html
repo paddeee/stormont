@@ -146,6 +146,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       line-height: 29px;
     }
 
+    .leaflet-control-scale-line {
+      margin: 0px 0px 8px;
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px outset;
+    }
+
     .toggle-cluster-control,
     .toggle-tiles-control,
     .toggle-legend-control,
@@ -774,6 +780,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // CALLED FROM LEAFLET MAP LOAD EVENT FIRING
     mapReady: function() {
+
+      // Add the scale
+      this.scaleControl = L.control.scale({
+        position: 'topright'
+      });
+
+      // Only add to map if it doesn't yet exist
+      if (!this.scaleAdded) {
+        this.$.LeafletMap.map.addControl(this.scaleControl);
+        this.scaleAdded = true;
+      }
 
       // Set up Leaflet Draw
       this.setUpLeafletDraw();

@@ -668,6 +668,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           if (window.EpeEditPackage.params) {
 
+            // Manage classes on nav icons
+            this.manageNavIcons('data-grid');
+
             // While we're here, scroll header to top
             this.manageScrollHeader('data-grid');
 
@@ -679,11 +682,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         } else if (window.EpeEditPackage.createPackageRoute === 'map') {
           this.sectionTitle = 'Map - ' + this.presentationName;
 
+          // Manage classes on nav icons
+          this.manageNavIcons('map');
+
         } else if (window.EpeEditPackage.createPackageRoute === 'profile') {
           this.sectionTitle = 'Profile - ' + this.presentationName;
 
+          // Manage classes on nav icons
+          this.manageNavIcons('profile');
+
         } else if (window.EpeEditPackage.createPackageRoute === 'source') {
           this.sectionTitle = 'Supporting Evidence - ' + this.presentationName;
+
+          // Manage classes on nav icons
+          this.manageNavIcons('source');
         }
       },
 
