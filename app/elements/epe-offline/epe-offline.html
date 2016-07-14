@@ -264,7 +264,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <section data-route="choose-package">
             <epe-choose-package import-package-actions="[[importPackageActions]]"
                                 import-package-store="[[importPackageStore]]"
-                                on-package-selected="packageSelected"
                                 on-court-mode-changed="courtModeChanged"
                                 on-import-success="importSuccess"
                                 on-import-failure="importFailure"
@@ -434,7 +433,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <span>The package has been successfully imported into the application.</span>
       </div>
       <div class="buttons">
-        <paper-button dialog-confirm autofocus on-tap="navigateToMap">OK</paper-button>
+        <paper-button dialog-confirm autofocus on-tap="importSuccessConfirmed">OK</paper-button>
       </div>
     </paper-dialog>
 
@@ -1131,8 +1130,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       // Called from event on choose-package element
-      importingPackage: function(event) {
+      importingPackage: function() {
         this.$.ImportingPackage.open();
+      },
+
+      // Navigate to the Map
+      importSuccessConfirmed: function() {
+        page('/create-package/map');
+        this.packageSelected();
       }
     });
   })();

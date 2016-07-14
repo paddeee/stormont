@@ -280,12 +280,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
-    // Navigate to the Map
-    navigateToMap: function() {
-      page('/create-package/map');
-      this.fire('package-selected');
-    },
-
     // Court Mode toggle changed
     courtModeChanged: function() {
       this.fire('court-mode-changed', this.$.CourtModeToggle.active);
