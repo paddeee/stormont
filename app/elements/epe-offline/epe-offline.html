@@ -398,6 +398,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
     </paper-dialog>
 
+    <paper-dialog id="NoExternalDisplayDialog" modal>
+      <h2>No External Display Detected</h2>
+      <div>
+        <span>Court mode is on but the application can't detect an external display.</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
   </template>
 </dom-module>
 <script>
@@ -501,16 +511,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         if (typeof process === 'object') {
 
+          // Listen to Electron when directory is selected
+          ipcRenderer.on('no-external-display', function () {
+            this.$.NoExternalDisplayDialog.open();
+          }.bind(this));
+
           // Listen to Electron pdf created errors
           ipcRenderer.on('pdf-error', function (event, arg) {
-            console.log(arg);
+            console.error(arg);
             this.publishMessage = 'Error creating PDF: ' + arg.code;
             this.$.PublishErrorDialog.open();
           }.bind(this));
 
           // Listen to Electron when a pdf is created successfully
           ipcRenderer.on('pdf-created', function (event, arg) {
-
             this.publishMessage = 'PDF created at ' + arg.pdfPath;
             this.$.PublishSuccessDialog.open();
           }.bind(this));
@@ -940,14 +954,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // ToggleCourt Mode changed
       toggleCourtModeChanged: function(event) {
         this.courtMode = event.currentTarget.active;
-        ipcRenderer.send('court-mode-changed', event.currentTarget.active);
+
+        if (typeof process === 'object') {
+          ipcRenderer.send('court-mode-changed', event.currentTarget.active);
+        } else {
+          console.warn('No Court Mode in browser');
+        }
       },
 
       // Court Mode changed
       courtModeChanged: function(event) {
         this.courtMode = event.detail;
         this.$.CourtModeToggle.checked = event.detail;
-        ipcRenderer.send('court-mode-changed', event.detail);
+        if (typeof process === 'object') {
+          ipcRenderer.send('court-mode-changed', event.detail);
+        } else {
+          console.warn('No Court Mode in browser');
+        }
       },
 
       // Manage state of nav icons

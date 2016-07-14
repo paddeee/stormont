@@ -165,8 +165,9 @@ app.on('ready', function() {
 
     externalDisplay = courtMode;
 
-    // If only one screen when the court mode is changed, do nothing
+    // If only one screen when the court mode is changed send a message to the renderer process
     if (electron.screen.getAllDisplays().length < 2) {
+      controllerWindow.webContents.send('no-external-display');
       return;
     }
 
