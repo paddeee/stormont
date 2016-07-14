@@ -15,18 +15,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     :host {
       display: block;
+      width: 100%;
+      height: 100%;
+      position: fixed;
+      background-color: var(--primary-background-color);
     }
 
     paper-material.card--choose-package {
-      background-color: var(--dark-primary-color);
+      background-color: rgb(0, 158, 194);
       color: var(--text-primary-color);
-      margin-top: 64px;
-      max-height: 300px;
-      max-width: 512px;
-      width: 512px;
+      margin: 160px 10vw 0;
+      max-height: 60vh;
+      width: 80vw;
       box-shadow: 0 2px 5px 0 rgba(0,0,0,.26);
       border-radius: 2px;
-      overflow-y: auto;
     }
 
     .choose-button-holder {
@@ -36,9 +38,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .choose-button {
       background-color: var(--primary-background-color);
       color: var(--primary-text-color);
-      height: 64px;
+      height: 9vh;
       width: 250px;
-      font-size: 20px;
+      font-size: 3vh;
       line-height: 1.6;
     }
 
@@ -77,37 +79,95 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       --paper-toggle-button-checked-button-color: var(--accent-color);
       --paper-toggle-button-checked-ink-color: var(--accent-color);
     }
+
+    .logo {
+      position: absolute;
+      top: -150px;
+      text-align: center;
+      width: 74vw;
+    }
+
+    .logo > img {
+      border-radius: 50%;
+      height: 200px;
+      width: 200px;
+    }
+
+    .card-contents {
+      margin: 28px 0 0;
+    }
+
+    h1 {
+      font-weight: normal;
+      text-align: center;
+      font-size: 3vh;
+    }
+
+    h2 {
+      margin: 0;
+      font-weight: normal;
+      font-size: 3vh;
+    }
+
+    h3 {
+      margin: 2vh 0;
+      font-size: 2.5vh;
+    }
+
+    .evidential-logo {
+      bottom: 3vh;
+      position: absolute;
+      text-align: center;
+      width: 100vw;
+    }
+
+    .evidential-logo > img {
+      cursor: pointer;
+      height: 6vh;
+    }
   </style>
   <template>
 
     <div class="main flex layout vertical center">
       <paper-material elevation="1" class="card card--choose-package flex fit layout vertical center">
-        <h1>Choose Package To Import</h1>
-        <div class="toggle-mode">
-          <paper-toggle-button
-            id="CourtModeToggle"
-            on-change="courtModeChanged">
-            External Display Mode</paper-toggle-button>
+        <div class="logo">
+          <img src="../../images/offline-logo400x400.png"/>
         </div>
-        <div class="choose-button-holder layout horizontal center-justified">
-          <paper-button
-            raised
-            id="ChooseButton"
-            class="choose-button"
-            on-tap="choosePackageTapped"><iron-icon icon="file-upload"></iron-icon>Choose Package</paper-button>
+        <div class="card-contents layout vertical center">
+          <h1>EULEX Kosovo <br>Special Investigation Task Force</h1>
+          <h2>Electronic Presentation of Evidence</h2>
+          <h3>Choose Package To Import</h3>
+          <div class="toggle-mode">
+            <paper-toggle-button
+              id="CourtModeToggle"
+              on-change="courtModeChanged">
+              External Display Mode</paper-toggle-button>
+          </div>
+          <div class="choose-button-holder layout horizontal center-justified">
+            <paper-button
+              raised
+              id="ChooseButton"
+              class="choose-button"
+              on-tap="choosePackageTapped"><iron-icon icon="file-upload"></iron-icon>Choose Package</paper-button>
+          </div>
+
+          <div class="display-import-path">[[importLocation]]</div>
+
+          <paper-input
+            id="ImportPassword"
+            class="import-package"
+            label="Enter Package Password, Then Hold Down YubiKey Button"
+            type="password"
+            autofocus
+            on-keypress="yubiKeyPressed"></paper-input>
         </div>
-
-        <div class="display-import-path">[[importLocation]]</div>
-
-        <paper-input
-          id="ImportPassword"
-          class="import-package"
-          label="Enter Package Password, Then Hold Down YubiKey Button"
-          type="password"
-          autofocus
-          on-keypress="yubiKeyPressed"></paper-input>
-
       </paper-material>
+      <div class="evidential-logo">
+        <img id="EvidentialLink"
+             src="../../images/evidential-logo.gif"
+             on-tap="openEvidentialSite"/>
+        <paper-tooltip for="EvidentialLink" position="top">Click to vist Evidential website</paper-tooltip>
+      </div>
     </div>
 
     <paper-dialog id="NoLocationDialog" modal>
@@ -266,6 +326,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Court Mode toggle changed
     courtModeChanged: function() {
       this.fire('court-mode-changed', this.$.CourtModeToggle.active);
+    },
+
+    // Open the Evidential website
+    openEvidentialSite: function() {
+
+      var win;
+
+      if (typeof process === 'object') {
+        ipcRenderer.send('open-link-in-browser', 'http://evidential.com/');
+      } else {
+        win = window.open('http://evidential.com/', '_blank');
+        win.focus();
+      }
     }
   });
 })();
