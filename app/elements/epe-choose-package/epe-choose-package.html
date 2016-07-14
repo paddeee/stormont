@@ -40,7 +40,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       color: var(--primary-text-color);
       height: 9vh;
       width: 250px;
-      font-size: 3vh;
+      font-size: 2.6vh;
       line-height: 1.6;
     }
 
@@ -97,19 +97,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       margin: 28px 0 0;
     }
 
-    h1 {
+    .card-contents h1 {
       font-weight: normal;
       text-align: center;
       font-size: 3vh;
     }
 
-    h2 {
+    .card-contents h2 {
       margin: 0;
       font-weight: normal;
       font-size: 3vh;
     }
 
-    h3 {
+    .card-contents h3 {
       margin: 2vh 0;
       font-size: 2.5vh;
     }
@@ -170,42 +170,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
     </div>
 
-    <paper-dialog id="NoLocationDialog" modal>
-      <h2>Please choose a Package File to Import.</h2>
-      <div class="buttons layout horizontal">
-        <paper-button dialog-confirm autofocus>OK</paper-button>
-      </div>
-    </paper-dialog>
-
-    <paper-dialog id="ImportingPackage"
-                  class="import-dialog"
-                  modal>
-      <h2>Importing Package</h2>
-      <div class="import-progress layout horizontal center center-justified">
-        <paper-progress indeterminate value="800" min="100" max="1000"></paper-progress>
-      </div>
-    </paper-dialog>
-
-    <paper-dialog id="ImportSuccessDialog" modal>
-      <h2>Package Successfully Imported</h2>
-      <div>
-        <span>The package has been successfully imported into the application.</span>
-      </div>
-      <div class="buttons">
-        <paper-button dialog-confirm autofocus on-tap="navigateToMap">OK</paper-button>
-      </div>
-    </paper-dialog>
-
-    <paper-dialog id="ImportErrorDialog" modal>
-      <h2>Package Import Error</h2>
-      <div>
-        <span>[[importFailureMessage]]</span>
-      </div>
-      <div class="buttons">
-        <paper-button dialog-confirm autofocus>OK</paper-button>
-      </div>
-    </paper-dialog>
-
   </template>
 </dom-module>
 <script>
@@ -258,14 +222,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Import Successful
       if (messageType === 'importSuccess') {
-        this.$.ImportSuccessDialog.open();
-        this.$.ImportingPackage.close();
+        this.fire('import-success');
 
         // Decrypt temporary package error
       } else if (messageType === 'dbDecryptionFailure') {
-        this.importFailureMessage = 'There was a problem decrypting the Database File. Please make sure the directory contains a database file and re-enter the password and press the Yubikey again';
-        this.$.ImportErrorDialog.open();
-        this.$.ImportingPackage.close();
+        this.fire('import-failure', {
+          message: 'There was a problem decrypting the Database File. Please make sure the directory contains a database file and re-enter the password and press the Yubikey again'
+        });
       }
     },
 
@@ -286,7 +249,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var packagePassword;
 
       if (this.importLocation === 'Not selected..') {
-        this.$.NoLocationDialog.open();
+        this.fire('no-location-selected');
         return;
       }
 
@@ -303,7 +266,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.$.ImportPassword.value = null;
 
           // Open the Exporting Loading Dialog
-          this.$.ImportingPackage.open();
+          this.fire('importing-package');
 
           // Call importPackage packageSelected action
           this.importPackageActions.packageSelected({

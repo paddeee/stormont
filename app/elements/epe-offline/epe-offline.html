@@ -265,7 +265,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <epe-choose-package import-package-actions="[[importPackageActions]]"
                                 import-package-store="[[importPackageStore]]"
                                 on-package-selected="packageSelected"
-                                on-court-mode-changed="courtModeChanged">
+                                on-court-mode-changed="courtModeChanged"
+                                on-import-success="importSuccess"
+                                on-import-failure="importFailure"
+                                on-no-location-selected="noLocationSelected"
+                                on-importing-package="importingPackage">
             </epe-choose-package>
           </section>
 
@@ -402,6 +406,42 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <h2>No External Display Detected</h2>
       <div>
         <span>Court mode is on but the application can't detect an external display.</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="NoLocationDialog" modal>
+      <h2>Please choose a Package File to Import.</h2>
+      <div class="buttons layout horizontal">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="ImportingPackage"
+                  class="import-dialog"
+                  modal>
+      <h2>Importing Package</h2>
+      <div class="import-progress layout horizontal center center-justified">
+        <paper-progress indeterminate value="800" min="100" max="1000"></paper-progress>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="ImportSuccessDialog" modal>
+      <h2>Package Successfully Imported</h2>
+      <div>
+        <span>The package has been successfully imported into the application.</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus on-tap="navigateToMap">OK</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="ImportErrorDialog" modal>
+      <h2>Package Import Error</h2>
+      <div>
+        <span>[[importFailureMessage]]</span>
       </div>
       <div class="buttons">
         <paper-button dialog-confirm autofocus>OK</paper-button>
@@ -955,21 +995,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       toggleCourtModeChanged: function(event) {
         this.courtMode = event.currentTarget.active;
 
-        if (typeof process === 'object') {
-          ipcRenderer.send('court-mode-changed', event.currentTarget.active);
-        } else {
-          console.warn('No Court Mode in browser');
+        if (this.courtMode) {
+          if (typeof process === 'object') {
+            ipcRenderer.send('court-mode-changed', event.currentTarget.active);
+          } else {
+            console.warn('No Court Mode in browser');
+          }
         }
       },
 
       // Court Mode changed
       courtModeChanged: function(event) {
+
         this.courtMode = event.detail;
         this.$.CourtModeToggle.checked = event.detail;
-        if (typeof process === 'object') {
-          ipcRenderer.send('court-mode-changed', event.detail);
-        } else {
-          console.warn('No Court Mode in browser');
+
+        if (this.courtMode) {
+          if (typeof process === 'object') {
+            ipcRenderer.send('court-mode-changed', event.detail);
+          } else {
+            console.warn('No Court Mode in browser');
+          }
         }
       },
 
@@ -1064,6 +1110,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Called from event on create-package element when source changes
       sourceChanged: function(event) {
         this.currentSourceObject = event.detail.sourceObject;
+      },
+
+      // Called from event on choose-package element
+      importSuccess: function() {
+        this.$.ImportSuccessDialog.open();
+        this.$.ImportingPackage.close();
+      },
+
+      // Called from event on choose-package element
+      importFailure: function(event) {
+        this.importFailureMessage = event.detail.message;
+        this.$.ImportErrorDialog.open();
+        this.$.ImportingPackage.close();
+      },
+
+      // Called from event on choose-package element
+      noLocationSelected: function() {
+        this.$.NoLocationDialog.open();
+      },
+
+      // Called from event on choose-package element
+      importingPackage: function(event) {
+        this.$.ImportingPackage.open();
       }
     });
   })();

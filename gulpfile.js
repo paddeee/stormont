@@ -369,6 +369,34 @@ gulp.task('packager:windowsonline', function () {
   });
 });
 
+gulp.task('packager:windowsoffline', function () {
+
+  var options = {
+    'app-version': '1.0',
+    'asar': true,
+    'arch': 'all',
+    'dir': './dist',
+    'icon': './icons/SITFoffline.ico',
+    'name': 'SITFPackageViewer',
+    'productName': 'SITF Package Viewer',
+    'out': '/Users/ODonnell/SITF/Builds',
+    'overwrite': true,
+    'platform': 'win32',
+    'version': '1.2.1',
+    'version-string': {
+      'CompanyName': 'Evidential Ltd',
+      'FileDescription': 'SITF Package Viewer',
+      'OriginalFilename': 'SITFPackageViewer',
+      'ProductName': 'SITFPackageViewer',
+      'InternalName': 'SITFPackageViewer'
+    }
+  };
+
+  packager(options, function done_callback(err, appPaths) {
+    console.log(err, appPaths);
+  });
+});
+
 gulp.task('unit-tests', function () {
 
   // gulp expects tasks to return a stream, so we create one here.
