@@ -70,6 +70,17 @@ var getRoles =  function () {
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
 
+  var appUserModelId;
+
+  if (buildType === 0) {
+    appUserModelId = 'SITF Package Creator';
+  } else if (buildType === 1) {
+    appUserModelId = 'SITF Package Viewer';
+  }
+
+  // Set Name of package for Windows
+  app.setAppUserModelId(appUserModelId);
+
   var createExternalWindow = function() {
 
     // Get controller display based on smallest screen width

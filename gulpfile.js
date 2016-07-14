@@ -31,6 +31,8 @@ var historyApiFallback = require('connect-history-api-fallback');
 var useref = require('gulp-useref');
 var gutil = require('gulp-util');
 var packager = require('electron-packager');
+var builder = require("electron-builder");
+var Platform = builder.Platform;
 
 var AUTOPREFIXER_BROWSERS = [
   'ie >= 10',
@@ -290,6 +292,33 @@ gulp.task("browser-unit-tests", function () {
   });
 });
 
+gulp.task('build:osxonline', function () {
+
+  // Promise is returned
+  builder.build({
+    targets: Platform.MAC.createTarget(),
+    devMetadata: {
+      'app-version': '1.0',
+      'asar': true,
+      'arch': 'all',
+      'dir': './dist',
+      'icon': './icons/SITFonline.ico',
+      'name': 'SITFPackageCreator',
+      'productName': 'SITF Package Creator',
+      'out': '/Users/ODonnell/SITF/Builds',
+      'overwrite': true,
+      'platform': 'win32',
+      'version': '1.2.1'
+    }
+  })
+  .then(function(a,b,c) {
+    console.log(a,b,c);
+  }.bind(this))
+  .catch(function(error) {
+    console.log(error);
+  }.bind(this));
+});
+
 gulp.task('packager:osxonline', function () {
 
   var options = {
@@ -299,7 +328,8 @@ gulp.task('packager:osxonline', function () {
     'arch': 'all',
     'dir': './app',
     'icon': './icons/SITFonline.ico.icns',
-    'name': 'SITFNetworked',
+    'name': 'SITFPackageViewer',
+    'productName': 'SITF Package Creator',
     'out': '/Users/ODonnell/SITF/Builds',
     'overwrite': true,
     'platform': 'darwin',
@@ -317,13 +347,21 @@ gulp.task('packager:windowsonline', function () {
     'app-version': '1.0',
     'asar': true,
     'arch': 'all',
-    'dir': './app',
+    'dir': './dist',
     'icon': './icons/SITFonline.ico',
-    'name': 'SITFNetworked',
+    'name': 'SITFPackageCreator',
+    'productName': 'SITF Package Creator',
     'out': '/Users/ODonnell/SITF/Builds',
     'overwrite': true,
     'platform': 'win32',
-    'version': '1.2.1'
+    'version': '1.2.1',
+    'version-string': {
+      'CompanyName': 'Evidential Ltd',
+      'FileDescription': 'SITF Package Creator',
+      'OriginalFilename': 'SITFPackageCreator',
+      'ProductName': 'SITFPackageCreator',
+      'InternalName': 'SITFPackageCreator'
+    }
   };
 
   packager(options, function done_callback(err, appPaths) {
