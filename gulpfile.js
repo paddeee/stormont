@@ -294,11 +294,35 @@ gulp.task('packager:osxonline', function () {
 
   var options = {
     'app-version': '1.0',
+    'app-category-type': 'public.app-category.business',
     'asar': true,
     'arch': 'all',
     'dir': './app',
     'icon': './icons/SITFonline.ico.icns',
-    'platform': [/*win32,*/'darwin'],
+    'name': 'SITFNetworked',
+    'out': '/Users/ODonnell/SITF/Builds',
+    'overwrite': true,
+    'platform': 'darwin',
+    'version': '1.2.1'
+  };
+
+  packager(options, function done_callback(err, appPaths) {
+    console.log(err, appPaths);
+  });
+});
+
+gulp.task('packager:windowsonline', function () {
+
+  var options = {
+    'app-version': '1.0',
+    'asar': true,
+    'arch': 'all',
+    'dir': './app',
+    'icon': './icons/SITFonline.ico',
+    'name': 'SITFNetworked',
+    'out': '/Users/ODonnell/SITF/Builds',
+    'overwrite': true,
+    'platform': 'win32',
     'version': '1.2.1'
   };
 
