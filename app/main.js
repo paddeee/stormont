@@ -386,3 +386,8 @@ ipcMain.on('save-pdf', function(event, pdfObject) {
 ipcMain.on('quit-app', function() {
   app.quit();
 });
+
+// Open a link in a browser window.
+ipcMain.on('open-link-in-browser', function(event, url) {
+  shell.openExternal(url);
+});

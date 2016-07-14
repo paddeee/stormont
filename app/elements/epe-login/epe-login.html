@@ -89,6 +89,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .evidential-logo > img {
+      cursor: pointer;
       height: 6vh;
     }
 
@@ -98,7 +99,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <div class="main flex layout vertical">
       <paper-material elevation="1" class="card card--login flex fit layout vertical center">
         <div class="logo">
-          <img src="/images/online-logo400x400.png"/>
+          <img src="../../images/online-logo400x400.png"/>
         </div>
         <div class="card-contents layout vertical center">
           <h1>EULEX Kosovo <br>Special Investigation Task Force</h1>
@@ -128,7 +129,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
       </paper-material>
       <div class="evidential-logo">
-        <img src="/images/evidential-logo.gif"/>
+        <img id="EvidentialLink"
+          src="../../images/evidential-logo.gif"
+          on-tap="openEvidentialSite"/>
+        <paper-tooltip for="EvidentialLink" position="top">Click to vist Evidential website</paper-tooltip>
       </div>
     </div>
   </template>
@@ -198,6 +202,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       if (this.validateForm()) {
         this.createUserLogin();
+      }
+    },
+
+    // Open the Evidential website
+    openEvidentialSite: function() {
+
+      var win;
+
+      if (typeof process === 'object') {
+        ipcRenderer.send('open-link-in-browser', 'http://evidential.com/');
+      } else {
+        win = window.open('http://evidential.com/', '_blank');
+        win.focus();
       }
     }
   });

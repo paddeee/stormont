@@ -3,6 +3,7 @@
   "app_name": "SITF",
   "version" : "0.1.0",
   "name": "SITF",
+  "description": "EPE",
   "dependencies": {
     "activedirectory": "^0.7.2",
     "babyparse": "^0.4.3",
