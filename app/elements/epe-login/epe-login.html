@@ -15,18 +15,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     :host {
       display: block;
+      width: 100%;
+      height: 100%;
+      position: fixed;
+      background-color: var(--primary-background-color);
     }
 
     paper-material.card--login {
-      background-color: var(--dark-primary-color);
+      background-color: rgb(0, 158, 194);
       color: var(--text-primary-color);
-      margin-top: 64px;
-      max-height: 580px;
-      max-width: 512px;
-      width: 512px;
+      margin: 160px 10vw 0;
+      max-height: 54vh;
+      width: 80vw;
       box-shadow: 0 2px 5px 0 rgba(0,0,0,.26);
       border-radius: 2px;
-      overflow-y: auto;
     }
 
     .submit-button-holder {
@@ -42,36 +44,92 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       color: var(--primary-text-color);
     }
 
+    .logo {
+      position: absolute;
+      top: -150px;
+      text-align: center;
+      width: 74vw;
+    }
+
+    .logo > img {
+      border-radius: 50%;
+      height: 200px;
+      width: 200px;
+    }
+
+    .card-contents {
+      margin: 28px 0 0;
+    }
+
+    paper-input {
+      width: 60vw;
+    }
+
+    h1 {
+      font-weight: normal;
+      text-align: center;
+      font-size: 3.5vh;
+    }
+
+    h2 {
+      margin: 0;
+      font-weight: normal;
+      font-size: 3.5vh;
+    }
+
+    paper-button {
+      height: 40px;
+    }
+
+    .evidential-logo {
+      bottom: 3vh;
+      position: absolute;
+      text-align: center;
+      width: 100vw;
+    }
+
+    .evidential-logo > img {
+      height: 6vh;
+    }
+
   </style>
 
   <template>
     <div class="main flex layout vertical">
-      <paper-material elevation="1" class="card card--login flex fit layout vertical">
-        <h1>SITF Login</h1>
-        <paper-input
-          id="UserName"
-          label="Username"
-          autofocus
-          autovalidate
-          required
-          error-message="Please enter your User Name"></paper-input>
-        <paper-input
-          id="Password"
-          label="Password"
-          type="password"
-          required
-          autovalidate
-          error-message="Please enter your Password"></paper-input>
-        <div class="submit-button-holder layout horizontal end-justified">
-          <paper-button
-            raised
-            id="SubmitButton"
-            class="submit-button"
-            icon="check"
-            on-tap="submitTapped">Log In</paper-button>
+      <paper-material elevation="1" class="card card--login flex fit layout vertical center">
+        <div class="logo">
+          <img src="/images/online-logo400x400.png"/>
         </div>
-
+        <div class="card-contents layout vertical center">
+          <h1>EULEX Kosovo <br>Special Investigation Task Force</h1>
+          <h2>Electronic Presentation of Evidence</h2>
+          <paper-input
+            id="UserName"
+            label="Username"
+            autofocus
+            autovalidate
+            required
+            error-message="Please enter your User Name"></paper-input>
+          <paper-input
+            id="Password"
+            label="Password"
+            type="password"
+            required
+            autovalidate
+            error-message="Please enter your Password"></paper-input>
+          <div class="submit-button-holder layout horizontal end-justified">
+            <paper-button
+              raised
+              id="SubmitButton"
+              class="submit-button"
+              icon="check"
+              on-tap="submitTapped">Log In</paper-button>
+          </div>
+        </div>
       </paper-material>
+      <div class="evidential-logo">
+        <img src="/images/evidential-logo.gif"/>
+      </div>
     </div>
   </template>
 </dom-module>
