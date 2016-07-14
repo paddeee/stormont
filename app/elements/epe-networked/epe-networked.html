@@ -89,10 +89,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       text-decoration: none;
     }
 
+    .menu-option {
+      padding: 0 16px;
+      font-family: 'Roboto', 'Noto', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 24px;
+      min-height: 48px;
+      cursor: pointer;
+    }
+
     paper-drawer-panel {
     --paper-drawer-panel-drawer-container: {
        z-index: 2;
      };
+    }
+
+    paper-menu {
+      outline: none;
     }
   </style>
   <template>
@@ -137,6 +153,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <iron-icon icon="exit-to-app"></iron-icon>
             <span>Log Out</span>
           </a>
+          <div class="menu-option flex layout horizontal center" on-tap="showQuitAppDialog">
+            <iron-icon icon="close"></iron-icon>
+            <span>Quit App</span>
+          </div>
         </paper-menu>
 
       </paper-scroll-header-panel>
@@ -386,6 +406,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
       <div class="buttons">
         <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="QuitAppDialog" modal>
+      <h2>Quit Application</h2>
+      <div>
+        <span>Are you sure you want to quit the application? Any unsaved changes will be lost.</span>
+      </div>
+      <div class="buttons layout horizontal">
+        <paper-button dialog-dismiss autofocus>Cancel</paper-button>
+        <paper-button dialog-confirm
+                      on-tap="quitAppConfirmed">OK</paper-button>
       </div>
     </paper-dialog>
 
@@ -1013,6 +1045,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.currentProfileId = 0;
         this.currentDataGrid = app.config.EventsCollection.name;
         this.userActions.logOut();
+      },
+
+      // Show the Quit App Dialog
+      showQuitAppDialog: function() {
+        this.$.QuitAppDialog.open();
+      },
+
+      // Send message to Electron to quit the app
+      quitAppConfirmed: function() {
+        if (typeof process === 'object') {
+          ipcRenderer.send('quit-app');
+        } else {
+          console.warn('Cannot close application in browser');
+        }
       }
     });
   })();
