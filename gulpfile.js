@@ -32,6 +32,7 @@ var useref = require('gulp-useref');
 var gutil = require('gulp-util');
 var packager = require('electron-packager');
 var builder = require("electron-builder");
+var electronInstaller = require('electron-winstaller');
 var Platform = builder.Platform;
 
 var AUTOPREFIXER_BROWSERS = [
@@ -393,8 +394,39 @@ gulp.task('packager:windowsoffline', function () {
   };
 
   packager(options, function done_callback(err, appPaths) {
-    console.log(err, appPaths);
+
+    var installerPromise;
+
+    // Create Installer
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(appPaths);
+    }
   });
+});
+
+gulp.task('installer:windowsoffline', function () {
+
+    var appDirectory = '/Users/ODonnell/SITF/Builds';
+
+    var installerPromise = electronInstaller.createWindowsInstaller({
+      appDirectory: appDirectory + '/SITFPackageViewer-win32-x64',
+      outputDirectory: '/Users/ODonnell/SITF/Builds',
+      authors: 'Evidential Ltd',
+      exe: 'SITFPackageViewer.exe',
+      version: '1.0',
+      //iconUrl: 'https://github.com/paddeee/farrel/blob/master/icons/SITFoffline.ico',
+      //setupIcon: 'https://github.com/paddeee/farrel/blob/master/icons/SITFoffline.ico',
+      setupExe: 'SITFPackageViewerSetUp.exe',
+      noMsi: false
+    });
+
+    installerPromise.then(function() {
+      console.log("It worked!");
+    }, function(error) {
+      console.log(`No dice: ${error.message}`);
+    });
 });
 
 gulp.task('unit-tests', function () {
