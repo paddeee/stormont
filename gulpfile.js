@@ -416,8 +416,8 @@ gulp.task('installer:windowsoffline', function () {
       authors: 'Evidential Ltd',
       exe: 'SITFPackageViewer.exe',
       version: '1.0',
-      //iconUrl: 'https://github.com/paddeee/farrel/blob/master/icons/SITFoffline.ico',
-      //setupIcon: 'https://github.com/paddeee/farrel/blob/master/icons/SITFoffline.ico',
+      iconUrl: 'https://paddeee.github.io/icons/SITFoffline.ico',
+      setupIcon: './icons/SITFoffline.ico',
       setupExe: 'SITFPackageViewerSetUp.exe',
       noMsi: false
     });
