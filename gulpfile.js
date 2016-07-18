@@ -32,7 +32,6 @@ var useref = require('gulp-useref');
 var gutil = require('gulp-util');
 var packager = require('electron-packager');
 var electronInstaller = require('electron-winstaller');
-var Platform = builder.Platform;
 
 var AUTOPREFIXER_BROWSERS = [
   'ie >= 10',
@@ -143,16 +142,13 @@ gulp.task('copy', function () {
     .pipe($.rename('elements.vulcanized.html'))
     .pipe(gulp.dest('dist/elements'));
 
-  var testMedia = gulp.src(['app/testmedia/**/*'])
-    .pipe(gulp.dest('dist/testmedia'));
-
   var profiles = gulp.src(['app/profiles/**/*'])
     .pipe(gulp.dest('dist/profiles'));
 
   var fonts = gulp.src(['app/fonts/**/*'])
     .pipe(gulp.dest('dist/fonts'));
 
-  return merge(app, bower, elements, vulcanized, swBootstrap, swToolbox, testMedia, profiles, vendorScripts, vendorStyles, fonts)
+  return merge(app, bower, elements, vulcanized, swBootstrap, swToolbox, profiles, vendorScripts, vendorStyles, fonts)
     .pipe($.size({title: 'copy'}));
 });
 
@@ -292,34 +288,7 @@ gulp.task("browser-unit-tests", function () {
   });
 });
 
-gulp.task('build:osxonline', function () {
-
-  // Promise is returned
-  builder.build({
-    targets: Platform.MAC.createTarget(),
-    devMetadata: {
-      'app-version': '1.0',
-      'asar': true,
-      'arch': 'all',
-      'dir': './dist',
-      'icon': './icons/SITFonline.ico',
-      'name': 'SITFPackageCreator',
-      'productName': 'SITF Package Creator',
-      'out': '/Users/ODonnell/SITF/Builds',
-      'overwrite': true,
-      'platform': 'win32',
-      'version': '1.2.1'
-    }
-  })
-  .then(function(a,b,c) {
-    console.log(a,b,c);
-  }.bind(this))
-  .catch(function(error) {
-    console.log(error);
-  }.bind(this));
-});
-
-gulp.task('packager:osxonline', function () {
+gulp.task('packager:osxpackagecreator', function () {
 
   var options = {
     'app-version': '1.0',
@@ -336,17 +305,63 @@ gulp.task('packager:osxonline', function () {
     'version': '1.2.1'
   };
 
-  packager(options, function done_callback(err, appPaths) {
-    console.log(err, appPaths);
+  var taskPromise = new Promise(function (resolve, reject) {
+
+    packager(options, function (error, appPaths) {
+
+      if (error) {
+        console.log(error);
+        reject(error);
+      } else {
+        console.log(appPaths);
+        resolve(appPaths);
+      }
+    }.bind(this));
   });
+
+  return taskPromise;
 });
 
-gulp.task('packager:windowsonline', function () {
+gulp.task('packager:osxpackageviewer', function () {
+
+  var options = {
+    'app-version': '1.0',
+    'app-category-type': 'public.app-category.business',
+    'asar': true,
+    'arch': 'all',
+    'dir': './dist',
+    'icon': './icons/SITFoffline.ico.icns',
+    'name': 'SITFPackageViewer',
+    'productName': 'SITF Package Viewer',
+    'out': '/Users/ODonnell/SITF/Builds',
+    'overwrite': true,
+    'platform': 'darwin',
+    'version': '1.2.1'
+  };
+
+  var taskPromise = new Promise(function (resolve, reject) {
+
+    packager(options, function (error, appPaths) {
+
+      if (error) {
+        console.log(error);
+        reject(error);
+      } else {
+        console.log(appPaths);
+        resolve(appPaths);
+      }
+    }.bind(this));
+  });
+
+  return taskPromise;
+});
+
+gulp.task('packager:windowspackagecreator', function () {
 
   var options = {
     'app-version': '1.0',
     'asar': true,
-    'arch': 'all',
+    'arch': 'x64',
     'dir': './dist',
     'icon': './icons/SITFonline.ico',
     'name': 'SITFPackageCreator',
@@ -364,17 +379,29 @@ gulp.task('packager:windowsonline', function () {
     }
   };
 
-  packager(options, function done_callback(err, appPaths) {
-    console.log(err, appPaths);
+  var taskPromise = new Promise(function (resolve, reject) {
+
+    packager(options, function (error, appPaths) {
+
+      if (error) {
+        console.log(error);
+        reject(error);
+      } else {
+        console.log(appPaths);
+        resolve(appPaths);
+      }
+    }.bind(this));
   });
+
+  return taskPromise;
 });
 
-gulp.task('packager:windowsoffline', function () {
+gulp.task('packager:windowspackageviewer', function () {
 
   var options = {
     'app-version': '1.0',
     'asar': true,
-    'arch': 'all',
+    'arch': 'x64',
     'dir': './dist',
     'icon': './icons/SITFoffline.ico',
     'name': 'SITFPackageViewer',
@@ -392,20 +419,24 @@ gulp.task('packager:windowsoffline', function () {
     }
   };
 
-  packager(options, function done_callback(err, appPaths) {
+  var taskPromise = new Promise(function (resolve, reject) {
 
-    var installerPromise;
+    packager(options, function (error, appPaths) {
 
-    // Create Installer
-    if (err) {
-      console.log(err);
-    } else {
-      console.log(appPaths);
-    }
+      if (error) {
+        console.log(error);
+        reject(error);
+      } else {
+        console.log(appPaths);
+        resolve(appPaths);
+      }
+    }.bind(this));
   });
+
+  return taskPromise;
 });
 
-gulp.task('installer:windowsonline', function () {
+gulp.task('installer:windowspackagecreator', function () {
 
     var appDirectory = '/Users/ODonnell/SITF/Builds';
 
@@ -421,14 +452,14 @@ gulp.task('installer:windowsonline', function () {
       setupExe: 'SITFPackageCreatorSetUp.exe'
     });
 
-    installerPromise.then(function() {
-      console.log("It worked!");
+    return installerPromise.then(function() {
+      console.log('Package Creator Installer Complete');
     }, function(error) {
       console.log(`No dice: ${error.message}`);
     });
 });
 
-gulp.task('installer:windowsoffline', function () {
+gulp.task('installer:windowspackageviewer', function () {
 
   var appDirectory = '/Users/ODonnell/SITF/Builds';
 
@@ -445,11 +476,27 @@ gulp.task('installer:windowsoffline', function () {
     noMsi: false
   });
 
-  installerPromise.then(function() {
-    console.log("It worked!");
+  return installerPromise.then(function() {
+    console.log('Package Creator Installer Complete');
   }, function(error) {
     console.log(`No dice: ${error.message}`);
   });
+});
+
+gulp.task('build:osx', function (cb) {
+  runSequence(
+    'packager:osxpackagecreator',
+    'packager:osxpackageviewer',
+    cb);
+});
+
+gulp.task('build:windows', function (cb) {
+  runSequence(
+    'packager:windowspackagecreator',
+    'packager:windowspackageviewer',
+    'installer:windowspackagecreator',
+    'installer:windowspackageviewer',
+    cb);
 });
 
 gulp.task('unit-tests', function () {
