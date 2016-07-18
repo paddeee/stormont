@@ -32,7 +32,8 @@ var useref = require('gulp-useref');
 var gutil = require('gulp-util');
 var packager = require('electron-packager');
 var electronInstaller = require('electron-winstaller');
-var buildVersion = '0.5'
+var exec = require('child_process').exec;
+var buildVersion = '0.5';
 
 var AUTOPREFIXER_BROWSERS = [
   'ie >= 10',
@@ -112,6 +113,7 @@ gulp.task('copy', function () {
   var app = gulp.src([
     'app/*',
     '!app/test',
+    '!app/sourcefiles',
     '!app/precache.json'
   ], {
     dot: true
@@ -201,6 +203,26 @@ gulp.task('vulcanize', function () {
     .pipe($.size({title: 'vulcanize'}));
 });
 
+gulp.task('npm-install', function () {
+
+  var npmInstallPromise = new Promise(function (resolve, reject) {
+
+    exec('cd dist && npm install', function (error, stdout, stderr) {
+      console.log(stdout);
+      console.log(stderr);
+
+      if (error) {
+        console.log(error);
+        reject(error);
+      } else {
+        resolve();
+      }
+    });
+  });
+
+  return npmInstallPromise;
+});
+
 // Generate a list of files that should be precached when serving from 'dist'.
 // The list will be consumed by the <platinum-sw-cache> element.
 gulp.task('precache', function (callback) {
@@ -287,6 +309,59 @@ gulp.task("browser-unit-tests", function () {
       index: "testrunner.html"
     }
   });
+});
+
+gulp.task('unit-tests', function () {
+
+  // gulp expects tasks to return a stream, so we create one here.
+  var bundledStream = through();
+
+  bundledStream
+    // turns the output bundle stream into a stream containing
+    // the normal attributes gulp plugins expect.
+    .pipe(source('stores-test.js'))
+    // the rest of the gulp task, as you would normally write it.
+    .pipe(buffer())
+    .pipe(gulp.dest('./app/test/scripts/build/'))
+    .pipe(mocha({
+      bail: false,
+      reporter: 'doc'
+    }));
+
+  // "globby" replaces the normal "gulp.src" as Browserify
+  // creates it's own readable stream.
+  globby(['./app/test/scripts/specs/*.js'], function(err, entries) {
+    // ensure any errors from globby are handled
+    if (err) {
+      bundledStream.emit('error', err);
+      return;
+    }
+
+    // create the Browserify instance and pipe the Browserify stream into the stream we created earlier
+    // this starts our gulp pipeline.
+    browserify({
+      entries: entries
+    })
+    .ignore('browserify-fs')
+    .bundle()
+    .pipe(bundledStream);
+  });
+
+  // finally, we return the stream, so gulp knows when this task is done.
+  return bundledStream;
+});
+
+// Build Production Files, the Default Task
+gulp.task('default', ['clean'], function (cb) {
+  runSequence(
+    'browserify',
+    ['copy', 'styles'],
+    'elements',
+    ['jshint', 'images', 'fonts', 'html', /*'unit-tests'*/],
+    'npm-install',
+    //'vulcanize',
+    cb);
+    // Note: add , 'precache' , after 'vulcanize', if your are going to use Service Worker
 });
 
 gulp.task('packager:osxpackagecreator', function () {
@@ -439,25 +514,25 @@ gulp.task('packager:windowspackageviewer', function () {
 
 gulp.task('installer:windowspackagecreator', function () {
 
-    var appDirectory = '/Users/ODonnell/SITF/Builds';
+  var appDirectory = '/Users/ODonnell/SITF/Builds';
 
-    var installerPromise = electronInstaller.createWindowsInstaller({
-      appDirectory: appDirectory + '/SITFPackageCreator-win32-x64',
-      outputDirectory: '/Users/ODonnell/SITF/Builds',
-      authors: 'Evidential Ltd',
-      exe: 'SITFPackageCreator.exe',
-      version: buildVersion,
-      loadingGif: './icons/gears.gif',
-      iconUrl: 'https://paddeee.github.io/icons/SITFonline.ico',
-      setupIcon: './icons/SITFonline.ico',
-      setupExe: 'SITFPackageCreatorSetUp.exe'
-    });
+  var installerPromise = electronInstaller.createWindowsInstaller({
+    appDirectory: appDirectory + '/SITFPackageCreator-win32-x64',
+    outputDirectory: '/Users/ODonnell/SITF/Builds',
+    authors: 'Evidential Ltd',
+    exe: 'SITFPackageCreator.exe',
+    version: buildVersion,
+    loadingGif: './icons/gears.gif',
+    iconUrl: 'https://paddeee.github.io/icons/SITFonline.ico',
+    setupIcon: './icons/SITFonline.ico',
+    setupExe: 'SITFPackageCreatorSetUp.exe'
+  });
 
-    return installerPromise.then(function() {
-      console.log('Package Creator Installer Complete');
-    }, function(error) {
-      console.log(`No dice: ${error.message}`);
-    });
+  return installerPromise.then(function() {
+    console.log('Package Creator Installer Complete');
+  }, function(error) {
+    console.log(`No dice: ${error.message}`);
+  });
 });
 
 gulp.task('installer:windowspackageviewer', function () {
@@ -473,8 +548,7 @@ gulp.task('installer:windowspackageviewer', function () {
     loadingGif: './icons/gears.gif',
     iconUrl: 'https://paddeee.github.io/icons/SITFoffline.ico',
     setupIcon: './icons/SITFoffline.ico',
-    setupExe: 'SITFPackageViewerSetUp.exe',
-    noMsi: false
+    setupExe: 'SITFPackageViewerSetUp.exe'
   });
 
   return installerPromise.then(function() {
@@ -486,6 +560,7 @@ gulp.task('installer:windowspackageviewer', function () {
 
 gulp.task('build:osx', function (cb) {
   runSequence(
+    'default',
     'packager:osxpackagecreator',
     'packager:osxpackageviewer',
     cb);
@@ -493,63 +568,12 @@ gulp.task('build:osx', function (cb) {
 
 gulp.task('build:windows', function (cb) {
   runSequence(
+    'default',
     'packager:windowspackagecreator',
     'packager:windowspackageviewer',
     'installer:windowspackagecreator',
     'installer:windowspackageviewer',
     cb);
-});
-
-gulp.task('unit-tests', function () {
-
-  // gulp expects tasks to return a stream, so we create one here.
-  var bundledStream = through();
-
-  bundledStream
-    // turns the output bundle stream into a stream containing
-    // the normal attributes gulp plugins expect.
-    .pipe(source('stores-test.js'))
-    // the rest of the gulp task, as you would normally write it.
-    .pipe(buffer())
-    .pipe(gulp.dest('./app/test/scripts/build/'))
-    .pipe(mocha({
-      bail: false,
-      reporter: 'doc'
-    }));
-
-  // "globby" replaces the normal "gulp.src" as Browserify
-  // creates it's own readable stream.
-  globby(['./app/test/scripts/specs/*.js'], function(err, entries) {
-    // ensure any errors from globby are handled
-    if (err) {
-      bundledStream.emit('error', err);
-      return;
-    }
-
-    // create the Browserify instance and pipe the Browserify stream into the stream we created earlier
-    // this starts our gulp pipeline.
-    browserify({
-      entries: entries
-    })
-    .ignore('browserify-fs')
-    .bundle()
-    .pipe(bundledStream);
-  });
-
-  // finally, we return the stream, so gulp knows when this task is done.
-  return bundledStream;
-});
-
-// Build Production Files, the Default Task
-gulp.task('default', ['clean'], function (cb) {
-  runSequence(
-    'browserify',
-    ['copy', 'styles'],
-    'elements',
-    ['jshint', 'images', 'fonts', 'html', /*'unit-tests'*/],
-    //'vulcanize',
-    cb);
-    // Note: add , 'precache' , after 'vulcanize', if your are going to use Service Worker
 });
 
 // Load tasks for web-component-tester
