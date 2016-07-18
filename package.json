@@ -6,7 +6,6 @@
     "chai": "^3.2.0",
     "connect-history-api-fallback": "^1.1.0",
     "del": "^1.1.1",
-    "electron-builder": "^5.12.1",
     "electron-packager": "^7.3.0",
     "electron-usb": "0.0.11",
     "electron-winstaller": "^2.3.1",

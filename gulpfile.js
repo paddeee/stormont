@@ -31,7 +31,6 @@ var historyApiFallback = require('connect-history-api-fallback');
 var useref = require('gulp-useref');
 var gutil = require('gulp-util');
 var packager = require('electron-packager');
-var builder = require("electron-builder");
 var electronInstaller = require('electron-winstaller');
 var Platform = builder.Platform;
 
