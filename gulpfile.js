@@ -411,15 +411,15 @@ gulp.task('installer:windowsonline', function () {
     var appDirectory = '/Users/ODonnell/SITF/Builds';
 
     var installerPromise = electronInstaller.createWindowsInstaller({
-      appDirectory: appDirectory + '/SITFPackageViewer-win32-x64',
+      appDirectory: appDirectory + '/SITFPackageCreator-win32-x64',
       outputDirectory: '/Users/ODonnell/SITF/Builds',
       authors: 'Evidential Ltd',
       exe: 'SITFPackageCreator.exe',
       version: '1.0',
+      loadingGif: './icons/gears.gif',
       iconUrl: 'https://paddeee.github.io/icons/SITFonline.ico',
       setupIcon: './icons/SITFonline.ico',
-      setupExe: 'SITFPackageCreatorSetUp.exe',
-      noMsi: false
+      setupExe: 'SITFPackageCreatorSetUp.exe'
     });
 
     installerPromise.then(function() {
@@ -439,6 +439,7 @@ gulp.task('installer:windowsoffline', function () {
     authors: 'Evidential Ltd',
     exe: 'SITFPackageViewer.exe',
     version: '1.0',
+    loadingGif: './icons/gears.gif',
     iconUrl: 'https://paddeee.github.io/icons/SITFoffline.ico',
     setupIcon: './icons/SITFoffline.ico',
     setupExe: 'SITFPackageViewerSetUp.exe',

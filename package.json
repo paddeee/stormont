@@ -66,6 +66,7 @@
     "browserify": "^11.0.0",
     "browserify-fs": "^1.0.0",
     "crypto": "0.0.3",
+    "electron-squirrel-startup": "^1.0.0",
     "fs": "0.0.2",
     "fs-extra": "^0.26.2",
     "ldapjs": "^1.0.0",
