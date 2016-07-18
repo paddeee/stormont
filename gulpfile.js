@@ -406,7 +406,7 @@ gulp.task('packager:windowsoffline', function () {
   });
 });
 
-gulp.task('installer:windowsoffline', function () {
+gulp.task('installer:windowsonline', function () {
 
     var appDirectory = '/Users/ODonnell/SITF/Builds';
 
@@ -414,11 +414,11 @@ gulp.task('installer:windowsoffline', function () {
       appDirectory: appDirectory + '/SITFPackageViewer-win32-x64',
       outputDirectory: '/Users/ODonnell/SITF/Builds',
       authors: 'Evidential Ltd',
-      exe: 'SITFPackageViewer.exe',
+      exe: 'SITFPackageCreator.exe',
       version: '1.0',
-      iconUrl: 'https://paddeee.github.io/icons/SITFoffline.ico',
-      setupIcon: './icons/SITFoffline.ico',
-      setupExe: 'SITFPackageViewerSetUp.exe',
+      iconUrl: 'https://paddeee.github.io/icons/SITFonline.ico',
+      setupIcon: './icons/SITFonline.ico',
+      setupExe: 'SITFPackageCreatorSetUp.exe',
       noMsi: false
     });
 
@@ -427,6 +427,29 @@ gulp.task('installer:windowsoffline', function () {
     }, function(error) {
       console.log(`No dice: ${error.message}`);
     });
+});
+
+gulp.task('installer:windowsoffline', function () {
+
+  var appDirectory = '/Users/ODonnell/SITF/Builds';
+
+  var installerPromise = electronInstaller.createWindowsInstaller({
+    appDirectory: appDirectory + '/SITFPackageViewer-win32-x64',
+    outputDirectory: '/Users/ODonnell/SITF/Builds',
+    authors: 'Evidential Ltd',
+    exe: 'SITFPackageViewer.exe',
+    version: '1.0',
+    iconUrl: 'https://paddeee.github.io/icons/SITFoffline.ico',
+    setupIcon: './icons/SITFoffline.ico',
+    setupExe: 'SITFPackageViewerSetUp.exe',
+    noMsi: false
+  });
+
+  installerPromise.then(function() {
+    console.log("It worked!");
+  }, function(error) {
+    console.log(`No dice: ${error.message}`);
+  });
 });
 
 gulp.task('unit-tests', function () {

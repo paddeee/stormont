@@ -11,7 +11,7 @@ const fs = require('fs');
  Networked: 0
  Offline/Court: 1
  */
-const buildType = 1;
+const buildType = 0;
 
 let externalDisplay = false;
 
@@ -121,7 +121,7 @@ app.on('ready', function() {
     });
 
     // Open the DevTools.
-    controllerWindow.webContents.openDevTools();
+    //controllerWindow.webContents.openDevTools();
   };
 
   var createPublishWindow = function() {
