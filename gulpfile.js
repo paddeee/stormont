@@ -32,6 +32,7 @@ var useref = require('gulp-useref');
 var gutil = require('gulp-util');
 var packager = require('electron-packager');
 var electronInstaller = require('electron-winstaller');
+var buildVersion = '0.5'
 
 var AUTOPREFIXER_BROWSERS = [
   'ie >= 10',
@@ -291,7 +292,7 @@ gulp.task("browser-unit-tests", function () {
 gulp.task('packager:osxpackagecreator', function () {
 
   var options = {
-    'app-version': '1.0',
+    'app-version': buildVersion,
     'app-category-type': 'public.app-category.business',
     'asar': true,
     'arch': 'all',
@@ -325,7 +326,7 @@ gulp.task('packager:osxpackagecreator', function () {
 gulp.task('packager:osxpackageviewer', function () {
 
   var options = {
-    'app-version': '1.0',
+    'app-version': buildVersion,
     'app-category-type': 'public.app-category.business',
     'asar': true,
     'arch': 'all',
@@ -359,7 +360,7 @@ gulp.task('packager:osxpackageviewer', function () {
 gulp.task('packager:windowspackagecreator', function () {
 
   var options = {
-    'app-version': '1.0',
+    'app-version': buildVersion,
     'asar': true,
     'arch': 'x64',
     'dir': './dist',
@@ -399,7 +400,7 @@ gulp.task('packager:windowspackagecreator', function () {
 gulp.task('packager:windowspackageviewer', function () {
 
   var options = {
-    'app-version': '1.0',
+    'app-version': buildVersion,
     'asar': true,
     'arch': 'x64',
     'dir': './dist',
@@ -445,7 +446,7 @@ gulp.task('installer:windowspackagecreator', function () {
       outputDirectory: '/Users/ODonnell/SITF/Builds',
       authors: 'Evidential Ltd',
       exe: 'SITFPackageCreator.exe',
-      version: '1.0',
+      version: buildVersion,
       loadingGif: './icons/gears.gif',
       iconUrl: 'https://paddeee.github.io/icons/SITFonline.ico',
       setupIcon: './icons/SITFonline.ico',
@@ -468,7 +469,7 @@ gulp.task('installer:windowspackageviewer', function () {
     outputDirectory: '/Users/ODonnell/SITF/Builds',
     authors: 'Evidential Ltd',
     exe: 'SITFPackageViewer.exe',
-    version: '1.0',
+    version: buildVersion,
     loadingGif: './icons/gears.gif',
     iconUrl: 'https://paddeee.github.io/icons/SITFoffline.ico',
     setupIcon: './icons/SITFoffline.ico',
