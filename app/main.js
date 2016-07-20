@@ -192,7 +192,7 @@ app.on('ready', function() {
     });
 
     // Open the DevTools.
-    //controllerWindow.webContents.openDevTools();
+    controllerWindow.webContents.openDevTools();
   };
 
   var createPublishWindow = function() {

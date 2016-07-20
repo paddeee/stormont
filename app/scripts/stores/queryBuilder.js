@@ -41,7 +41,7 @@ module.exports = Reflux.createStore({
     if (dataSourceStore.dataSource.message.type === 'dataBaseLoaded') {
 
       if (!queryCollection) {
-        dataSourceStore.dataSource.addCollection(config.QueriesCollection);
+        dataSourceStore.dataSource.addCollection(config.QueriesCollection, { disableChangesApi: false });
       }
 
       this.createDefaultQuery('defaultQueryAdded');

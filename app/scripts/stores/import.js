@@ -62,6 +62,7 @@ module.exports = Reflux.createStore({
     // Create/Update a collection in the database
     if (dataCollection) {
       dataCollection.clear();
+      dataCollection.setChangesApi(true);
     } else {
       dataCollection = this.addDBCollection(dataSource, fileObject);
     }
@@ -114,21 +115,29 @@ module.exports = Reflux.createStore({
     // Copies of selected data objects are stored in Presentations Collection. These need to be updated.
     this.updateSelectedPresentationsData();
 
-    // Save database
-    dataSource.saveDatabase(function() {
+    dataSourceStore.syncDatabase('import')
+      .then(function() {
 
-      console.log('DataBase saved');
+        // Save database
+        dataSource.saveDatabase(function() {
 
-      // Pass on to listeners
-      this.trigger({
-        type: 'success',
-        title: 'Import Successful',
-        message: 'All files have been successfully imported'
+         console.log('DataBase saved');
+
+         // Pass on to listeners
+         this.trigger({
+         type: 'success',
+         title: 'Import Successful',
+         message: 'All files have been successfully imported'
+         });
+
+         this.logImport();
+
+         }.bind(this));
+
+      }.bind(this))
+      .catch(function(error) {
+        console.log(error);
       });
-
-      this.logImport();
-
-     }.bind(this));
   },
 
   // For Supporting Documents in each collection, add HTML

@@ -6,6 +6,7 @@ var loki = require('lokijs');
 var fileAdapter = require('../adapters/loki-file-adapter.js');
 var DataSourceActions = require('../actions/dataSource.js');
 var loggingStore = require('../stores/logging.js');
+var lockFile = global.config ? window.electronRequire('lockfile') : null;
 
 module.exports = Reflux.createStore({
 
@@ -23,8 +24,11 @@ module.exports = Reflux.createStore({
       adapter: fileAdapter
     });
 
-    this.dataSource.loadDatabase({}, function() {
+    this.dataSource.loadDatabase({}, function () {
       console.log('Database Loaded');
+
+      // Enable the changes API
+      this.enableChangesAPI();
 
       // Send object out to all listeners when database loaded
       this.dataSource.message = {
@@ -33,6 +37,32 @@ module.exports = Reflux.createStore({
 
       this.trigger(this);
 
+    }.bind(this));
+  },
+
+  getLatestDatabase: function() {
+
+    return new Promise(function (resolve) {
+
+      console.log('getLatestDatabase called');
+
+      this.latestDB = new loki('SITF.json', {
+        adapter: fileAdapter
+      });
+
+      this.latestDB.loadDatabase({}, function () {
+        console.log('Database Loaded');
+
+        // Send object out to all listeners when database loaded
+        this.latestDB.message = {
+          type: 'dataBaseLoaded'
+        };
+
+        this.trigger(this);
+
+        resolve();
+
+      }.bind(this));
     }.bind(this));
   },
 
@@ -69,13 +99,17 @@ module.exports = Reflux.createStore({
       this.updateSelectedRecords(presentationName);
 
       // Save database
-      this.dataSource.saveDatabase(function() {
-        this.message = 'presentationSaved';
-        this.trigger(this);
+      this.syncDatabase()
+      .then(function() {
 
-        this.logPackageSave('created', presentationName);
+        this.dataSource.saveDatabase(function () {
+          this.message = 'presentationSaved';
+          this.trigger(this);
 
-      }.bind(this));
+          this.logPackageSave('created', presentationName);
+
+        }.bind(this));
+        }.bind(this));
     }
   },
 
@@ -104,13 +138,20 @@ module.exports = Reflux.createStore({
       this.updateSelectedRecords(presentationName);
 
       // Save database
-      this.dataSource.saveDatabase(function () {
-        this.message = 'presentationSaved';
-        this.trigger(this);
+      this.syncDatabase()
+      .then(function() {
 
-        this.logPackageSave('updated', presentationName);
+        this.dataSource.saveDatabase(function () {
+          this.message = 'presentationSaved';
+          this.trigger(this);
 
-      }.bind(this));
+          this.logPackageSave('updated', presentationName);
+
+        }.bind(this));
+      }.bind(this))
+      .catch(function(error) {
+        console.log(error);
+      });
     }
   },
 
@@ -251,7 +292,7 @@ module.exports = Reflux.createStore({
     var presentationsCollection = this.dataSource.getCollection('Presentations');
 
     if (!presentationsCollection) {
-      presentationsCollection = this.dataSource.addCollection('Presentations');
+      presentationsCollection = this.dataSource.addCollection('Presentations', { disableChangesApi: false });
     }
 
     if (action === 'save') {
@@ -299,6 +340,183 @@ module.exports = Reflux.createStore({
       } else if (type === 'updated') {
         loggingStore.packageUpdated(saveLogObject);
       }
+    }
+  },
+
+  // Enable the changes API when the QueryBuilder and Presentations database collections are loaded in
+  enableChangesAPI: function() {
+
+    this.dataSource.collections.forEach(function(collection) {
+
+      if (collection.name === config.QueriesCollection || collection.name === config.PresentationsCollection) {
+        collection.setChangesApi(true);
+      }
+    });
+  },
+
+  // Before saving database, need to:
+  // Lock database file
+  // Load latest database into a temporary variable
+  // Sync the two databases into this.dataSource using the loki.js Changes API
+  // Unlock the database file
+  syncDatabase: function(syncType) {
+
+    return new Promise(function (resolve) {
+
+      console.time('syncDatabase');
+
+      /*if (!global.config) {
+        resolve();
+      } else {*/
+
+        // Lock DB file
+        /*this.lockDBFile('lock')
+        .then(function () {*/
+
+        // Load Database into latestDB variable
+        this.getLatestDatabase()
+          .then(function() {
+
+            this.updateDBWithChanges(syncType)
+              .then(function() {
+
+                console.timeEnd('syncDatabase');
+
+                // Finished with sync so clear changes
+                this.dataSource.clearChanges();git commit -am
+                resolve();
+              }.bind(this));
+          }.bind(this));
+          /*}.bind(this))
+        .catch(function (error) {
+          reject(error);
+        });
+      }*/
+    }.bind(this));
+  },
+
+  // Lock the database file
+  lockDBFile: function(lockState) {
+
+    return new Promise(function (resolve, reject) {
+
+      var dbPath = config.paths.dbPath + '/SITF.json';
+
+      if (lockState === 'lock') {
+        lockFile.lock(dbPath, {}, function (error) {
+          console.log(dbPath);
+
+          if (error) {
+            console.log('lockfile error');
+            reject(error);
+          } else {
+            resolve();
+          }
+        });
+      }
+    });
+  },
+
+  // Update the latest db with the changes
+  updateDBWithChanges: function(syncType) {
+
+    return new Promise(function (resolve) {
+
+      var queryBuilderCollection = this.dataSource.getCollection('Queries');
+      var presentationsCollection = this.dataSource.getCollection('Presentations');
+      var queryBuilderProcessedChanges;
+      var presentationsProcessedChanges;
+
+      // If importing data QueryBuilder and Presentations COllections may not exist so don't bother with syncing
+      if (syncType === 'import') {
+        this.dataSource = this.latestDB;
+        resolve();
+      } else {
+
+        queryBuilderProcessedChanges = this.processCollectionChanges(queryBuilderCollection.changes);
+        presentationsProcessedChanges = this.processCollectionChanges(presentationsCollection.changes);
+
+        console.log(queryBuilderProcessedChanges);
+        console.log(presentationsProcessedChanges);
+
+        queryBuilderProcessedChanges.forEach(this.syncChange);
+        presentationsProcessedChanges.forEach(this.syncChange);
+
+        this.dataSource = this.latestDB;
+
+        resolve();
+      }
+
+    }.bind(this));
+  },
+
+  // Changes batch changes to each object in order. E.g. if an object is inserted and then deleted, we don't need to sync that change.
+  processCollectionChanges: function(changes) {
+
+    var processedChanges = [];
+
+    changes.forEach(function(changeObject) {
+
+      var firstObject;
+      var lastObject;
+
+      // If change is an insert, find the last change for that id. Push if it is an update (and change operator to 'I'). Ignore if a delete.
+      if (changeObject.operation === 'I') {
+
+        lastObject = _.findLast(changes, function(changeObjectToCompare) {
+          return changeObject.$loki === changeObjectToCompare.$loki;
+        });
+
+        if (lastObject && lastObject.operation === 'U') {
+          lastObject.operation = 'I';
+        }
+
+        delete lastObject.obj.$loki;
+        processedChanges.push(lastObject);
+      }
+
+      // If change is an update, find the last change for that id. Push if it is an update. Ignore if a delete.
+      else if (changeObject.operation === 'U') {
+
+        lastObject = _.findLast(changes, function(changeObjectToCompare) {
+          return changeObject.$loki === changeObjectToCompare.$loki;
+        });
+
+        if (lastObject && lastObject.operation === 'U') {
+          processedChanges.push(lastObject);
+        }
+      }
+
+      // If change is a delete, find the first change for that id. Push if there isn't one or if an update.
+      // Ignore if it was an insert.
+      else if (changeObject.operation === 'D') {
+
+        firstObject = _.find(changes, function(changeObjectToCompare) {
+          return changeObject.$loki === changeObjectToCompare.$loki;
+        });
+
+        if (!firstObject && firstObject.operation !== 'I') {
+          processedChanges.push(firstObject);
+        }
+      }
+    });
+
+    return _.uniq(processedChanges);
+  },
+
+  // Update the latest db with the changes
+  syncChange: function(changeObject) {
+
+    switch (changeObject.operation) {
+      case 'I':
+        this.latestDB.getCollection(changeObject.name).insert(changeObject.obj);
+        break;
+      case 'U':
+        this.latestDB.getCollection(changeObject.name).update(changeObject.obj);
+        break;
+      case 'D':
+        this.latestDB.getCollection(changeObject.name).delete(changeObject.obj);
+        break;
     }
   }
 });
