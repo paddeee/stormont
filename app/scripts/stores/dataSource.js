@@ -58,7 +58,7 @@ module.exports = Reflux.createStore({
           type: 'dataBaseLoaded'
         };
 
-        this.trigger(this);
+        //this.trigger(this);
 
         resolve();
 
@@ -102,7 +102,7 @@ module.exports = Reflux.createStore({
       this.syncDatabase()
       .then(function() {
 
-        this.dataSource.saveDatabase(function () {
+        this.latestDB.saveDatabase(function () {
           this.message = 'presentationSaved';
           this.trigger(this);
 
@@ -141,7 +141,7 @@ module.exports = Reflux.createStore({
       this.syncDatabase()
       .then(function() {
 
-        this.dataSource.saveDatabase(function () {
+        this.latestDB.saveDatabase(function () {
           this.message = 'presentationSaved';
           this.trigger(this);
 
@@ -175,7 +175,7 @@ module.exports = Reflux.createStore({
       this.syncDatabase()
         .then(function() {
 
-          this.dataSource.saveDatabase(function () {
+          this.latestDB.saveDatabase(function () {
             this.message = 'presentationDeleted';
             this.trigger(this);
           }.bind(this));
@@ -373,9 +373,9 @@ module.exports = Reflux.createStore({
 
       console.time('syncDatabase');
 
-      if (!global.config) {
+      /*if (!global.config) {
         resolve();
-      } else {
+      } else {*/
 
         // Lock DB file
         /*this.lockDBFile('lock')
@@ -398,8 +398,8 @@ module.exports = Reflux.createStore({
           /*}.bind(this))
         .catch(function (error) {
           reject(error);
-        });*/
-      }
+        });
+      }*/
     }.bind(this));
   },
 
@@ -430,14 +430,21 @@ module.exports = Reflux.createStore({
 
     return new Promise(function (resolve) {
 
-      var queryBuilderCollection = this.dataSource.getCollection('Queries');
-      var presentationsCollection = this.dataSource.getCollection('Presentations');
+      var queryBuilderCollection = this.dataSource.getCollection(config.QueriesCollection);
+      var presentationsCollection = this.dataSource.getCollection(config.PresentationsCollection);
+      var latestDBPresentationsCollection = this.latestDB.getCollection(config.PresentationsCollection);
       var queryBuilderProcessedChanges;
       var presentationsProcessedChanges;
 
-      // If importing data QueryBuilder and Presentations COllections may not exist so don't bother with syncing
+      // Don't do this if first time data has been imported, otherwise all the collections will be overwritten with no collections
+      if (!latestDBPresentationsCollection) {
+        this.latestDB = this.dataSource;
+        resolve();
+        return;
+      }
+
+      // If importing data QueryBuilder and Presentations Collections may not exist so don't bother with syncing
       if (syncType === 'import') {
-        this.dataSource = this.latestDB;
         resolve();
       } else {
 
@@ -447,7 +454,7 @@ module.exports = Reflux.createStore({
         queryBuilderProcessedChanges.forEach(this.syncChange);
         presentationsProcessedChanges.forEach(this.syncChange);
 
-        this.dataSource = this.latestDB;
+        //this.dataSource = this.latestDB;
 
         resolve();
       }
