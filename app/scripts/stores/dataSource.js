@@ -172,10 +172,18 @@ module.exports = Reflux.createStore({
       this.saveQueryBuilderData(presentationObject, 'delete');
 
       // Save database
-      this.dataSource.saveDatabase(function() {
-        this.message = 'presentationDeleted';
-        this.trigger(this);
-      }.bind(this));
+      this.syncDatabase()
+        .then(function() {
+
+          this.dataSource.saveDatabase(function () {
+            this.message = 'presentationDeleted';
+            this.trigger(this);
+          }.bind(this));
+
+        }.bind(this))
+        .catch(function(error) {
+          console.log(error);
+        });
 
     } else {
       console.error('Can\'t delete collection as doesn\'t exist in database');
@@ -365,9 +373,9 @@ module.exports = Reflux.createStore({
 
       console.time('syncDatabase');
 
-      /*if (!global.config) {
+      if (!global.config) {
         resolve();
-      } else {*/
+      } else {
 
         // Lock DB file
         /*this.lockDBFile('lock')
@@ -383,15 +391,15 @@ module.exports = Reflux.createStore({
                 console.timeEnd('syncDatabase');
 
                 // Finished with sync so clear changes
-                this.dataSource.clearChanges();git commit -am
+                this.dataSource.clearChanges();
                 resolve();
               }.bind(this));
           }.bind(this));
           /*}.bind(this))
         .catch(function (error) {
           reject(error);
-        });
-      }*/
+        });*/
+      }
     }.bind(this));
   },
 
@@ -435,9 +443,6 @@ module.exports = Reflux.createStore({
 
         queryBuilderProcessedChanges = this.processCollectionChanges(queryBuilderCollection.changes);
         presentationsProcessedChanges = this.processCollectionChanges(presentationsCollection.changes);
-
-        console.log(queryBuilderProcessedChanges);
-        console.log(presentationsProcessedChanges);
 
         queryBuilderProcessedChanges.forEach(this.syncChange);
         presentationsProcessedChanges.forEach(this.syncChange);
@@ -489,13 +494,13 @@ module.exports = Reflux.createStore({
 
       // If change is a delete, find the first change for that id. Push if there isn't one or if an update.
       // Ignore if it was an insert.
-      else if (changeObject.operation === 'D') {
+      else if (changeObject.operation === 'R') {
 
         firstObject = _.find(changes, function(changeObjectToCompare) {
           return changeObject.$loki === changeObjectToCompare.$loki;
         });
 
-        if (!firstObject && firstObject.operation !== 'I') {
+        if (firstObject && firstObject.operation !== 'I') {
           processedChanges.push(firstObject);
         }
       }
@@ -514,8 +519,8 @@ module.exports = Reflux.createStore({
       case 'U':
         this.latestDB.getCollection(changeObject.name).update(changeObject.obj);
         break;
-      case 'D':
-        this.latestDB.getCollection(changeObject.name).delete(changeObject.obj);
+      case 'R':
+        this.latestDB.getCollection(changeObject.name).remove(changeObject.obj);
         break;
     }
   }
