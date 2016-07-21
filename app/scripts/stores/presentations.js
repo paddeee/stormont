@@ -95,7 +95,7 @@ module.exports = Reflux.createStore({
     dataSourceStore.syncDatabase()
     .then(function() {
 
-      dataSourceStore.dataSource.saveDatabase(function (response) {
+      dataSourceStore.latestDB.saveDatabase(function (response) {
 
         // If response.code it is an error
         if (response.code) {

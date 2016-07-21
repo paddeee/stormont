@@ -119,7 +119,7 @@ module.exports = Reflux.createStore({
       .then(function() {
 
         // Save database
-        dataSource.saveDatabase(function(response) {
+        dataSourceStore.latestDB.saveDatabase(function(response) {
 
           var messageType;
           var message;
