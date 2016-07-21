@@ -125,9 +125,9 @@ module.exports = Reflux.createStore({
 
          // Pass on to listeners
          this.trigger({
-         type: 'success',
-         title: 'Import Successful',
-         message: 'All files have been successfully imported'
+           type: 'success',
+           title: 'Import Successful',
+           message: 'All files have been successfully imported'
          });
 
          this.logImport();

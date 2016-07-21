@@ -58,8 +58,6 @@ module.exports = Reflux.createStore({
           type: 'dataBaseLoaded'
         };
 
-        //this.trigger(this);
-
         resolve();
 
       }.bind(this));
@@ -445,6 +443,7 @@ module.exports = Reflux.createStore({
 
       // If importing data QueryBuilder and Presentations Collections may not exist so don't bother with syncing
       if (syncType === 'import') {
+        this.dataSource = this.latestDB;
         resolve();
       } else {
 
@@ -453,8 +452,6 @@ module.exports = Reflux.createStore({
 
         queryBuilderProcessedChanges.forEach(this.syncChange);
         presentationsProcessedChanges.forEach(this.syncChange);
-
-        //this.dataSource = this.latestDB;
 
         resolve();
       }
