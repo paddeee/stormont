@@ -389,6 +389,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
     </paper-dialog>
 
+    <paper-dialog id="DBErrorDialog" modal>
+      <h2>Problem Saving Data</h2>
+      <div>
+        <span>[[message]]</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
     <paper-dialog id="NoProfileDialog" modal>
       <h2>No Profile Selected</h2>
       <div>
@@ -876,6 +886,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Fired from epe-create-package elements
       showDialog: function (event) {
 
+        this.message = event.detail.message;
+
         if (event.detail.type === 'presentationSaved') {
 
           if (this.presentationsStore.presentationState === 'creating') {
@@ -886,6 +898,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         } else if (event.detail.type === 'collectionExists') {
           this.$.WarningDialog.open();
+
+        } else if (event.detail.type === 'savePackageDbLocked') {
+          this.message = 'The DataBase file is locked by another user. Try again in a few seconds. If the problem persists, please contact an administrator.';
+          this.$.DBErrorDialog.open();
+
+        } else if (event.detail.type === 'savePackageDbError') {
+          this.message = 'There was a problem saving to the database. Try again in a few seconds. If the problem persists, please contact an administrator.';
+          this.$.DBErrorDialog.open();
         }
       },
 

@@ -399,6 +399,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
     </paper-dialog>
 
+    <paper-dialog id="DeletedErrorDialog" modal>
+      <h2>Problem Deleting Package</h2>
+      <div>
+        <span>There was a problem saving to the database. Try again in a few seconds. If the problem persists, please contact an administrator.</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="ApprovalStateErrorDialog" modal>
+      <h2>Problem Syncing change to Database</h2>
+      <div>
+        <span>There was a problem syncing the Approval State change to the database. Try again in a few seconds. If the problem persists, please contact an administrator.</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
     <paper-dialog id="NoLocationDialog" modal>
       <h2>Please choose a directory to export the Presentation Package to.</h2>
       <div class="buttons layout horizontal">
@@ -489,6 +509,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           if (presentationsStore.message === 'presentationDeleted') {
             this.$.DeletedDialog.open();
+          } else if (presentationsStore.message === 'deletePackageDbError') {
+            this.$.DeletedErrorDialog.open();
+          } else if (presentationsStore.message === 'approvalStateDbError') {
+            this.$.ApprovalStateErrorDialog.open();
           }
 
         }.bind(this));

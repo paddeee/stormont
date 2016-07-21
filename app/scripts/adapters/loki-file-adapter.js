@@ -67,13 +67,36 @@ lokiFileAdapter.prototype.saveDatabase = function saveDatabase(dbname, dbstring,
 
   // This can be set from nw.js input file directory picker value
   var path = global.config ? config.paths.dbPath : '';
+  var retries = 0;
 
   fs.mkdir(path, function() {
-    fs.writeFile(path + '/' + dbname, dbstring, function() {
-      fs.readFile(path + '/' + dbname, 'utf-8', function(err, data) {
-        var dataStore = err || data;
-        callback(dataStore);
-      });
+
+      fs.writeFile(path + '/' + dbname, dbstring, function(error) {
+
+      if (error) {
+
+        // If permission is denied then the file has been locked by another user for saving. Try again in 400ms 5 times
+        // and then return error if still an issue
+        if (error.code === 'EACCES') {
+          retries = retries + 1;
+          callback(error);
+
+          /*if (retries < 5) {
+            writeFile();
+          } else {
+            callback(error);
+          }*/
+        } else {
+          callback(error);
+        }
+
+      } else {
+
+        fs.readFile(path + '/' + dbname, 'utf-8', function(err, data) {
+          var dataStore = err || data;
+          callback(dataStore);
+        });
+      }
     });
   });
 };

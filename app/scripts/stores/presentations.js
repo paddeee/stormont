@@ -92,11 +92,24 @@ module.exports = Reflux.createStore({
     dataSourceStore.dataSource.getCollection('Presentations').update(presentation);
 
     // Save database
-    dataSourceStore.dataSource.saveDatabase(function() {
+    dataSourceStore.syncDatabase()
+    .then(function() {
 
-      // Send object out to all listeners when database loaded
-      this.trigger(this);
+      dataSourceStore.dataSource.saveDatabase(function (response) {
 
+        // If response.code it is an error
+        if (response.code) {
+          this.message = 'approvalStateDbError';
+        } else {
+          this.message = 'approvalStateChanged';
+        }
+
+        // Send object out to all listeners when database loaded
+        this.trigger(this);
+
+        this.message = '';
+
+      }.bind(this));
     }.bind(this));
   },
 

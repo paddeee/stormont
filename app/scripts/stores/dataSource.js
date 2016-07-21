@@ -6,7 +6,7 @@ var loki = require('lokijs');
 var fileAdapter = require('../adapters/loki-file-adapter.js');
 var DataSourceActions = require('../actions/dataSource.js');
 var loggingStore = require('../stores/logging.js');
-var lockFile = global.config ? window.electronRequire('lockfile') : null;
+var fs = global.config ? window.electronRequire('fs') : require('browserify-fs');
 
 module.exports = Reflux.createStore({
 
@@ -100,14 +100,29 @@ module.exports = Reflux.createStore({
       this.syncDatabase()
       .then(function() {
 
-        this.latestDB.saveDatabase(function () {
-          this.message = 'presentationSaved';
+        this.latestDB.saveDatabase(function (response) {
+
+          // If response.code it is an error
+          if (response.code) {
+            if (response.code === 'EACCES') {
+              this.message = 'savePackageDbLocked';
+            } else {
+              this.message = 'savePackageDbError';
+            }
+          } else {
+            this.message = 'presentationSaved';
+            this.logPackageSave('created', presentationName);
+          }
+
           this.trigger(this);
 
-          this.logPackageSave('created', presentationName);
-
         }.bind(this));
-        }.bind(this));
+      }.bind(this))
+      .catch(function(error) {
+        console.log(error);
+        this.message = 'syncDBError';
+        this.trigger(this);
+      });
     }
   },
 
@@ -139,11 +154,21 @@ module.exports = Reflux.createStore({
       this.syncDatabase()
       .then(function() {
 
-        this.latestDB.saveDatabase(function () {
-          this.message = 'presentationSaved';
-          this.trigger(this);
+        this.latestDB.saveDatabase(function (response) {
 
-          this.logPackageSave('updated', presentationName);
+          // If response.code it is an error
+          if (response.code) {
+            if (response.code === 'EACCES') {
+              this.message = 'savePackageDbLocked';
+            } else {
+              this.message = 'savePackageDbError';
+            }
+          } else {
+            this.message = 'presentationSaved';
+            this.logPackageSave('updated', presentationName);
+          }
+
+          this.trigger(this);
 
         }.bind(this));
       }.bind(this))
@@ -173,8 +198,15 @@ module.exports = Reflux.createStore({
       this.syncDatabase()
         .then(function() {
 
-          this.latestDB.saveDatabase(function () {
-            this.message = 'presentationDeleted';
+          this.latestDB.saveDatabase(function (response) {
+
+            // If response.code it is an error
+            if (response.code) {
+              this.message = 'deletePackageDbError';
+            } else {
+              this.message = 'presentationDeleted';
+            }
+
             this.trigger(this);
           }.bind(this));
 
@@ -367,37 +399,44 @@ module.exports = Reflux.createStore({
   // Unlock the database file
   syncDatabase: function(syncType) {
 
-    return new Promise(function (resolve) {
+    return new Promise(function (resolve, reject) {
 
-      console.time('syncDatabase');
-
-      /*if (!global.config) {
+      if (!global.config) {
         resolve();
-      } else {*/
-
-        // Lock DB file
-        /*this.lockDBFile('lock')
-        .then(function () {*/
+      } else {
 
         // Load Database into latestDB variable
         this.getLatestDatabase()
           .then(function() {
 
-            this.updateDBWithChanges(syncType)
-              .then(function() {
+            console.time('syncDatabase');
 
-                console.timeEnd('syncDatabase');
+            // Lock DB file
+            this.lockDBFile('lock')
+              .then(function () {
 
-                // Finished with sync so clear changes
-                this.dataSource.clearChanges();
-                resolve();
-              }.bind(this));
-          }.bind(this));
-          /*}.bind(this))
-        .catch(function (error) {
-          reject(error);
-        });
-      }*/
+              this.updateDBWithChanges(syncType)
+                .then(function() {
+
+                  console.timeEnd('syncDatabase');
+
+                  // Finished with sync so clear changes
+                  this.dataSource.clearChanges();
+
+                  this.lockDBFile('unlock')
+                    .then(function () {
+                      resolve();
+                    }.bind(this))
+                    .catch(function(error) {
+                      reject(error);
+                    });
+                }.bind(this));
+          }.bind(this))
+          .catch(function (error) {
+            reject(error);
+          });
+        }.bind(this));
+      }
     }.bind(this));
   },
 
@@ -407,19 +446,22 @@ module.exports = Reflux.createStore({
     return new Promise(function (resolve, reject) {
 
       var dbPath = config.paths.dbPath + '/SITF.json';
+      var chmod;
 
       if (lockState === 'lock') {
-        lockFile.lock(dbPath, {}, function (error) {
-          console.log(dbPath);
-
-          if (error) {
-            console.log('lockfile error');
-            reject(error);
-          } else {
-            resolve();
-          }
-        });
+        chmod = 4;
+      } else if (lockState === 'unlock') {
+        chmod = 444;
       }
+
+      fs.chmod(dbPath, chmod, function(err) {
+
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
     });
   },
 

@@ -223,6 +223,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       if (messageType === 'collectionExists') {
         this.message = 'A presentation by this name already exists. Please choose a new name.';
+      } else if (messageType === 'savePackageDbLocked') {
+        this.message = 'The DataBase file is locked by another user. Try again in a few seconds. If the problem persists, please contact an administrator.';
+      } else if (messageType === 'savePackageDbError') {
+        this.message = 'There was a problem saving to the database. Try again in a few seconds. If the problem persists, please contact an administrator.';
       } else if (messageType === 'presentationSaved') {
         this.message = 'The presentation has been saved. Use \'View Packages\' to view or edit it.';
 

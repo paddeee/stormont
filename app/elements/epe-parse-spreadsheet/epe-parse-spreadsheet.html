@@ -158,6 +158,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (importMessage.type === 'fileImported') {
           this.fire('file-imported', importMessage);
 
+        } else if (importMessage.type === 'ImportDbError') {
+
+          // Reset array
+          this.validFiles = [];
+          this.sheetsArray = [];
+          this.fire('db-save-failed', importMessage);
+
         } else if (importMessage.type === 'success') {
 
           // Reset array

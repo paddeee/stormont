@@ -97,6 +97,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               csv-parser="[[csvParser]]"
               on-file-imported="fileImported"
               on-import-failed="importFailedHandler"
+              on-db-save-failed="dbSaveFailedHandler"
               on-import-finished="importFinishedHandler">
             </epe-parse-spreadsheet>
           </paper-material>
@@ -136,13 +137,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
     </paper-toast>
 
-    <paper-dialog id="ImportFailedToast" modal>
+    <paper-dialog id="ImportFailedDialog" modal>
       <h2>Import Failed</h2>
       <paper-dialog-scrollable>
         <template id="ListTemplate" is="dom-repeat" items="[[importFailedData]]">
           <div>[[item.message]]</div>
         </template>
       </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="DBSaveFailedDialog" modal>
+      <h2>Problem Saving Imported Data</h2>
+        <div>[[importFailedMessage]]</div>
       <div class="buttons">
         <paper-button dialog-confirm autofocus>OK</paper-button>
       </div>
@@ -175,6 +184,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       importedFiles: {
         type: Array,
         value: []
+      },
+
+      importFailedMessage: {
+        type: String,
+        value: ''
       }
     },
 
@@ -205,7 +219,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.async(function() {
 
         // Show dialog message
-        this.$.ImportFailedToast.open();
+        this.$.ImportFailedDialog.open();
+
+        this.importing = false;
+      }, 1000);
+    },
+
+    // TRIGGERED BY EVENT FIRED ON CHILD ELEMENT: DB Save failed
+    dbSaveFailedHandler: function(importData) {
+
+      this.importFailedMessage = importData.detail.message;
+
+      // Delay by a second as the spinner hiding is delayed by a second
+      this.async(function() {
+
+        // Show dialog message
+        this.$.DBSaveFailedDialog.open();
 
         this.importing = false;
       }, 1000);

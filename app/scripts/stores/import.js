@@ -119,18 +119,41 @@ module.exports = Reflux.createStore({
       .then(function() {
 
         // Save database
-        dataSource.saveDatabase(function() {
+        dataSource.saveDatabase(function(response) {
 
-         console.log('DataBase saved');
+          var messageType;
+          var message;
 
-         // Pass on to listeners
-         this.trigger({
-           type: 'success',
-           title: 'Import Successful',
-           message: 'All files have been successfully imported'
-         });
+          // If response.code it is an error
+          if (response.code) {
+            if (response.code === 'EACCES') {
+              messageType = 'ImportDbError';
+              message = 'The DataBase file is locked by another user. Try again in a few seconds. If the problem persists, please contact Evidential.';
+            } else {
+              messageType = 'ImportDbError';
+              message = 'There was a problem saving to the database. Try again in a few seconds. If the problem persists, please contact Evidential.';
+            }
 
-         this.logImport();
+            // Pass on to listeners
+            this.trigger({
+              type: messageType,
+              title: 'Import Failure',
+              message: message
+            });
+
+          } else {
+
+            console.log('DataBase saved');
+
+            // Pass on to listeners
+            this.trigger({
+              type: 'success',
+              title: 'Import Successful',
+              message: 'All files have been successfully imported'
+            });
+
+            this.logImport();
+          }
 
          }.bind(this));
 
