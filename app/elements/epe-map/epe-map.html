@@ -920,14 +920,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // FIRED FROM TIMELINE ELEMENT
     toggleTimeLineEnabled: function(event) {
 
-      var showControls;
-
       if (typeof event === 'object') {
-        showControls = event.detail.showControls;
+
+        if (event.detail.showControls) {
+          this.showingTimelineControls = true;
+        } else {
+          this.showingTimelineControls = showControls = false;
+        }
+
       } else if (typeof event === 'boolean') {
-        showControls = event;
+
+        if (event === true && this.showingTimelineControls) {
+          this.showingTimelineControls = true;
+        }
       }
-      if (showControls && !this.clustering) {
+
+      if (this.showingTimelineControls && !this.clustering) {
 
         this.$.TimeLineControl.classList.remove('timeline-control-section--hide');
         this.$.NavigatePreviousControl.classList.remove('timeline-control-previous--hide');
