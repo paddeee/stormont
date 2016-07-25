@@ -5,6 +5,10 @@ var dataSourceStore = require('../stores/dataSource.js');
 var config = global.config ? global.config : require('../config/config.js');
 var presentationsStore = require('../stores/presentations.js');
 var PeopleActions = require('../actions/people.js');
+var importPackageStore = require('../stores/importPackage.js');
+var fsExtra = global.config ? window.electronRequire('fs-extra') : null;
+var crypto = global.config ? window.electronRequire('crypto') : null;
+var getRawBody = global.config ? window.electronRequire('raw-body') : null;
 
 module.exports = Reflux.createStore({
 
@@ -30,6 +34,9 @@ module.exports = Reflux.createStore({
     this.listenTo(dataSourceStore, this.dataSourceChanged);
 
     this.listenTo(presentationsStore, this.presentationsStoreChanged);
+
+    // Register importPackageStore's changes
+    this.listenTo(importPackageStore, this.importPackageChanged);
   },
 
   // Set the filteredData Object
@@ -58,6 +65,22 @@ module.exports = Reflux.createStore({
     // If presentation name has been set to 'ViewingFilter', reset the presentation
     if (presentationsStore.presentationName === 'ViewingFilter') {
       this.resetFilterTransform();
+    }
+  },
+
+  // Add the images as blobs on the person's profile Object
+  importPackageChanged: function (importPackageStore) {
+
+    if (importPackageStore.message === 'importSuccess') {
+
+      // Iterate through each profile
+      this.dataSource.getCollection(this.collectionName).data.forEach(function(profileObject) {
+
+        // Decrypt the file if in Offline Application
+        if (global.config && profileObject.Photo) {
+          this.decryptProfileFile(profileObject);
+        }
+      }.bind(this));
     }
   },
 
@@ -520,6 +543,51 @@ module.exports = Reflux.createStore({
       this.supportingDocs = [];
       this.relatedEvents = [];
       this.trigger(this);
+    }
+  },
+
+  // Decrypt the selected profile file
+  decryptProfileFile: function(profileObject) {
+
+    // Input file
+    var readStream = fsExtra.createReadStream(global.config.packagePath + '/profiles' + profileObject.Photo);
+
+    // Decrypt content
+    var decrypt = crypto.createDecipher('aes-256-ctr', importPackageStore.packagePassword);
+
+    // Start pipe
+    getRawBody(readStream.pipe(decrypt))
+      .then(function (buffer) {
+
+        this.setBlob(buffer, profileObject);
+
+      }.bind(this))
+      .catch(function (err) {
+        console.log('Error decrypting ' + profileObject.Photo + ' ' + err);
+      });
+  },
+
+  // Set the blob property depending on the media type
+  setBlob: function(buffer, profileObject) {
+
+    var filePath = profileObject.Photo;
+    var fileExtension = filePath.substr(filePath.lastIndexOf('.') + 1);
+
+    switch (fileExtension) {
+      case 'jpg':
+        profileObject.blob = 'data:image/jpg;base64,' + buffer.toString('base64');
+        break;
+      case 'jpeg':
+        profileObject.blob = 'data:image/jpg;base64,' + buffer.toString('base64');
+        break;
+      case 'gif':
+        profileObject.blob = 'data:image/gif;base64,' + buffer.toString('base64');
+        break;
+      case 'png':
+        profileObject.blob = 'data:image/png;base64,' + buffer.toString('base64');
+        break;
+      default:
+        console.warn('Profile Image error: ' + fileExtension + 'not a supported type');
     }
   }
 });

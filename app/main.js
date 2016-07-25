@@ -11,7 +11,7 @@ const fs = require('fs');
  Networked: 0
  Offline/Court: 1
  */
-const buildType = 0;
+const buildType = 1;
 
 let externalDisplay = false;
 
@@ -22,7 +22,9 @@ var courtWindow = null;
 var publishWindow = null;
 
 // Handle Squirrel Events
-if (require('electron-squirrel-startup')) return
+if (require('electron-squirrel-startup')) {
+  return;
+}
 
 // this should be placed at top of main.js to handle setup events quickly
 if (handleSquirrelEvent()) {

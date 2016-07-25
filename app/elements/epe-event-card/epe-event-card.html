@@ -310,7 +310,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <div class="event-card__name"
                          on-tap="navigateToProfile">
                       <div class="event-card__profile layout horizontal center">
-                        <img src="[[getProfilePhoto(item.photo)]]"
+                        <img src="[[getProfilePhoto(item)]]"
                              class="event-card__profile-image"/>
                         <div>[[item.name]]</div>
                       </div>
@@ -326,7 +326,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <div class="event-card__name"
                          on-tap="navigateToProfile">
                       <div class="event-card__profile layout horizontal center">
-                        <img src="[[getProfilePhoto(item.photo)]]"
+                        <img src="[[getProfilePhoto(item)]]"
                              class="event-card__profile-image"/>
                         <div>[[item.name]]</div>
                       </div>
@@ -342,7 +342,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <div class="event-card__name"
                          on-tap="navigateToProfile">
                       <div class="event-card__profile layout horizontal center">
-                        <img src="[[getProfilePhoto(item.photo)]]"
+                        <img src="[[getProfilePhoto(item)]]"
                              class="event-card__profile-image"/>
                         <div>[[item.name]]</div>
                       </div>
@@ -676,7 +676,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Show photo if valid, otherwise use default pic
-    getProfilePhoto: function(path) {
+    getProfilePhoto: function(item) {
 
       var placeholderPath;
       var profilesPath = '/profiles/';
@@ -694,11 +694,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       placeholderPath = '/profile-placeholder.png';
 
-      if (path === '' || !path || path === 'path_to_file') {
-        return profilesPath + placeholderPath;
-      }
+      // If we have a blob of the image
+      if (item.blob) {
+        return item.blob;
 
-      return profilesPath + path;
+      // If not a valid image
+      } else if (item.path === '' || !item.path || item.path === 'path_to_file') {
+        return profilesPath + placeholderPath;
+
+      // No blob set so use Path from data file
+      } else {
+        return profilesPath + item.path;
+      }
     },
 
     // Add an icon to related sources

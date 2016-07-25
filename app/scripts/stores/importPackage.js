@@ -53,11 +53,13 @@ module.exports = Reflux.createStore({
 
             this.message = 'importSuccess';
             this.trigger(this);
+            this.message = '';
           }.bind(this));
         }.bind(this))
       .catch(function() {
         this.message = 'dbDecryptionFailure';
         this.trigger(this);
+        this.message = '';
       }.bind(this));
   },
 

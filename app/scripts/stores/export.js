@@ -299,15 +299,15 @@ module.exports = Reflux.createStore({
             } else {
 
               // Input file
-              var dbReadStream = fsExtra.createReadStream(sourceFilePath + '/' + sourceFile['Linked File']);
+              var sourceReadStream = fsExtra.createReadStream(sourceFilePath + '/' + sourceFile['Linked File']);
 
               // Encrypt content
               var encrypt = crypto.createCipher('aes-256-ctr', packagePassword);
 
               // Write file
-              var dbWriteStream = fsExtra.createWriteStream(tempExportDirectory + '/sourcefiles/' + sourceFile['Linked File']);
+              var sourceWriteStream = fsExtra.createWriteStream(tempExportDirectory + '/sourcefiles/' + sourceFile['Linked File']);
 
-              dbReadStream.pipe(encrypt).pipe(dbWriteStream);
+              sourceReadStream.pipe(encrypt).pipe(sourceWriteStream);
 
               console.log(sourceFile['Linked File'] + ' copied');
 
@@ -332,6 +332,8 @@ module.exports = Reflux.createStore({
 
   // Iterate through each Person Object and copy the file from its Image Path into the temp directory
   copyProfileImagesFiles: function(profileImagesArray, presentationObject, tempExportDirectory) {
+
+    var packagePassword = this.packagePassword;
 
     return new Promise(function (resolve, reject) {
 
@@ -367,36 +369,35 @@ module.exports = Reflux.createStore({
             resolve();
           } else {
 
-            fsExtra.stat(tempExportDirectory + '/profiles/' + profile.Photo, function(err) {
+            // File does not exist
+            // Copy each source file to the temp directory
+            fsExtra.ensureFile(tempExportDirectory + '/profiles/' + profile.Photo, function (error) {
 
-              // File exists
-              if (err === null) {
-                console.log(tempExportDirectory + '/profiles/' + profile.Photo + ' File exists');
-                resolve();
+              if (error) {
 
-              } else if (err.code === 'ENOENT') {
-
-                // File does not exist
-                // Copy each source file to the temp directory
-                fsExtra.ensureLink(profileImagesPath + '/' + profile.Photo, tempExportDirectory + '/profiles/' + profile.Photo, function (error) {
-
-                  if (error) {
-
-                    if (error.code === 'EEXIST') {
-                      console.log(profile.Photo + ' file exists');
-                      resolve();
-                    } else {
-                      console.log(profile.Photo + ' failed');
-                      reject(error);
-                    }
-                  } else {
-                    console.log(profile.Photo + ' copied');
-                    resolve();
-                  }
-                });
-
+                if (error.code === 'EEXIST') {
+                  console.log(profile.Photo + ' file exists');
+                  resolve();
+                } else {
+                  console.log(profile.Photo + ' failed');
+                  reject(error);
+                }
               } else {
-                reject('Some other error: ', err.code);
+
+                // Input file
+                var profileReadStream = fsExtra.createReadStream(profileImagesPath + '/' + profile.Photo);
+
+                // Encrypt content
+                var encrypt = crypto.createCipher('aes-256-ctr', packagePassword);
+
+                // Write file
+                var profileWriteStream = fsExtra.createWriteStream(tempExportDirectory + '/profiles/' + profile.Photo);
+
+                profileReadStream.pipe(encrypt).pipe(profileWriteStream);
+
+                console.log(profile.Photo + ' copied');
+
+                resolve();
               }
             });
           }

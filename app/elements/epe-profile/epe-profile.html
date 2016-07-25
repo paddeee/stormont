@@ -247,7 +247,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     profile="[[profile]]"
                                     on-tap="navigateToProfile">
                       <image class="related-profile-image"
-                             src="[[getProfilePhoto(profile.Photo)]]"/>
+                             src="[[getProfilePhoto(profile)]]"/>
                       <div>[[getFullName(profile)]]</div>
                     </paper-material>
                   </template>
@@ -422,7 +422,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Show photo if valid, otherwise use default pic
-    getProfilePhoto: function(path) {
+    getProfilePhoto: function(item) {
 
       var placeholderPath;
       var profilesPath = '/profiles/';
@@ -440,13 +440,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       placeholderPath = '/profile-placeholder.png';
 
-      path = path || this.selectedProfileObject.Photo;
+      item = item || this.selectedProfileObject;
 
-      if (path === '' || !path || path === 'path_to_file') {
+      // If we have a blob of the image
+      if (item.blob) {
+        return item.blob;
+
+        // If not a valid image
+      } else if (item.path === '' || !item.path || item.path === 'path_to_file') {
         return profilesPath + placeholderPath;
-      }
 
-      return profilesPath + path;
+        // No blob set so use Path from data file
+      } else {
+        return profilesPath + item.path;
+      }
     },
 
     // Get Date

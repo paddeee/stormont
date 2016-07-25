@@ -366,6 +366,7 @@ module.exports = Reflux.createStore({
       var newObject = {
         id: object.$loki,
         name: object['Full Name'],
+        blob: object.blob,
         photo: object.Photo
       };
 
