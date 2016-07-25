@@ -279,6 +279,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           unapprovedSource: this.selectedPresentation.unapprovedSource
         };
 
+        this.fire('syncing-db');
+
         // Call saveQuery action
         this.queryBuilderActions.presentationSaved(presentationObject);
 
@@ -310,6 +312,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         originalName: originalName,
         unapprovedSource: this.selectedPresentation.unapprovedSource
       };
+
+      this.fire('syncing-db');
 
       // Call saveQuery action
       this.queryBuilderActions.presentationSaved(presentationObject);

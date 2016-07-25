@@ -116,12 +116,15 @@ module.exports = Reflux.createStore({
 
           this.trigger(this);
 
+          this.message = '';
+
         }.bind(this));
       }.bind(this))
       .catch(function(error) {
         console.log(error);
         this.message = 'syncDBError';
         this.trigger(this);
+        this.message = '';
       });
     }
   },
@@ -170,10 +173,15 @@ module.exports = Reflux.createStore({
 
           this.trigger(this);
 
+          this.message = '';
+
         }.bind(this));
       }.bind(this))
       .catch(function(error) {
-        console.log(error);
+          console.log(error);
+          this.message = 'syncDBError';
+          this.trigger(this);
+          this.message = '';
       });
     }
   },
@@ -208,11 +216,15 @@ module.exports = Reflux.createStore({
             }
 
             this.trigger(this);
+            this.message = '';
           }.bind(this));
 
         }.bind(this))
         .catch(function(error) {
           console.log(error);
+          this.message = 'syncDBError';
+          this.trigger(this);
+          this.message = '';
         });
 
     } else {
@@ -557,6 +569,18 @@ module.exports = Reflux.createStore({
 
   // Update the latest db with the changes
   syncChange: function(changeObject) {
+
+    // If document doesn't exist as another user may have deleted it. In this case do nothing so as not to cause an loki.js error.
+    var objectToChangeExists = this.latestDB.getCollection(changeObject.name).find({
+      '$loki': {
+        '$eq': changeObject.obj.$loki
+      }
+    }).length;
+
+    // If updating or deleting and object does not exist, return
+    if (changeObject.operation !== 'I' && !objectToChangeExists) {
+      return;
+    }
 
     switch (changeObject.operation) {
       case 'I':

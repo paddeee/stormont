@@ -731,6 +731,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Delete Package action confirmation button pressed
     deletePackageConfirmed: function() {
 
+      this.fire('syncing-db');
+
       // Call deletePresentation action
       this.dataSourceActions.deletePresentation(this.presentationForDeletion);
     },

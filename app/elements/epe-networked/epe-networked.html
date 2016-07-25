@@ -110,6 +110,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     paper-menu {
       outline: none;
     }
+
+    .syncing-dialog {
+      height: 50vh;
+      width: 50vw;
+    }
+
+    .syncing-progress {
+      height: 60%;
+    }
+
+    paper-progress {
+      --paper-progress-active-color: var(--dark-primary-color);
+      --paper-progress-secondary-color: var(--paper-light-blue-100);
+      width: 100%;
+    }
   </style>
   <template>
 
@@ -328,6 +343,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               export-actions="[[exportActions]]"
               export-store="[[exportStore]]"
               query-builder-actions="[[queryBuilderActions]]"
+              on-syncing-db="syncingDB"
               on-show-dialog="showDialog"></epe-view-packages>
           </section>
         </iron-pages>
@@ -345,9 +361,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       presentations-store="[[presentationsStore]]"
       data-source-actions="[[dataSourceActions]]"
       user-store="[[userStore]]"
+      on-syncing-db="syncingDB"
       on-show-dialog="showDialog"></epe-filters>
 
     <!-- Dialogs -->
+
+    <paper-dialog id="SyncingDBDialog"
+                  class="syncing-dialog"
+                  modal>
+      <h2>Saving to Database</h2>
+      <div class="syncing-progress layout horizontal center center-justified">
+        <paper-progress indeterminate value="800" min="100" max="1000"></paper-progress>
+      </div>
+    </paper-dialog>
 
     <paper-dialog id="LoggingErrorDialog" modal>
       <h2>Logging Error</h2>
@@ -888,25 +914,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         this.message = event.detail.message;
 
-        if (event.detail.type === 'presentationSaved') {
+        // Delay by 500ms so we don't see quick flash of progress dialog
+        this.async(function() {
 
-          if (this.presentationsStore.presentationState === 'creating') {
-            this.navigateToSavedEvent(event.detail);
+          // Open the Syncing Loading Dialog
+          this.$.SyncingDBDialog.close();
+
+          if (event.detail.type === 'presentationSaved') {
+
+            if (this.presentationsStore.presentationState === 'creating') {
+              this.navigateToSavedEvent(event.detail);
+            }
+
+            this.$.SuccessDialog.open();
+
+          } else if (event.detail.type === 'collectionExists') {
+            this.$.WarningDialog.open();
+
+          } else if (event.detail.type === 'savePackageDbLocked') {
+            this.message = 'The DataBase file is locked by another user. Try again in a few seconds. If the problem persists, please contact an administrator.';
+            this.$.DBErrorDialog.open();
+
+          } else if (event.detail.type === 'savePackageDbError') {
+            this.message = 'There was a problem saving to the database. Try again in a few seconds. If the problem persists, please contact an administrator.';
+            this.$.DBErrorDialog.open();
           }
-
-          this.$.SuccessDialog.open();
-
-        } else if (event.detail.type === 'collectionExists') {
-          this.$.WarningDialog.open();
-
-        } else if (event.detail.type === 'savePackageDbLocked') {
-          this.message = 'The DataBase file is locked by another user. Try again in a few seconds. If the problem persists, please contact an administrator.';
-          this.$.DBErrorDialog.open();
-
-        } else if (event.detail.type === 'savePackageDbError') {
-          this.message = 'There was a problem saving to the database. Try again in a few seconds. If the problem persists, please contact an administrator.';
-          this.$.DBErrorDialog.open();
-        }
+        }, 500);
       },
 
       // Navigate to newly saved event
@@ -1079,6 +1112,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         } else {
           console.warn('Cannot close application in browser');
         }
+      },
+
+      // Show Loading dialog when syncing the Database file
+      syncingDB: function() {
+
+        // Open the Syncing Loading Dialog
+        this.$.SyncingDBDialog.open();
       }
     });
   })();

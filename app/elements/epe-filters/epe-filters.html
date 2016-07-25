@@ -406,7 +406,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           data-source-actions="[[dataSourceActions]]"
           query-builder-actions="[[queryBuilderActions]]"
           on-close-card="closeCard"
-          on-show-dialog="showDialog"></epe-save-package>
+          on-show-dialog="showDialog"
+          on-syncing-db="syncingDB"></epe-save-package>
       </paper-material>
     </div>
 
@@ -870,6 +871,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         });
 
         return headingName;
+      },
+
+      // Fire event that we are syncing DB
+      syncingDB: function() {
+        this.fire('syncing-db');
       }
     });
   })();
