@@ -919,7 +919,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // FIRED FROM TIMELINE ELEMENT
     toggleTimeLineEnabled: function(event) {
 
-      if (event.detail.showControls) {
+      var showControls;
+
+      if (typeof event === 'object') {
+        showControls = event.detail.showControls;
+      } else if (typeof event === 'boolean') {
+        showControls = event;
+      }
+      if (showControls && !this.clustering) {
 
         this.$.TimeLineControl.classList.remove('timeline-control-section--hide');
         this.$.NavigatePreviousControl.classList.remove('timeline-control-previous--hide');
@@ -1093,8 +1100,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       if (this.clustering === false) {
         this.clustering = true;
+        this.toggleTimeLineEnabled(false);
       } else if (this.clustering === true) {
         this.clustering = false;
+        this.toggleTimeLineEnabled(true);
       }
     },
 
