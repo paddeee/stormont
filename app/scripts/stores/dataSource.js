@@ -414,6 +414,7 @@ module.exports = Reflux.createStore({
     return new Promise(function (resolve, reject) {
 
       if (!global.config) {
+        this.latestDB = this.dataSource;
         resolve();
       } else {
 
