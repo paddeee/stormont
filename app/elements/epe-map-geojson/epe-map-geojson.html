@@ -182,6 +182,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           type: Boolean,
           observer: 'clusteringChanged',
           value: true
+        },
+
+        timeLineShowing: {
+          type: Boolean,
+          observer: 'timeLineShowingChanged',
+          value: false
         }
       },
 
@@ -225,6 +231,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Function to pass to Leaflet to handle display of all features on the map
       onEachFeature: function(feature, layer) {
 
+        var topPadding = 30;
+        var leftPadding = 30;
+        var bottomPadding = 30;
+        var rightPadding = 30;
+
+        if (this.timeLineShowing) {
+          bottomPadding = 260;
+        }
+
         // Need to pass an object into leaflet popup so will stringify and parse inside element on the
         // other side.
         var eventData = JSON.stringify(feature.properties);
@@ -239,7 +254,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             minWidth: 340,
             maxWidth: 340,
             offset: new window.L.point(200, -4),
-            autoPanPaddingBottomRight: new window.L.point(300, 380),
+            autoPanPaddingTopLeft: new window.L.point(leftPadding, topPadding),
+            autoPanPaddingBottomRight: new window.L.point(rightPadding, bottomPadding),
             className: popUpClassName
         });
 
@@ -497,6 +513,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var clusterSW;
         var geoJSONNE;
         var geoJSONSW;
+        var topPadding = 30;
+        var leftPadding = 30;
+        var bottomPadding = 30;
+        var rightPadding = 30;
+
+        if (this.timeLineShowing) {
+          bottomPadding = 260;
+        }
 
         // Need to check if clusterLayer contains any markers
         if (clusterBounds._northEast) {
@@ -552,7 +576,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // If map client height is 0, the leaflet animation will throw a JavaScript error.
         // So only do this if viewing the map.
         if (boundsObject && this.closest('#LeafletMap').clientHeight) {
-          map.fitBounds(boundsObject);
+          map.fitBounds(boundsObject, {
+            paddingTopLeft: [leftPadding, topPadding],
+            paddingBottomRight: [rightPadding, bottomPadding]
+          });
         }
       },
 
@@ -662,7 +689,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             // Pan and zoom into the cluster or just to a marker if zoomed in enough already
             clusterLayer.zoomToShowLayer(feature, function () {
 
-              if (!this.clustering && this.navigationType !== 'One') {
+              if (!this.clustering && this.navigationType === 'All') {
                 this.zoomToFitBounds();
               }
 
@@ -817,6 +844,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         });
 
         return ernRefs;
+      },
+
+      // Call zoomToFitBounds when timeline is toggled
+      timeLineShowingChanged: function() {
+        if (this.navigationType === 'All') {
+          this.zoomToFitBounds();
+        }
       }
     });
   })();
