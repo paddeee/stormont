@@ -699,12 +699,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return item.blob;
 
       // If not a valid image
-      } else if (item.path === '' || !item.path || item.path === 'path_to_file') {
+      } else if (item.photo === '' || !item.photo || item.photo === 'path_to_file') {
         return profilesPath + placeholderPath;
 
-      // No blob set so use Path from data file
+      // No blob set so use Photo path from data file
       } else {
-        return profilesPath + item.path;
+        return profilesPath + item.photo;
       }
     },
 
