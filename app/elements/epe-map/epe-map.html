@@ -274,9 +274,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       transition-duration: 300ms;
       -webkit-transition-timing-function: ease-in-out;
       transition-timing-function: ease-in-out;
-      -ms-transform: translateY(-216px);
-      -webkit-transform: translateY(-216px);
-      transform: translateY(-216px);
     }
 
     .timeline-control-section--hide {
@@ -307,7 +304,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       bottom: 0;
       width: 100%;
       background-color: transparent;
-      height: 215px;
       position: fixed;
       overflow: hidden;
       -webkit-transition-duration: 300ms;
@@ -496,6 +492,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                        active-place="[[activePlace]]"
                        clustering="[[clustering]]"
                        time-line-showing="[[timelineShowing]]"
+                       time-line-height="[[timeLineHeight]]"
                        navigation-type="[[navigationType]]"
                        on-toggle-cluster="clusteringChanged"
                        on-toggle-event-card-no-location="toggleEventCardNoLocation">
@@ -727,6 +724,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       mapLegend: {
         type: Array,
         value: []
+      },
+
+      timeLineControlTransform: {
+        type: String,
+        value: '0px'
+      },
+
+      timeLineHeight: {
+        type: Number,
+        value: 0
       }
     },
 
@@ -830,7 +837,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // TimeLine needs a kick to not position events on top of each other
     initialiseTimelineUI: function() {
+
       this.$.TimeLineElement.initialiseTimelineUI();
+
+      this.adjustTimelineDimensions();
     },
 
     // Set up the annotation functionality
@@ -901,17 +911,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Show/Hide Timeline
     toggleTimeline: function() {
-
       this.timelineShowing = !this.timelineShowing;
+      this.adjustTimelineDimensions();
+    },
+
+    // Adjust Timeline
+    adjustTimelineDimensions: function() {
 
       if (this.timelineShowing) {
+
+        this.reAdjustTimeLineHeight();
         this.$.TimeLine.classList.add('timeline--showing');
-        this.$.TimeLineControl.classList.add('timeline--showing');
+        this.$.TimeLineControl.style.transform = "translateY(" + this.timeLineControlTransform + ")";
         this.$.NavigatePreviousControl.classList.add('timeline--showing');
         this.$.NavigateNextControl.classList.add('timeline--showing');
       } else {
         this.$.TimeLine.classList.remove('timeline--showing');
-        this.$.TimeLineControl.classList.remove('timeline--showing');
+        this.$.TimeLineControl.style.transform = "translateY(0px)";
         this.$.NavigatePreviousControl.classList.remove('timeline--showing');
         this.$.NavigateNextControl.classList.remove('timeline--showing');
       }
@@ -935,9 +951,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       }
 
+      // If TimeLine is populated and clustering is off
       if (this.showingTimelineControls && !this.clustering) {
 
-        this.$.TimeLineControl.classList.remove('timeline-control-section--hide');
+        // If TimeLine is showing
+        if (this.timelineShowing) {
+          this.$.TimeLineControl.style.transform = "translateY(" + this.timeLineControlTransform + ")";
+        } else {
+          this.$.TimeLineControl.style.transform = "translateY(0px)";
+        }
+
         this.$.NavigatePreviousControl.classList.remove('timeline-control-previous--hide');
         this.$.NavigateNextControl.classList.remove('timeline-control-next--hide');
 
@@ -945,8 +968,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         this.$.TimeLine.classList.remove('timeline--showing');
 
-        this.$.TimeLineControl.classList.remove('timeline--showing');
-        this.$.TimeLineControl.classList.add('timeline-control-section--hide');
+        this.$.TimeLineControl.style.transform = "translateY(0px)";
+        this.$.TimeLineControl.style.transform = "translateX(-100vw)";
 
         this.$.NavigatePreviousControl.classList.remove('timeline--showing');
         this.$.NavigatePreviousControl.classList.add('timeline-control-previous--hide');
@@ -1188,9 +1211,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       return 'legend__icon fa icon-black fa-' + icon;
     },
 
-    // Calls method on epe-map-geojson elelment to let user quickly zoom and pan to view all markers on map
+    // Calls method on epe-map-geojson element to let user quickly zoom and pan to view all markers on map
     zoomToFitBounds: function() {
       this.$.MapGeoJSON.zoomToFitBounds();
+    },
+
+    // ReAdjust the TimeLine height due to seemingly being unable to fix it's height
+    reAdjustTimeLineHeight: function() {
+      this.timeLineHeight = this.$.TimeLineElement.clientHeight;
+      this.timeLineControlTransform = -(this.timeLineHeight + 1) + 'px';
     }
   });
 })();
