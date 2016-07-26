@@ -38,9 +38,9 @@ module.exports = Reflux.createStore({
           this.user = user;
           this.trigger(this.user);
         }.bind(this))
-        .catch(function(user) {
-          console.error(user);
-          this.user = user;
+        .catch(function() {
+          this.user.status = 'loginError';
+          this.user.message = 'Please contact IT Support if you need to use this application.';
           this.trigger(this.user);
         }.bind(this));
 
@@ -92,38 +92,10 @@ module.exports = Reflux.createStore({
     });
   },
 
-  /*
-
-   samaccountname
-
-   var opts = {
-   filter: '(&(l=Seattle)(email=*@foo.com))',
-   scope: 'sub',
-   attributes: ['dn', 'sn', 'cn']
-   };
-
-   client.search('o=example', opts, function(err, res) {
-   assert.ifError(err);
-
-   res.on('searchEntry', function(entry) {
-   console.log('entry: ' + JSON.stringify(entry.object));
-   });
-   res.on('searchReference', function(referral) {
-   console.log('referral: ' + referral.uris.join());
-   });
-   res.on('error', function(err) {
-   console.error('error: ' + err.message);
-   });
-   res.on('end', function(result) {
-   console.log('status: ' + result.status);
-   });
-   });
-   */
-
   // Return a user object for listeners to consume
   createUserObject: function (userLoginObject) {
 
-    return new Promise(function (resolve) {
+    return new Promise(function (resolve, reject) {
 
       var userObject;
 
@@ -134,8 +106,12 @@ module.exports = Reflux.createStore({
       // If user matched in roles file
       if (userObject) {
 
-        userObject.status = 'loggedin';
-        userObject.message = userObject.userName + ' has logged in with ' + userObject.role + ' permissions';
+        if (userObject.role === 'no-login') {
+          reject(userObject);
+        } else {
+          userObject.status = 'loggedin';
+          userObject.message = userObject.userName + ' has logged in with ' + userObject.role + ' permissions';
+        }
 
       // If no match in roles file log in as A User
       } else {

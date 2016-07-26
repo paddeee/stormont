@@ -13,6 +13,10 @@ var roles = {
     {
       userName: 'Gatekeeper',
       role: 'gatekeeper'
+    },
+    {
+      userName: 'Nologin',
+      role: 'no-login'
     }
   ]
 };
