@@ -379,7 +379,10 @@ module.exports = Reflux.createStore({
         // Add related profiles
         this.addRelatedProfiles(statement, affiliationObject);
 
-        relatedAffiliations.push(affiliationObject);
+        // Only add the Affiliation if there are related profiles associated
+        if (affiliationObject.relatedProfiles.length) {
+          relatedAffiliations.push(affiliationObject);
+        }
 
       }.bind(this));
     }
