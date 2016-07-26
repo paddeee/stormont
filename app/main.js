@@ -174,7 +174,7 @@ app.on('ready', function() {
 
   var createControllerWindow = function() {
 
-// Create the browser window.
+    // Create the browser window.
     controllerWindow = new BrowserWindow({
       backgroundColor: 'fff',
       webSecurity: false,
