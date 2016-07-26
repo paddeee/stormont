@@ -992,14 +992,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // ToggleCourt Mode changed
       toggleCourtModeChanged: function(event) {
+
         this.courtMode = event.currentTarget.active;
 
-        if (this.courtMode) {
-          if (typeof process === 'object') {
-            ipcRenderer.send('court-mode-changed', event.currentTarget.active);
-          } else {
-            console.warn('No Court Mode in browser');
-          }
+        if (typeof process === 'object') {
+          ipcRenderer.send('court-mode-changed', event.currentTarget.active);
+        } else {
+          console.warn('No Court Mode in browser');
         }
       },
 
@@ -1009,12 +1008,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.courtMode = event.detail;
         this.$.CourtModeToggle.checked = event.detail;
 
-        if (this.courtMode) {
-          if (typeof process === 'object') {
-            ipcRenderer.send('court-mode-changed', event.detail);
-          } else {
-            console.warn('No Court Mode in browser');
-          }
+        if (typeof process === 'object') {
+          ipcRenderer.send('court-mode-changed', event.detail);
+        } else {
+          console.warn('No Court Mode in browser');
         }
       },
 

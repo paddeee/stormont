@@ -145,16 +145,14 @@ app.on('ready', function() {
 
   var createExternalWindow = function() {
 
-    // Get controller display based on smallest screen width
-    let controllerDisplay = electron.screen.getAllDisplays().reduce(function (prev, current) {
-      return (prev.workAreaSize.width < current.workAreaSize.width) ? prev : current;
-    });
-
     // Using find so will only return one external display. Need to know how this should work with
     // multiple displays before changing to use filter.
     let externalDisplay = electron.screen.getAllDisplays().find(function (display) {
-      return display.workAreaSize.width > controllerDisplay.workAreaSize.width || display.workAreaSize.height > controllerDisplay.workAreaSize.height;
+      return display.bounds.x !== 0 || display.bounds.y !== 0;
     });
+
+    // Get controller display based on smallest screen width
+    let controllerDisplay = electron.screen.getPrimaryDisplay();
 
     // Create the court view window.
     courtWindow = new BrowserWindow({
@@ -166,7 +164,7 @@ app.on('ready', function() {
       show: false
     });
 
-    courtWindow.setFullScreen(true);
+    //courtWindow.setFullScreen(true);
     courtWindow.showInactive();
 
     courtWindow.loadURL('file://' + __dirname + '/externalDisplay.html');
@@ -221,7 +219,7 @@ app.on('ready', function() {
 
     // Get controller display based on smallest screen width
     let controllerDisplay = electron.screen.getAllDisplays().reduce(function (prev, current) {
-      return (prev.workAreaSize.width < current.workAreaSize.width) ? prev : current;
+      return (prev.workAreaSize.width <= current.workAreaSize.width) ? prev : current;
     });
 
     // Get screen size of controller display
@@ -240,7 +238,9 @@ app.on('ready', function() {
 
     // If only one screen when the court mode is changed send a message to the renderer process
     if (electron.screen.getAllDisplays().length < 2) {
-      controllerWindow.webContents.send('no-external-display');
+      if (externalDisplay) {
+        controllerWindow.webContents.send('no-external-display');
+      }
       return;
     }
 
