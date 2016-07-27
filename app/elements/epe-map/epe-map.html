@@ -918,6 +918,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Adjust Timeline
     adjustTimelineDimensions: function() {
 
+
+      if (!this.showingTimelineControls || this.clustering) {
+        return;
+      }
+
       if (this.timelineShowing) {
 
         this.reAdjustTimeLineHeight();
