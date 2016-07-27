@@ -462,7 +462,7 @@ module.exports = Reflux.createStore({
       var chmod;
 
       // If DB File doesn't exist, it hasn't been created yet so don't bother changing permissions
-      fsExtra.stat(dbPath, function (err) {
+      fs.stat(dbPath, function (err) {
         if (err) {
           resolve();
         } else {
