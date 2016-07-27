@@ -461,18 +461,26 @@ module.exports = Reflux.createStore({
       var dbPath = config.paths.dbPath + '/SITF.json';
       var chmod;
 
-      if (lockState === 'lock') {
-        chmod = 4;
-      } else if (lockState === 'unlock') {
-        chmod = 444;
-      }
-
-      fs.chmod(dbPath, chmod, function(err) {
-
+      // If DB File doesn't exist, it hasn't been created yet so don't bother changing permissions
+      fsExtra.stat(dbPath, function (err) {
         if (err) {
-          reject(err);
-        } else {
           resolve();
+        } else {
+
+          if (lockState === 'lock') {
+            chmod = 4;
+          } else if (lockState === 'unlock') {
+            chmod = 444;
+          }
+
+          fs.chmod(dbPath, chmod, function(err) {
+
+            if (err) {
+              reject(err);
+            } else {
+              resolve();
+            }
+          });
         }
       });
     });

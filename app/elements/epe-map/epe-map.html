@@ -930,12 +930,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         this.reAdjustTimeLineHeight();
         this.$.TimeLine.classList.add('timeline--showing');
-        this.$.TimeLineControl.style.transform = "translateY(" + this.timeLineControlTransform + ")";
+        this.$.TimeLineControl.style.transform = 'translateY(' + this.timeLineControlTransform + ')';
         this.$.NavigatePreviousControl.classList.add('timeline--showing');
         this.$.NavigateNextControl.classList.add('timeline--showing');
       } else {
         this.$.TimeLine.classList.remove('timeline--showing');
-        this.$.TimeLineControl.style.transform = "translateY(0px)";
+        this.$.TimeLineControl.style.transform = 'translateY(0px)';
         this.$.NavigatePreviousControl.classList.remove('timeline--showing');
         this.$.NavigateNextControl.classList.remove('timeline--showing');
       }
@@ -964,9 +964,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // If TimeLine is showing
         if (this.timelineShowing) {
-          this.$.TimeLineControl.style.transform = "translateY(" + this.timeLineControlTransform + ")";
+          this.$.TimeLineControl.style.transform = 'translateY(' + this.timeLineControlTransform + ')';
         } else {
-          this.$.TimeLineControl.style.transform = "translateY(0px)";
+          this.$.TimeLineControl.style.transform = 'translateY(0px)';
         }
 
         this.$.NavigatePreviousControl.classList.remove('timeline-control-previous--hide');
@@ -976,8 +976,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         this.$.TimeLine.classList.remove('timeline--showing');
 
-        this.$.TimeLineControl.style.transform = "translateY(0px)";
-        this.$.TimeLineControl.style.transform = "translateX(-100vw)";
+        this.$.TimeLineControl.style.transform = 'translateY(0px)';
+        this.$.TimeLineControl.style.transform = 'translateX(-100vw)';
 
         this.$.NavigatePreviousControl.classList.remove('timeline--showing');
         this.$.NavigatePreviousControl.classList.add('timeline-control-previous--hide');
