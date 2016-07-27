@@ -50,16 +50,57 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       width: 100%;
     }
 
+    .inactivity {
+      background-color: #EEE;
+      position: absolute;
+      padding: 64px;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 64px;
+    }
+
+    .inactivity-card {
+      background-color: #0288D1;
+      color: #FFFFFF;
+      margin: 0 auto;
+      padding: 64px;
+      height: 60vh;
+      width: 60vw;
+      box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
+      border-radius: 2px;
+      text-align: center;
+    }
+
   </style>
 </head>
 
 <body>
+
+  <div id="InactivityMask" class="inactivity" hidden>
+    <div class="inactivity-card">
+      <h1>Application Locked</h1>
+    </div>
+  </div>
+
   <div id="ImageHolder" class="card">
     <img class="image" src="images/external-placeholder.png" id="ScreenShot"/>
   </div>
   <script>
     var ipcRenderer = require('electron').ipcRenderer;
     var moment = require('moment');
+
+    ipcRenderer.on('lock-application', function(event, state) {
+
+      var $inactivityMask = document.querySelector('#InactivityMask');
+
+      if (state === 'lock') {
+        $inactivityMask.removeAttribute('hidden');
+      } else {
+        $inactivityMask.hidden = true;
+      }
+    });
 
     ipcRenderer.on('publish', function(event, imageObject) {
 

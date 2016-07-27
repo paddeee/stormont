@@ -11,7 +11,7 @@ const fs = require('fs');
  Networked: 0
  Offline/Court: 1
  */
-const buildType = 0;
+const buildType = 1;
 
 let externalDisplay = false;
 
@@ -209,7 +209,7 @@ app.on('ready', function() {
 
       publishWindow.loadURL('file://' + __dirname + '/publish.html');
 
-      //publishWindow.webContents.openDevTools();
+      // publishWindow.webContents.openDevTools();
     }
   };
 
@@ -454,6 +454,11 @@ ipcMain.on('save-pdf', function(event, pdfObject) {
       });
     }
   });
+});
+
+// Lock/Unlock Application.
+ipcMain.on('lock-application', function(event, state) {
+  courtWindow.webContents.send('lock-application', state);
 });
 
 // Send message to publish page to generate HTML with relevant data.

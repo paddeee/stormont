@@ -971,6 +971,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.async(function() {
           this.$.InActivityMask.removeAttribute('hidden');
         });
+
+        if (typeof process === 'object') {
+          ipcRenderer.send('lock-application', 'lock');
+        }
       },
 
       // FIRED FROM EPE-INACTIVITY ELEMENT
@@ -981,6 +985,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.async(function() {
           this.$.paperDrawerPanel.removeAttribute('hidden');
         });
+
+        if (typeof process === 'object') {
+          ipcRenderer.send('lock-application', 'unlock');
+        }
       },
 
       // FIRED FROM EPE-CHOOSE-PACKAGE ELEMENT
