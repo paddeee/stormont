@@ -115,6 +115,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             id="Password"
             label="Password"
             type="password"
+            on-keypress="passwordTyped"
             required
             autovalidate
             error-message="Please enter your Password"></paper-input>
@@ -202,6 +203,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       if (this.validateForm()) {
         this.createUserLogin();
+      }
+    },
+
+    // Check if return was pressed and if so treat as submit button being tapped
+    passwordTyped: function(event) {
+
+      if (event.keyCode === 13) {
+        this.submitTapped();
       }
     },
 
