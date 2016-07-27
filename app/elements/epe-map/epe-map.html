@@ -12,6 +12,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <dom-module id="epe-map">
   <link rel="stylesheet" href="../../styles/vendor/leaflet/leaflet-draw.css" />
+  <link rel="stylesheet" href="../../styles/vendor/leaflet/leaflet-draw-override.css" />
   <link rel="stylesheet" href="../../styles/vendor/leaflet/leaflet-style-editor.css" />
   <style>
 
@@ -196,7 +197,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       width: 29px;
     }
 
-    .toggle-tiles-control:hover {
+    .toggle-cluster-control.toggle-cluster-control--disabled:hover,
+    .toggle-tiles-control.toggle-tiles-control--disabled:hover {
       background-color: var(--primary-background-color);
     }
 
@@ -218,7 +220,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       transform: translateX(-232px);
     }
 
-    .toggle-legend-control:hover {
+    .toggle-legend-control:hover,
+    .zoom-bounds-control:hover,
+    .toggle-cluster-control:hover,
+    .toggle-tiles-control:hover {
       background-color: var(--map-control-hover-colour);
     }
 
@@ -522,10 +527,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <!-- Toggle Clusters control -->
     <paper-material id="ToggleClustersControl"
                     class="toggle-cluster-control-holder layout horizontal">
-      <div class="toggle-cluster-control  toggle-cluster-control--disabled  layout horizontal center center-justified"
+      <div class="fa fa-bullseye toggle-cluster-control  layout horizontal center center-justified"
            on-tap="toggleCluster">
-        <iron-icon class="toggle-timeline"
-                   icon="maps:place"></iron-icon>
       </div>
     </paper-material>
 
@@ -1174,9 +1177,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var $clusterButton = this.querySelector('.toggle-cluster-control');
 
       if (this.clustering === false) {
-        $clusterButton.classList.remove('toggle-cluster-control--disabled');
-      } else if (this.clustering === true) {
         $clusterButton.classList.add('toggle-cluster-control--disabled');
+      } else if (this.clustering === true) {
+        $clusterButton.classList.remove('toggle-cluster-control--disabled');
       }
     },
 

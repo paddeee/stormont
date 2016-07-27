@@ -1,0 +1,12 @@
+
+.leaflet-retina .leaflet-draw-toolbar .leaflet-draw-draw-marker {
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  background-image: none;
+}
+
+.leaflet-draw-toolbar .leaflet-draw-draw-marker:before {
+  content: "\f276";
+}
