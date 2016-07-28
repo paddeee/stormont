@@ -102,6 +102,7 @@ module.exports = Reflux.createStore({
     // If any file import has failed send array of fail objects
     if (this.errorArray.length) {
       this.trigger(this.errorArray);
+      this.logFailedImport(this.errorArray);
       this.errorArray = [];
       return;
     }
@@ -152,7 +153,7 @@ module.exports = Reflux.createStore({
               message: 'All files have been successfully imported'
             });
 
-            this.logImport();
+            this.logSuccessfulImport();
           }
 
          }.bind(this));
@@ -580,8 +581,8 @@ module.exports = Reflux.createStore({
     });
   },
 
-  // Log on successfull import
-  logImport: function() {
+  // Log on successful import
+  logSuccessfulImport: function() {
 
     var importLogObject = {
       directoryName: this.importDirectory
@@ -589,6 +590,21 @@ module.exports = Reflux.createStore({
 
     if (global.config) {
       loggingStore.dataImported(importLogObject);
+    }
+  },
+
+  // Log on failed import
+  logFailedImport: function(errorArray) {
+
+    var importLogObject = {
+      directoryName: this.importDirectory,
+      errorMessage: errorArray.map(function(errorObject){
+        return errorObject.message;
+      }).join(' -- ').replace(/"/g, '\'')
+    };
+
+    if (global.config) {
+      loggingStore.dataImportFailed(importLogObject);
     }
   }
 });

@@ -72,6 +72,40 @@ module.exports = Reflux.createStore({
     }.bind(this));
   },
 
+  // Log when a data import fails
+  dataImportFailed: function(importObject) {
+
+    importObject.userName = usersStore.user.userName;
+
+    // Check log file exists
+    fsExtra.ensureFile(path.join(config.paths.logPath, '/info.log'), function (err) {
+
+      if (err) {
+
+        this.message = {
+          type: 'generalLoggingFailure',
+          text: 'There was a problem writing to logfile:' + config.paths.logPath + '/info.log. Please check file permissions.'
+        };
+
+        this.trigger(this);
+      } else {
+
+        this.logger.log('info', 'CASEMAP DATA IMPORT FAILED: %s imported by %s -- %s', importObject.directoryName, importObject.userName, importObject.errorMessage, function (err) {
+
+          if (err) {
+
+            this.message = {
+              type: 'generalLoggingFailure',
+              text: 'There was a problem writing to logfile:' + config.paths.logPath + '/info.log. Please check file permissions.'
+            };
+
+            this.trigger(this);
+          }
+        }.bind(this));
+      }
+    }.bind(this));
+  },
+
   // Log when a package is created
   packageCreated: function(packageObject) {
 
