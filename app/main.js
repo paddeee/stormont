@@ -458,7 +458,9 @@ ipcMain.on('save-pdf', function(event, pdfObject) {
 
 // Lock/Unlock Application.
 ipcMain.on('lock-application', function(event, state) {
-  courtWindow.webContents.send('lock-application', state);
+  if (courtWindow) {
+    courtWindow.webContents.send('lock-application', state);
+  }
 });
 
 // Send message to publish page to generate HTML with relevant data.

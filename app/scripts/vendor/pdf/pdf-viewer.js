@@ -157,7 +157,7 @@ function scrollIntoView(element, spot, skipOverflowHiddenElements) {
     return;
   }
   var checkOverflow = skipOverflowHiddenElements || false;
-  var offsetY = element.offsetTop + element.clientTop;
+  var offsetY = element.offsetTop;
   var offsetX = element.offsetLeft + element.clientLeft;
   while (parent.clientHeight === parent.scrollHeight ||
   (checkOverflow && getComputedStyle(parent).overflow === 'hidden')) {
@@ -7395,15 +7395,6 @@ function webViewerInitialized($pdfViewerElement) {
 
   // Suppress context menus for some controls
   $pdfViewerElement.querySelector('#scaleSelect').oncontextmenu = noContextMenuHandler;
-
-  var mainContainer = document.querySelector('#mainContainer');
-  mainContainer.addEventListener('transitionend', function(e) {
-    if (e.target === mainContainer) {
-      var event = document.createEvent('UIEvents');
-      event.initUIEvent('resize', false, false, window, 0);
-      window.dispatchEvent(event);
-    }
-  }, true);
 
   $pdfViewerElement.querySelector('#sidebarToggle').addEventListener('click',
     function() {

@@ -18,53 +18,54 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     iron-pages,
-    section,
-    epe-import {
+    section {
       height: 100%;
     }
 
-    paper-scroll-header-panel {
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-
-      /* background for toolbar when it is at its full size */
-      --paper-scroll-header-panel-full-header: {
-        background-color: var(--dark-primary-color);
-        background-image: url(../../images/header-bg.png);
-      };
-
-      /* background for toolbar when it is condensed */
-      --paper-scroll-header-panel-condensed-header: {
-        background-color: var(--default-primary-color);
-      };
+    section.choose-option,
+    section.view-packages,
+    section.import {
+      background-color: #EEE;
     }
 
     paper-scroll-header-panel.no-scrollbar /deep/ #mainContainer::-webkit-scrollbar {
       display: none;
     }
 
-    paper-scroll-header-panel.hide-header {
-      top: -192px;
+    .main-scroll-header {
+      background-color: var(--primary-background-color);
     }
 
-    paper-toolbar.tall {
-      background-color: transparent;
+    paper-toolbar.dark-blue {
+      background-color: var(--dark-primary-color);
+    }
+
+    paper-toolbar.light-blue {
+      background-color: var(--default-primary-color);
+    }
+
+    paper-toolbar.teal {
+      background-color: var(--paper-teal-700);
+    }
+
+    paper-toolbar.black {
+      background-color: #374046;
+    }
+
+    paper-toolbar.cyan {
+      background-color: var(--paper-cyan-700);
+    }
+
+    paper-toolbar.blue-grey {
+      background-color: var(--paper-blue-grey-700);
     }
 
     paper-toolbar a {
       color: var(--primary-background-color);
     }
 
-    .bottom-title {
-      font-size: 2.5vh;
-    }
-
     .create-package {
       background-color: var(--primary-background-color);
-      height: calc(100% + 128px);
     }
 
     paper-scroll-header-panel.no-back-button .back-button {
@@ -125,6 +126,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       --paper-progress-secondary-color: var(--paper-light-blue-100);
       width: 100%;
     }
+
+    .section-name {
+      font-size: 18px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-align: center;
+      text-overflow: ellipsis;
+    }
   </style>
   <template>
 
@@ -133,7 +142,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         disable-edge-swipe="true">
 
       <!-- Drawer Scroll Header Panel -->
-      <paper-scroll-header-panel drawer fixed>
+      <paper-header-panel drawer>
 
         <!-- Drawer Toolbar -->
         <paper-toolbar id="drawerToolbar">
@@ -174,17 +183,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </div>
         </paper-menu>
 
-      </paper-scroll-header-panel>
+      </paper-header-panel>
 
       <paper-scroll-header-panel
         id="MainScrollHeader"
-        class="source-viewer no-scrollbar"
+        mode="waterfall"
+        class="main-scroll-header  no-scrollbar"
         main
-        condenses
-        keep-condensed-header>
+        fixed>
 
         <!-- Main Toolbar -->
-        <paper-toolbar class="tall">
+        <paper-toolbar id="MainToolBar" class="dark-blue">
           <paper-icon-button
             id="BackArrow"
             class="back-button nav-icon"
@@ -195,7 +204,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             class="menu-button nav-icon"
             icon="menu"
             on-tap="toggleMenu"></paper-icon-button>
-          <div class="flex"></div>
+
+          <div id="SectionName" class="section-name flex center horizontal layout">[[sectionTitle]]</div>
 
           <!-- Toolbar icons -->
           <!-- ToDO - really crap way to do this with duplicate navs. If ever get time need to manage different views of
@@ -235,16 +245,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-tooltip for="ProfileButton" offset="0">Profile</paper-tooltip>
           <paper-tooltip for="SourceButton" offset="0">Supporting Evidence</paper-tooltip>
           <paper-tooltip for="FilterButton" offset="0">Search/Filter</paper-tooltip>
-
-          <!-- Application name -->
-          <div id="MiddleContainer" class="middle middle-container center horizontal layout">
-            <div id="SectionName" class="section-name"><span>{{sectionTitle}}</span></div>
-          </div>
-
-          <!-- Application sub title -->
-          <div id="BottomContainer" class="bottom bottom-container center horizontal layout">
-            <div class="bottom-title paper-font-subhead">Special Investigation Task Force</div>
-          </div>
         </paper-toolbar>
 
         <iron-pages attr-for-selected="data-route"
@@ -259,14 +259,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </section>
 
           <!-- Choose Option Section -->
-          <section data-route="choose-option">
+          <section data-route="choose-option" class="choose-option">
             <epe-choose-option
               user-store="[[userStore]]"
               on-reset-package="resetPackage"></epe-choose-option>
           </section>
 
           <!-- Import Section -->
-          <section data-route="import">
+          <section data-route="import" class="import">
             <epe-import
               id="EpeImport"
               import-actions="[[importActions]]"
@@ -332,7 +332,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </section>
 
           <!-- View Packages Section -->
-          <section data-route="view-packages">
+          <section data-route="view-packages" class="view-packages">
             <epe-view-packages
               id="EpeView"
               user-store="[[userStore]]"
@@ -515,35 +515,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Set up listeners when element is ready
       ready: function () {
 
-        addEventListener('content-scroll', function (e) {
-
-          var $header = e.detail.target;
-
-          this.deCondenseHeader($header);
-
-        }.bind(this));
-
-        addEventListener('paper-header-transform', function (e) {
-          var sectionName = this.$.SectionName;
-          var middleContainer = this.$.MiddleContainer;
-          var bottomContainer = this.$.BottomContainer;
-          var detail = e.detail;
-          var heightDiff = detail.height - detail.condensedHeight;
-          var yRatio = Math.min(1, detail.y / heightDiff);
-          var maxMiddleScale = 0.50;  // appName max size when condensed. The smaller the number the smaller the condensed size.
-          var scaleMiddle = Math.max(maxMiddleScale, (heightDiff - detail.y) / (heightDiff / (1 - maxMiddleScale)) + maxMiddleScale);
-          var scaleBottom = 1 - yRatio;
-
-          // Move/translate middleContainer
-          Polymer.Base.transform('translate3d(0,' + yRatio * 100 + '%,0)', middleContainer);
-
-          // Scale bottomContainer and bottom sub title to nothing and back
-          Polymer.Base.transform('scale(' + scaleBottom + ') translateZ(0)', bottomContainer);
-
-          // Scale middleContainer appName
-          Polymer.Base.transform('scale(' + scaleMiddle + ') translateZ(0)', sectionName);
-        }.bind(this));
-
         // Listen to User Store
         this.userStore.listen(function (user) {
 
@@ -603,11 +574,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         if (this.route === 'login') {
-          this.$.MainScrollHeader.classList.add('hide-header');
-          this.$.MainScrollHeader.fixed = true;
+          this.$.MainToolBar.hidden = true;
         } else {
-          this.$.MainScrollHeader.classList.remove('hide-header');
-          this.$.MainScrollHeader.fixed = false;
+          this.$.MainToolBar.removeAttribute('hidden');
         }
       },
 
@@ -665,12 +634,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           if (app.route === 'choose-option') {
             this.sectionTitle = 'Electronic Presentation of Evidence';
 
-            // While we're here, scroll header to top
-            this.manageScrollHeader('choose-option');
-
           } else if (app.route === 'import') {
             this.sectionTitle = 'Import Casemap Files';
-            this.manageScrollHeader('import');
 
           } else if (app.route === 'create-package') {
 
@@ -683,14 +648,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           } else if (app.route === 'view-packages') {
 
             this.sectionTitle = 'View/Edit Packages';
-
-            // While we're here, scroll header to top
-            this.manageScrollHeader('view-packages');
           }
-        } else {
-
-          // While we're here, scroll header to top
-          this.manageScrollHeader('login');
         }
       },
 
@@ -705,9 +663,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           // Manage classes on nav icons
           this.manageNavIcons('data-grid');
-
-          // While we're here, scroll header to top
-          this.manageScrollHeader('data-grid');
 
         } else if (window.EpeCreatePackage.createPackageRoute === 'map') {
           this.sectionTitle = 'Create Package - Map';
@@ -739,9 +694,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             // Manage classes on nav icons
             this.manageNavIcons('data-grid');
 
-            // While we're here, scroll header to top
-            this.manageScrollHeader('data-grid');
-
             if (this.presentationName) {
               this.sectionTitle = this.presentationName + ' - ' + window.EpeEditPackage.params.name;
             }
@@ -770,7 +722,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // FIRED BY ON-PACKAGE-VIEW_CHANGED EVENT ON EPE-CREATE-PACKAGE ELEMENT
       packageViewChanged: function (event) {
         this.packageRoute = event.detail.packageRoute;
-        this.manageScrollHeader(this.packageRoute);
       },
 
       // Navigate back
@@ -803,75 +754,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return true;
       },
 
-      // Resize scroll header for different views
-      manageScrollHeader: function (route) {
-
-        var $scrollHeader = this.$.MainScrollHeader;
-
-        switch (route) {
-          case 'login':
-            $scrollHeader.scroll(0, false);
-            this.$.MainScrollHeader.classList.add('no-scrollbar');
-            break;
-          case 'import':
-            $scrollHeader.scroll(0, true);
-            this.$.MainScrollHeader.classList.remove('no-scrollbar');
-            this.$.MainScrollHeader.classList.remove('no-back-button');
-            break;
-          case 'view-packages':
-            $scrollHeader.scroll(0, true);
-            this.$.MainScrollHeader.classList.remove('no-scrollbar');
-            this.$.MainScrollHeader.classList.remove('no-back-button');
-            break;
-          case 'data-grid':
-            $scrollHeader.scroll(128, true);
-            this.$.MainScrollHeader.classList.add('no-scrollbar');
-            this.$.MainScrollHeader.classList.remove('no-back-button');
-            break;
-          case 'map':
-            $scrollHeader.scroll(128, true);
-            this.$.MainScrollHeader.classList.add('no-scrollbar');
-            this.$.MainScrollHeader.classList.remove('no-back-button');
-            break;
-          case 'profile':
-            $scrollHeader.scroll(128, true);
-            this.$.MainScrollHeader.classList.remove('no-scrollbar');
-            this.$.MainScrollHeader.classList.remove('no-back-button');
-            break;
-          case 'source':
-            $scrollHeader.scroll(128, true);
-            this.$.MainScrollHeader.classList.add('no-scrollbar');
-            this.$.MainScrollHeader.classList.remove('no-back-button');
-            break;
-          case 'pdf':
-            $scrollHeader.scroll(128, true);
-            this.$.MainScrollHeader.classList.add('no-scrollbar');
-            this.$.MainScrollHeader.classList.remove('no-back-button');
-            break;
-          case 'media':
-            $scrollHeader.scroll(128, true);
-            this.$.MainScrollHeader.classList.add('no-scrollbar');
-            this.$.MainScrollHeader.classList.remove('no-back-button');
-            break;
-          case 'image':
-            $scrollHeader.scroll(128, true);
-            this.$.MainScrollHeader.classList.add('no-scrollbar');
-            this.$.MainScrollHeader.classList.remove('no-back-button');
-            break;
-          case 'choose-option':
-            // Hack that fixed header issue on Chrome Windows
-            $scrollHeader.scroll(128, false);
-            $scrollHeader.scroll(0, false);
-            this.$.MainScrollHeader.classList.remove('no-scrollbar');
-            this.$.MainScrollHeader.classList.add('no-back-button');
-            break;
-          default:
-            $scrollHeader.scroll(0, true);
-            this.$.MainScrollHeader.classList.add('no-scrollbar');
-            this.$.MainScrollHeader.classList.remove('no-back-button');
-        }
-      },
-
       // Hide the package view navigation in the header if we are importing
       manageHeaderPackageNavigation: function (route) {
 
@@ -893,10 +775,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           $packageElement = this.$.EpeEditPackage;
         }
 
-        if ((app.route === 'create-package' || app.route === 'edit-package') && $packageElement.createPackageRoute === 'source') {
-          this.$.MainScrollHeader.querySelector('#condensedHeaderBg').style.backgroundColor = '#374046';
+        this.$.MainToolBar.classList.remove('dark-blue', 'light-blue', 'black', 'cyan', 'blue-grey', 'teal');
+
+        if (app.route === 'create-package' || app.route === 'edit-package') {
+
+          switch ($packageElement.createPackageRoute) {
+            case 'data-grid':
+              this.$.MainToolBar.classList.add('dark-blue');
+              break;
+            case 'map':
+              this.$.MainToolBar.classList.add('light-blue');
+              break;
+            case 'profile':
+              this.$.MainToolBar.classList.add('blue-grey');
+              break;
+            case 'source':
+              this.$.MainToolBar.classList.add('black');
+              break;
+            default:
+              this.$.MainToolBar.classList.add('dark-blue');
+          }
+        } else if (app.route === 'import') {
+          this.$.MainToolBar.classList.add('cyan');
+        } else if (app.route === 'view-packages') {
+          this.$.MainToolBar.classList.add('teal');
         } else {
-          this.$.MainScrollHeader.querySelector('#condensedHeaderBg').style.backgroundColor = '#03A9F4';
+          this.$.MainToolBar.classList.add('dark-blue');
         }
       },
 
@@ -967,29 +871,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             presentationName: this.savedPresentation.presentationName,
             presentationState: 'editing'
           });
-        }
-      },
-
-      // Keep header small and fixed in certain conditions
-      deCondenseHeader: function ($header) {
-
-        var $packageElement;
-
-        if (app.route === 'create-package') {
-          $packageElement = this.$.EpeCreatePackage;
-        } else if (app.route === 'edit-package') {
-          $packageElement = this.$.EpeEditPackage;
-        }
-
-        // If in Source View
-        if (app.route === 'create-package' || app.route === 'edit-package') {
-
-          if ($packageElement.createPackageRoute === 'source' || $packageElement.createPackageRoute === 'data-grid' || $packageElement.createPackageRoute === 'profile') {
-
-            if ($header.scrollTop < 128) {
-              this.$.MainScrollHeader.scroll(128, false);
-            }
-          }
         }
       },
 
@@ -1083,7 +964,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Called from event on create-package element when profile changes
       profileChanged: function(event) {
-
         this.currentProfileId = event.detail.profileId;
       },
 
