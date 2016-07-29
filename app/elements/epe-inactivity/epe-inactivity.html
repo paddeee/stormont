@@ -92,22 +92,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       ready: function() {
 
-        var debouncedSetSessionExpireTimeOut = _.debounce(this.setSessionExpireTimeOut.bind(this), 1000);
-
         this.inactivityTimeOut = app.config.activityTimeout;
 
         this.setSessionExpireTimeOut();
 
         document.onclick = function() {
-          debouncedSetSessionExpireTimeOut();
+          this.setSessionExpireTimeOut();
         }.bind(this);
 
         document.onmousemove = function() {
-          debouncedSetSessionExpireTimeOut();
+          this.setSessionExpireTimeOut();
         }.bind(this);
 
         document.onkeypress = function() {
-          debouncedSetSessionExpireTimeOut();
+          this.setSessionExpireTimeOut();
         }.bind(this);
       },
 
