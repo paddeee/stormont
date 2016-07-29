@@ -704,7 +704,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           if (geoJSONLayer.hasLayer(feature)) {
 
             // Pan to feature
-            $map.map.fitBounds(feature.getBounds());
+            this.zoomToFitBounds();
 
             // Open marker popup
             if (!feature._popup._isOpen) {
