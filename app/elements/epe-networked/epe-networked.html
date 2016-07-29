@@ -36,28 +36,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       background-color: var(--primary-background-color);
     }
 
-    paper-toolbar.dark-blue {
-      background-color: var(--dark-primary-color);
+    paper-toolbar {
+      background-color: rgb(0, 158, 194);
     }
 
-    paper-toolbar.light-blue {
-      background-color: var(--default-primary-color);
-    }
-
-    paper-toolbar.teal {
-      background-color: var(--paper-teal-700);
-    }
-
-    paper-toolbar.black {
+    paper-toolbar.source {
       background-color: #374046;
-    }
-
-    paper-toolbar.cyan {
-      background-color: var(--paper-cyan-700);
-    }
-
-    paper-toolbar.blue-grey {
-      background-color: var(--paper-blue-grey-700);
     }
 
     paper-toolbar a {
@@ -193,7 +177,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         fixed>
 
         <!-- Main Toolbar -->
-        <paper-toolbar id="MainToolBar" class="dark-blue">
+        <paper-toolbar id="MainToolBar">
           <paper-icon-button
             id="BackArrow"
             class="back-button nav-icon"
@@ -775,32 +759,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           $packageElement = this.$.EpeEditPackage;
         }
 
-        this.$.MainToolBar.classList.remove('dark-blue', 'light-blue', 'black', 'cyan', 'blue-grey', 'teal');
-
         if (app.route === 'create-package' || app.route === 'edit-package') {
 
-          switch ($packageElement.createPackageRoute) {
-            case 'data-grid':
-              this.$.MainToolBar.classList.add('dark-blue');
-              break;
-            case 'map':
-              this.$.MainToolBar.classList.add('light-blue');
-              break;
-            case 'profile':
-              this.$.MainToolBar.classList.add('blue-grey');
-              break;
-            case 'source':
-              this.$.MainToolBar.classList.add('black');
-              break;
-            default:
-              this.$.MainToolBar.classList.add('dark-blue');
+          if ($packageElement.createPackageRoute === 'source') {
+              this.$.MainToolBar.classList.add('source');
+          } else {
+            this.$.MainToolBar.classList.remove('source');
           }
-        } else if (app.route === 'import') {
-          this.$.MainToolBar.classList.add('cyan');
-        } else if (app.route === 'view-packages') {
-          this.$.MainToolBar.classList.add('teal');
-        } else {
-          this.$.MainToolBar.classList.add('dark-blue');
         }
       },
 
