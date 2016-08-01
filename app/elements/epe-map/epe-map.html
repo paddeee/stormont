@@ -314,7 +314,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       background-color: transparent;
       position: fixed;
       overflow: hidden;
-      height: 175px;
+      height: 165px;
       -webkit-transition-duration: 300ms;
       transition-duration: 300ms;
       -webkit-transition-timing-function: ease-in-out;
@@ -654,6 +654,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <!-- Timeline Element -->
       <epe-timeline id="TimeLineElement"
                     time-line-store="[[timeLineStore]]"
+                    time-line-nav-disabled="[[timeLineNavDisabled]]"
                     selected-records-actions="[[selectedRecordsActions]]"
                     on-timeline-events-changed="toggleTimeLineEnabled"
                     on-button-state-changed="timelineButtonStateChanged"></epe-timeline>
@@ -730,6 +731,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       mapLegend: {
         type: Array,
         value: []
+      },
+
+      timeLineNavDisabled: {
+        type: Boolean,
+        value: false
       }
     },
 
@@ -1055,9 +1061,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // FIRED FROM NAVIGATENEXTCONTROL ELEMENT
     goToPrevious: function(event) {
 
-      if (event.currentTarget.classList.contains('timeline-control--disabled')) {
+      var $previousButton = event.currentTarget;
+
+      // If the navigation has no next event, do nothing
+      if ($previousButton.classList.contains('timeline-control--disabled') || this.timeLineNavDisabled) {
         return;
       }
+
+      // Add temporary 'timeline-control--disabled' class and set disabledProperty
+      this.timeLineNavDisabled = true;
+      $previousButton.classList.add('timeline-control--disabled');
+
+      // Briefly disable navigating to prevent issue where events start cycling through automatically
+      this.async(function() {
+        $previousButton.classList.remove('timeline-control--disabled');
+        this.timeLineNavDisabled = false;
+      }, 300);
 
       this.$.TimeLineElement.goToPrevious();
     },
@@ -1065,9 +1084,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // FIRED FROM NAVIGATENEXTCONTROL ELEMENT
     goToNext: function(event) {
 
-      if (event.currentTarget.classList.contains('timeline-control--disabled')) {
+      var $nextButton = event.currentTarget;
+
+      // If the navigation has no next event, do nothing
+      if ($nextButton.classList.contains('timeline-control--disabled') || this.timeLineNavDisabled) {
         return;
       }
+
+      // Add temporary 'timeline-control--disabled' class and set disabledProperty
+      this.timeLineNavDisabled = true;
+      $nextButton.classList.add('timeline-control--disabled');
+
+      // Briefly disable navigating to prevent issue where events start cycling through automatically
+      this.async(function() {
+        $nextButton.classList.remove('timeline-control--disabled');
+        this.timeLineNavDisabled = false;
+      }, 300);
 
       this.$.TimeLineElement.goToNext();
     },

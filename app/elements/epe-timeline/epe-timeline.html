@@ -418,9 +418,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Also called by setFirstAndLast method
       activeEventChanged: function() {
 
-        if (this.timeLineData) {
-          this.manageControlButtonsState();
-        }
+        this.async(function() {
+          if (this.timeLineData) {
+            this.manageControlButtonsState();
+          }
+        }, 700);
 
         if (this.displayType === 'all') {
 
