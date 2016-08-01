@@ -314,7 +314,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       background-color: transparent;
       position: fixed;
       overflow: hidden;
-      height: 165px;
       -webkit-transition-duration: 300ms;
       transition-duration: 300ms;
       -webkit-transition-timing-function: ease-in-out;
@@ -1076,7 +1075,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.async(function() {
         $previousButton.classList.remove('timeline-control--disabled');
         this.timeLineNavDisabled = false;
-      }, 300);
+      }, 400);
 
       this.$.TimeLineElement.goToPrevious();
     },
@@ -1099,7 +1098,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.async(function() {
         $nextButton.classList.remove('timeline-control--disabled');
         this.timeLineNavDisabled = false;
-      }, 300);
+      }, 400);
 
       this.$.TimeLineElement.goToNext();
     },
