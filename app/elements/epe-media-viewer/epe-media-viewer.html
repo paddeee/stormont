@@ -145,7 +145,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           hidden></epe-annotations>
 
         <audio id="Audio"
-               class="audio-player video-js vjs-default-skin"
+               class="audio-player video-js vjs-default-skin vjs-big-play-centered"
+               poster="[[audioPoster]]"
                controls
                preload="auto"
                hidden></audio>
@@ -235,6 +236,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           value: ''
         },
 
+        audioPoster: {
+          type: String,
+          value: '../../images/audio-placeholder.png'
+        },
+
         mediaObject: {
           type: Object,
           value: null,
@@ -250,6 +256,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         hideAnnotations: {
           type: Boolean,
           value: true
+        },
+
+        useWaveSurfer: {
+          type: Boolean,
+          value: false
         }
       },
 
@@ -381,7 +392,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }.bind(this));
 
         this.addControlListeners('video');
-        this.RemoveControlListeners('video');
+        this.removeControlListeners('video');
       },
 
       // Dynamically create a video element
@@ -407,7 +418,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.$.MediaAnnotations.querySelector('#ContentWrapper').removeChild($currentVideoElement);
         }
 
-        // Appen new Video element
+        // Append new Video element
         this.$.MediaAnnotations.querySelector('#ContentWrapper').appendChild($videoElement);
       },
 
@@ -419,8 +430,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var $videoElement = this.querySelector('#Video');
         var $audioContainer = this.$$('#Audio').closest('.video-js');
         var $mediaDescription = this.$.MediaDescription;
-        var src;
-        var sourcePath = '';
 
         // Hide Video element and show audio element
         this.$.MediaAnnotations.setAttribute('hidden','');
@@ -441,18 +450,47 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // If audio already exists, kill it and create a new audio element
         if (this.audioPlayer) {
-          this.audioPlayer.waveform.destroy();
+
           $audioElement = document.createElement('audio');
           $audioElement.setAttribute('id', 'Audio');
-          $audioElement.setAttribute('controls', '');
-          $audioElement.classList.add('audio-player', 'video-js', 'vjs-default-skin');
-          $mediaDescription.parentNode.appendChild($audioElement);
+
+          if (this.useWaveSurfer) {
+
+            if (this.audioPlayer) {
+              this.audioPlayer.waveform.destroy();
+            }
+
+            $audioElement.classList.add('audio-player', 'video-js', 'vjs-default-skin');
+            $audioElement.setAttribute('controls', '');
+            $mediaDescription.parentNode.appendChild($audioElement);
+          } else {
+
+            if (this.audioPlayer) {
+              this.audioPlayer.dispose();
+            }
+
+            $audioElement.setAttribute('preload', this.preload);
+            $audioElement.setAttribute('poster', this.audioPoster);
+            $audioElement.setAttribute('controls', true);
+            $audioElement.classList.add('audio-player', 'video-js', 'vjs-default-skin', 'vjs-big-play-centered');
+            $mediaDescription.parentNode.appendChild($audioElement);
+          }
         } else {
           $audioElement = this.$.Audio;
         }
 
         // Set the sizes to be used for the Audio Player
         this.setAudioPlayerDimensions();
+
+        // Start process of initialising audio
+        this.initialiseAudio($audioElement);
+      },
+
+      // InitialisePlayer depending on whether WaveSurfer plugin is switched on
+      initialiseAudio: function($audioElement) {
+
+        var src;
+        var sourcePath = '';
 
         // Set the src file which needs to be done using a Blob if within packaged app as wavesurfer
         // XHR won't work
@@ -462,24 +500,73 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             sourcePath = config.paths.sourcePath;
 
-            this.fs.readFile(sourcePath + this.mediaObject['Linked File'], function(err, data) {
+            if (this.useWaveSurfer) {
 
-              src = new Blob([data], {type : 'audio/mp3'});
+              this.fs.readFile(sourcePath + this.mediaObject['Linked File'], function (err, data) {
 
-              this.initialiseWaveSurfer($audioElement, src);
+                src = new Blob([data], {type: 'audio/mp3'});
 
-            }.bind(this));
+                this.initialiseWaveSurfer($audioElement, src);
+
+              }.bind(this));
+            } else {
+              src = sourcePath + this.mediaObject['Linked File'];
+              this.initialiseAudioPlayer($audioElement, src);
+            }
 
           } else if (presentationMode === 'offline') {
-            src = new Blob([this.mediaObject.blob], {type : 'audio/mp3'});
 
-            this.initialiseWaveSurfer($audioElement, src);
+            if (this.useWaveSurfer) {
+              src = new Blob([this.mediaObject.blob], {type: 'audio/mp3'});
+              this.initialiseWaveSurfer($audioElement, src);
+            } else {
+              src = URL.createObjectURL(new Blob([this.mediaObject.blob]));
+              this.initialiseAudioPlayer($audioElement, src);
+            }
           }
         } else {
+
           src = '/sourcefiles/' + this.mediaObject['Linked File'];
 
-          this.initialiseWaveSurfer($audioElement, src);
+          if (this.useWaveSurfer) {
+            this.initialiseWaveSurfer($audioElement, src);
+          } else {
+            this.initialiseAudioPlayer($audioElement, src);
+          }
         }
+      },
+
+      // Initialise Player using basic video.js
+      initialiseAudioPlayer: function($audioElement, src) {
+
+        $audioElement.setAttribute('src', src);
+        $audioElement.setAttribute('type', 'video/mp4');
+
+        /// Create new Video.js instance
+        this.audioPlayer = videojs(this.querySelector('#Audio'));
+
+        // Set the default sizes to be used for the Video Player
+        this.audioPlayer.on('loadedmetadata', this.setAudioPlayerDimensions.bind(this));
+
+        // Video Data has loaded
+        this.audioPlayer.on('loadeddata', function() {
+
+          // change player background color
+          this.audioPlayer.el().style.backgroundColor = '#212121';
+
+          // Show audio
+          this.async(this.showMedia, 700);
+        }.bind(this));
+
+        // Set the default sizes to be used for the Video Player
+        this.audioPlayer.on('error', function() {
+
+          // Show audio
+          this.async(this.showMedia, 700);
+        }.bind(this));
+
+        this.addControlListeners('audio');
+        this.removeControlListeners('audio');
       },
 
       // Initialise Player using WaveSurfer Plugin
@@ -510,7 +597,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }.bind(this));
 
         this.addControlListeners('audio');
-        this.RemoveControlListeners('audio');
+        this.removeControlListeners('audio');
       },
 
       // Called just before instantiating an Video Player
@@ -592,7 +679,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // a click event to control buttons.
       // ToDo: For now going to manually manage removing VideoJS.s 'click' event from relevant elements
       // but may want to look at not passing in 'controls' as an option and building competely custom controls
-      RemoveControlListeners: function(player) {
+      removeControlListeners: function(player) {
 
         var playToggleButton;
         var fullScreenToggle;
