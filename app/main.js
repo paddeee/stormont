@@ -11,7 +11,7 @@ const fs = require('fs');
  Networked: 0
  Offline/Court: 1
  */
-const buildType = 0;
+const buildType = 1;
 
 let externalDisplay = false;
 
@@ -356,6 +356,7 @@ app.on('ready', function() {
       // when you should delete the corresponding element.
       externalDisplay = false;
       courtWindow.destroy();
+      courtWindow = null;
     });
   }
 
