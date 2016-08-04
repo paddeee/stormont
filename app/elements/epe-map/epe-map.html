@@ -742,9 +742,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       this.scopeSubtree(this.$.LeafletMap, true);
 
-      this.setMapTilesSrc();
+      // If in PackageViewer App, set config property after package import
+      if (presentationMode && presentationMode === 'offline') {
 
-      //this.createMapLegendArray();
+        // When the presentations data is updated
+        this.importPackageStore.listen(function (importPackageStore) {
+
+          if (importPackageStore.message === 'importSuccess') {
+            this.setMapTilesSrc();
+            this.createMapLegendArray();
+          }
+        }.bind(this));
+
+      } else {
+        this.setMapTilesSrc();
+        this.createMapLegendArray();
+      }
 
       if (this.mapGeoJsonStore) {
 
@@ -1112,7 +1125,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var mapTilesPath;
       var satelliteMapTilesPath;
 
-      if (!global.config) {
+      if (!config) {
         return;
       }
 
@@ -1120,8 +1133,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         mapTilesPath = config.paths.mapTiles;
         satelliteMapTilesPath = config.paths.satelliteMapTiles;
       } else if (presentationMode === 'offline') {
-        mapTilesPath = global.config.packagePath + '/mapTiles';
-        satelliteMapTilesPath = global.config.packagePath + '/satelliteMapTiles';
+        mapTilesPath = config.packagePath + '/mapTiles';
+        satelliteMapTilesPath = config.packagePath + '/satelliteMapTiles';
       }
 
       // Map tiles
