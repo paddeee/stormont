@@ -8,6 +8,7 @@ var eventsStore = require('../stores/events.js');
 var placesStore = require('../stores/places.js');
 var peopleStore = require('../stores/people.js');
 var sourcesStore = require('../stores/source.js');
+var importPackageStore = require('../stores/importPackage.js');
 
 module.exports = Reflux.createStore({
 
@@ -20,12 +21,25 @@ module.exports = Reflux.createStore({
 
     this.selectedRecords = {};
 
+    // Register importPackageStore's changes
+    this.listenTo(importPackageStore, this.importPackageChanged);
+
     // Register dataSourceStores's changes
     this.listenTo(filterStateStore, this.filterStateChanged);
 
     // Create a debounced function so as this function will be called whenever any checkbox updates so need to limit it
     // for performance reasons
     this.debouncedCreateSelectedCollections = _.debounce(this.createSelectedCollections, 150);
+  },
+
+  // Add the images as blobs on the person's profile Object
+  importPackageChanged: function (importPackageStore) {
+
+    if (importPackageStore.message === 'importSuccess') {
+
+      // Can set config object now
+      config = global.config;
+    }
   },
 
   // When filter state is changed we need to update the GeoJSON object

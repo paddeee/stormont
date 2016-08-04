@@ -3,6 +3,7 @@
 var Reflux = require('reflux');
 var config = presentationMode ? global.config : require('../config/config.js');
 var selectedRecordsStore = require('../stores/selectedRecords.js');
+var importPackageStore = require('../stores/importPackage.js');
 var moment = require('moment');
 
 module.exports = Reflux.createStore({
@@ -10,8 +11,21 @@ module.exports = Reflux.createStore({
   // Called on Store initialisation
   init: function() {
 
+    // Register importPackageStore's changes
+    this.listenTo(importPackageStore, this.importPackageChanged);
+
     // Register dataSourceStores's changes
     this.listenTo(selectedRecordsStore, this.selectedRecordStoreUpdated);
+  },
+
+  // Add the images as blobs on the person's profile Object
+  importPackageChanged: function (importPackageStore) {
+
+    if (importPackageStore.message === 'importSuccess') {
+
+      // Can set config object now
+      config = global.config;
+    }
   },
 
   // Triggered by updates to selectedRecords store

@@ -3,6 +3,7 @@
 var Reflux = require('reflux');
 var dataSourceStore = require('../stores/dataSource.js');
 var PresentationsActions = require('../actions/presentations.js');
+var importPackageStore = require('../stores/importPackage.js');
 
 module.exports = Reflux.createStore({
 
@@ -17,6 +18,9 @@ module.exports = Reflux.createStore({
 
     // Create selected presentation object
     this.selectedPresentationObject = {};
+
+    // Register importPackageStore's changes
+    this.listenTo(importPackageStore, this.importPackageChanged);
 
     // Register dataSourceStores's changes
     this.listenTo(dataSourceStore, this.dataSourceChanged);
@@ -37,6 +41,18 @@ module.exports = Reflux.createStore({
 
     // Reset message
     this.message = '';
+  },
+
+  // Add the images as blobs on the person's profile Object
+  importPackageChanged: function (importPackageStore) {
+
+    if (importPackageStore.message === 'importSuccess') {
+
+      this.lastAction = 'approvalStateChanged';
+
+      // Can Broadcast Presentation Info, now the package is imported
+      this.trigger(this);
+    }
   },
 
   // Get the data from the Presentation Collection

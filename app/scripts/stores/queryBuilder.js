@@ -57,6 +57,8 @@ module.exports = Reflux.createStore({
       action = 'defaultQueryAdded';
     } else if (presentationsStore.lastAction === 'presentationStateChanged') {
       action = 'creatingSelected';
+    } else {
+      return;
     }
 
     if (presentationsStore.presentationState === 'creating') {

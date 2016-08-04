@@ -8,6 +8,7 @@ var placesStore = require('../stores/places.js');
 var peopleStore = require('../stores/people.js');
 var sourcesStore = require('../stores/source.js');
 var queryBuilderStore = require('../stores/queryBuilder.js');
+var importPackageStore = require('../stores/importPackage.js');
 
 var eventsName = 'Event';
 var placesName = 'Place';
@@ -31,6 +32,9 @@ module.exports = Reflux.createStore({
 
     // Initialise filterTransforms object
     this.filterTransforms = {};
+
+    // Register importPackageStore's changes
+    this.listenTo(importPackageStore, this.importPackageChanged);
 
     // Register queryBuilderStores's changes
     this.listenTo(queryBuilderStore, this.queryBuilderChanged);
@@ -65,6 +69,17 @@ module.exports = Reflux.createStore({
 
     // Don't do this on load or import or when presentation saved
     if (dataSourceBroadcast.dataSource.message.type !== 'collectionImported' && dataSourceBroadcast.message !== 'presentationSaved') {
+
+      // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
+      // method
+      this.autoFilterCollections(false, false);
+    }
+  },
+
+  // Add the images as blobs on the person's profile Object
+  importPackageChanged: function (importPackageStore) {
+
+    if (importPackageStore.message === 'importSuccess') {
 
       // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
       // method
