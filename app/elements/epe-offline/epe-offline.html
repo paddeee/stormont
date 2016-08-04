@@ -296,6 +296,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       query-builder-actions="[[queryBuilderActions]]"
       query-builder-store="[[queryBuilderStore]]"
       presentations-store="[[presentationsStore]]"
+      import-package-store="[[importPackageStore]]"
       data-source-actions="[[dataSourceActions]]"
       user-store="[[userStore]]"
       on-show-dialog="showDialog"></epe-filters>
@@ -938,16 +939,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       navigateToDataGrid: function() {
 
         switch (this.currentDataGrid) {
-          case app.config.EventsCollection.name:
+          case config.EventsCollection.name:
             page('/create-package/data-grid/Event');
             break;
-          case app.config.PlacesCollection.name:
+          case config.PlacesCollection.name:
             page('/create-package/data-grid/Place');
             break;
-          case app.config.PeopleCollection.name:
+          case config.PeopleCollection.name:
             page('/create-package/data-grid/Person');
             break;
-          case app.config.SourcesCollection.name:
+          case config.SourcesCollection.name:
             page('/create-package/data-grid/Document');
             break;
           default:

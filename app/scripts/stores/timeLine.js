@@ -1,7 +1,7 @@
 'use strict';
 
 var Reflux = require('reflux');
-var config = global.config ? global.config : require('../config/config.js');
+var config = presentationMode ? global.config : require('../config/config.js');
 var selectedRecordsStore = require('../stores/selectedRecords.js');
 var moment = require('moment');
 
@@ -163,7 +163,7 @@ module.exports = Reflux.createStore({
 
       if (subCategory.name.toLowerCase() === category.toLowerCase()) {
 
-        mainCategory = app.config.Categories.main.find(function(category) {
+        mainCategory = config.Categories.main.find(function(category) {
           return category.name.toLowerCase() === subCategory.category.toLowerCase();
         });
 

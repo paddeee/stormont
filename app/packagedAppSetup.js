@@ -1,4 +1,5 @@
 var config;
+var configPath;
 var roles;
 var electronRequire;
 var ipcRenderer;
@@ -10,25 +11,26 @@ if (typeof process === 'object') {
   remote = require('electron').remote;
 
   config = remote.getGlobal('config');
+  configPath = remote.getGlobal('appConfigPath');
   roles = remote.getGlobal('roles');
 
-  // preserve newlines, etc - use valid JSON
-  config = config.replace(/\\n/g, "\\n")
-    .replace(/\\'/g, "\\'")
-    .replace(/\\"/g, '\\"')
-    .replace(/\\&/g, "\\&")
-    .replace(/\\r/g, "\\r")
-    .replace(/\\t/g, "\\t")
-    .replace(/\\b/g, "\\b")
-    .replace(/\\f/g, "\\f");
+  if (config) {
 
-  // remove non-printable and other non-valid JSON chars
-  config = config.replace(/[\u0000-\u0019]+/g,"");
+    // preserve newlines, etc - use valid JSON
+    config = config.replace(/\\n/g, "\\n")
+      .replace(/\\'/g, "\\'")
+      .replace(/\\"/g, '\\"')
+      .replace(/\\&/g, "\\&")
+      .replace(/\\r/g, "\\r")
+      .replace(/\\t/g, "\\t")
+      .replace(/\\b/g, "\\b")
+      .replace(/\\f/g, "\\f");
 
-  // Convert to JavaScript Object
-  config = JSON.parse(config);
+    // remove non-printable and other non-valid JSON chars
+    config = config.replace(/[\u0000-\u0019]+/g,"");
 
-  if (roles) {
+    // Convert to JavaScript Object
+    config = JSON.parse(config);
 
     // Set global property to use in stores
     presentationMode = 'online';

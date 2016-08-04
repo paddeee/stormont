@@ -718,7 +718,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           dataTabSelected = location.hash.substr(location.hash.lastIndexOf('/') + 1);
 
-          if (dataTabSelected === app.config.EventsCollection.name) {
+          if (dataTabSelected === config.EventsCollection.name) {
             page('/choose-option');
           } else {
             history.back();
@@ -875,16 +875,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       navigateToDataGrid: function() {
 
         switch (this.currentDataGrid) {
-          case app.config.EventsCollection.name:
+          case config.EventsCollection.name:
             page('/' + app.route + '/data-grid/Event');
             break;
-          case app.config.PlacesCollection.name:
+          case config.PlacesCollection.name:
             page('/' + app.route + '/data-grid/Place');
             break;
-          case app.config.PeopleCollection.name:
+          case config.PeopleCollection.name:
             page('/' + app.route + '/data-grid/Person');
             break;
-          case app.config.SourcesCollection.name:
+          case config.SourcesCollection.name:
             page('/' + app.route + '/data-grid/Document');
             break;
           default:
@@ -941,7 +941,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       logOut: function() {
         this.currentSourceObject = null;
         this.currentProfileId = 0;
-        this.currentDataGrid = app.config.EventsCollection.name;
+        this.currentDataGrid = config.EventsCollection.name;
         this.userActions.logOut();
       },
 

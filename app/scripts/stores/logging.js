@@ -2,17 +2,17 @@
 
 const Reflux = require('reflux');
 const moment = require('moment');
-const config = global.config ? global.config : require('../config/config.js');
+const config = presentationMode ? global.config : require('../config/config.js');
 const usersStore = require('../stores/users.js');
-const fsExtra = global.config ? window.electronRequire('fs-extra') : null;
-const path = global.config ? window.electronRequire('path') : null;
-const winston = global.config ? window.electronRequire('winston') : null;
+const fsExtra = presentationMode ? window.electronRequire('fs-extra') : null;
+const path = presentationMode ? window.electronRequire('path') : null;
+const winston = presentationMode ? window.electronRequire('winston') : null;
 
 module.exports = Reflux.createStore({
 
   init: function() {
 
-    if (global.config) {
+    if (global.config && presentationMode === 'online') {
 
       // Instantiate the logger
       this.logger = new (winston.Logger)({

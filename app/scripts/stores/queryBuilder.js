@@ -4,7 +4,7 @@ var Reflux = require('reflux');
 var QueryBuilderActions = require('../actions/queryBuilder.js');
 var dataSourceStore = require('../stores/dataSource.js');
 var presentationsStore = require('../stores/presentations.js');
-var config = global.config ? global.config : require('../config/config.js');
+global.config = presentationMode ? global.config : require('../config/config.js');
 
 module.exports = Reflux.createStore({
 
@@ -32,7 +32,7 @@ module.exports = Reflux.createStore({
   // Set the filteredData Object
   dataSourceChanged: function (dataSourceStore) {
 
-    var queryCollection = dataSourceStore.dataSource.getCollection(config.QueriesCollection);
+    var queryCollection = dataSourceStore.dataSource.getCollection(global.config.QueriesCollection);
 
     if (dataSourceStore.message === 'presentationSaved') {
       return;
@@ -41,7 +41,7 @@ module.exports = Reflux.createStore({
     if (dataSourceStore.dataSource.message.type === 'dataBaseLoaded') {
 
       if (!queryCollection) {
-        dataSourceStore.dataSource.addCollection(config.QueriesCollection, { disableChangesApi: false });
+        dataSourceStore.dataSource.addCollection(global.config.QueriesCollection, { disableChangesApi: false });
       }
 
       this.createDefaultQuery('defaultQueryAdded');
@@ -119,7 +119,7 @@ module.exports = Reflux.createStore({
   // Retrieve a query based on the transform name
   getQuery: function() {
 
-    var queryCollection = dataSourceStore.dataSource.getCollection(config.QueriesCollection);
+    var queryCollection = dataSourceStore.dataSource.getCollection(global.config.QueriesCollection);
 
     var queryObject = queryCollection.find({
       packageName: this.packageName
@@ -137,7 +137,7 @@ module.exports = Reflux.createStore({
   // Insert query object into collection
   insertQueryObject: function(queryObject) {
 
-    var queryCollection = dataSourceStore.dataSource.getCollection(config.QueriesCollection);
+    var queryCollection = dataSourceStore.dataSource.getCollection(global.config.QueriesCollection);
 
     // Insert queryObject for this filter if it doesn't already exist
     if (queryCollection && queryCollection.find({ packageName: this.packageName }).length === 0) {
@@ -148,7 +148,7 @@ module.exports = Reflux.createStore({
   // Update query object in collection
   updateQueryObject: function(queryObject) {
 
-    var queryCollection = dataSourceStore.dataSource.getCollection(config.QueriesCollection);
+    var queryCollection = dataSourceStore.dataSource.getCollection(global.config.QueriesCollection);
 
     queryCollection.update(queryObject);
   },
@@ -279,7 +279,7 @@ module.exports = Reflux.createStore({
 
     this.filtersWithValues.forEach(function(filter) {
 
-      if (filter.collectionName === config.EventsCollection.name) {
+      if (filter.collectionName === global.config.EventsCollection.name) {
         containsEvents = true;
       }
     });

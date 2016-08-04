@@ -502,11 +502,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       ready: function() {
 
-        // Set properties on this element so we can use the values in the template
-        this.eventsName = app.config.EventsCollection.name;
-        this.placesName = app.config.PlacesCollection.name;
-        this.peopleName = app.config.PeopleCollection.name;
-        this.sourcesName = app.config.SourcesCollection.name;
+        // If in PackageViewer App, set config property after package import
+        if (presentationMode && presentationMode === 'offline') {
+
+          // When the presentations data is updated
+          this.importPackageStore.listen(function (importPackageStore) {
+
+            if (importPackageStore.message === 'importSuccess') {
+
+              // Set properties on this element so we can use the values in the template
+              this.eventsName = config.EventsCollection.name;
+              this.placesName = config.PlacesCollection.name;
+              this.peopleName = config.PeopleCollection.name;
+              this.sourcesName = config.SourcesCollection.name;
+            }
+          });
+
+        } else {
+
+          // Set properties on this element so we can use the values in the template
+          this.eventsName = config.EventsCollection.name;
+          this.placesName = config.PlacesCollection.name;
+          this.peopleName = config.PeopleCollection.name;
+          this.sourcesName = config.SourcesCollection.name;
+        }
 
         if (this.queryBuilderStore) {
 
@@ -594,25 +613,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         switch (event.detail.item.getAttribute('value')) {
           case this.eventsName:
             this.selectedDataType = this.eventsName;
-            this.fields = app.config.EventsCollection.fields.filter(function(item) {
+            this.fields = config.EventsCollection.fields.filter(function(item) {
               return item.display === 'true';
             });
             break;
           case this.placesName:
             this.selectedDataType = this.placesName;
-            this.fields = app.config.PlacesCollection.fields.filter(function(item) {
+            this.fields = config.PlacesCollection.fields.filter(function(item) {
               return item.display === 'true';
             });
             break;
           case this.peopleName:
             this.selectedDataType = this.peopleName;
-            this.fields = app.config.PeopleCollection.fields.filter(function(item) {
+            this.fields = config.PeopleCollection.fields.filter(function(item) {
               return item.display === 'true';
             });
             break;
           case this.sourcesName:
             this.selectedDataType = this.sourcesName;
-            this.fields = app.config.SourcesCollection.fields.filter(function(item) {
+            this.fields = config.SourcesCollection.fields.filter(function(item) {
               return item.display === 'true';
             });
             break;
@@ -846,17 +865,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var collection;
 
         switch (this.selectedDataType) {
-          case app.config.EventsCollection.name:
-            collection = app.config.EventsCollection;
+          case config.EventsCollection.name:
+            collection = config.EventsCollection;
             break;
-          case app.config.PlacesCollection.name:
-            collection = app.config.PlacesCollection;
+          case config.PlacesCollection.name:
+            collection = config.PlacesCollection;
             break;
-          case app.config.PeopleCollection.name:
-            collection = app.config.PeopleCollection;
+          case config.PeopleCollection.name:
+            collection = config.PeopleCollection;
             break;
-          case app.config.SourcesCollection.name:
-            collection = app.config.SourcesCollection;
+          case config.SourcesCollection.name:
+            collection = config.SourcesCollection;
             break;
           default:
             return headingName;

@@ -319,11 +319,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         layer.options.color = 'rgb(240, 74, 25)';
         layer.options.fillColor = 'rgb(230, 74, 25)';
 
-        app.config.Categories.sub.forEach(function(subCategory) {
+        config.Categories.sub.forEach(function(subCategory) {
 
           if (subCategory.name.toLowerCase() === feature.properties.type.toLowerCase()) {
 
-            mainCategoryColour = app.config.Categories.main.find(function(category) {
+            mainCategoryColour = config.Categories.main.find(function(category) {
               return category.name.toLowerCase() === subCategory.category.toLowerCase();
             }).colour;
           } else {
@@ -391,11 +391,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           return 'point-of-interest';
         }
 
-        app.config.Categories.sub.forEach(function(subCategory) {
+        config.Categories.sub.forEach(function(subCategory) {
 
           if (subCategory.name.toLowerCase() === featureProperties.type.toLowerCase()) {
 
-            mainCategory = app.config.Categories.main.find(function(category) {
+            mainCategory = config.Categories.main.find(function(category) {
               return category.name.toLowerCase() === subCategory.category.toLowerCase();
             });
 
@@ -422,11 +422,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           return;
         }
 
-        app.config.Categories.sub.forEach(function(subCategory) {
+        config.Categories.sub.forEach(function(subCategory) {
 
           if (subCategory.name.toLowerCase() === category.toLowerCase()) {
 
-            mainCategory = app.config.Categories.main.find(function(categoryObject) {
+            mainCategory = config.Categories.main.find(function(categoryObject) {
               return categoryObject.name.toLowerCase() === subCategory.category.toLowerCase();
             });
 

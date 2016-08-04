@@ -31,7 +31,9 @@ module.exports = Reflux.createStore({
 
     this.setMessage(dataSourceStore);
 
-    this.trigger(this);
+    if (dataSourceStore.dataSource.message.type  !== 'packageImported') {
+      this.trigger(this);
+    }
 
     // Reset message
     this.message = '';

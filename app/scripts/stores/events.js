@@ -2,13 +2,11 @@
 
 var Reflux = require('reflux');
 var dataSourceStore = require('../stores/dataSource.js');
-var config = global.config ? global.config : require('../config/config.js');
+var config = presentationMode ? global.config : require('../config/config.js');
 var presentationsStore = require('../stores/presentations.js');
+var importPackageStore = require('../stores/importPackage.js');
 
 module.exports = Reflux.createStore({
-
-  // Name to use for this collection
-  collectionName: config.EventsCollection.name,
 
   // Data storage for all collections
   dataSource: null,
@@ -19,7 +17,13 @@ module.exports = Reflux.createStore({
   // Called on Store initialisation
   init: function() {
 
-    this.setDefaultTransform();
+    if (!presentationMode || presentationMode === 'online') {
+      this.collectionName = config.EventsCollection.name;
+      this.setDefaultTransform();
+    }
+
+    // Register importPackageStore's changes
+    this.listenTo(importPackageStore, this.importPackageChanged);
 
     // Register dataSourceStores's changes
     this.listenTo(dataSourceStore, this.dataSourceChanged);
@@ -32,10 +36,31 @@ module.exports = Reflux.createStore({
 
     this.dataSource = dataSourceStore.dataSource;
 
+    if (presentationMode && presentationMode === 'offline') {
+      return;
+    }
+
     this.setDefaultTransform();
 
     // Call when the source data is updated
     this.createFilterTransform(this.filterTransform, dataSourceStore.message);
+  },
+
+  // Add the images as blobs on the person's profile Object
+  importPackageChanged: function (importPackageStore) {
+
+    if (importPackageStore.message === 'importSuccess') {
+
+      // Can set config object now
+      config = global.config;
+
+      this.collectionName = config.EventsCollection.name;
+
+      this.setDefaultTransform();
+
+      // Call when the source data is updated
+      this.createFilterTransform(this.filterTransform, dataSourceStore.message);
+    }
   },
 
   // Set search filter on our collectionTransform

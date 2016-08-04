@@ -5,9 +5,9 @@ var loki = require('lokijs');
 var importFileAdapter = require('../adapters/loki-import-file-adapter.js');
 var ImportPackageActions = require('../actions/importPackage.js');
 var dataSourceStore = require('../stores/dataSource.js');
-var fsExtra = global.config ? window.electronRequire('fs-extra') : null;
-var crypto = global.config ? window.electronRequire('crypto') : null;
-var getRawBody = global.config ? window.electronRequire('raw-body') : null;
+var fsExtra = presentationMode ? window.electronRequire('fs-extra') : null;
+var crypto = presentationMode ? window.electronRequire('crypto') : null;
+var getRawBody = presentationMode ? window.electronRequire('raw-body') : null;
 
 module.exports = Reflux.createStore({
 
@@ -29,38 +29,92 @@ module.exports = Reflux.createStore({
   commenceImportProcess: function(packageObject) {
 
     // Decrypt the DB File
-    this.decryptDatabaseFile(packageObject)
-      .then(function(dbJSON) {
-        console.log('DB File Decrypted');
+    this.decryptConfigFile(packageObject)
+      .then(function(configJSON) {
+        console.log('Config File Decrypted');
 
-        // Load Loki DB into memory
-        this.loadDatabase(dbJSON)
-          .then(function() {
-            console.log('Database Loaded');
+        // Set the Global Config property here
+        global.config = configJSON;
 
-            // Send object out to all listeners when database loaded
-            dataSourceStore.dataSource.message = {
-              type: 'dataBaseLoaded'
-            };
+      // Decrypt the DB File
+      this.decryptDatabaseFile(packageObject)
+        .then(function(dbJSON) {
+          console.log('DB File Decrypted');
 
-            // Add the package filesystem location so we can use it later for Publishing functionality
-            global.config.packagePath = importFileAdapter.tempPackageDirectory;
+          // Load Loki DB into memory
+          this.loadDatabase(dbJSON)
+            .then(function() {
+              console.log('Database Loaded');
 
-            // Set packagePassword so we can access it if application locks
-            this.packagePassword = packageObject.packagePassword;
+              // Send object out to all listeners when database loaded
+              dataSourceStore.dataSource.message = {
+                type: 'dataBaseLoaded'
+              };
 
-            dataSourceStore.trigger(dataSourceStore);
+              // Add the package filesystem location so we can use it later for Publishing functionality
+              global.config.packagePath = importFileAdapter.tempPackageDirectory;
 
-            this.message = 'importSuccess';
-            this.trigger(this);
-            this.message = '';
-          }.bind(this));
-        }.bind(this))
+              // Set packagePassword so we can access it if application locks
+              this.packagePassword = packageObject.packagePassword;
+
+              dataSourceStore.dataSource.message = {
+                type: 'packageImported'
+              };
+
+              dataSourceStore.trigger(dataSourceStore);
+
+              this.message = 'importSuccess';
+              this.trigger(this);
+              dataSourceStore.dataSource.message = {
+                type: ''
+              };
+              this.message = '';
+            }.bind(this));
+          }.bind(this))
+        .catch(function() {
+          this.message = 'dbDecryptionFailure';
+          this.trigger(this);
+          this.message = '';
+        }.bind(this));
+      }.bind(this))
       .catch(function() {
-        this.message = 'dbDecryptionFailure';
+        this.message = 'configDecryptionFailure';
         this.trigger(this);
         this.message = '';
       }.bind(this));
+  },
+
+  // Decrypt the config file
+  decryptConfigFile: function(packageObject) {
+
+    return new Promise(function (resolve, reject) {
+
+      // Input file
+      var configStream = fsExtra.createReadStream(importFileAdapter.tempPackageDirectory + '/appConfig.json');
+
+      // Decrypt content
+      var decrypt = crypto.createDecipher('aes-256-ctr', packageObject.packagePassword);
+
+      configStream.on('error', function() {
+        reject();
+      });
+
+      // Start pipe
+      getRawBody(configStream.pipe(decrypt))
+        .then(function (buffer) {
+          try {
+            JSON.parse(buffer.toString());
+            resolve(JSON.parse(buffer.toString()));
+          } catch (err) {
+            console.log('Error decrypting DataBase file: ' + err);
+            reject(err);
+          }
+        })
+        .catch(function (err) {
+          console.log('Error decrypting DataBase file: ' + err);
+          reject();
+        });
+    });
   },
 
   // Decrypt the database file

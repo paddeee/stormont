@@ -139,6 +139,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                      source-actions="[[sourceActions]]"
                      people-actions="[[peopleActions]]"
                      people-store="[[peopleStore]]"
+                     presentation-mode="[[presentationMode]]"
                      on-navigate-to-profile="navigateToProfile"
                      on-navigate-to-event="navigateToEvent"></epe-profile>
       </section>
@@ -329,24 +330,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       setUpGrid: function(collectionName) {
 
         switch (collectionName) {
-          case app.config.EventsCollection.name:
+          case config.EventsCollection.name:
             this.gridData = this.eventsData;
-            this.sortingState = this.eventsStore.filterTransform[app.config.EventsCollection.name].sorting;
+            this.sortingState = this.eventsStore.filterTransform[config.EventsCollection.name].sorting;
             this.showAllSelected = this.eventsStore.showAllSelected;
             break;
-          case app.config.PlacesCollection.name:
+          case config.PlacesCollection.name:
             this.gridData = this.placesData;
-            this.sortingState = this.placesStore.filterTransform[app.config.PlacesCollection.name].sorting;
+            this.sortingState = this.placesStore.filterTransform[config.PlacesCollection.name].sorting;
             this.showAllSelected = this.placesStore.showAllSelected;
             break;
-          case app.config.PeopleCollection.name:
+          case config.PeopleCollection.name:
             this.gridData = this.peopleData;
-            this.sortingState = this.peopleStore.filterTransform[app.config.PeopleCollection.name].sorting;
+            this.sortingState = this.peopleStore.filterTransform[config.PeopleCollection.name].sorting;
             this.showAllSelected = this.peopleStore.showAllSelected;
             break;
-          case app.config.SourcesCollection.name:
+          case config.SourcesCollection.name:
             this.gridData = this.sourceData;
-            this.sortingState = this.sourceStore.filterTransform[app.config.SourcesCollection.name].sorting;
+            this.sortingState = this.sourceStore.filterTransform[config.SourcesCollection.name].sorting;
             this.showAllSelected = this.sourceStore.showAllSelected;
             break;
           default:

@@ -8,7 +8,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 */
 var reflux = require('reflux');
 var moment = require('moment');
-var config = global.config ? global.config : require('./config/config.js');
 var CSVParser = require('./vendor/harb-customised.js');
 var dataSourceActions = require('./actions/dataSource.js');
 var selectedRecordsActions = require('./actions/selectedRecords.js');
@@ -26,19 +25,19 @@ var userActions = require('./actions/users.js');
 var userStore = require('./stores/users.js');
 var presentationsActions = require('./actions/presentations.js');
 var importPackageActions = require('./actions/importPackage.js');
-var importPackageStore = global.config ? require('./stores/importPackage.js') : null;
+var importPackageStore = presentationMode ? require('./stores/importPackage.js') : null;
 var presentationsStore = require('./stores/presentations.js');
 var importActions = require('./actions/import.js');
 var importStore = require('./stores/import.js');
 var exportActions = require('./actions/export.js');
-var exportStore = global.config ? require('./stores/export.js') : null;
+var exportStore = presentationMode ? require('./stores/export.js') : null;
 var loggingStore = require('./stores/logging.js');
 var screenActions = require('./actions/screen.js');
-var screenStore = global.config ? require('./stores/screen.js') : null;
+var screenStore = presentationMode ? require('./stores/screen.js') : null;
 var mapGeoJsonStore = require('./stores/mapGeoJSON.js');
 var timeLineStore = require('./stores/timeLine.js');
 
-(function(document, reflux, moment, config, sourceActions, selectedRecordsActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleActions, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore, timeLineStore, importPackageActions, importPackageStore, screenActions, screenStore, loggingStore) {
+(function(document, reflux, moment, sourceActions, selectedRecordsActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleActions, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore, timeLineStore, importPackageActions, importPackageStore, screenActions, screenStore, loggingStore) {
   'use strict';
 
   // Grab a reference to our auto-binding template
@@ -50,7 +49,6 @@ var timeLineStore = require('./stores/timeLine.js');
   app.presentationMode = presentationMode;
   app.reflux = reflux;
   app.moment = moment;
-  app.config = config;
   app.CSVParser = CSVParser;
   app.dataSourceActions = dataSourceActions;
   app.selectedRecordsActions = selectedRecordsActions;
@@ -123,4 +121,4 @@ var timeLineStore = require('./stores/timeLine.js');
   // Maybe dangerous but can change for different approach if needed
   NodeList.prototype.forEach = Array.prototype.forEach;
 
-})(document, reflux, moment, config, sourceActions, selectedRecordsActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleActions, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore, timeLineStore, importPackageActions, importPackageStore, screenActions, screenStore, loggingStore);
+})(document, reflux, moment, sourceActions, selectedRecordsActions, queryBuilderActions, queryBuilderStore, presentationsActions, userStore, presentationsStore, filterStateActions, filterStateStore, eventsStore, placesStore, peopleActions, peopleStore, sourceStore, dataSourceActions, importActions, importStore, exportActions, exportStore, mapGeoJsonStore, timeLineStore, importPackageActions, importPackageStore, screenActions, screenStore, loggingStore);

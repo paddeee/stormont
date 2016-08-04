@@ -100,17 +100,27 @@ module.exports = Reflux.createStore({
             // Delete the unecrypted Database file
             this.deleteUnencryptedDBFile(exportFileAdapter.tempExportDirectory + '/' + exportDatabase.filename)
               .then(function() {
-                console.log('Export DB File Encrypted');
+                console.log('Unencrypted DB File Deleted');
 
-              // Iterate through each Source Object and copy the file from its Source Path into the temp directory
-              this.copySourceFiles(exportDatabase.getCollection(config.SourcesCollection.name).data, presentationObject, exportFileAdapter.tempExportDirectory)
-              .then(function() {
-                console.log('Source Files Copied');
-
-                // Iterate through each Person Object and copy the file from its Image Path into the temp directory
-                this.copyProfileImagesFiles(exportDatabase.getCollection(config.PeopleCollection.name).data, presentationObject, exportFileAdapter.tempExportDirectory, this.packagePassword)
+                // Encrypt the Config file
+                this.encryptConfigFile(exportFileAdapter.tempExportDirectory)
                   .then(function() {
-                    console.log('Profile Images Copied');
+                    console.log('Export Config File Encrypted');
+
+                  // Copy Map Tiles
+                  this.copyMapTiles(exportFileAdapter.tempExportDirectory)
+                    .then(function() {
+                      console.log('Map Tiles Copied');
+
+                    // Iterate through each Source Object and copy the file from its Source Path into the temp directory
+                    this.copySourceFiles(exportDatabase.getCollection(config.SourcesCollection.name).data, presentationObject, exportFileAdapter.tempExportDirectory)
+                    .then(function() {
+                      console.log('Source Files Copied');
+
+                      // Iterate through each Person Object and copy the file from its Image Path into the temp directory
+                      this.copyProfileImagesFiles(exportDatabase.getCollection(config.PeopleCollection.name).data, presentationObject, exportFileAdapter.tempExportDirectory, this.packagePassword)
+                        .then(function() {
+                          console.log('Profile Images Copied');
 
                           this.message = 'exportSuccess';
                           this.trigger(this);
@@ -118,9 +128,29 @@ module.exports = Reflux.createStore({
                           this.logPackageExport(presentationObject.packageName);
 
                         }.bind(this))
+                        .catch(function(reason) {
+                          console.error(reason);
+                          this.message = 'profileImagesCopyFailure';
+
+                          // Delete temporary directory
+                          this.deleteTempDirectory(exportFileAdapter.tempExportDirectory);
+
+                          this.trigger(this);
+                        }.bind(this));
+                      }.bind(this))
+                      .catch(function(reason) {
+                        console.error(reason);
+                        this.message = 'sourceFileCopyFailure';
+
+                        // Delete temporary directory
+                        this.deleteTempDirectory(exportFileAdapter.tempExportDirectory);
+
+                        this.trigger(this);
+                      }.bind(this));
+                    }.bind(this))
                   .catch(function(reason) {
                     console.error(reason);
-                    this.message = 'profileImagesCopyFailure';
+                    this.message = 'mapTilesCopyFailure';
 
                     // Delete temporary directory
                     this.deleteTempDirectory(exportFileAdapter.tempExportDirectory);
@@ -130,7 +160,7 @@ module.exports = Reflux.createStore({
                 }.bind(this))
                 .catch(function(reason) {
                   console.error(reason);
-                  this.message = 'sourceFileCopyFailure';
+                  this.message = 'configFileEncryptionError';
 
                   // Delete temporary directory
                   this.deleteTempDirectory(exportFileAdapter.tempExportDirectory);
@@ -247,6 +277,29 @@ module.exports = Reflux.createStore({
     sourceCollection.insert(exportSourceData);
   },
 
+  // Create promise for encrypting the export Config File
+  encryptConfigFile: function(tempExportDirectory) {
+
+    var packagePassword = this.packagePassword;
+
+    return new Promise(function (resolve) {
+
+      // Input file
+      var configReadStream = fsExtra.createReadStream(configPath);
+
+      // Encrypt content
+      var encrypt = crypto.createCipher('aes-256-ctr', packagePassword);
+
+      // Write file
+      var configWriteStream = fsExtra.createWriteStream(tempExportDirectory + '/appConfig.json');
+
+      // Start pipe
+      configReadStream.pipe(encrypt).pipe(configWriteStream);
+
+      resolve();
+    });
+  },
+
   // Create promise for encrypting the export Database
   encryptExportDatabase: function(exportDatabase, tempExportDirectory) {
 
@@ -267,6 +320,33 @@ module.exports = Reflux.createStore({
       dbReadStream.pipe(encrypt).pipe(dbWriteStream);
 
       resolve();
+    });
+  },
+
+  // Copy Map Tiles to Export Package
+  copyMapTiles: function(tempExportDirectory) {
+
+    return new Promise(function (resolve, reject) {
+
+      var mapTilesPath = config.paths.mapTiles;
+      var satelliteMapTilesPath = config.paths.satelliteMapTiles;
+
+      // Copy map tiles
+      fsExtra.copy(mapTilesPath, tempExportDirectory + '/mapTiles', function (error) {
+        if (error) {
+          reject(error);
+        } else {
+
+          // Copy satellite map tiles
+          fsExtra.copy(satelliteMapTilesPath, tempExportDirectory + '/satelliteMapTiles', function (error) {
+            if (error) {
+              reject(error);
+            } else {
+              resolve();
+            }
+          });
+        }
+      });
     });
   },
 

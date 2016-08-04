@@ -2,22 +2,19 @@
 
 var Reflux = require('reflux');
 var dataSourceStore = require('../stores/dataSource.js');
-var config = global.config ? global.config : require('../config/config.js');
+var config = presentationMode ? global.config : require('../config/config.js');
 var presentationsStore = require('../stores/presentations.js');
 var PeopleActions = require('../actions/people.js');
 var importPackageStore = require('../stores/importPackage.js');
-var fsExtra = global.config ? window.electronRequire('fs-extra') : null;
-var crypto = global.config ? window.electronRequire('crypto') : null;
-var getRawBody = global.config ? window.electronRequire('raw-body') : null;
+var fsExtra = presentationMode ? window.electronRequire('fs-extra') : null;
+var crypto = presentationMode ? window.electronRequire('crypto') : null;
+var getRawBody = presentationMode ? window.electronRequire('raw-body') : null;
 
 module.exports = Reflux.createStore({
 
   // this will set up listeners to all publishers in SourceActions,
   // using onKeyname (or keyname) as callbacks
   listenables: [PeopleActions],
-
-  // Name to use for this collection
-  collectionName: config.PeopleCollection.name,
 
   // Data storage for all collections
   dataSource: null,
@@ -28,15 +25,18 @@ module.exports = Reflux.createStore({
   // Called on Store initialisation
   init: function() {
 
-    this.setDefaultTransform();
+    if (!presentationMode || presentationMode === 'online') {
+      this.collectionName = config.PeopleCollection.name;
+      this.setDefaultTransform();
+    }
+
+    // Register importPackageStore's changes
+    this.listenTo(importPackageStore, this.importPackageChanged);
 
     // Register dataSourceStores's changes
     this.listenTo(dataSourceStore, this.dataSourceChanged);
 
     this.listenTo(presentationsStore, this.presentationsStoreChanged);
-
-    // Register importPackageStore's changes
-    this.listenTo(importPackageStore, this.importPackageChanged);
   },
 
   // Set the filteredData Object
@@ -44,10 +44,40 @@ module.exports = Reflux.createStore({
 
     this.dataSource = dataSourceStore.dataSource;
 
+    if (presentationMode && presentationMode === 'offline') {
+      return;
+    }
+
     this.setDefaultTransform();
 
     // Call when the source data is updated
     this.filterStateChanged(this.filterTransform);
+  },
+
+  // Add the images as blobs on the person's profile Object
+  importPackageChanged: function (importPackageStore) {
+
+    if (importPackageStore.message === 'importSuccess') {
+
+      // Can set config object now
+      config = global.config;
+
+      this.collectionName = config.PeopleCollection.name;
+
+      this.setDefaultTransform();
+
+      // Call when the source data is updated
+      this.createFilterTransform(this.filterTransform, dataSourceStore.message);
+
+      // Iterate through each profile
+      this.dataSource.getCollection(this.collectionName).data.forEach(function(profileObject) {
+
+        // Decrypt the file if in Offline Application
+        if (global.config && profileObject.Photo) {
+          this.decryptProfileFile(profileObject);
+        }
+      }.bind(this));
+    }
   },
 
   // Set search filter on our collectionTransform
@@ -65,22 +95,6 @@ module.exports = Reflux.createStore({
     // If presentation name has been set to 'ViewingFilter', reset the presentation
     if (presentationsStore.presentationName === 'ViewingFilter') {
       this.resetFilterTransform();
-    }
-  },
-
-  // Add the images as blobs on the person's profile Object
-  importPackageChanged: function (importPackageStore) {
-
-    if (importPackageStore.message === 'importSuccess') {
-
-      // Iterate through each profile
-      this.dataSource.getCollection(this.collectionName).data.forEach(function(profileObject) {
-
-        // Decrypt the file if in Offline Application
-        if (global.config && profileObject.Photo) {
-          this.decryptProfileFile(profileObject);
-        }
-      }.bind(this));
     }
   },
 

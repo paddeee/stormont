@@ -28,6 +28,7 @@
     "Tiff": true,
     "remote": true,
     "config": true,
+    "configPath": true,
     "ipcRenderer": true,
     "presentationMode": true,
     "EpeCreatePackage": true,

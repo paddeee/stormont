@@ -744,7 +744,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       this.setMapTilesSrc();
 
-      this.createMapLegendArray();
+      //this.createMapLegendArray();
 
       if (this.mapGeoJsonStore) {
 
@@ -999,11 +999,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var className = 'event-card--default';
       var mainCategory;
 
-      app.config.Categories.sub.forEach(function(subCategory) {
+      config.Categories.sub.forEach(function(subCategory) {
 
         if (subCategory.name.toLowerCase() === this.activeEventData.type.toLowerCase()) {
 
-          mainCategory = app.config.Categories.main.find(function(category) {
+          mainCategory = config.Categories.main.find(function(category) {
             return category.name.toLowerCase() === subCategory.category.toLowerCase();
           });
 
@@ -1109,6 +1109,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var mapTilesDirectories = '/{z}/{x}/{y}.png';
       var satelliteMapTilesDirectories = '/{z}/{x}/{y}.jpg';
       var $tilesButton = this.querySelector('.toggle-tiles-control');
+      var mapTilesPath;
+      var satelliteMapTilesPath;
+
+      if (!global.config) {
+        return;
+      }
+
+      if (presentationMode === 'online') {
+        mapTilesPath = config.paths.mapTiles;
+        satelliteMapTilesPath = config.paths.satelliteMapTiles;
+      } else if (presentationMode === 'offline') {
+        mapTilesPath = global.config.packagePath + '/mapTiles';
+        satelliteMapTilesPath = global.config.packagePath + '/satelliteMapTiles';
+      }
 
       // Map tiles
       if (this.mapTilesType === 'map') {
@@ -1119,7 +1133,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Online tiles for now if in a browser
         //if (typeof process === 'object') {
         if (!true) { // temp line of code to always use online maps. Remove for previous line when offline maps are working
-          this.mapTilesSrc = 'file:///' + config.paths.mapTiles + mapTilesDirectories;
+          this.mapTilesSrc = 'file:///' + mapTilesPath + mapTilesDirectories;
         } else {
           this.mapTilesSrc = 'https://{s}.tile.openstreetmap.org' + mapTilesDirectories;
         }
@@ -1131,7 +1145,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Online tiles for now if in a browser
         //if (typeof process === 'object') {
         if (!true) { // temp line of code to always use online maps. Remove for previous line when offline maps are working
-          this.mapTilesSrc = 'file:///' + config.paths.satelliteMapTiles + mapTilesDirectories;
+          this.mapTilesSrc = 'file:///' + satelliteMapTilesPath + mapTilesDirectories;
         } else {
           this.mapTilesSrc = 'http://otile1.mqcdn.com/tiles/1.0.0/sat' + satelliteMapTilesDirectories;
         }
@@ -1196,7 +1210,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       this.mapLegend = [];
 
-      app.config.Categories.main.forEach(function(mainCategory) {
+      config.Categories.main.forEach(function(mainCategory) {
 
         var subCategories;
         var legendObject = {
@@ -1205,7 +1219,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           categories: []
         };
 
-        subCategories = app.config.Categories.sub.filter(function(subCategory) {
+        subCategories = config.Categories.sub.filter(function(subCategory) {
           return legendObject.categoryType.toLowerCase() === subCategory.category.toLowerCase();
         });
 

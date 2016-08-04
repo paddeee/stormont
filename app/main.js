@@ -94,23 +94,51 @@ function handleSquirrelEvent() {
   }
 };
 
-// Get the config file
-var getConfig =  function () {
+// Get the network config file
+var getNetworkConfig =  function () {
 
   return new Promise(function (resolve, reject) {
 
     var configDirectory = process.resourcesPath;
 
-    fs.readFile(configDirectory + '/appConfig.json', 'utf-8', function(err, data) {
+    if (buildType !== 0) {
+      resolve();
+    } else {
 
-      if (data) {
-        global.config = data;
-        ldapPath = JSON.parse(data).paths.ldap;
-        resolve();
-      } else if (err) {
-        reject(err);
-      }
-    });
+      fs.readFile(configDirectory + '/networkConfig.json', 'utf-8', function(err, data) {
+
+        if (data) {
+          global.appConfigPath = JSON.parse(data).configURL;
+          global.rolesPath = JSON.parse(data).rolesURL;
+          resolve();
+        } else if (err) {
+          reject(err);
+        }
+      });
+    }
+  });
+};
+
+// Get the config file
+var getConfig =  function () {
+
+  return new Promise(function (resolve, reject) {
+
+    if (buildType !== 0) {
+      global.config = null;
+      resolve();
+    } else {
+
+      fs.readFile(global.appConfigPath, 'utf-8', function(err, data) {
+        if (data) {
+          global.config = data;
+          ldapPath = JSON.parse(data).paths.ldap;
+          resolve();
+        } else if (err) {
+          reject(err);
+        }
+      });
+    }
   });
 };
 
@@ -124,9 +152,7 @@ var getRoles =  function () {
       resolve();
     } else {
 
-      var rolesDirectory = process.resourcesPath;
-
-      fs.readFile(rolesDirectory + '/roles.json', 'utf-8', function(err, data) {
+      fs.readFile(global.rolesPath, 'utf-8', function(err, data) {
 
         if (data) {
           global.roles = data;
@@ -192,7 +218,7 @@ app.on('ready', function() {
     });
 
     // Open the DevTools.
-    //controllerWindow.webContents.openDevTools();
+    controllerWindow.webContents.openDevTools();
   };
 
   var createPublishWindow = function() {
@@ -290,32 +316,41 @@ app.on('ready', function() {
     createExternalWindow();
   }
 
-  getConfig()
+  getNetworkConfig()
     .then(function() {
-      console.log('Got config');
+      console.log('Got Network config');
 
-      getRoles()
+      getConfig()
         .then(function() {
-          console.log('Got roles');
+          console.log('Got config');
 
-          switch (buildType) {
-            case 0:
-              controllerWindow.loadURL('file://' + __dirname + '/online.html');
-              break;
-            case 1:
-              controllerWindow.loadURL('file://' + __dirname + '/offline.html');
-              break;
-            default:
-              dialog.showErrorBox('Error with Build', 'No Valid Build Type specified');
-          }
+          getRoles()
+            .then(function() {
+              console.log('Got roles');
+
+              switch (buildType) {
+                case 0:
+                  controllerWindow.loadURL('file://' + __dirname + '/online.html');
+                  break;
+                case 1:
+                  controllerWindow.loadURL('file://' + __dirname + '/offline.html');
+                  break;
+                default:
+                  dialog.showErrorBox('Error with Build', 'No Valid Build Type specified');
+              }
+            })
+            .catch(function() {
+              dialog.showErrorBox('Roles File Missing', 'Please inform IT Support.');
+              reject();
+            }.bind(this));
         })
         .catch(function() {
-          dialog.showErrorBox('Roles File Missing', 'Please make sure the Roles File resides in the Application.');
+          dialog.showErrorBox('Application Config File Missing', 'Please inform IT Support.');
           reject();
         }.bind(this));
     })
     .catch(function() {
-      dialog.showErrorBox('Config File Missing', 'Please make sure the Config File resides in the Application.');
+      dialog.showErrorBox('Network Config File Missing', 'Please inform IT Support.');
       reject();
     }.bind(this));
 
@@ -326,6 +361,7 @@ app.on('ready', function() {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     controllerWindow.destroy();
+    controllerWindow = null;
 
     if (publishWindow) {
       publishWindow.destroy();

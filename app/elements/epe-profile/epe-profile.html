@@ -430,10 +430,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Set the src of the image if inside Electron
       if (typeof process === 'object') {
 
-        // Use roles to determine if on network on offline
-        if (roles) {
+        if (presentationMode === 'online') {
           profilesPath = config.paths.profilesPath;
-        } else {
+        } else if (presentationMode === 'offline') {
           profilesPath = global.config.packagePath + '/profiles';
         }
       }
@@ -634,11 +633,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var category;
 
-      category = app.config.Categories.sub.find(function(subCategory) {
+      category = config.Categories.sub.find(function(subCategory) {
         return item.Type.toLowerCase() === subCategory.name.toLowerCase();
       });
 
-      return app.config.Categories.main.find(function(mainCategory) {
+      return config.Categories.main.find(function(mainCategory) {
         return mainCategory.name === category.category;
       }).colour;
     }

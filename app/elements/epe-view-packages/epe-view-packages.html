@@ -579,26 +579,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.ExportingPackage.close();
 
         // Package export error
-      } else if (messageType === 'zipDirectoryFailure') {
-        this.exportFailureMessage = 'There was a problem creating a zip file for the package';
+      } else if (messageType === 'mapTilesCopyFailure') {
+        this.exportFailureMessage = 'There was a problem adding the Map Tiles to the package';
         this.$.ExportErrorDialog.open();
         this.$.ExportingPackage.close();
 
         // Package export error
-      } else if (messageType === 'encryptionFailure') {
-        this.exportFailureMessage = 'There was a problem encrypting the zip file';
+      } else if (messageType === 'dbFileEncryptionError') {
+        this.exportFailureMessage = 'There was a problem encrypting the database file';
         this.$.ExportErrorDialog.open();
         this.$.ExportingPackage.close();
 
         // Package export error
-      } else if (messageType === 'removeDirectoryFailure') {
-        this.exportFailureMessage = 'There was a problem removing the temporary directory';
-        this.$.ExportErrorDialog.open();
-        this.$.ExportingPackage.close();
-
-        // Package export error
-      } else if (messageType === 'removeZipFileFailure') {
-        this.exportFailureMessage = 'There was a problem removing the temporary zip file';
+      } else if (messageType === 'dbFileDeletionError') {
+        this.exportFailureMessage = 'There was a problem deleting the DataBase file';
         this.$.ExportErrorDialog.open();
         this.$.ExportingPackage.close();
       }
