@@ -502,7 +502,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           this.presentationsData = presentationsStore.presentationsData;
 
-          if (!this.filteredData || !this.filteredData.length) {
+          if ((!this.filteredData || !this.filteredData.length) || presentationsStore.message === 'presentationSaved') {
+            this.filteredData = [];
             this.filteredData = presentationsStore.presentationsData;
           }
 
