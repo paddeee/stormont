@@ -1253,6 +1253,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // before sending out the object again.
         this.sourceActions.viewSourceFile(null);
         this.sourceActions.viewSourceFile(sourceObject);
+      },
+
+      // Sortable Columns
+      reOrderColumn: function(event) {
+        event.stopPropagation();
       }
     });
   })();
