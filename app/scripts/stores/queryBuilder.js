@@ -36,11 +36,13 @@ module.exports = Reflux.createStore({
   // Set the filteredData Object
   dataSourceChanged: function (dataSourceStore) {
 
-    var queryCollection = dataSourceStore.dataSource.getCollection(config.QueriesCollection);
+    var queryCollection;
 
-    if (dataSourceStore.message === 'presentationSaved') {
+    if (dataSourceStore.dataSource.message.type === 'packageImported' || dataSourceStore.message === 'presentationSaved') {
       return;
     }
+
+    queryCollection = dataSourceStore.dataSource.getCollection(config.QueriesCollection);
 
     if (dataSourceStore.dataSource.message.type === 'dataBaseLoaded') {
 

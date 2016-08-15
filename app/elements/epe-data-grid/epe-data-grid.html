@@ -571,6 +571,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var $scrollableContent = this.$.DataGridRecords;
         $scrollableContent.addEventListener('scroll', this.scrollHeader.bind(this));
 
+        // If in PackageViewer App, set config property after package import
+        if (presentationMode && presentationMode === 'offline') {
+
+          // When the presentations data is updated
+          this.importPackageStore.listen(function (importPackageStore) {
+
+            if (importPackageStore.message === 'importSuccess') {
+              this.config = global.config;
+            }
+          }.bind(this));
+
+        } else {
+          this.config = app.config;
+        }
+
         window.addEventListener('resize', this.setDefaultTableHeight.bind(this));
       },
 
@@ -608,29 +623,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var schemaFieldsToDisplay = [];
 
         switch (this.collectionName) {
-          case app.config.EventsCollection.name:
-            app.config.EventsCollection.fields.forEach(function(object) {
+          case this.config.EventsCollection.name:
+            this.config.EventsCollection.fields.forEach(function(object) {
               if (object.display === 'true') {
                 schemaFieldsToDisplay.push(object.name);
               }
             }.bind(this));
             break;
-          case app.config.PlacesCollection.name:
-            app.config.PlacesCollection.fields.forEach(function(object) {
+          case this.config.PlacesCollection.name:
+            this.config.PlacesCollection.fields.forEach(function(object) {
               if (object.display === 'true') {
                 schemaFieldsToDisplay.push(object.name);
               }
             }.bind(this));
             break;
-          case app.config.PeopleCollection.name:
-            app.config.PeopleCollection.fields.forEach(function(object) {
+          case this.config.PeopleCollection.name:
+            this.config.PeopleCollection.fields.forEach(function(object) {
               if (object.display === 'true') {
                 schemaFieldsToDisplay.push(object.name);
               }
             }.bind(this));
             break;
-          case app.config.SourcesCollection.name:
-            app.config.SourcesCollection.fields.forEach(function(object) {
+          case this.config.SourcesCollection.name:
+            this.config.SourcesCollection.fields.forEach(function(object) {
               if (object.display === 'true') {
                 schemaFieldsToDisplay.push(object.name);
               }
@@ -759,17 +774,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var colSize = '';
 
         switch (this.collectionName) {
-          case app.config.EventsCollection.name:
-            collection = app.config.EventsCollection;
+          case this.config.EventsCollection.name:
+            collection = this.config.EventsCollection;
             break;
-          case app.config.PlacesCollection.name:
-            collection = app.config.PlacesCollection;
+          case this.config.PlacesCollection.name:
+            collection = this.config.PlacesCollection;
             break;
-          case app.config.PeopleCollection.name:
-            collection = app.onfig.PeopleCollection;
+          case this.config.PeopleCollection.name:
+            collection = this.config.PeopleCollection;
             break;
-          case app.config.SourcesCollection.name:
-            collection = app.config.SourcesCollection;
+          case this.config.SourcesCollection.name:
+            collection = this.config.SourcesCollection;
             break;
           default:
             console.error('Sorry, no collectionName set');
@@ -1039,7 +1054,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Hide checkboxes when no records or in source view
       hideCheckboxes: function() {
 
-        if (this.collectionName === app.config.SourcesCollection.name || !this.areThereAnyRecords(this.gridData)) {
+        if (this.collectionName === this.config.SourcesCollection.name || !this.areThereAnyRecords(this.gridData)) {
           this.hideCheckboxColumn = true;
         } else {
           this.hideCheckboxColumn = false;
@@ -1049,7 +1064,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Computed function to return true if we're looking at a 'Source' data-grid
       isSource: function(collectionName) {
 
-        if (app.config && collectionName !== app.config.SourcesCollection.name) {
+        if (this.config && collectionName !== this.config.SourcesCollection.name) {
           return true;
         }
         return false;
@@ -1058,7 +1073,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Computed function to return true if we're looking at a 'People' data-grid
       isProfile: function(collectionName) {
 
-        if (app.config && collectionName !== app.config.PeopleCollection.name) {
+        if (this.config && collectionName !== this.config.PeopleCollection.name) {
           return true;
         }
         return false;
@@ -1067,7 +1082,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Computed function to return true if we're looking at a 'Event' data-grid
       isEvent: function() {
 
-        if (app.config && this.collectionName === app.config.EventsCollection.name) {
+        if (this.config && this.collectionName === this.config.EventsCollection.name) {
           return true;
         }
         return false;
@@ -1091,17 +1106,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var collection;
 
         switch (this.collectionName) {
-          case app.config.EventsCollection.name:
-            collection = app.config.EventsCollection;
+          case this.config.EventsCollection.name:
+            collection = this.config.EventsCollection;
             break;
-          case app.config.PlacesCollection.name:
-            collection = app.config.PlacesCollection;
+          case this.config.PlacesCollection.name:
+            collection = this.config.PlacesCollection;
             break;
-          case app.config.PeopleCollection.name:
-            collection = app.config.PeopleCollection;
+          case this.config.PeopleCollection.name:
+            collection = this.config.PeopleCollection;
             break;
-          case app.config.SourcesCollection.name:
-            collection = app.config.SourcesCollection;
+          case this.config.SourcesCollection.name:
+            collection = this.config.SourcesCollection;
             break;
           default:
             console.error('Sorry, no collectionName set');
@@ -1214,17 +1229,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var collection;
 
         switch (this.collectionName) {
-          case app.config.EventsCollection.name:
-            collection = app.config.EventsCollection;
+          case this.config.EventsCollection.name:
+            collection = this.config.EventsCollection;
             break;
-          case app.config.PlacesCollection.name:
-            collection = app.config.PlacesCollection;
+          case this.config.PlacesCollection.name:
+            collection = this.config.PlacesCollection;
             break;
-          case app.config.PeopleCollection.name:
-            collection = app.config.PeopleCollection;
+          case this.config.PeopleCollection.name:
+            collection = this.config.PeopleCollection;
             break;
-          case app.config.SourcesCollection.name:
-            collection = app.config.SourcesCollection;
+          case this.config.SourcesCollection.name:
+            collection = this.config.SourcesCollection;
             break;
           default:
             console.error('Sorry, no collectionName set');

@@ -400,6 +400,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     ready: function() {
 
+      // If in PackageViewer App, set config property after package import
+      if (presentationMode && presentationMode === 'offline') {
+
+        // When the presentations data is updated
+        this.importPackageStore.listen(function (importPackageStore) {
+
+          if (importPackageStore.message === 'importSuccess') {
+            this.config = global.config;
+          }
+        }.bind(this));
+
+      } else {
+        this.config = app.config;
+      }
+
       if (this.peopleStore) {
 
         // When the selected Profile is changed navigate to Profile
@@ -431,9 +446,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (appMode === 'app') {
 
         if (presentationMode === 'online') {
-          profilesPath = app.config.paths.profilesPath;
+          profilesPath = this.config.paths.profilesPath;
         } else if (presentationMode === 'offline') {
-          profilesPath = global.config.packagePath + '/profiles';
+          profilesPath = this.config.packagePath + '/profiles';
         }
       }
 
@@ -633,11 +648,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var category;
 
-      category = app.config.Categories.sub.find(function(subCategory) {
+      category = this.config.Categories.sub.find(function(subCategory) {
         return item.Type.toLowerCase() === subCategory.name.toLowerCase();
       });
 
-      return app.config.Categories.main.find(function(mainCategory) {
+      return this.config.Categories.main.find(function(mainCategory) {
         return mainCategory.name === category.category;
       }).colour;
     }

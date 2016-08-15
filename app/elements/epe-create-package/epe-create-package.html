@@ -110,6 +110,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   presentation-state="[[presentationState]]"
                   source-actions="[[sourceActions]]"
                   presentations-store="[[presentationsStore]]"
+                  import-package-store="[[importPackageStore]]"
                   collection-name="[[collectionName]]"
                   sorting-state="[[sortingState]]"
                   hidden$="[[hideDataGrid]]"
@@ -139,6 +140,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                      source-actions="[[sourceActions]]"
                      people-actions="[[peopleActions]]"
                      people-store="[[peopleStore]]"
+                     import-package-store="[[importPackageStore]]"
                      presentation-mode="[[presentationMode]]"
                      on-navigate-to-profile="navigateToProfile"
                      on-navigate-to-event="navigateToEvent"></epe-profile>
@@ -224,6 +226,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // ToDo: Must be a DRYer way of doing this when not rushing
       ready: function() {
+
+        // If in PackageViewer App, set config property after package import
+        if (presentationMode && presentationMode === 'offline') {
+
+          // When the presentations data is updated
+          this.importPackageStore.listen(function (importPackageStore) {
+
+            if (importPackageStore.message === 'importSuccess') {
+              this.config = global.config;
+            }
+          }.bind(this));
+
+        } else {
+          this.config = app.config;
+        }
 
         if (this.eventsStore) {
 
@@ -331,24 +348,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       setUpGrid: function(collectionName) {
 
         switch (collectionName) {
-          case app.config.EventsCollection.name:
+          case this.config.EventsCollection.name:
             this.gridData = this.eventsData;
-            this.sortingState = this.eventsStore.filterTransform[app.config.EventsCollection.name].sorting;
+            this.sortingState = this.eventsStore.filterTransform[this.config.EventsCollection.name].sorting;
             this.showAllSelected = this.eventsStore.showAllSelected;
             break;
-          case app.config.PlacesCollection.name:
+          case this.config.PlacesCollection.name:
             this.gridData = this.placesData;
-            this.sortingState = this.placesStore.filterTransform[app.config.PlacesCollection.name].sorting;
+            this.sortingState = this.placesStore.filterTransform[this.config.PlacesCollection.name].sorting;
             this.showAllSelected = this.placesStore.showAllSelected;
             break;
-          case app.config.PeopleCollection.name:
+          case this.config.PeopleCollection.name:
             this.gridData = this.peopleData;
-            this.sortingState = this.peopleStore.filterTransform[app.config.PeopleCollection.name].sorting;
+            this.sortingState = this.peopleStore.filterTransform[this.config.PeopleCollection.name].sorting;
             this.showAllSelected = this.peopleStore.showAllSelected;
             break;
-          case app.config.SourcesCollection.name:
+          case this.config.SourcesCollection.name:
             this.gridData = this.sourceData;
-            this.sortingState = this.sourceStore.filterTransform[app.config.SourcesCollection.name].sorting;
+            this.sortingState = this.sourceStore.filterTransform[this.config.SourcesCollection.name].sorting;
             this.showAllSelected = this.sourceStore.showAllSelected;
             break;
           default:

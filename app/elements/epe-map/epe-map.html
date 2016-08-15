@@ -494,6 +494,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <epe-map-geojson id="MapGeoJSON"
                        data="[[geoJSON]]"
+                       import-package-store="[[importPackageStore]]"
                        navigating-events="[[navigatingEvents]]"
                        selected-records-actions="[[selectedRecordsActions]]"
                        active-event="[[activeEvent]]"
@@ -749,12 +750,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.importPackageStore.listen(function (importPackageStore) {
 
           if (importPackageStore.message === 'importSuccess') {
+
+            this.config = global.config;
             this.setMapTilesSrc();
             this.createMapLegendArray();
           }
         }.bind(this));
 
       } else {
+        this.config = app.config;
         this.setMapTilesSrc();
         this.createMapLegendArray();
       }
@@ -1012,11 +1016,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var className = 'event-card--default';
       var mainCategory;
 
-      app.config.Categories.sub.forEach(function(subCategory) {
+      this.config.Categories.sub.forEach(function(subCategory) {
 
         if (subCategory.name.toLowerCase() === this.activeEventData.type.toLowerCase()) {
 
-          mainCategory = app.config.Categories.main.find(function(category) {
+          mainCategory = this.config.Categories.main.find(function(category) {
             return category.name.toLowerCase() === subCategory.category.toLowerCase();
           });
 
@@ -1125,18 +1129,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var mapTilesPath = '';
       var satelliteMapTilesPath = '';
 
-      if (!app.config) {
+      if (!this.config) {
         return;
       }
 
       if (appMode === 'app') {
 
         if (presentationMode === 'online') {
-          mapTilesPath = app.config.paths.mapTiles;
-          satelliteMapTilesPath = app.config.paths.satelliteMapTiles;
+          mapTilesPath = this.config.paths.mapTiles;
+          satelliteMapTilesPath = this.config.paths.satelliteMapTiles;
         } else if (presentationMode === 'offline') {
-          mapTilesPath = global.config.packagePath + '/mapTiles';
-          satelliteMapTilesPath = global.config.packagePath + '/satelliteMapTiles';
+          mapTilesPath = this.config.packagePath + '/mapTiles';
+          satelliteMapTilesPath = this.config.packagePath + '/satelliteMapTiles';
         }
       }
 
@@ -1226,7 +1230,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       this.mapLegend = [];
 
-      app.config.Categories.main.forEach(function(mainCategory) {
+      this.config.Categories.main.forEach(function(mainCategory) {
 
         var subCategories;
         var legendObject = {
@@ -1235,7 +1239,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           categories: []
         };
 
-        subCategories = app.config.Categories.sub.filter(function(subCategory) {
+        subCategories = this.config.Categories.sub.filter(function(subCategory) {
           return legendObject.categoryType.toLowerCase() === subCategory.category.toLowerCase();
         });
 
