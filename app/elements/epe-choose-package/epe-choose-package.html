@@ -229,6 +229,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.fire('import-failure', {
           message: 'There was a problem decrypting the Database File. Please make sure the directory contains a database file and re-enter the password and press the Yubikey again'
         });
+
+        // Decrypt config file error
+      } else if (messageType === 'configDecryptionFailure') {
+        this.fire('import-failure', {
+          message: 'There was a problem decrypting the Application Config File using the password. Please re-enter the password and press the Yubikey again.'
+        });
       }
     },
 
