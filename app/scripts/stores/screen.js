@@ -17,6 +17,7 @@ module.exports = Reflux.createStore({
 
     var fileName = publishObject.fileName + '.png';
     var pdfName = publishObject.fileName + '.pdf';
+    var location = publishObject.location;
     var windows = electron.remote.BrowserWindow.getAllWindows();
     var controllerWindow;
     var rect;
@@ -41,8 +42,8 @@ module.exports = Reflux.createStore({
 
       // Save log in different location depending on court mode state
       if (publishObject.courtMode) {
-        screenshotPath = path.join(global.config.paths.courtLogPath, fileName);
-        pdfPath = path.join(global.config.paths.courtLogPath, pdfName);
+        screenshotPath = path.join(location, fileName);
+        pdfPath = path.join(location, pdfName);
       } else {
         screenshotPath = path.join(global.config.packagePath, fileName);
         pdfPath = path.join(global.config.packagePath, pdfName);

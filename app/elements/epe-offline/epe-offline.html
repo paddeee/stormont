@@ -65,9 +65,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
      };
     }
 
+    .publish-location {
+      margin: 0 0 8px;
+    }
+
+    .display-publish-path {
+      color: var(--secondary-text-color);
+      font-size: 12px;
+      font-weight: bold;
+    }
+
     .publish-dialog {
-      height: 50vh;
-      width: 50vw;
+      height: 60vh;
+      width: 60vw;
     }
 
     paper-input {
@@ -246,7 +256,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           <!-- Choose Option Section -->
           <section data-route="choose-package">
-            <epe-choose-package import-package-actions="[[importPackageActions]]"
+            <epe-choose-package id="ChoosePackage"
+                                import-package-actions="[[importPackageActions]]"
                                 import-package-store="[[importPackageStore]]"
                                 on-court-mode-changed="courtModeChanged"
                                 on-import-success="importSuccess"
@@ -308,12 +319,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <h2>Publish as Evidence</h2>
       <div>
 
-        <!-- Get rid if no need to let user choose location
         <paper-button class="publish-location"
                       on-tap="publishLocationTapped"
+                      hidden="[[!courtMode]]"
                       raised>Choose Publish Directory..</paper-button>
 
-        <div class="display-export-path">[[exportLocation]]</div>-->
+        <div class="display-publish-path"
+             hidden="[[!courtMode]]">[[publishLocation]]</div>
 
         <paper-radio-group id="OpenOnPublish" selected="open" class="layout vertical" hidden$="[[courtMode]]">
           <paper-radio-button name="open">Automatically open after saving</paper-radio-button>
@@ -330,10 +342,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </paper-input>
 
       </div>
-      <div class="buttons">
+      <div class="buttons publish-button">
         <paper-button dialog-dismiss>Cancel</paper-button>
-        <paper-button dialog-confirm
-                      on-tap="publishScreen">OK</paper-button>
+        <paper-button on-tap="publishScreen">OK</paper-button>
       </div>
     </paper-dialog>
 
@@ -433,6 +444,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
     </paper-dialog>
 
+    <paper-dialog id="NoPublishLocationDialog" modal>
+      <h2>Please choose a directory to publish the screen to.</h2>
+      <div class="buttons layout horizontal">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
   </template>
 </dom-module>
 <script>
@@ -475,6 +493,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           type: Boolean
         },
 
+        publishLocation: {
+          type: String,
+          value: 'Not selected..'
+        },
+
         publishMessage: {
           type: String,
           value: ''
@@ -494,6 +517,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Set up listeners when element is ready
       ready: function () {
 
+        var pathDivider;
+
         if (this.screenStore) {
 
           // When the presentations data is updated, set this view's presentationsData
@@ -506,6 +531,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         if (appMode === 'app') {
+
+          // Select correct path divider depending on OS
+          if (process.platform === 'darwin') {
+            pathDivider = '/';
+          } else {
+            pathDivider = '\\';
+          }
+
+          // Listen to Electron when directory is selected
+          ipcRenderer.on('directory-selected', function (event, arg) {
+
+            if (arg) {
+              this.publishLocation = arg[0] + pathDivider;
+            } else {
+              this.publishLocation = 'Not selected..';
+            }
+          }.bind(this));
 
           // Listen to Electron when directory is selected
           ipcRenderer.on('no-external-display', function () {
@@ -762,7 +804,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         var publishObject;
 
+        if (this.publishLocation === 'Not selected..') {
+          this.$.NoPublishLocationDialog.open();
+          return;
+        }
+
         publishObject = {
+          location: this.publishLocation,
           openOnSave: this.courtMode ? false : this.$.OpenOnPublish.selected,
           fileName: this.timeStamp + this.$.EvidenceName.value,
           ernRefs: this.getErnRefs(),
@@ -796,6 +844,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           // If publish successful
         } else if (message.type === 'publishSuccess') {
+
+          // Reset location
+          this.publishLocation = 'Not selected..';
+
           this.$.EvidenceName.value = '';
           this.publishMessage = message.text;
           this.$.PublishSuccessDialog.open();
@@ -1004,6 +1056,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Called from event on choose-package element
       importSuccess: function() {
+
+        // Reset Publish location
+        this.publishLocation = 'Not selected..';
+
         this.$.ImportSuccessDialog.open();
         this.$.ImportingPackage.close();
       },
@@ -1029,6 +1085,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       importSuccessConfirmed: function() {
         page('/create-package/map');
         this.packageSelected();
+      },
+
+      // Send message to electron to open Open Dialog
+      publishLocationTapped: function() {
+        ipcRenderer.send('show-open-dialog', 'directory');
       }
     });
   })();

@@ -558,6 +558,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Package successfully exported
       } else if (messageType === 'exportSuccess') {
+
+        // Reset location
+        this.exportLocation = 'Not selected..';
+
         this.$.ExportSuccessDialog.open();
         this.$.ExportingPackage.close();
 

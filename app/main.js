@@ -279,6 +279,7 @@ app.on('ready', function() {
       // If court mode is off
     } else {
       courtWindow.destroy();
+      courtWindow = null;
     }
   });
 
@@ -301,6 +302,7 @@ app.on('ready', function() {
 
       if (courtWindow) {
         courtWindow.destroy();
+        courtWindow = null;
       }
     }
   });
@@ -365,10 +367,12 @@ app.on('ready', function() {
 
     if (publishWindow) {
       publishWindow.destroy();
+      publishWindow = null;
     }
 
     if (courtWindow) {
-      courtWindow.destroy()
+      courtWindow.destroy();
+      courtWindow = null;
     }
   });
 
