@@ -1,7 +1,7 @@
 'use strict';
 
 var Reflux = require('reflux');
-var config = presentationMode ? global.config : require('../config/config.js');
+var config = appMode === 'app' ? global.config : require('../config/config.js');
 var selectedRecordsStore = require('../stores/selectedRecords.js');
 var importPackageStore = require('../stores/importPackage.js');
 

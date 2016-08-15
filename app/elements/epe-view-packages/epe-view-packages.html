@@ -468,7 +468,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var pathDivider;
 
-      if (typeof process === 'object') {
+      if (appMode === 'app') {
 
         // Select correct path divider depending on OS
         if (process.platform === 'darwin') {
@@ -707,7 +707,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.unapprovedSource = event.model.item.unapprovedSource;
 
       // Perform export if in packaged app. Otherwise log so we know it won't work in browser
-      if (typeof process === 'object') {
+      if (appMode === 'app') {
 
         // Check YubiKey is inserted
         this.exportActions.yubiKeyCheck();
@@ -750,7 +750,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (event.keyCode === 13) {
 
         // Perform export if in packaged app. Otherwise log to alert that it won't work in browser
-        if (typeof process === 'object') {
+        if (appMode === 'app') {
 
           // Let User select a location from file explorer
           packagePassword = event.target.value;

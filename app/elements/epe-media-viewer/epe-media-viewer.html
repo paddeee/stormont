@@ -269,7 +269,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           $epeElement = app.$.epeOffline;
         }
 
-        if (typeof process === 'object') {
+        if (appMode === 'app') {
           this.fs = window.electronRequire('fs');
         }
 
@@ -317,7 +317,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         // Set the src of the image if inside Electron
-        if (typeof process === 'object') {
+        if (appMode === 'app') {
 
           // Use roles to determine if on network on offline
           if (presentationMode === 'online') {
@@ -508,7 +508,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Set the src file which needs to be done using a Blob if within packaged app as wavesurfer
         // XHR won't work
-        if (typeof process === 'object') {
+        if (appMode === 'app') {
 
           if (presentationMode === 'online') {
 

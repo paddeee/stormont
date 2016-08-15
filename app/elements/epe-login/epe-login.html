@@ -219,7 +219,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var win;
 
-      if (typeof process === 'object') {
+      if (appMode === 'app') {
         ipcRenderer.send('open-link-in-browser', 'http://evidential.com/');
       } else {
         win = window.open('http://evidential.com/', '_blank');

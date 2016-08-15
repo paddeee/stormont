@@ -321,7 +321,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }.bind(this));
 
       // Set the src of the image if inside Electron
-      if (typeof process === 'object') {
+      if (appMode === 'app') {
 
         // Determine if on network on offline
         if (presentationMode === 'online') {

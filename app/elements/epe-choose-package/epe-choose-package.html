@@ -192,7 +192,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     ready: function() {
 
-      if (typeof process === 'object') {
+      if (appMode === 'app') {
 
         // Listen to Electron when file is selected
         ipcRenderer.on('directory-selected', function (event, arg) {
@@ -236,7 +236,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     choosePackageTapped: function() {
 
       // Perform export if in packaged app. Otherwise log so we know it won't work in browser
-      if (typeof process === 'object') {
+      if (appMode === 'app') {
         ipcRenderer.send('show-open-dialog', 'directory');
       } else {
         console.warn('Can\'t import in browser');
@@ -257,7 +257,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (event.keyCode === 13) {
 
         // Perform export if in packaged app. Otherwise log to alert that it won't work in browser
-        if (typeof process === 'object') {
+        if (appMode === 'app') {
 
           // Let User select a location from file explorer
           packagePassword = event.target.value;
@@ -290,7 +290,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var win;
 
-      if (typeof process === 'object') {
+      if (appMode === 'app') {
         ipcRenderer.send('open-link-in-browser', 'http://evidential.com/');
       } else {
         win = window.open('http://evidential.com/', '_blank');

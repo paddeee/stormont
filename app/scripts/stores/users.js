@@ -4,8 +4,8 @@
 var ActiveDirectory = global.config ? window.electronRequire('activedirectory') : null;
 var Reflux = require('reflux');
 var UserActions = require('../actions/users.js');
-var config = presentationMode ? global.config : require('../config/config.js');
-var roles = presentationMode ? global.roles : require('../config/roles.js');
+var config = appMode === 'app' ? global.config : require('../config/config.js');
+var roles = appMode === 'app' ? global.roles : require('../config/roles.js');
 
 module.exports = Reflux.createStore({
 

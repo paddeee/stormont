@@ -505,7 +505,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }.bind(this));
         }
 
-        if (typeof process === 'object') {
+        if (appMode === 'app') {
 
           // Listen to Electron when directory is selected
           ipcRenderer.on('no-external-display', function () {
@@ -745,7 +745,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Hide Publish button if in browser
       hidePublishButton: function() {
 
-        if (typeof process === 'object') {
+        if (appMode === 'app') {
           return false;
         }
         return true;
@@ -858,7 +858,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.$.InActivityMask.removeAttribute('hidden');
         });
 
-        if (typeof process === 'object') {
+        if (appMode === 'app') {
           ipcRenderer.send('lock-application', 'lock');
         }
       },
@@ -872,7 +872,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.$.paperDrawerPanel.removeAttribute('hidden');
         });
 
-        if (typeof process === 'object') {
+        if (appMode === 'app') {
           ipcRenderer.send('lock-application', 'unlock');
         }
       },
@@ -889,7 +889,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         this.courtMode = event.currentTarget.active;
 
-        if (typeof process === 'object') {
+        if (appMode === 'app') {
           ipcRenderer.send('court-mode-changed', event.currentTarget.active);
         } else {
           console.warn('No Court Mode in browser');
@@ -902,7 +902,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.courtMode = event.detail;
         this.$.CourtModeToggle.checked = event.detail;
 
-        if (typeof process === 'object') {
+        if (appMode === 'app') {
           ipcRenderer.send('court-mode-changed', event.detail);
         } else {
           console.warn('No Court Mode in browser');

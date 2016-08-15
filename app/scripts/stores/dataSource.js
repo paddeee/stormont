@@ -1,12 +1,12 @@
 'use strict';
 
 var Reflux = require('reflux');
-var config = presentationMode ? global.config : require('../config/config.js');
+var config = appMode === 'app' ? global.config : require('../config/config.js');
 var loki = require('lokijs');
 var fileAdapter = require('../adapters/loki-file-adapter.js');
 var DataSourceActions = require('../actions/dataSource.js');
 var loggingStore = require('../stores/logging.js');
-var fs = presentationMode ? window.electronRequire('fs') : require('browserify-fs');
+var fs = appMode === 'app' ? window.electronRequire('fs') : require('browserify-fs');
 
 module.exports = Reflux.createStore({
 

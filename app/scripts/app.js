@@ -25,15 +25,15 @@ var userActions = require('./actions/users.js');
 var userStore = require('./stores/users.js');
 var presentationsActions = require('./actions/presentations.js');
 var importPackageActions = require('./actions/importPackage.js');
-var importPackageStore = presentationMode ? require('./stores/importPackage.js') : null;
+var importPackageStore = appMode === 'app' ? require('./stores/importPackage.js') : null;
 var presentationsStore = require('./stores/presentations.js');
 var importActions = require('./actions/import.js');
 var importStore = require('./stores/import.js');
 var exportActions = require('./actions/export.js');
-var exportStore = presentationMode ? require('./stores/export.js') : null;
+var exportStore = appMode === 'app' ? require('./stores/export.js') : null;
 var loggingStore = require('./stores/logging.js');
 var screenActions = require('./actions/screen.js');
-var screenStore = presentationMode ? require('./stores/screen.js') : null;
+var screenStore = appMode === 'app' ? require('./stores/screen.js') : null;
 var mapGeoJsonStore = require('./stores/mapGeoJSON.js');
 var timeLineStore = require('./stores/timeLine.js');
 
@@ -46,6 +46,7 @@ var timeLineStore = require('./stores/timeLine.js');
   var app = document.querySelector('#app');
 
   // Set required modules as attributes on app
+  app.appMode = appMode;
   app.presentationMode = presentationMode;
   app.reflux = reflux;
   app.moment = moment;

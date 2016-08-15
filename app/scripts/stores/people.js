@@ -2,13 +2,13 @@
 
 var Reflux = require('reflux');
 var dataSourceStore = require('../stores/dataSource.js');
-var config = presentationMode ? global.config : require('../config/config.js');
+var config = appMode === 'app' ? global.config : require('../config/config.js');
 var presentationsStore = require('../stores/presentations.js');
 var PeopleActions = require('../actions/people.js');
 var importPackageStore = require('../stores/importPackage.js');
-var fsExtra = presentationMode ? window.electronRequire('fs-extra') : null;
-var crypto = presentationMode ? window.electronRequire('crypto') : null;
-var getRawBody = presentationMode ? window.electronRequire('raw-body') : null;
+var fsExtra = appMode === 'app' ? window.electronRequire('fs-extra') : null;
+var crypto = appMode === 'app' ? window.electronRequire('crypto') : null;
+var getRawBody = appMode === 'app' ? window.electronRequire('raw-body') : null;
 
 module.exports = Reflux.createStore({
 

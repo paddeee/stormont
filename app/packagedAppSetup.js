@@ -5,8 +5,15 @@ var electronRequire;
 var ipcRenderer;
 var remote;
 var presentationMode;
+var appMode;
 
 if (typeof process === 'object') {
+  appMode = 'app';
+} else {
+  appMode = 'browser';
+}
+
+if (appMode === 'app') {
 
   remote = require('electron').remote;
 

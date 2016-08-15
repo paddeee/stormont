@@ -952,7 +952,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Send message to Electron to quit the app
       quitAppConfirmed: function() {
-        if (typeof process === 'object') {
+        if (appMode === 'app') {
           ipcRenderer.send('quit-app');
         } else {
           console.warn('Cannot close application in browser');

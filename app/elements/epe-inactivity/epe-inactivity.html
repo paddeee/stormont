@@ -145,7 +145,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (event.keyCode === 13) {
 
           // Perform export if in packaged app. Otherwise log to alert that it won't work in browser
-          if (typeof process === 'object') {
+          if (appMode === 'app') {
 
             // Let User select a location from file explorer
             packagePassword = event.target.value;

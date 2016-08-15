@@ -5,7 +5,7 @@ var QueryBuilderActions = require('../actions/queryBuilder.js');
 var dataSourceStore = require('../stores/dataSource.js');
 var presentationsStore = require('../stores/presentations.js');
 var importPackageStore = require('../stores/importPackage.js');
-config = presentationMode ? global.config : require('../config/config.js');
+var config = appMode === 'app' ? global.config : require('../config/config.js');
 
 module.exports = Reflux.createStore({
 

@@ -2,11 +2,11 @@
 
 const Reflux = require('reflux');
 const moment = require('moment');
-const config = presentationMode ? global.config : require('../config/config.js');
+const config = appMode === 'app' ? global.config : require('../config/config.js');
 const usersStore = require('../stores/users.js');
-const fsExtra = presentationMode ? window.electronRequire('fs-extra') : null;
-const path = presentationMode ? window.electronRequire('path') : null;
-const winston = presentationMode ? window.electronRequire('winston') : null;
+const fsExtra = appMode === 'app' ? window.electronRequire('fs-extra') : null;
+const path = appMode === 'app' ? window.electronRequire('path') : null;
+const winston = appMode === 'app' ? window.electronRequire('winston') : null;
 
 module.exports = Reflux.createStore({
 

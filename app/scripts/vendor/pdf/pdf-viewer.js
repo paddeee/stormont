@@ -7281,7 +7281,7 @@ function webViewerInitialized($pdfViewerElement) {
   var file;
 
   // Set the src of the image if inside Electron
-  if (typeof process === 'object') {
+  if (appMode === 'app') {
 
     // Use roles to determine if on network on offline
     if (presentationMode === 'online') {

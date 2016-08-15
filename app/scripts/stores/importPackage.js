@@ -5,9 +5,9 @@ var loki = require('lokijs');
 var importFileAdapter = require('../adapters/loki-import-file-adapter.js');
 var ImportPackageActions = require('../actions/importPackage.js');
 var dataSourceStore = require('../stores/dataSource.js');
-var fsExtra = presentationMode ? window.electronRequire('fs-extra') : null;
-var crypto = presentationMode ? window.electronRequire('crypto') : null;
-var getRawBody = presentationMode ? window.electronRequire('raw-body') : null;
+var fsExtra = appMode === 'app' ? window.electronRequire('fs-extra') : null;
+var crypto = appMode === 'app' ? window.electronRequire('crypto') : null;
+var getRawBody = appMode === 'app' ? window.electronRequire('raw-body') : null;
 
 module.exports = Reflux.createStore({
 
