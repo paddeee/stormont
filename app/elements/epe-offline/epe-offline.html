@@ -940,16 +940,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       navigateToDataGrid: function() {
 
         switch (this.currentDataGrid) {
-          case config.EventsCollection.name:
+          case app.config.EventsCollection.name:
             page('/create-package/data-grid/Event');
             break;
-          case config.PlacesCollection.name:
+          case app.config.PlacesCollection.name:
             page('/create-package/data-grid/Place');
             break;
-          case config.PeopleCollection.name:
+          case app.config.PeopleCollection.name:
             page('/create-package/data-grid/Person');
             break;
-          case config.SourcesCollection.name:
+          case app.config.SourcesCollection.name:
             page('/create-package/data-grid/Document');
             break;
           default:

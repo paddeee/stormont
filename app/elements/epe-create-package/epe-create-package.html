@@ -331,24 +331,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       setUpGrid: function(collectionName) {
 
         switch (collectionName) {
-          case config.EventsCollection.name:
+          case app.config.EventsCollection.name:
             this.gridData = this.eventsData;
-            this.sortingState = this.eventsStore.filterTransform[config.EventsCollection.name].sorting;
+            this.sortingState = this.eventsStore.filterTransform[app.config.EventsCollection.name].sorting;
             this.showAllSelected = this.eventsStore.showAllSelected;
             break;
-          case config.PlacesCollection.name:
+          case app.config.PlacesCollection.name:
             this.gridData = this.placesData;
-            this.sortingState = this.placesStore.filterTransform[config.PlacesCollection.name].sorting;
+            this.sortingState = this.placesStore.filterTransform[app.config.PlacesCollection.name].sorting;
             this.showAllSelected = this.placesStore.showAllSelected;
             break;
-          case config.PeopleCollection.name:
+          case app.config.PeopleCollection.name:
             this.gridData = this.peopleData;
-            this.sortingState = this.peopleStore.filterTransform[config.PeopleCollection.name].sorting;
+            this.sortingState = this.peopleStore.filterTransform[app.config.PeopleCollection.name].sorting;
             this.showAllSelected = this.peopleStore.showAllSelected;
             break;
-          case config.SourcesCollection.name:
+          case app.config.SourcesCollection.name:
             this.gridData = this.sourceData;
-            this.sortingState = this.sourceStore.filterTransform[config.SourcesCollection.name].sorting;
+            this.sortingState = this.sourceStore.filterTransform[app.config.SourcesCollection.name].sorting;
             this.showAllSelected = this.sourceStore.showAllSelected;
             break;
           default:

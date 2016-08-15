@@ -1012,11 +1012,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var className = 'event-card--default';
       var mainCategory;
 
-      config.Categories.sub.forEach(function(subCategory) {
+      app.config.Categories.sub.forEach(function(subCategory) {
 
         if (subCategory.name.toLowerCase() === this.activeEventData.type.toLowerCase()) {
 
-          mainCategory = config.Categories.main.find(function(category) {
+          mainCategory = app.config.Categories.main.find(function(category) {
             return category.name.toLowerCase() === subCategory.category.toLowerCase();
           });
 
@@ -1122,19 +1122,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var mapTilesDirectories = '/{z}/{x}/{y}.png';
       var satelliteMapTilesDirectories = '/{z}/{x}/{y}.jpg';
       var $tilesButton = this.querySelector('.toggle-tiles-control');
-      var mapTilesPath;
-      var satelliteMapTilesPath;
+      var mapTilesPath = '';
+      var satelliteMapTilesPath = '';
 
-      if (!config) {
+      if (!app.config) {
         return;
       }
 
-      if (presentationMode === 'online') {
-        mapTilesPath = config.paths.mapTiles;
-        satelliteMapTilesPath = config.paths.satelliteMapTiles;
-      } else if (presentationMode === 'offline') {
-        mapTilesPath = config.packagePath + '/mapTiles';
-        satelliteMapTilesPath = config.packagePath + '/satelliteMapTiles';
+      if (appMode === 'app') {
+
+        if (presentationMode === 'online') {
+          mapTilesPath = app.config.paths.mapTiles;
+          satelliteMapTilesPath = app.config.paths.satelliteMapTiles;
+        } else if (presentationMode === 'offline') {
+          mapTilesPath = global.config.packagePath + '/mapTiles';
+          satelliteMapTilesPath = global.config.packagePath + '/satelliteMapTiles';
+        }
       }
 
       // Map tiles
@@ -1223,7 +1226,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       this.mapLegend = [];
 
-      config.Categories.main.forEach(function(mainCategory) {
+      app.config.Categories.main.forEach(function(mainCategory) {
 
         var subCategories;
         var legendObject = {
@@ -1232,7 +1235,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           categories: []
         };
 
-        subCategories = config.Categories.sub.filter(function(subCategory) {
+        subCategories = app.config.Categories.sub.filter(function(subCategory) {
           return legendObject.categoryType.toLowerCase() === subCategory.category.toLowerCase();
         });
 

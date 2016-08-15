@@ -325,7 +325,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Determine if on network on offline
         if (presentationMode === 'online') {
-          sourcePath = config.paths.sourcePath;
+          sourcePath = app.config.paths.sourcePath;
           this.imageSource = sourcePath + this.imageObject['Linked File'];
         } else if (presentationMode === 'offline') {
           sourcePath = global.config.packagePath;

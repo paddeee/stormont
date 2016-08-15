@@ -99,12 +99,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.importPackageStore.listen(function (importPackageStore) {
 
             if (importPackageStore.message === 'importSuccess') {
-              this.inactivityTimeOut = config.activityTimeout;
+              this.inactivityTimeOut = global.config.activityTimeout;
             }
           });
 
         } else {
-          this.inactivityTimeOut = config.activityTimeout;
+          this.inactivityTimeOut = app.config.activityTimeout;
         }
 
         this.setSessionExpireTimeOut();

@@ -8,6 +8,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 */
 var reflux = require('reflux');
 var moment = require('moment');
+var config = appMode === 'app' ? global.config : require('./config/config.js');
 var CSVParser = require('./vendor/harb-customised.js');
 var dataSourceActions = require('./actions/dataSource.js');
 var selectedRecordsActions = require('./actions/selectedRecords.js');
@@ -47,6 +48,7 @@ var timeLineStore = require('./stores/timeLine.js');
 
   // Set required modules as attributes on app
   app.appMode = appMode;
+  app.config = config;
   app.presentationMode = presentationMode;
   app.reflux = reflux;
   app.moment = moment;

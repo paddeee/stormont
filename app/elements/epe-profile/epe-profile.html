@@ -431,7 +431,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (appMode === 'app') {
 
         if (presentationMode === 'online') {
-          profilesPath = config.paths.profilesPath;
+          profilesPath = app.config.paths.profilesPath;
         } else if (presentationMode === 'offline') {
           profilesPath = global.config.packagePath + '/profiles';
         }
@@ -633,11 +633,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var category;
 
-      category = config.Categories.sub.find(function(subCategory) {
+      category = app.config.Categories.sub.find(function(subCategory) {
         return item.Type.toLowerCase() === subCategory.name.toLowerCase();
       });
 
-      return config.Categories.main.find(function(mainCategory) {
+      return app.config.Categories.main.find(function(mainCategory) {
         return mainCategory.name === category.category;
       }).colour;
     }

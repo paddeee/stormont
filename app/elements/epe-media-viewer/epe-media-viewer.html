@@ -321,7 +321,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           // Use roles to determine if on network on offline
           if (presentationMode === 'online') {
-            this.videoSource = config.paths.sourcePath + this.mediaObject['Linked File'];
+            this.videoSource = app.config.paths.sourcePath + this.mediaObject['Linked File'];
           } else if (presentationMode === 'offline') {
             this.videoSource = URL.createObjectURL(new Blob([this.mediaObject.blob]));
           }
@@ -512,7 +512,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           if (presentationMode === 'online') {
 
-            sourcePath = config.paths.sourcePath;
+            sourcePath = app.config.paths.sourcePath;
 
             if (this.useWaveSurfer) {
 
