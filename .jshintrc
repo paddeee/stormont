@@ -30,6 +30,7 @@
     "config": true,
     "configPath": true,
     "ipcRenderer": true,
+    "appMode": true,
     "presentationMode": true,
     "EpeCreatePackage": true,
     "EpeEditPackage": true,
