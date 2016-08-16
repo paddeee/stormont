@@ -637,7 +637,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           // If marker to jump to exists as marker on the map
           if (this.activeEvent === feature.feature.properties.id.toString()) {
-
             this.handlePopup(feature);
           }
         }.bind(this));
@@ -700,16 +699,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           if (clusterLayer.hasLayer(feature)) {
 
-            // Pan and zoom into the cluster or just to a marker if zoomed in enough already
-            clusterLayer.zoomToShowLayer(feature, function () {
+            if (!this.clustering && this.navigationType === 'All') {
+              this.zoomToFitBounds();
 
-              if (!this.clustering && this.navigationType === 'All') {
-                this.zoomToFitBounds();
-              }
+              // Set marker to top.
+              this.setActiveMarkerToTop(feature);
 
               // Open marker popup
               feature.openPopup();
-            }.bind(this));
+            } else {
+
+              // Pan and zoom into the cluster or just to a marker if zoomed in enough already
+              clusterLayer.zoomToShowLayer(feature, function () {
+
+                // Set marker to top.
+                this.setActiveMarkerToTop(feature);
+
+                // Open marker popup
+                feature.openPopup();
+              }.bind(this));
+            }
+
           }
 
           // If a Line or Polygon
@@ -726,6 +736,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
           }
         }
+      },
+
+      // Set marker to top. Increment by maximum number of events so it will always be on top
+      setActiveMarkerToTop: function(feature) {
+
+        // Reset last active marker to original z-index
+        if (this.lastActiveFeature) {
+          this.lastActiveFeature.setZIndexOffset(this.lastActiveFeatureZIndex);
+        }
+
+        // Keep refernce of the current features z-index
+        this.lastActiveFeature = feature;
+        this.lastActiveFeatureZIndex = feature.options.zIndexOffset;
+
+        // Set new z-index to number of selected events
+        this.markerZIndex = this.features.length + 1;
+        feature.setZIndexOffset(this.markerZIndex);
       },
 
       // When a popup is opened

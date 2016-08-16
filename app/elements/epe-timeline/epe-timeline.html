@@ -373,15 +373,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.noRelatedEvent = false;
 
         // If the navigation has no next event, do nothing
-        if (this.$.PreviousButton.disabled === true || this.timeLineNavDisabled) {
+        if (this.$.PreviousButton.disabled === true || this.timeLineNavigationDisabled) {
           return;
         }
 
-        this.timeLineNavDisabled = true;
+        this.timeLineNavigationDisabled = true;
 
         // Briefly disable navigating to prevent issue where events start cycling through automatically
         this.async(function() {
-          this.timeLineNavDisabled = false;
+          this.timeLineNavigationDisabled = false;
         }, 600);
 
         this.timeLine.goToPrev();
@@ -393,15 +393,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.noRelatedEvent = false;
 
         // If the navigation has no next event, do nothing
-        if (this.$.NextButton.disabled === true || this.timeLineNavDisabled) {
+        if (this.$.NextButton.disabled === true || this.timeLineNavigationDisabled) {
           return;
         }
 
-        this.timeLineNavDisabled = true;
+        this.timeLineNavigationDisabled = true;
 
         // Briefly disable navigating to prevent issue where events start cycling through automatically
         this.async(function() {
-          this.timeLineNavDisabled = false;
+          this.timeLineNavigationDisabled = false;
         }, 600);
 
         this.timeLine.goToNext();
