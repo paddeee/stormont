@@ -285,7 +285,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           reader.onloadend = this.sheetLoaded.bind(this);
 
-          reader.readAsBinaryString(file);
+          reader.readAsText(file);
 
         }.bind(this), function() {
           console.error('Error retrieving file from HTML5 File System');
