@@ -509,12 +509,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       yubiKeyPasswordPrefix: {
         type: String,
-        value: ''
+        value: 'the1atics'
       },
 
       yubiKeyPasswordLength: {
         type: Number,
-        value: 0
+        value: 9
       }
     },
 
@@ -835,20 +835,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // When the Yubikey Password has been entered
     yubiKeyPressed: function(event) {
 
-      this.yubiKeyPassword = event.target.value;
-
-      // YubiKeyPassword must start with sitf and be 35 characters in length
-      if (this.yubiKeyPassword.indexOf(this.yubiKeyPasswordPrefix) !== 0 || this.yubiKeyPassword.length !== this.yubiKeyPasswordLength) {
-
-        this.$.ExportPassword.value = null;
-        this.$.YubiKeyPassword.value = null;
-        this.$.YubiKeyDialog.close();
-        this.$.InvalidYubiKeyDialog.open();
-        return;
-      }
-
       // YubiKey will press enter after entering its password
       if (event.keyCode === 13) {
+
+        this.yubiKeyPassword = event.target.value;
+
+        // YubiKeyPassword must start with sitf and be 35 characters in length
+        if (this.yubiKeyPassword.indexOf(this.yubiKeyPasswordPrefix) !== 0 || this.yubiKeyPassword.length !== this.yubiKeyPasswordLength) {
+
+          this.$.ExportPassword.value = null;
+          this.$.YubiKeyPassword.value = null;
+          this.$.YubiKeyDialog.close();
+          this.$.InvalidYubiKeyDialog.open();
+          return;
+        }
 
         // Perform export if in packaged app. Otherwise log to alert that it won't work in browser
         if (appMode === 'app') {

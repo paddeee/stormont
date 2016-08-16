@@ -369,13 +369,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Got to previous event
       goToPrevious: function() {
+
         this.noRelatedEvent = false;
+
+        // If the navigation has no next event, do nothing
+        if (this.$.PreviousButton.disabled === true || this.timeLineNavDisabled) {
+          return;
+        }
+
+        this.timeLineNavDisabled = true;
+
+        // Briefly disable navigating to prevent issue where events start cycling through automatically
+        this.async(function() {
+          this.timeLineNavDisabled = false;
+        }, 600);
+
         this.timeLine.goToPrev();
       },
 
       // Got to next event
       goToNext: function() {
+
         this.noRelatedEvent = false;
+
+        // If the navigation has no next event, do nothing
+        if (this.$.NextButton.disabled === true || this.timeLineNavDisabled) {
+          return;
+        }
+
+        this.timeLineNavDisabled = true;
+
+        // Briefly disable navigating to prevent issue where events start cycling through automatically
+        this.async(function() {
+          this.timeLineNavDisabled = false;
+        }, 600);
+
         this.timeLine.goToNext();
       },
 

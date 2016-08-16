@@ -344,7 +344,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           } else {
             return;
           }
-        });
+        }.bind(this));
 
         // Set Style Depending on Geometry Category
         switch (mainCategoryColour) {
@@ -416,7 +416,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             className = mainCategory.colour;
           }
-        });
+        }.bind(this));
 
         return className;
       },
@@ -448,7 +448,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             markerToSet.options.icon = subCategory.icon;
             markerToSet.options.markerColor = mainCategory.colour;
           }
-        });
+        }.bind(this));
 
         marker.setIcon(markerToSet);
         return;
