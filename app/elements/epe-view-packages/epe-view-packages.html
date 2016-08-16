@@ -195,6 +195,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     .filters__field:first-child {
       margin: 16px 8px 0 0;
     }
+
+    .yubikey-password {
+      height: 0;
+      overflow: hidden;
+    }
   </style>
   <template>
 
@@ -331,14 +336,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-input
           id="ExportPassword"
           class="export-package"
-          label="Enter Package Password, Then Hold Down YubiKey Button"
+          label="Enter Package Password"
           type="password"
-          autofocus
-          on-keypress="yubiKeyPressed"></paper-input>
+          on-keypress="packagePasswordPressed"
+          autofocus></paper-input>
 
       </div>
       <div class="buttons">
         <paper-button dialog-confirm autofocus>Cancel</paper-button>
+        <paper-button on-tap="confirmPassword" autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="YubiKeyDialog"
+                  class="export-dialog"
+                  modal>
+      <h2>Export Package</h2>
+      <div>
+        <p>Insert Yubikey and hold down button to Export Package.</p>
+        <div class="yubikey-password">
+          <input
+            id="YubiKeyPassword"
+            autofocus
+            type="password"
+            on-blur="yubiKeyPasswordBlurred"
+            on-keypress="yubiKeyPressed"></input>
+        </div>
+        <div class="buttons layout horizontal">
+          <paper-button dialog-confirm>Cancel</paper-button>
+          <paper-button on-tap="backToExportDialog">Back To Package Password</paper-button>
+        </div>
       </div>
     </paper-dialog>
 
@@ -426,6 +453,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
     </paper-dialog>
 
+    <paper-dialog id="NoPasswordDialog" modal>
+      <h2>Please enter a Package Password.</h2>
+      <div class="buttons layout horizontal">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="InvalidYubiKeyDialog" modal>
+      <h2>Invalid YubiKey</h2>
+      <div>
+        <span>There is a problem with the YubiKey. Please contact an administrator.</span>
+      </div>
+      <div class="buttons layout horizontal">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
   </template>
 </dom-module>
 <script>
@@ -461,6 +505,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       exportFailureMessage: {
         type: String,
         value: ''
+      },
+
+      yubiKeyPasswordPrefix: {
+        type: String,
+        value: ''
+      },
+
+      yubiKeyPasswordLength: {
+        type: Number,
+        value: 0
       }
     },
 
@@ -739,14 +793,57 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.dataSourceActions.deletePresentation(this.presentationForDeletion);
     },
 
+    // When a key is pressed entering Package Password
+    packagePasswordPressed: function(event) {
+
+      // YubiKey will press enter after entering its password
+      if (event.keyCode === 13) {
+        this.confirmPassword();
+      }
+      return;
+    },
+
+    // When the package password is entered and OK button pressed
+    confirmPassword: function() {
+
+      this.packagePassword = this.$.ExportPassword.value;
+      this.filteredOrSelected = this.$.FilteredOrSelected.selected;
+
+      // Show message if no directory chosen
+      if (this.exportLocation === 'Not selected..') {
+        this.$.NoLocationDialog.open();
+        return;
+      }
+
+      // Show message if No password entered
+      if (!this.packagePassword.length) {
+        this.$.NoPasswordDialog.open();
+        return;
+      }
+
+      this.$.ExportDialog.close();
+      this.$.YubiKeyDialog.open();
+    },
+
+    // When Back is pressed on YubiKey Dialog
+    backToExportDialog: function() {
+
+      this.$.ExportDialog.open();
+      this.$.YubiKeyDialog.close();
+    },
+
     // When the Yubikey Password has been entered
     yubiKeyPressed: function(event) {
 
-      var packagePassword;
-      var filteredOrSelected;
+      this.yubiKeyPassword = event.target.value;
 
-      if (this.exportLocation === 'Not selected..') {
-        this.$.NoLocationDialog.open();
+      // YubiKeyPassword must start with sitf and be 35 characters in length
+      if (this.yubiKeyPassword.indexOf(this.yubiKeyPasswordPrefix) !== 0 || this.yubiKeyPassword.length !== this.yubiKeyPasswordLength) {
+
+        this.$.ExportPassword.value = null;
+        this.$.YubiKeyPassword.value = null;
+        this.$.YubiKeyDialog.close();
+        this.$.InvalidYubiKeyDialog.open();
         return;
       }
 
@@ -756,13 +853,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Perform export if in packaged app. Otherwise log to alert that it won't work in browser
         if (appMode === 'app') {
 
-          // Let User select a location from file explorer
-          packagePassword = event.target.value;
-          filteredOrSelected = this.$.FilteredOrSelected.selected;
-
           // Close the Export Dialog and reset the password field
           this.$.ExportPassword.value = null;
-          this.$.ExportDialog.close();
+          this.$.YubiKeyPassword.value = null;
+          this.$.YubiKeyDialog.close();
 
           // Open the Exporting Loading Dialog
           this.$.ExportingPackage.open();
@@ -775,14 +869,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.exportActions.exportPresentation({
             packageName: this.presentationForExport,
             packageLocation: this.exportLocation,
-            packagePassword: packagePassword,
-            filteredOrSelected: filteredOrSelected
+            packagePassword: this.packagePassword + this.yubiKeyPassword,
+            filteredOrSelected: this.filteredOrSelected
           });
 
         } else {
           console.warn('Export not available in browser mode');
         }
       }
+    },
+
+    // If YubiKey Password gets blurred and the dialog is showing, focus it again
+    yubiKeyPasswordBlurred: function() {
+
+      this.async(function() {
+
+        if (this.$.YubiKeyDialog.opened) {
+          this.$.YubiKeyPassword.focus();
+        }
+      }, 500);
     },
 
     // Delete Package action button
@@ -821,7 +926,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Send message to electron to open Open Dialog
     exportLocationTapped: function() {
-      ipcRenderer.send('show-open-dialog', 'directory');
+
+      if (appMode === 'app') {
+        ipcRenderer.send('show-open-dialog', 'directory');
+      } else {
+        console.warn('Does not work in browser');
+      }
     },
 
     // When data changes make sure all Export buttons are displayed or hidden correctly
