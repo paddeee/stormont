@@ -334,6 +334,13 @@ module.exports = Reflux.createStore({
     return validItem;
   },
 
+  // Update the current profile when selected records are changed
+  updateProfile: function() {
+    if (this.selectedProfileObject) {
+      this.viewProfile(this.selectedProfileObject.$loki);
+    }
+  },
+
   // Called when a user attempts to view a profile
   viewProfile: function(profileId) {
 

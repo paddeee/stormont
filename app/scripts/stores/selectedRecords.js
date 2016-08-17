@@ -93,6 +93,9 @@ module.exports = Reflux.createStore({
       type: 'selectedRecordsUpdated'
     };
 
+    // Update Profile View
+    peopleStore.updateProfile();
+
     this.trigger(this);
   },
 

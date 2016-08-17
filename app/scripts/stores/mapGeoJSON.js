@@ -16,7 +16,7 @@ module.exports = Reflux.createStore({
     // Register importPackageStore's changes
     this.listenTo(importPackageStore, this.importPackageChanged);
 
-    // Register dataSourceStores's changes
+    // Register selectedRecordsStore's changes
     this.listenTo(selectedRecordsStore, this.selectedRecordStoreUpdated);
   },
 
