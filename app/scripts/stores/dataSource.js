@@ -44,8 +44,6 @@ module.exports = Reflux.createStore({
 
     return new Promise(function (resolve) {
 
-      console.log('getLatestDatabase called');
-
       this.latestDB = new loki('SITF.json', {
         adapter: fileAdapter
       });
@@ -121,7 +119,9 @@ module.exports = Reflux.createStore({
         }.bind(this));
       }.bind(this))
       .catch(function(error) {
-        console.log(error);
+
+        this.logError('SAVE PRESENTATION DATABASE SYNC FAILURE', error);
+
         this.message = 'syncDBError';
         this.trigger(this);
         this.message = '';
@@ -178,7 +178,9 @@ module.exports = Reflux.createStore({
         }.bind(this));
       }.bind(this))
       .catch(function(error) {
-          console.log(error);
+
+          this.logError('UPDATE PRESENTATION DATABASE SYNC FAILURE', error);
+
           this.message = 'syncDBError';
           this.trigger(this);
           this.message = '';
@@ -221,7 +223,9 @@ module.exports = Reflux.createStore({
 
         }.bind(this))
         .catch(function(error) {
-          console.log(error);
+
+          this.logError('DELETE PRESENTATION DATABASE SYNC FAILURE', error);
+
           this.message = 'syncDBError';
           this.trigger(this);
           this.message = '';
@@ -394,6 +398,19 @@ module.exports = Reflux.createStore({
       } else if (type === 'unapproved') {
         loggingStore.packageUnapproved(saveLogObject);
       }
+    }
+  },
+
+  // Log on package creation or update
+  logError: function(errorType, errorMessage) {
+
+    var errorObject = {
+      type: errorType,
+      message: errorMessage
+    };
+
+    if (appMode === 'app') {
+      loggingStore.logError(errorObject);
     }
   },
 

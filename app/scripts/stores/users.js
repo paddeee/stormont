@@ -6,6 +6,7 @@ var Reflux = require('reflux');
 var UserActions = require('../actions/users.js');
 var config = appMode === 'app' ? global.config : require('../config/config.js');
 var roles = appMode === 'app' ? global.roles : require('../config/roles.js');
+var loggingStore = require('../stores/logging.js');
 
 module.exports = Reflux.createStore({
 
@@ -47,7 +48,8 @@ module.exports = Reflux.createStore({
       }.bind(this))
     .catch(function(error) {
 
-      console.error(error);
+      this.logError('USER AUTHENITCATION FAILURE', error);
+
       this.user.status = 'loginError';
       this.user.message = error;
       this.trigger(this.user);
@@ -138,5 +140,18 @@ module.exports = Reflux.createStore({
     };
 
     this.trigger(this.user);
+  },
+
+  // Log on package creation or update
+  logError: function(errorType, errorMessage) {
+
+    var errorObject = {
+      type: errorType,
+      message: errorMessage
+    };
+
+    if (appMode === 'app') {
+      loggingStore.logError(errorObject);
+    }
   }
 });
