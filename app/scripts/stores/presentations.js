@@ -104,7 +104,15 @@ module.exports = Reflux.createStore({
   // When a presentation has its approvalStateChanged
   approvalStateChanged: function(presentation) {
 
+    var approved = '';
+
     this.lastAction = 'approvalStateChanged';
+
+    if (presentation.authoriserState === 'red') {
+      approved = 'unapproved';
+    } else if (presentation.authoriserState === 'green') {
+      approved = 'approved';
+    }
 
     // Update the model in the Presentations collection
     dataSourceStore.dataSource.getCollection('Presentations').update(presentation);
@@ -120,6 +128,7 @@ module.exports = Reflux.createStore({
           this.message = 'approvalStateDbError';
         } else {
           this.message = 'approvalStateChanged';
+          dataSourceStore.logPackageSave(approved, presentation.presentationName);
         }
 
         // Send object out to all listeners when database loaded

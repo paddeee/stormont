@@ -78,25 +78,25 @@ module.exports = Reflux.createStore({
     importObject.userName = usersStore.user.userName;
 
     // Check log file exists
-    fsExtra.ensureFile(path.join(config.paths.logPath, '/info.log'), function (err) {
+    fsExtra.ensureFile(path.join(config.paths.logPath, '/error.log'), function (err) {
 
       if (err) {
 
         this.message = {
           type: 'generalLoggingFailure',
-          text: 'There was a problem writing to logfile:' + config.paths.logPath + '/info.log. Please check file permissions.'
+          text: 'There was a problem writing to logfile:' + config.paths.logPath + '/error.log. Please check file permissions.'
         };
 
         this.trigger(this);
       } else {
 
-        this.logger.log('info', 'CASEMAP DATA IMPORT FAILED: %s imported by %s -- %s', importObject.directoryName, importObject.userName, importObject.errorMessage, function (err) {
+        this.logger.log('error', 'CASEMAP DATA IMPORT FAILED: %s imported by %s -- %s', importObject.directoryName, importObject.userName, importObject.errorMessage, function (err) {
 
           if (err) {
 
             this.message = {
               type: 'generalLoggingFailure',
-              text: 'There was a problem writing to logfile:' + config.paths.logPath + '/info.log. Please check file permissions.'
+              text: 'There was a problem writing to logfile:' + config.paths.logPath + '/error.log. Please check file permissions.'
             };
 
             this.trigger(this);
@@ -174,6 +174,74 @@ module.exports = Reflux.createStore({
     }.bind(this));
   },
 
+  // Log when a package is updated
+  packageApproved: function(packageObject) {
+
+    packageObject.userName = usersStore.user.userName;
+
+    // Check log file exists
+    fsExtra.ensureFile(path.join(config.paths.logPath, '/info.log'), function (err) {
+
+      if (err) {
+
+        this.message = {
+          type: 'generalLoggingFailure',
+          text: 'There was a problem writing to logfile:' + config.paths.logPath + '/info.log. Please check file permissions.'
+        };
+
+        this.trigger(this);
+      } else {
+
+        this.logger.log('info', 'PACKAGE APPROVED: %s approved by %s', packageObject.presentationName, packageObject.userName, function (err) {
+
+          if (err) {
+
+            this.message = {
+              type: 'generalLoggingFailure',
+              text: 'There was a problem writing to logfile:' + config.paths.logPath + '/info.log. Please check file permissions.'
+            };
+
+            this.trigger(this);
+          }
+        }.bind(this));
+      }
+    }.bind(this));
+  },
+
+  // Log when a package is updated
+  packageUnapproved: function(packageObject) {
+
+    packageObject.userName = usersStore.user.userName;
+
+    // Check log file exists
+    fsExtra.ensureFile(path.join(config.paths.logPath, '/info.log'), function (err) {
+
+      if (err) {
+
+        this.message = {
+          type: 'generalLoggingFailure',
+          text: 'There was a problem writing to logfile:' + config.paths.logPath + '/info.log. Please check file permissions.'
+        };
+
+        this.trigger(this);
+      } else {
+
+        this.logger.log('info', 'PACKAGE UNAPPROVED: %s unapproved by %s', packageObject.presentationName, packageObject.userName, function (err) {
+
+          if (err) {
+
+            this.message = {
+              type: 'generalLoggingFailure',
+              text: 'There was a problem writing to logfile:' + config.paths.logPath + '/info.log. Please check file permissions.'
+            };
+
+            this.trigger(this);
+          }
+        }.bind(this));
+      }
+    }.bind(this));
+  },
+
   // Log when a package is exported
   packageExported: function(packageObject) {
 
@@ -199,6 +267,38 @@ module.exports = Reflux.createStore({
             this.message = {
               type: 'generalLoggingFailure',
               text: 'There was a problem writing to logfile:' + config.paths.logPath + '/info.log. Please check file permissions.'
+            };
+
+            this.trigger(this);
+          }
+        }.bind(this));
+      }
+    }.bind(this));
+  },
+
+  // Log when an error occurs
+  logError: function(errorObject) {
+
+    // Check log file exists
+    fsExtra.ensureFile(path.join(config.paths.logPath, '/error.log'), function (err) {
+
+      if (err) {
+
+        this.message = {
+          type: 'generalLoggingFailure',
+          text: 'There was a problem writing to logfile:' + config.paths.logPath + '/error.log. Please check file permissions.'
+        };
+
+        this.trigger(this);
+      } else {
+
+        this.logger.log('error', '%s: %s', errorObject.type, errorObject.message, usersStore.user.userName, function (err) {
+
+          if (err) {
+
+            this.message = {
+              type: 'generalLoggingFailure',
+              text: 'There was a problem writing to logfile:' + config.paths.logPath + '/error.log. Please check file permissions.'
             };
 
             this.trigger(this);

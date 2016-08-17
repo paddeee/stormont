@@ -71,13 +71,19 @@ module.exports = Reflux.createStore({
               this.message = '';
             }.bind(this));
           }.bind(this))
-        .catch(function() {
+        .catch(function(error) {
+
+          console.warn('DATABASE DECRYPTION FAILURE', error);
+
           this.message = 'dbDecryptionFailure';
           this.trigger(this);
           this.message = '';
         }.bind(this));
       }.bind(this))
-      .catch(function() {
+      .catch(function(error) {
+
+        console.warn('CONFIG FILE DECRYPTION FAILURE', error);
+
         this.message = 'configDecryptionFailure';
         this.trigger(this);
         this.message = '';
@@ -95,8 +101,8 @@ module.exports = Reflux.createStore({
       // Decrypt content
       var decrypt = crypto.createDecipher('aes-256-ctr', packageObject.packagePassword);
 
-      configStream.on('error', function() {
-        reject();
+      configStream.on('error', function(error) {
+        reject(error);
       });
 
       // Start pipe
@@ -105,14 +111,14 @@ module.exports = Reflux.createStore({
           try {
             JSON.parse(buffer.toString());
             resolve(JSON.parse(buffer.toString()));
-          } catch (err) {
-            console.log('Error decrypting DataBase file: ' + err);
-            reject(err);
+          } catch (error) {
+            console.log('Error decrypting DataBase file: ' + error);
+            reject(error);
           }
         })
-        .catch(function (err) {
-          console.log('Error decrypting DataBase file: ' + err);
-          reject();
+        .catch(function (error) {
+          console.log('Error decrypting DataBase file: ' + error);
+          reject(error);
         });
     });
   },
@@ -128,8 +134,8 @@ module.exports = Reflux.createStore({
       // Decrypt content
       var decrypt = crypto.createDecipher('aes-256-ctr', packageObject.packagePassword);
 
-      dbStream.on('error', function() {
-        reject();
+      dbStream.on('error', function(error) {
+        reject(error);
       });
 
       // Start pipe
@@ -138,14 +144,14 @@ module.exports = Reflux.createStore({
           try {
             JSON.parse(buffer.toString());
             resolve(buffer.toString());
-          } catch (err) {
-            console.log('Error decrypting DataBase file: ' + err);
-            reject(err);
+          } catch (error) {
+            console.log('Error decrypting DataBase file: ' + error);
+            reject(error);
           }
         })
-        .catch(function (err) {
-          console.log('Error decrypting DataBase file: ' + err);
-          reject();
+        .catch(function (error) {
+          console.log('Error decrypting DataBase file: ' + error);
+          reject(error);
         });
     });
   },

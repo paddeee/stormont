@@ -128,8 +128,10 @@ module.exports = Reflux.createStore({
                           this.logPackageExport(presentationObject.packageName);
 
                         }.bind(this))
-                        .catch(function(reason) {
-                          console.error(reason);
+                        .catch(function(error) {
+
+                          this.logError('PROFILE IMAGES COPY FAILURE', error);
+
                           this.message = 'profileImagesCopyFailure';
 
                           // Delete temporary directory
@@ -138,8 +140,10 @@ module.exports = Reflux.createStore({
                           this.trigger(this);
                         }.bind(this));
                       }.bind(this))
-                      .catch(function(reason) {
-                        console.error(reason);
+                      .catch(function(error) {
+
+                        this.logError('SOURCE FILE COPY FAILURE', error);
+
                         this.message = 'sourceFileCopyFailure';
 
                         // Delete temporary directory
@@ -148,8 +152,10 @@ module.exports = Reflux.createStore({
                         this.trigger(this);
                       }.bind(this));
                     }.bind(this))
-                  .catch(function(reason) {
-                    console.error(reason);
+                  .catch(function(error) {
+
+                    this.logError('MAP TILES COPY FAILURE', error);
+
                     this.message = 'mapTilesCopyFailure';
 
                     // Delete temporary directory
@@ -158,8 +164,10 @@ module.exports = Reflux.createStore({
                     this.trigger(this);
                   }.bind(this));
                 }.bind(this))
-                .catch(function(reason) {
-                  console.error(reason);
+                .catch(function(error) {
+
+                  this.logError('CONFIG FILE ENCRYPTION FAILURE', error);
+
                   this.message = 'configFileEncryptionError';
 
                   // Delete temporary directory
@@ -168,8 +176,10 @@ module.exports = Reflux.createStore({
                   this.trigger(this);
                 }.bind(this));
               }.bind(this))
-              .catch(function(reason) {
-                console.error(reason);
+              .catch(function(error) {
+
+                this.logError('DATABASE FILE DELETION FAILURE', error);
+
                 this.message = 'dbFileDeletionError';
 
                 // Delete temporary directory
@@ -178,8 +188,10 @@ module.exports = Reflux.createStore({
                 this.trigger(this);
               }.bind(this));
           }.bind(this))
-      .catch(function(reason) {
-        console.error(reason);
+      .catch(function(error) {
+
+        this.logError('DATABASE FILE ENCRYPTION FAILURE', error);
+
         this.message = 'dbFileEncryptionError';
 
           // Delete temporary directory
@@ -188,8 +200,10 @@ module.exports = Reflux.createStore({
         this.trigger(this);
       }.bind(this));
     }.bind(this))
-    .catch(function(reason) {
-      console.error(reason);
+    .catch(function(error) {
+
+      this.logError('DATABASE FILE COPY FAILURE', error);
+
       this.message = 'dbCopyFailure';
 
       // Delete temporary directory
@@ -282,7 +296,7 @@ module.exports = Reflux.createStore({
 
     var packagePassword = this.packagePassword;
 
-    return new Promise(function (resolve) {
+    return new Promise(function (resolve, reject) {
 
       // Input file
       var configReadStream = fsExtra.createReadStream(configPath);
@@ -293,10 +307,26 @@ module.exports = Reflux.createStore({
       // Write file
       var configWriteStream = fsExtra.createWriteStream(tempExportDirectory + '/appConfig.json');
 
-      // Start pipe
-      configReadStream.pipe(encrypt).pipe(configWriteStream);
+      configReadStream.on('error', function(error) {
+        reject(error);
+        return;
+      });
 
-      resolve();
+      configWriteStream.on('error', function(error) {
+        reject(error);
+        return;
+      });
+
+      // Start pipe
+      configReadStream.on('open', function() {
+        configReadStream.pipe(encrypt).pipe(configWriteStream);
+      });
+
+      // Start pipe
+      configWriteStream.on('finish', function() {
+        resolve();
+      });
+
     });
   },
 
@@ -305,7 +335,7 @@ module.exports = Reflux.createStore({
 
     var packagePassword = this.packagePassword;
 
-    return new Promise(function (resolve) {
+    return new Promise(function (resolve, reject) {
 
       // Input file
       var dbReadStream = fsExtra.createReadStream(tempExportDirectory + '/' + exportDatabase.filename);
@@ -319,7 +349,25 @@ module.exports = Reflux.createStore({
       // Start pipe
       dbReadStream.pipe(encrypt).pipe(dbWriteStream);
 
-      resolve();
+      dbReadStream.on('error', function(error) {
+        reject(error);
+        return;
+      });
+
+      dbWriteStream.on('error', function(error) {
+        reject(error);
+        return;
+      });
+
+      // Start pipe
+      dbReadStream.on('open', function() {
+        dbReadStream.pipe(encrypt).pipe(dbWriteStream);
+      });
+
+      // Start pipe
+      dbWriteStream.on('finish', function() {
+        resolve();
+      });
     });
   },
 
@@ -524,5 +572,34 @@ module.exports = Reflux.createStore({
     if (global.config) {
       loggingStore.packageExported(exportLogObject);
     }
+  },
+
+  // Log on package creation or update
+  logError: function(errorType, errorMessage) {
+
+    var errorObject = {
+      type: errorType,
+      message: errorMessage
+    };
+
+    if (appMode === 'app') {
+      loggingStore.logError(errorObject);
+    }
+  },
+
+  // Delete the temporary Directory
+  deleteTempDirectory: function(tempExportDirectory) {
+
+    return new Promise(function (resolve, reject) {
+
+      fsExtra.remove(tempExportDirectory, function (err) {
+
+        if (err) {
+          reject(Error(err));
+        } else {
+          resolve();
+        }
+      }.bind(this));
+    });
   }
 });

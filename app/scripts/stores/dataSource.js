@@ -389,6 +389,10 @@ module.exports = Reflux.createStore({
         loggingStore.packageCreated(saveLogObject);
       } else if (type === 'updated') {
         loggingStore.packageUpdated(saveLogObject);
+      } else if (type === 'approved') {
+        loggingStore.packageApproved(saveLogObject);
+      } else if (type === 'unapproved') {
+        loggingStore.packageUnapproved(saveLogObject);
       }
     }
   },

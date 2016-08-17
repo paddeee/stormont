@@ -582,7 +582,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.exportStore.listen(function (exportStore) {
 
           if (exportStore.message) {
-            this.handleExportStoreBroadcast(exportStore.message);
+            this.handleExportStoreBroadcast(exportStore);
           }
         }.bind(this));
       }
@@ -599,19 +599,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Handle the broadcast from the export Store
-    handleExportStoreBroadcast: function(messageType) {
+    handleExportStoreBroadcast: function(exportStore) {
 
       // If no yubi key is inserted
-      if (messageType === 'noYubiKey') {
+      if (exportStore.message === 'noYubiKey') {
         this.message = 'Please insert your YubiKey to export this package.';
         this.$.NoYubiKeyDialog.open();
 
       // If a YubiKey is inserted
-      } else if (messageType === 'yubiKeyInserted') {
+      } else if (exportStore.message === 'yubiKeyInserted') {
           this.isSourceApproved();
 
       // Package successfully exported
-      } else if (messageType === 'exportSuccess') {
+      } else if (exportStore.message === 'exportSuccess') {
 
         // Reset location
         this.exportLocation = 'Not selected..';
@@ -620,38 +620,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.ExportingPackage.close();
 
       // Database Save error
-      } else if (messageType === 'dbCopyFailure') {
-        this.exportFailureMessage = 'There was a problem creating the export database File';
+      } else if (exportStore.message === 'dbCopyFailure') {
+        this.exportFailureMessage = 'There was a problem creating the export database File.';
         this.$.ExportErrorDialog.open();
         this.$.ExportingPackage.close();
 
         // Package export error
-      } else if (messageType === 'sourceFileCopyFailure') {
-        this.exportFailureMessage = 'There was a problem copying Source Files';
+      } else if (exportStore.message === 'sourceFileCopyFailure') {
+        this.exportFailureMessage = 'There was a problem copying Source Files.';
         this.$.ExportErrorDialog.open();
         this.$.ExportingPackage.close();
 
         // Package export error
-      } else if (messageType === 'profileImagesCopyFailure') {
-        this.exportFailureMessage = 'There was a problem copying Profile Images';
+      } else if (exportStore.message === 'profileImagesCopyFailure') {
+        this.exportFailureMessage = 'There was a problem copying Profile Images.';
         this.$.ExportErrorDialog.open();
         this.$.ExportingPackage.close();
 
         // Package export error
-      } else if (messageType === 'mapTilesCopyFailure') {
-        this.exportFailureMessage = 'There was a problem adding the Map Tiles to the package';
+      } else if (exportStore.message === 'mapTilesCopyFailure') {
+        this.exportFailureMessage = 'There was a problem adding the Map Tiles to the package.';
         this.$.ExportErrorDialog.open();
         this.$.ExportingPackage.close();
 
         // Package export error
-      } else if (messageType === 'dbFileEncryptionError') {
-        this.exportFailureMessage = 'There was a problem encrypting the database file';
+      } else if (exportStore.message === 'configFileEncryptionError') {
+        this.exportFailureMessage = 'There was a problem encrypting the config file.';
         this.$.ExportErrorDialog.open();
         this.$.ExportingPackage.close();
 
         // Package export error
-      } else if (messageType === 'dbFileDeletionError') {
-        this.exportFailureMessage = 'There was a problem deleting the DataBase file';
+      } else if (exportStore.message === 'dbFileEncryptionError') {
+        this.exportFailureMessage = 'There was a problem encrypting the database file.';
+        this.$.ExportErrorDialog.open();
+        this.$.ExportingPackage.close();
+
+        // Package export error
+      } else if (exportStore.message === 'dbFileDeletionError') {
+        this.exportFailureMessage = 'There was a problem deleting the DataBase file.';
         this.$.ExportErrorDialog.open();
         this.$.ExportingPackage.close();
       }
