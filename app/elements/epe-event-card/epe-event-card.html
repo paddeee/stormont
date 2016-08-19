@@ -555,7 +555,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.cardViewSelected = 3;
           break;
         default:
-          this.cardViewSelected = 0;
+          if (this.eventData.pointOfInterest) {
+            this.cardViewSelected = 1;
+          } else {
+            this.cardViewSelected = 0;
+          }
       }
     },
 
