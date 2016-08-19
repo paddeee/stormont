@@ -834,7 +834,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return;
       }
 
-      /*var southWest = {
+      var southWest = {
         lat: 36.66841891894786,
         lng: 16.226806640625
       };
@@ -843,7 +843,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         lng: 26.531982421874996
       };
 
-      this.$.LeafletMap.map.setMaxBounds(window.L.latLngBounds(southWest, northEast));*/
+      // In async to see if it fixes the infinite panning loop issue
+      this.async(function() {
+        this.$.LeafletMap.map.setMaxBounds(window.L.latLngBounds(southWest, northEast));
+      });
     },
 
     // Leaflet seems to need a kick to resize tiles when navigating to and from a map view
