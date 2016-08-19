@@ -470,17 +470,11 @@ module.exports = Reflux.createStore({
       // Copy the placeholder image
       (function copyPlaceholder() {
 
-        fsExtra.ensureLink(profileImagesPath + '/profile-placeholder.png', tempExportDirectory + '/profiles/profile-placeholder.png', function (error) {
+        fsExtra.copy(profileImagesPath + '/profile-placeholder.png', tempExportDirectory + '/profiles/profile-placeholder.png', function (error) {
 
           if (error) {
-
-            if (error.code === 'EEXIST') {
-              console.log('Placeholder Image file exists');
-              resolve();
-            } else {
-              console.log('Placeholder Image file failed');
-              reject(error);
-            }
+            console.log('Placeholder Image file failed');
+            reject(error);
           } else {
             console.log('Placeholder Image file copied');
             resolve();

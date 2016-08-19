@@ -830,11 +830,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Need this as mapReady is called several times. I would have expected leaflet map's load event to only fire once
       // but it doesn't.
-      if (this.$.LeafletMap.map.maxBounds) {
+      if (this.$.LeafletMap.map.options.maxBounds) {
         return;
       }
 
-      var southWest = {
+      /*var southWest = {
         lat: 36.66841891894786,
         lng: 16.226806640625
       };
@@ -843,12 +843,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         lng: 26.531982421874996
       };
 
-      this.$.LeafletMap.map.setMaxBounds(window.L.latLngBounds(southWest, northEast));
+      this.$.LeafletMap.map.setMaxBounds(window.L.latLngBounds(southWest, northEast));*/
     },
 
     // Leaflet seems to need a kick to resize tiles when navigating to and from a map view
     resizeMap: function() {
-
       this.$.LeafletMap.fire('resize');
     },
 
