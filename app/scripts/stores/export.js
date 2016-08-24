@@ -326,7 +326,6 @@ module.exports = Reflux.createStore({
       configWriteStream.on('finish', function() {
         resolve();
       });
-
     });
   },
 
@@ -345,9 +344,6 @@ module.exports = Reflux.createStore({
 
       // Write file
       var dbWriteStream = fsExtra.createWriteStream(tempExportDirectory + '/SITF.dat');
-
-      // Start pipe
-      dbReadStream.pipe(encrypt).pipe(dbWriteStream);
 
       dbReadStream.on('error', function(error) {
         reject(error);
