@@ -804,7 +804,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         var publishObject;
 
-        if (this.publishLocation === 'Not selected..') {
+        if (this.courtMode && this.publishLocation === 'Not selected..') {
           this.$.NoPublishLocationDialog.open();
           return;
         }
