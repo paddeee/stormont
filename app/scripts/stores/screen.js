@@ -29,7 +29,7 @@ module.exports = Reflux.createStore({
     this.trigger(this);
 
     controllerWindow = windows.find(function (window) {
-      return window.getTitle() === 'SITF Electronic Presentation of Evidence';
+      return window.getTitle() === 'EPE Electronic Presentation of Evidence';
     });
 
     rect = this.getPageCrop(publishObject, controllerWindow);

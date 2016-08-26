@@ -20,7 +20,7 @@ module.exports = Reflux.createStore({
 
     console.log('loadDatabase called');
 
-    this.dataSource = new loki('SITF.json', {
+    this.dataSource = new loki('EPE.json', {
       adapter: fileAdapter
     });
 
@@ -44,7 +44,7 @@ module.exports = Reflux.createStore({
 
     return new Promise(function (resolve) {
 
-      this.latestDB = new loki('SITF.json', {
+      this.latestDB = new loki('EPE.json', {
         adapter: fileAdapter
       });
 
@@ -479,7 +479,7 @@ module.exports = Reflux.createStore({
 
     return new Promise(function (resolve, reject) {
 
-      var dbPath = config.paths.dbPath + '/SITF.json';
+      var dbPath = config.paths.dbPath + '/EPE.json';
       var chmod;
 
       // If DB File doesn't exist, it hasn't been created yet so don't bother changing permissions

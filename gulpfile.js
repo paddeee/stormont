@@ -373,8 +373,8 @@ gulp.task('packager:osxpackagecreator', function () {
     'arch': 'all',
     'dir': './dist',
     'icon': './icons/SITFonline.ico.icns',
-    'name': 'SITFPackageCreator',
-    'productName': 'SITF Package Creator',
+    'name': 'EPEPackageCreator',
+    'productName': 'EPE Package Creator',
     'out': '/Users/ODonnell/SITF/Builds',
     'overwrite': true,
     'platform': 'darwin',
@@ -407,8 +407,8 @@ gulp.task('packager:osxpackageviewer', function () {
     'arch': 'all',
     'dir': './dist',
     'icon': './icons/SITFoffline.ico.icns',
-    'name': 'SITFPackageViewer',
-    'productName': 'SITF Package Viewer',
+    'name': 'EPEPackageViewer',
+    'productName': 'EPE Package Viewer',
     'out': '/Users/ODonnell/SITF/Builds',
     'overwrite': true,
     'platform': 'darwin',
@@ -440,18 +440,18 @@ gulp.task('packager:windowspackagecreator', function () {
     'arch': 'x64',
     'dir': './dist',
     'icon': './icons/SITFonline.ico',
-    'name': 'SITFPackageCreator',
-    'productName': 'SITF Package Creator',
+    'name': 'EPEPackageCreator',
+    'productName': 'EPE Package Creator',
     'out': '/Users/ODonnell/SITF/Builds',
     'overwrite': true,
     'platform': 'win32',
     'version': '1.2.1',
     'version-string': {
       'CompanyName': 'Evidential Ltd',
-      'FileDescription': 'SITF Package Creator',
-      'OriginalFilename': 'SITFPackageCreator',
-      'ProductName': 'SITFPackageCreator',
-      'InternalName': 'SITFPackageCreator'
+      'FileDescription': 'EPE Package Creator',
+      'OriginalFilename': 'EPEPackageCreator',
+      'ProductName': 'EPEPackageCreator',
+      'InternalName': 'EPEPackageCreator'
     }
   };
 
@@ -480,18 +480,18 @@ gulp.task('packager:windowspackageviewer', function () {
     'arch': 'x64',
     'dir': './dist',
     'icon': './icons/SITFoffline.ico',
-    'name': 'SITFPackageViewer',
-    'productName': 'SITF Package Viewer',
+    'name': 'EPEPackageViewer',
+    'productName': 'EPE Package Viewer',
     'out': '/Users/ODonnell/SITF/Builds',
     'overwrite': true,
     'platform': 'win32',
     'version': '1.2.1',
     'version-string': {
       'CompanyName': 'Evidential Ltd',
-      'FileDescription': 'SITF Package Viewer',
-      'OriginalFilename': 'SITFPackageViewer',
-      'ProductName': 'SITFPackageViewer',
-      'InternalName': 'SITFPackageViewer'
+      'FileDescription': 'EPE Package Viewer',
+      'OriginalFilename': 'EPEPackageViewer',
+      'ProductName': 'EPEPackageViewer',
+      'InternalName': 'EPEPackageViewer'
     }
   };
 
@@ -517,15 +517,15 @@ gulp.task('installer:windowspackagecreator', function () {
   var appDirectory = '/Users/ODonnell/SITF/Builds';
 
   var installerPromise = electronInstaller.createWindowsInstaller({
-    appDirectory: appDirectory + '/SITFPackageCreator-win32-x64',
+    appDirectory: appDirectory + '/EPEPackageCreator-win32-x64',
     outputDirectory: '/Users/ODonnell/SITF/Builds',
     authors: 'Evidential Ltd',
-    exe: 'SITFPackageCreator.exe',
+    exe: 'EPEPackageCreator.exe',
     version: buildVersion,
     loadingGif: './icons/gears.gif',
     iconUrl: 'https://paddeee.github.io/icons/SITFonline.ico',
     setupIcon: './icons/SITFonline.ico',
-    setupExe: 'SITFPackageCreatorSetUp.exe'
+    setupExe: 'EPEPackageCreatorSetUp.exe'
   });
 
   return installerPromise.then(function() {
@@ -540,15 +540,15 @@ gulp.task('installer:windowspackageviewer', function () {
   var appDirectory = '/Users/ODonnell/SITF/Builds';
 
   var installerPromise = electronInstaller.createWindowsInstaller({
-    appDirectory: appDirectory + '/SITFPackageViewer-win32-x64',
+    appDirectory: appDirectory + '/EPEPackageViewer-win32-x64',
     outputDirectory: '/Users/ODonnell/SITF/Builds',
     authors: 'Evidential Ltd',
-    exe: 'SITFPackageViewer.exe',
+    exe: 'EPEPackageViewer.exe',
     version: buildVersion,
     loadingGif: './icons/gears.gif',
     iconUrl: 'https://paddeee.github.io/icons/SITFoffline.ico',
     setupIcon: './icons/SITFoffline.ico',
-    setupExe: 'SITFPackageViewerSetUp.exe'
+    setupExe: 'EPEPackageViewerSetUp.exe'
   });
 
   return installerPromise.then(function() {

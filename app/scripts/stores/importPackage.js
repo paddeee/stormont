@@ -129,7 +129,7 @@ module.exports = Reflux.createStore({
     return new Promise(function (resolve, reject) {
 
       // Input file
-      var dbStream = fsExtra.createReadStream(importFileAdapter.tempPackageDirectory + '/SITF.dat');
+      var dbStream = fsExtra.createReadStream(importFileAdapter.tempPackageDirectory + '/EPE.dat');
 
       // Decrypt content
       var decrypt = crypto.createDecipher('aes-256-ctr', packageObject.packagePassword);
@@ -161,7 +161,7 @@ module.exports = Reflux.createStore({
 
     return new Promise(function (resolve) {
 
-      dataSourceStore.dataSource = new loki('SITF.json');
+      dataSourceStore.dataSource = new loki('EPE.json');
 
       dataSourceStore.dataSource.loadJSON(dbJSON, {});
 

@@ -1,8 +1,8 @@
 {
   "main": "main.js",
-  "app_name": "SITF",
+  "app_name": "EPE",
   "version" : "0.1.0",
-  "name": "SITF",
+  "name": "EPE",
   "description": "Electron Presentation of Evidence",
   "dependencies": {
     "activedirectory": "^0.7.2",

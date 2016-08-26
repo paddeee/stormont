@@ -42,7 +42,7 @@ module.exports = Reflux.createStore({
   // Export a presentation to the filesystem
   onExportPresentation: function (presentationObject) {
 
-    var exportDatabase = new loki('SITF.json', { adapter: exportFileAdapter });
+    var exportDatabase = new loki('EPE.json', { adapter: exportFileAdapter });
 
     // Set property to be used by the loki export file adapter
     exportFileAdapter.tempExportDirectory = presentationObject.packageLocation + presentationObject.packageName;
@@ -343,7 +343,7 @@ module.exports = Reflux.createStore({
       var encrypt = crypto.createCipher('aes-256-ctr', packagePassword);
 
       // Write file
-      var dbWriteStream = fsExtra.createWriteStream(tempExportDirectory + '/SITF.dat');
+      var dbWriteStream = fsExtra.createWriteStream(tempExportDirectory + '/EPE.dat');
 
       dbReadStream.on('error', function(error) {
         reject(error);
