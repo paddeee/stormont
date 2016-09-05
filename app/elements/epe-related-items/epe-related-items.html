@@ -68,7 +68,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
 
-    <paper-dialog id="InfoDialog" class="info">
+    <paper-dialog id="InfoDialog" modal class="info">
       <div class="info__heading">
         <h2>Source Name: [[name]]</h2>
         <div class="info__description">
@@ -98,7 +98,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </template>
       </div>
       <div class="buttons">
-        <paper-button dialog-confirm autofocus>OK</paper-button>
+        <paper-button dialog-dismiss autofocus>OK</paper-button>
       </div>
     </paper-dialog>
 
