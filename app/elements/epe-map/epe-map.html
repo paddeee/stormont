@@ -515,6 +515,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <!-- Zoom To Fit bounds -->
     <paper-material id="ZoomBoundsControl"
+                    title="Zoom to Fit Selected Events"
                     class="zoom-bounds-control-holder layout horizontal">
       <div class="zoom-bounds-control  zoom-bounds-control--disabled  layout horizontal center center-justified"
            on-tap="zoomToFitBounds">
@@ -523,24 +524,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
     </paper-material>
 
-    <paper-tooltip for="ZoomBoundsControl"
-                   position="right"
-                   class="timeline-tooltip">Zoom to Fit Selected Events</paper-tooltip>
-
     <!-- Toggle Clusters control -->
     <paper-material id="ToggleClustersControl"
+                    title="Toggle Clusters On/Off"
                     class="toggle-cluster-control-holder layout horizontal">
       <div class="fa fa-bullseye toggle-cluster-control  layout horizontal center center-justified"
            on-tap="toggleCluster">
       </div>
     </paper-material>
 
-    <paper-tooltip for="ToggleClustersControl"
-                   position="right"
-                   class="timeline-tooltip">Toggle Clusters On/Off</paper-tooltip>
-
     <!-- Toggle Map/Satellite tiles control -->
     <paper-material id="ToggleTilesControl"
+                    title="Toggle Satellite Map On/Off"
                     class="toggle-tiles-control-holder layout horizontal">
       <div class="toggle-tiles-control  toggle-tiles-control--disabled  layout horizontal center center-justified"
            on-tap="toggleTiles">
@@ -549,12 +544,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
     </paper-material>
 
-    <paper-tooltip for="ToggleTilesControl"
-                   position="right"
-                   class="timeline-tooltip">Toggle Satellite Map On/Off</paper-tooltip>
-
     <!-- Toggle Legend control -->
     <paper-material id="ToggleLegendControl"
+                    title="Toggle Map Legend On/Off"
                     class="toggle-legend-control-holder layout horizontal"
                     elevation="3">
       <div class="toggle-legend-control  layout horizontal center center-justified"
@@ -564,12 +556,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
     </paper-material>
 
-    <paper-tooltip for="ToggleLegendControl"
-                   position="right"
-                   class="timeline-tooltip">Toggle Map Legend On/Off</paper-tooltip>
-
     <!-- Navigate Previous control -->
     <paper-material id="NavigatePreviousControl"
+                    title="Previous Event"
                     class="timeline-control-holder timeline-control-previous timeline-control-previous--hide layout horizontal">
       <div class="timeline-control timeline-control--disabled layout horizontal center center-justified"
            on-tap="goToPrevious">
@@ -580,6 +569,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <!-- Navigate Next control -->
     <paper-material id="NavigateNextControl"
+                    title="Next Event"
                     class="timeline-control-holder timeline-control-next timeline-control-next--hide layout horizontal">
       <div class="timeline-control timeline-control--disabled layout horizontal center center-justified"
            on-tap="goToNext">
