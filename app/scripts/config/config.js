@@ -519,7 +519,8 @@ var config = {
   QueriesCollection: 'Queries',
   MapGeoJSONCollection: 'MapGeoJSON',
   RelatedItemCollection: 'Relateditem',
-  activityTimeout: 120
+  activityTimeout: 120,
+  mapMetricMeasurement: true
 };
 
 module.exports = config;

@@ -33,7 +33,7 @@ var gutil = require('gulp-util');
 var packager = require('electron-packager');
 var electronInstaller = require('electron-winstaller');
 var exec = require('child_process').exec;
-var buildVersion = '0.8';
+var buildVersion = '0.9';
 
 var AUTOPREFIXER_BROWSERS = [
   'ie >= 10',
@@ -437,7 +437,7 @@ gulp.task('packager:windowspackagecreator', function () {
   var options = {
     'app-version': buildVersion,
     'asar': true,
-    'arch': 'x64',
+    'arch': 'all',
     'dir': './dist',
     'icon': './icons/SITFonline.ico',
     'name': 'EPEPackageCreator',
@@ -477,7 +477,7 @@ gulp.task('packager:windowspackageviewer', function () {
   var options = {
     'app-version': buildVersion,
     'asar': true,
-    'arch': 'x64',
+    'arch': 'all',
     'dir': './dist',
     'icon': './icons/SITFoffline.ico',
     'name': 'EPEPackageViewer',
