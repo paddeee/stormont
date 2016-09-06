@@ -174,7 +174,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         idOfLastEventToBeRemoved: {
           type: Array,
           value: []
-        }
+        },
+
+        timelineShowing: {
+          type: Boolean,
+          observer: 'updateTimeLineDisplay'
+        },
       },
 
       ready: function() {
@@ -299,7 +304,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.timeLineData.events.forEach(function(eventObject) {
 
           if (_.includes(eventIdsToAdd, eventObject.unique_id)) {
-            this.timeLine.add(eventObject);
+            this.timeLine.add(eventObject, 'noUpdate');
           }
         }.bind(this));
 
@@ -322,7 +327,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           if (this.timeLine.config.events.length > 1) {
 
             if (_.includes(eventIdsToRemove, eventObject.unique_id)) {
-              this.timeLine.removeId(eventObject.unique_id);
+              this.timeLine.removeId(eventObject.unique_id, 'noUpdate');
             }
 
             // TimeLine throws a wobbler when removing the last event. So instead the event needs to be stored
@@ -332,6 +337,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }
 
         }.bind(this));
+
+        if (this.timelineShowing) {
+          this.timeLine.updateDrawSlides();
+        }
+      },
+
+      // Update TimeLine display when it is shown
+      updateTimeLineDisplay: function() {
+
+        if (this.timelineShowing) {
+          this.timeLine.updateDrawSlides();
+        }
       },
 
       // Timeline seems a bit buggy. Having to do hacky things like zoom twice to make sure the time axis appear

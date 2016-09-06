@@ -71,6 +71,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       --paper-input-container-color: var(--secondary-text-color);
       --paper-input-container-focus-color: var(--dark-primary-color);
       --paper-input-container-input-color: var(--secondary-text-color);
+
+      --paper-input-container-label: {
+         font-size: 12px;
+       };
     }
 
     paper-dropdown-menu {
@@ -254,7 +258,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <div class="filter-type  filter-type--input"
                   showing$="[[showFilterType('regex',item.filter)]]">
                   <paper-input type="search"
-                               label="[[getHeadingName(item.fieldName)]]"
+                               label="[[getHeadingName(item.fieldName, 'true')]]"
                                value="[[item.value]]"
                                on-keyup="userInputChanged"
                                on-search="userInputChanged">
@@ -493,6 +497,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }
             };
           }
+        },
+
+        queryFilterTimeOut: {
+          type: String,
+          value: ''
         }
       },
 
@@ -767,7 +776,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // FIRED FROM SEARCH INPUT ELEMENT
       userInputChanged: function(event) {
 
-        var debouncedFiltersChanged = _.debounce(function() {
+        // Only change search if more than 3 characters long
+        if (event.target.value.length < 3) {
+          return;
+        }
+
+        clearTimeout(this.queryFilterTimeOut);
+
+        this.queryFilterTimeOut = setTimeout(function() {
 
           var filterObject = event.model.item;
 
@@ -775,9 +791,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           filterObject.value = event.target.value;
 
           this.queryBuilderActions.queryFiltersChanged(filterObject, 'update');
-        }.bind(this), 200);
 
-        debouncedFiltersChanged();
+          clearTimeout(this.queryFilterTimeOut);
+
+        }.bind(this), 200);
       },
 
       // FIRED FROM SEARCH SELECT
@@ -864,9 +881,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       // Method to meet requirement that Full Name should display what is specified in config file
-      getHeadingName: function(headingName) {
+      getHeadingName: function(headingName, showCharLimitMessage) {
 
         var collection;
+        var charLimitMessage = '';
+
+        if (showCharLimitMessage) {
+          charLimitMessage = ' (min 3 chars)';
+        }
 
         switch (this.selectedDataType) {
           case this.config.EventsCollection.name:
@@ -893,7 +915,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }
         });
 
-        return headingName;
+        return headingName + charLimitMessage;
       },
 
       // Fire event that we are syncing DB

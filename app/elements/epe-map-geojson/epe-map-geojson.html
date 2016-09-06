@@ -685,6 +685,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var clusterLayer = this.clusterLayer;
         var geoJSONLayer = this.geoJSONLayer;
 
+        if (!this.closest('#LeafletMap').clientHeight) {
+          return;
+        }
+
         // Hide No Locations event card
         this.fire('toggle-event-card-no-location', {
           activeEventId: this.activeEvent,

@@ -296,24 +296,28 @@ TL.Timeline = TL.Class.extend({
    ================================================== */
 
   // Add an event
-  add: function(data) {
+  add: function(data, updateTimeLine) {
     var unique_id = this.config.addEvent(data);
 
     var n = this._getEventIndex(unique_id);
     var d = this.config.events[n];
 
-    this._storyslider.createSlide(d, this.config.title ? n+1 : n);
-    this._storyslider._updateDrawSlides();
+    //this._storyslider.createSlide(d, this.config.title ? n+1 : n);
+    //this._storyslider._updateDrawSlides();
 
     this._timenav.createMarker(d, n);
-    this._timenav._updateDrawTimeline(false);
+
+    if (updateTimeLine !== 'noUpdate') {
+      this._timenav._updateDrawTimeline(false);
+    }
 
     this.fire("added", {unique_id: unique_id});
   },
 
   // Remove an event
-  remove: function(n) {
-    if(n >= 0  && n < this.config.events.length) {
+  remove: function(n, updateTimeLine) {
+
+    if (n >= 0  && n < this.config.events.length) {
       // If removing the current, nav to new one first
       if(this.config.events[n].unique_id == this.current_id) {
         if(n < this.config.events.length - 1) {
@@ -325,18 +329,25 @@ TL.Timeline = TL.Class.extend({
 
       var event = this.config.events.splice(n, 1);
       delete this.config.event_dict[event[0].unique_id];
-      this._storyslider.destroySlide(this.config.title ? n+1 : n);
-      this._storyslider._updateDrawSlides();
+      //this._storyslider.destroySlide(this.config.title ? n+1 : n);
+      //this._storyslider._updateDrawSlides();
 
       this._timenav.destroyMarker(n);
-      this._timenav._updateDrawTimeline(false);
+
+      if (updateTimeLine !== 'noUpdate') {
+        this._timenav._updateDrawTimeline(false);
+      }
 
       this.fire("removed", {unique_id: event[0].unique_id});
     }
   },
 
-  removeId: function(id) {
-    this.remove(this._getEventIndex(id));
+  updateDrawSlides: function() {
+    this._timenav._updateDrawTimeline(false);
+  },
+
+  removeId: function(id, updateTimeLine) {
+    this.remove(this._getEventIndex(id), updateTimeLine);
   },
 
   /* Get slide data
