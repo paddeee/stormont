@@ -277,6 +277,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.timeLine.on('dataloaded', function(eventData) {
           console.log('Data loaded', eventData);
         }.bind(this));
+
+        this.fire('timeline-updated');
       },
 
       // Remove all data and then add each record
@@ -341,6 +343,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (this.timelineShowing) {
           this.timeLine.updateDrawSlides();
         }
+
+        this.fire('timeline-updated');
       },
 
       // Update TimeLine display when it is shown

@@ -117,7 +117,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   class="data-grid"
                   grid-data="[[gridData]]"
                   show-all-selected="{{showAllSelected}}"
-                  on-navigate-to-profile="navigateToProfile"></epe-data-grid>
+                  on-navigate-to-profile="navigateToProfile"
+                  on-show-select-all-dialog="showSelectAllDialog"></epe-data-grid>
               </section>
             </iron-pages>
 
@@ -155,7 +156,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                  map-geo-json-store="[[mapGeoJsonStore]]"
                  selected-records-actions="[[selectedRecordsActions]]"
                  time-line-store="[[timeLineStore]]"
-                 on-navigate-to-profile="navigateToProfile"></epe-map>
+                 on-navigate-to-profile="navigateToProfile"
+                 on-timeline-updated="timeLineUpdated"></epe-map>
       </section>
 
       <!-- Source View -->
@@ -180,6 +182,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
       <div class="buttons">
         <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="SelectAllEventsDialog" modal>
+      <h2>Selecting All Events</h2>
+      <div class="layout horizontal center-justified">
+        <paper-spinner active></paper-spinner>
       </div>
     </paper-dialog>
 
@@ -485,6 +494,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         this.$.SourceErrorDialog.open();
+      },
+
+      // Show spinner when selecting a lot of events as UI freezes due to Timeline
+      showSelectAllDialog: function() {
+        this.$.SelectAllEventsDialog.open();
+      },
+
+      // When the TimeLine Updates
+      timeLineUpdated: function() {
+        this.$.SelectAllEventsDialog.close();
       }
     });
   })();

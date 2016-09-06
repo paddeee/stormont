@@ -875,15 +875,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Set the scrollHeader
         this.scrollHeader();
-
-        // Set the Records div height to be same as the table so no gap at the bottom
-        /*this.async(function() {
-          if (this.$.DataGridRecords.clientHeight > this.$.RecordsTable.clientHeight) {
-            this.$.DataGridRecords.style.height = this.$.RecordsTable.clientHeight + 'px';
-          } else {
-            this.$.DataGridRecords.style.height = '';
-          }
-        }, 400);*/
       },
 
       // Force template-repeat to show checkboxes in correct state after the
@@ -961,6 +952,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         if (this.gridData) {
 
+          console.time('allRecords');
+
           this.selectAllRecordsChanged = true;
 
           // Update all items in the data collection
@@ -976,6 +969,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // Nasty hack to force state change of all visible checkboxes as the UI checkbox state doesn't update always
           // even when the updateCheckboxes method is called.
           if (this.showAllSelected === true) {
+
+            if (this.gridData.length > 200 && this.collectionName === this.config.EventsCollection.name) {
+              this.fire('show-select-all-dialog');
+            }
 
             this.querySelectorAll('.record-checkbox').forEach(function(checkBox) {
               checkBox.checked = true;
