@@ -45,7 +45,7 @@ module.exports = Reflux.createStore({
         }.bind(this));
 
       }.bind(this))
-    .catch(function(error) {
+    .catch(function() {
 
       this.user.status = 'loginError';
       this.user.message = 'Please contact IT Support if you need to use this application.';
