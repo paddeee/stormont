@@ -251,15 +251,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var bottomPadding = 30;
         var rightPadding = 30;
         var offset;
-        var polygonOffsetCentre;
 
         // Set offset for Event Card depending on type of feature
         if (feature.geometry.type === 'Point' || feature.geometry.type === 'LineString') {
           offset = new window.L.point(200, -4);
         } else if (feature.geometry.type === 'Polygon') {
-          polygonOffsetCentre = this.getPolygonCentre(feature);
-          //offset = new window.L.point(polygonOffsetCentre.lng, polygonOffsetCentre.lat);
-          offset = (30, 94);
+          offset = new window.L.point(180, 20);
         }
 
         if (this.timeLineShowing) {
@@ -772,6 +769,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // When a popup is opened
       popUpOpened: function(data) {
+
+        var lat;
+        var lng;
+
+        // If feature is a Polygon, set marker to centre of Polygon
+        if (data.target.feature.geometry.type === 'Polygon') {
+          lat = this.getPolygonCentre(data.target.feature).lat;
+          lng = this.getPolygonCentre(data.target.feature).lng;
+          data.target._popup.setLatLng(window.L.latLng(lng, lat));
+        }
 
         // if the event card has been opened
         if (data.target._popup._isOpen) {
