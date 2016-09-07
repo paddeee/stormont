@@ -48,7 +48,7 @@ module.exports = Reflux.createStore({
     .catch(function(error) {
 
       this.user.status = 'loginError';
-      this.user.message = error;
+      this.user.message = 'Please contact IT Support if you need to use this application.';
       this.trigger(this.user);
     }.bind(this));
   },
@@ -59,9 +59,9 @@ module.exports = Reflux.createStore({
     return new Promise(function (resolve, reject) {
 
       // In browser
-      //if (!ActiveDirectory) {
+      if (!ActiveDirectory) {
         resolve(userLoginObject);
-      //}
+      }
 
       var userName = userLoginObject.username + '@' + config.ldap.domain;
       var password = userLoginObject.password;

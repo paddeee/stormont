@@ -33,7 +33,7 @@ var gutil = require('gulp-util');
 var packager = require('electron-packager');
 var electronInstaller = require('electron-winstaller');
 var exec = require('child_process').exec;
-var buildVersion = '0.9';
+var buildVersion = '0.9.4';
 
 var AUTOPREFIXER_BROWSERS = [
   'ie >= 10',

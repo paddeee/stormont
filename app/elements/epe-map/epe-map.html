@@ -856,9 +856,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var drawnItems;
       var styleEditor;
+      var mapMetricMeasurement = true;
 
       if (this.drawFunctionalityAdded) {
         return;
+      }
+
+      if (this.config.mapMetricMeasurement) {
+        mapMetricMeasurement= this.config.mapMetricMeasurement;
       }
 
       //Initialize the StyleEditor
@@ -891,7 +896,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             showArea: true
           },
           polyline: {
-            metric: this.config.mapMetricMeasurement
+            metric: mapMetricMeasurement
           },
           circle: {
             shapeOptions: {
