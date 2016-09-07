@@ -250,6 +250,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var leftPadding = 30;
         var bottomPadding = 30;
         var rightPadding = 30;
+        var offset;
+        var polygonOffsetCentre;
+
+        // Set offset for Event Card depending on type of feature
+        if (feature.geometry.type === 'Point' || feature.geometry.type === 'LineString') {
+          offset = new window.L.point(200, -4);
+        } else if (feature.geometry.type === 'Polygon') {
+          polygonOffsetCentre = this.getPolygonCentre(feature);
+          //offset = new window.L.point(polygonOffsetCentre.lng, polygonOffsetCentre.lat);
+          offset = (30, 94);
+        }
 
         if (this.timeLineShowing) {
           bottomPadding = 210;
@@ -268,7 +279,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             keepInView: false,
             minWidth: 340,
             maxWidth: 340,
-            offset: new window.L.point(200, -4),
+            offset: offset,
             autoPanPaddingTopLeft: new window.L.point(leftPadding, topPadding),
             autoPanPaddingBottomRight: new window.L.point(rightPadding, bottomPadding),
             className: popUpClassName
@@ -896,7 +907,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (this.navigationType === 'All') {
           this.zoomToFitBounds();
         }
+      },
+
+      // Helper to get centre of a Polygon
+      getPolygonCentre: function (feature) {
+        return L.polygon(feature.geometry.coordinates).getBounds().getCenter();
       }
+
     });
   })();
 </script>
