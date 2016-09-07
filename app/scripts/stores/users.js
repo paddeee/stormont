@@ -59,9 +59,9 @@ module.exports = Reflux.createStore({
     return new Promise(function (resolve, reject) {
 
       // In browser
-      if (!ActiveDirectory) {
+      //if (!ActiveDirectory) {
         resolve(userLoginObject);
-      }
+      //}
 
       var userName = userLoginObject.username + '@' + config.ldap.domain;
       var password = userLoginObject.password;
