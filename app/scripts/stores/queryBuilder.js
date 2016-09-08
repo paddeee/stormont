@@ -6,6 +6,7 @@ var dataSourceStore = require('../stores/dataSource.js');
 var presentationsStore = require('../stores/presentations.js');
 var importPackageStore = require('../stores/importPackage.js');
 var config = appMode === 'app' ? global.config : require('../config/config.js');
+var queriesCollection = 'Queries';
 
 module.exports = Reflux.createStore({
 
@@ -42,12 +43,12 @@ module.exports = Reflux.createStore({
       return;
     }
 
-    queryCollection = dataSourceStore.dataSource.getCollection(config.QueriesCollection);
+    queryCollection = dataSourceStore.dataSource.getCollection(queriesCollection);
 
     if (dataSourceStore.dataSource.message.type === 'dataBaseLoaded') {
 
       if (!queryCollection) {
-        dataSourceStore.dataSource.addCollection(config.QueriesCollection, { disableChangesApi: false });
+        dataSourceStore.dataSource.addCollection(queriesCollection, { disableChangesApi: false });
       }
 
       this.createDefaultQuery('defaultQueryAdded');
@@ -141,7 +142,7 @@ module.exports = Reflux.createStore({
   // Retrieve a query based on the transform name
   getQuery: function() {
 
-    var queryCollection = dataSourceStore.dataSource.getCollection(config.QueriesCollection);
+    var queryCollection = dataSourceStore.dataSource.getCollection(queriesCollection);
 
     var queryObject = queryCollection.find({
       packageName: this.packageName
@@ -159,7 +160,7 @@ module.exports = Reflux.createStore({
   // Insert query object into collection
   insertQueryObject: function(queryObject) {
 
-    var queryCollection = dataSourceStore.dataSource.getCollection(config.QueriesCollection);
+    var queryCollection = dataSourceStore.dataSource.getCollection(queriesCollection);
 
     // Insert queryObject for this filter if it doesn't already exist
     if (queryCollection && queryCollection.find({ packageName: this.packageName }).length === 0) {
@@ -170,7 +171,7 @@ module.exports = Reflux.createStore({
   // Update query object in collection
   updateQueryObject: function(queryObject) {
 
-    var queryCollection = dataSourceStore.dataSource.getCollection(config.QueriesCollection);
+    var queryCollection = dataSourceStore.dataSource.getCollection(queriesCollection);
 
     queryCollection.update(queryObject);
   },

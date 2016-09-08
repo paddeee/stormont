@@ -7,6 +7,8 @@ var fileAdapter = require('../adapters/loki-file-adapter.js');
 var DataSourceActions = require('../actions/dataSource.js');
 var loggingStore = require('../stores/logging.js');
 var fs = appMode === 'app' ? window.electronRequire('fs') : require('browserify-fs');
+var presentationsCollection = 'Presentations';
+var queriesCollection = 'Queries';
 
 module.exports = Reflux.createStore({
 
@@ -419,7 +421,7 @@ module.exports = Reflux.createStore({
 
     this.dataSource.collections.forEach(function(collection) {
 
-      if (collection.name === config.QueriesCollection || collection.name === config.PresentationsCollection) {
+      if (collection.name === queriesCollection || collection.name === presentationsCollection) {
         collection.setChangesApi(true);
       }
     });
@@ -512,9 +514,9 @@ module.exports = Reflux.createStore({
 
     return new Promise(function (resolve) {
 
-      var queryBuilderCollection = this.dataSource.getCollection(config.QueriesCollection);
-      var presentationsCollection = this.dataSource.getCollection(config.PresentationsCollection);
-      var latestDBPresentationsCollection = this.latestDB.getCollection(config.PresentationsCollection);
+      var queryBuilderCollection = this.dataSource.getCollection(queriesCollection);
+      var presentationsCollection = this.dataSource.getCollection(presentationsCollection);
+      var latestDBPresentationsCollection = this.latestDB.getCollection(presentationsCollection);
       var queryBuilderProcessedChanges;
       var presentationsProcessedChanges;
 

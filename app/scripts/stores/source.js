@@ -10,6 +10,7 @@ var fsExtra = appMode === 'app' ? window.electronRequire('fs-extra') : null;
 var crypto = appMode === 'app' ? window.electronRequire('crypto') : null;
 var getRawBody = appMode === 'app' ? window.electronRequire('raw-body') : null;
 var usersStore = require('../stores/users.js');
+var relatedItemCollectionName = 'Relateditem';
 
 module.exports = Reflux.createStore({
 
@@ -604,7 +605,7 @@ module.exports = Reflux.createStore({
   // Find related items to the relatedItems array property of the relatedItemObject
   findRelatedItems: function(relatedItem) {
 
-    var relatedItemCollection = dataSourceStore.dataSource.getCollection(config.RelatedItemCollection);
+    var relatedItemCollection = dataSourceStore.dataSource.getCollection(relatedItemCollectionName);
 
     return relatedItemCollection.find({
       'Short Name': {

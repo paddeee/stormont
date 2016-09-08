@@ -515,10 +515,6 @@ var config = {
       width: '100'
     }]
   },
-  PresentationsCollection: 'Presentations',
-  QueriesCollection: 'Queries',
-  MapGeoJSONCollection: 'MapGeoJSON',
-  RelatedItemCollection: 'Relateditem',
   activityTimeout: 120,
   mapMetricMeasurement: true
 };
