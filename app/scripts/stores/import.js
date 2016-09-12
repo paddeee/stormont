@@ -6,7 +6,7 @@ var ImportActions = require('../actions/import.js');
 var DataSourceActions = require('../actions/dataSource.js');
 var dataSourceStore = require('../stores/dataSource.js');
 var loggingStore = require('../stores/logging.js');
-var presentationsCollection = 'Presentations';
+var presentationsCollectionName = 'Presentations';
 
 module.exports = Reflux.createStore({
 
@@ -540,7 +540,7 @@ module.exports = Reflux.createStore({
   // Copies of selected data objects are stored in Presentations Collection. These need to be updated.
   updateSelectedPresentationsData: function() {
 
-    var presentationsCollection = dataSourceStore.dataSource.getCollection(presentationsCollection);
+    var presentationsCollection = dataSourceStore.dataSource.getCollection(presentationsCollectionName);
     var eventsCollection = dataSourceStore.dataSource.getCollection(config.EventsCollection.name);
     var placeCollection = dataSourceStore.dataSource.getCollection(config.PlacesCollection.name);
     var personCollection = dataSourceStore.dataSource.getCollection(config.PeopleCollection.name);

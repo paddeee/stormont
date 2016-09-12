@@ -7,8 +7,8 @@ var fileAdapter = require('../adapters/loki-file-adapter.js');
 var DataSourceActions = require('../actions/dataSource.js');
 var loggingStore = require('../stores/logging.js');
 var fs = appMode === 'app' ? window.electronRequire('fs') : require('browserify-fs');
-var presentationsCollection = 'Presentations';
-var queriesCollection = 'Queries';
+var presentationsCollectionName = 'Presentations';
+var queriesCollectionName = 'Queries';
 
 module.exports = Reflux.createStore({
 
@@ -246,7 +246,7 @@ module.exports = Reflux.createStore({
     var selectedPeople = [];
     var selectedSources = [];
 
-    var presentationsCollection = this.dataSource.getCollection('Presentations');
+    var presentationsCollection = this.dataSource.getCollection(presentationsCollectionName);
     var presentationObject = presentationsCollection.find({
       presentationName: presentationName
     })[0];
@@ -345,10 +345,10 @@ module.exports = Reflux.createStore({
   createPresentationMetaData: function (presentationObject, createdDate, action) {
 
     var presentationInfo = {};
-    var presentationsCollection = this.dataSource.getCollection('Presentations');
+    var presentationsCollection = this.dataSource.getCollection(presentationsCollectionName);
 
     if (!presentationsCollection) {
-      presentationsCollection = this.dataSource.addCollection('Presentations', { disableChangesApi: false });
+      presentationsCollection = this.dataSource.addCollection(presentationsCollectionName, { disableChangesApi: false });
     }
 
     if (action === 'save') {
@@ -421,7 +421,7 @@ module.exports = Reflux.createStore({
 
     this.dataSource.collections.forEach(function(collection) {
 
-      if (collection.name === queriesCollection || collection.name === presentationsCollection) {
+      if (collection.name === queriesCollectionName || collection.name === presentationsCollectionName) {
         collection.setChangesApi(true);
       }
     });
@@ -514,9 +514,9 @@ module.exports = Reflux.createStore({
 
     return new Promise(function (resolve) {
 
-      var queryBuilderCollection = this.dataSource.getCollection(queriesCollection);
-      var presentationsCollection = this.dataSource.getCollection(presentationsCollection);
-      var latestDBPresentationsCollection = this.latestDB.getCollection(presentationsCollection);
+      var queryBuilderCollection = this.dataSource.getCollection(queriesCollectionName);
+      var presentationsCollection = this.dataSource.getCollection(presentationsCollectionName);
+      var latestDBPresentationsCollection = this.latestDB.getCollection(presentationsCollectionName);
       var queryBuilderProcessedChanges;
       var presentationsProcessedChanges;
 
