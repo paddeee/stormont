@@ -33,7 +33,9 @@ var gutil = require('gulp-util');
 var packager = require('electron-packager');
 var electronInstaller = require('electron-winstaller');
 var exec = require('child_process').exec;
-var buildVersion = '0.9.4';
+
+const buildVersion = '0.9.4';
+const electronVersion = '1.2.8';
 
 var AUTOPREFIXER_BROWSERS = [
   'ie >= 10',
@@ -378,7 +380,7 @@ gulp.task('packager:osxpackagecreator', function () {
     'out': '/Users/ODonnell/SITF/Builds',
     'overwrite': true,
     'platform': 'darwin',
-    'version': '1.2.1'
+    'version': electronVersion
   };
 
   var taskPromise = new Promise(function (resolve, reject) {
@@ -412,7 +414,7 @@ gulp.task('packager:osxpackageviewer', function () {
     'out': '/Users/ODonnell/SITF/Builds',
     'overwrite': true,
     'platform': 'darwin',
-    'version': '1.2.1'
+    'version': electronVersion
   };
 
   var taskPromise = new Promise(function (resolve, reject) {
@@ -445,7 +447,7 @@ gulp.task('packager:windowspackagecreator', function () {
     'out': '/Users/ODonnell/SITF/Builds',
     'overwrite': true,
     'platform': 'win32',
-    'version': '1.2.1',
+    'version': electronVersion,
     'version-string': {
       'CompanyName': 'Evidential Ltd',
       'FileDescription': 'EPE Package Creator',
@@ -485,7 +487,7 @@ gulp.task('packager:windowspackageviewer', function () {
     'out': '/Users/ODonnell/SITF/Builds',
     'overwrite': true,
     'platform': 'win32',
-    'version': '1.2.1',
+    'version': electronVersion,
     'version-string': {
       'CompanyName': 'Evidential Ltd',
       'FileDescription': 'EPE Package Viewer',
