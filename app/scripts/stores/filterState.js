@@ -222,7 +222,12 @@ module.exports = Reflux.createStore({
         if (!filterObject.value) {
           regexString = '';
         } else {
-          regexString = regexString + '(?!.*' + filterObject.value + ')';
+
+          if (filterObject.filter === 'regex') {
+            regexString = regexString + '(?!.*' + filterObject.value + ')';
+          } else  if (filterObject.filter === 'select') {
+            regexString = regexString + '(?!.*\\b' + filterObject.value + '\\b)';
+          }
         }
       });
     }
@@ -244,7 +249,12 @@ module.exports = Reflux.createStore({
         } else {
           orPipe = '';
         }
-        regexString = regexString + orPipe + '(.*' + filterObject.value + ')';
+
+        if (filterObject.filter === 'regex') {
+          regexString = regexString + orPipe + '(.*' + filterObject.value + ')';
+        } else  if (filterObject.filter === 'select') {
+          regexString = regexString + orPipe + '(.*\\b' + filterObject.value + '\\b)';
+        }
       });
     }
 
