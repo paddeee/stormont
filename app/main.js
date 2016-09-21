@@ -172,6 +172,7 @@ app.on('ready', function() {
 
   // Create and show Splash Screen
   splashWindow = new BrowserWindow({
+    backgroundColor: '#47545f',
     width: 800,
     height: 600,
     frame: false,
