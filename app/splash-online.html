@@ -44,7 +44,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     #loading {
       position:absolute;
       left:calc(50% - 100px);
-      top:calc(50% - -140px);
+      top:calc(50% - -190px);
       z-index:9999
     }@-webkit-keyframes spin {
        0% {
@@ -200,6 +200,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       30% {opacity:1;transform:scale(1);}
       100% {opacity:1;transform:scale(1);}
     }
+
+    .app-name {
+      color: #009ec2;
+      font-size: 20px;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 16px;
+    }
   </style>
 </head>
 
@@ -207,6 +215,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <div class="logo">
     <img src="images/online-logo400x400.png"/>
   </div>
+  <div class="app-name">EPE Package Creator</div>
   <svg id="loading">
     <g>
       <path class="ld-l" fill="#009ec2" d="M43.6,33.2h9.2V35H41.6V15.2h2V33.2z"/>

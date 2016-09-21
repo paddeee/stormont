@@ -180,9 +180,9 @@ app.on('ready', function() {
   });
 
   if (buildType === 0) {
-    splashWindow.loadURL('file://' + __dirname + '/splash-offline.html');
-  } else {
     splashWindow.loadURL('file://' + __dirname + '/splash-online.html');
+  } else {
+    splashWindow.loadURL('file://' + __dirname + '/splash-offline.html');
   }
 
   splashWindow.show();
@@ -238,7 +238,7 @@ app.on('ready', function() {
     });
 
     // Open the DevTools.
-    controllerWindow.webContents.openDevTools();
+    //controllerWindow.webContents.openDevTools();
   };
 
   // Create Hidden Publish Screen Window
