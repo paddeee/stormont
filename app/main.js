@@ -238,7 +238,7 @@ app.on('ready', function() {
     });
 
     // Open the DevTools.
-    //controllerWindow.webContents.openDevTools();
+    controllerWindow.webContents.openDevTools();
   };
 
   // Create Hidden Publish Screen Window
@@ -394,6 +394,11 @@ app.on('ready', function() {
     if (courtWindow) {
       courtWindow.destroy();
       courtWindow = null;
+    }
+
+    if (splashWindow) {
+      splashWindow.destroy();
+      splashWindow = null;
     }
   });
 
