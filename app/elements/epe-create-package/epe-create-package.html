@@ -498,12 +498,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Show spinner when selecting a lot of events as UI freezes due to Timeline
       showSelectAllDialog: function() {
-        this.$.SelectAllEventsDialog.open();
+        this.fire('show-select-all-dialog');
       },
 
       // When the TimeLine Updates
       timeLineUpdated: function() {
-        this.$.SelectAllEventsDialog.close();
+        this.fire('hide-select-all-dialog');
       }
     });
   })();
