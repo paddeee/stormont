@@ -970,8 +970,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // even when the updateCheckboxes method is called.
           if (this.showAllSelected === true) {
 
-            if (this.gridData.length > 200 && this.collectionName === this.config.EventsCollection.name) {
-              this.fire('show-select-all-dialog');
+            if (event.type === 'change') {
+              if (this.gridData.length > 200 && this.collectionName === this.config.EventsCollection.name) {
+                this.fire('show-select-all-dialog');
+              }
             }
 
             this.querySelectorAll('.record-checkbox').forEach(function(checkBox) {
