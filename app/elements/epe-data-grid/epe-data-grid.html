@@ -698,6 +698,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         if (this.gridData) {
 
+          // Reset Pagination to first page on collection name changing
+          this.$.Paginator.currentpage = 0;
+
           // This is the column headings
           this.gridDataFirstRecord = this.gridData[0];
 
