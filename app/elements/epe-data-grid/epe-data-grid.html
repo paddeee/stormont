@@ -919,10 +919,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           $header.setAttribute('sort-status', 'neutral');
         });
 
-        if (this.sortingState.desc === true) {
-          $sortedHeader.setAttribute('sort-status', 'false');
-        } else if (this.sortingState.desc === false) {
+        if (this.sortingState.sortStatus === 'neutral') {
+          $sortedHeader.setAttribute('sort-status', 'neutral');
+        } else if (this.sortingState.sortStatus === 'true') {
           $sortedHeader.setAttribute('sort-status', 'true');
+        } else if (this.sortingState.sortStatus === 'false') {
+          $sortedHeader.setAttribute('sort-status', 'false');
         }
       },
 
@@ -934,15 +936,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var sortStatus = event.currentTarget.getAttribute('sort-status');
 
         // Set the desc property to send to the sorting collection transform
-        if (sortStatus === 'neutral' || sortStatus === 'false') {
+        if (sortStatus === 'neutral') {
           desc = false;
-        } else if (sortStatus === 'true') {
+          sortStatus = 'false';
+        } else if (sortStatus === 'false') {
           desc = true;
+          sortStatus = 'true';
+        } else if (sortStatus === 'true') {
+          desc = false;
+          sortStatus = 'neutral';
         }
 
         sortingObject = {
           collectionName: this.collectionName,
           fieldName: event.model.item.name,
+          sortStatus: sortStatus,
           desc: desc
         };
 

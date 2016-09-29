@@ -294,8 +294,9 @@ module.exports = Reflux.createStore({
 
     var transform = {
       type: 'simplesort',
-      property: sortingObject.fieldName,
-      desc: sortingObject.desc
+      property: sortingObject.sortStatus === 'neutral' ? '$loki' : sortingObject.fieldName,
+      desc: sortingObject.sortStatus === 'true' ? true : sortingObject.desc,
+      sortStatus: sortingObject.sortStatus
     };
 
     return transform;
@@ -380,7 +381,7 @@ module.exports = Reflux.createStore({
       // Update all data types checkboxes to only show records from filtered records
       // Don't do this if called by column sorting
       this.eventsCheckBoxUpdated(eventsCollection.data);
-      
+
     } else {
 
       switch(sortingObject.collectionName) {
