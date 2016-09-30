@@ -206,7 +206,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         previousEvents = this.timeLineData.events;
 
-        this.timeLineData = timeLineJSONObject;
+        this.timeLineData = _.cloneDeep(timeLineJSONObject);
 
         // If the TimeLine has not been created
         if (!this.timeLine) {
@@ -294,6 +294,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // If this method has been called because a user has updated a filter but selectedRecords remain the same
         if (!eventIdsToAdd.length && !eventIdsToRemove.length) {
+          this.fire('timeline-updated');
           return;
         }
 
