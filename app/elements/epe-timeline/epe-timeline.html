@@ -221,11 +221,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }
 
         } else {
-
-          if (this.timeLineData.events.length) {
-            this.setFirstAndLast();
-          }
-
           this.updateTimeLine(previousEvents);
         }
 
@@ -315,11 +310,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (this.idOfLastEventToBeRemoved.length) {
 
           if (this.timeLine.config.events.length > 1) {
-
-            //if (_.includes(eventIdsToAdd, this.idOfLastEventToBeRemoved[0])) {
-              this.timeLine.removeId(this.idOfLastEventToBeRemoved);
-              this.idOfLastEventToBeRemoved = [];
-            //}
+            this.timeLine.removeId(this.idOfLastEventToBeRemoved);
+            this.idOfLastEventToBeRemoved = [];
           }
         }
 
@@ -340,11 +332,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         }.bind(this));
 
+        // Keep TimeLine Events in sync before updating TimeLine UI
+        this.syncTimeLineEvents();
+
+        // Update UI Locking operation of updating timeline, only if the TimeLine is showing
         if (this.timelineShowing) {
           this.timeLine.updateDrawSlides();
         }
 
         this.fire('timeline-updated');
+      },
+
+      // Keep internal timeLineData events and timeLine.js events arrays in same order as timeLine.js will reorder
+      // array based on start date
+      syncTimeLineEvents: function() {
+
+        // Order timeLineData.events to keep in sync with order of TimeLine's internal events array
+        var resultsArray = [];
+        var sortingArray = _.map(this.timeLine.config.events, 'unique_id');
+
+        this.timeLineData.events.map(function(item) {
+          resultsArray.splice(sortingArray.indexOf(item.unique_id), 0, item);
+        });
+
+        this.timeLineData.events = resultsArray;
+
+        // Set first and Last nav events
+        if (this.timeLineData.events.length) {
+          this.setFirstAndLast();
+        }
       },
 
       // Update TimeLine display when it is shown
