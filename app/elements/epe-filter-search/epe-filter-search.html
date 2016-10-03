@@ -124,8 +124,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // CAN'T USE FILTERSCHANGED ABOVE AS THIS IS FIRED BY DEFAULT WHEN DATE-TIME CHANGES
     userFilterOccurred: function(event) {
 
-      console.log(event);
-
       var debouncedFiltersChanged = _.debounce(function() {
         this.fire('filters-changed', this.createFilterObject());
       }.bind(this), 800);

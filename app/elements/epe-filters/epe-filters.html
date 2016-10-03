@@ -775,6 +775,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         var index = JSON.parse(event.currentTarget.dataset.index);
 
+        this.fire('show-select-all-dialog');
+
         this.queryBuilderActions.queryFiltersChanged(index, 'remove');
       },
 
@@ -812,9 +814,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Set the model value to what is in the element
         filterObject.value = inputValue;
 
-        if (inputValue !== '') {
-          this.fire('show-select-all-dialog');
-        }
+        this.fire('show-select-all-dialog');
 
         this.queryBuilderActions.queryFiltersChanged(filterObject, 'update');
       },
