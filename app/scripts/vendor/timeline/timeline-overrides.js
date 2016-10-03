@@ -347,7 +347,16 @@ TL.Timeline = TL.Class.extend({
   },
 
   removeId: function(id, updateTimeLine) {
-    this.remove(this._getEventIndex(id), updateTimeLine);
+
+    // As TimeLine.js freaks out when removing last event, set marker index to last marker index
+    // if we are removing the last event
+    if (id[0] === 'last-event') {
+      index = this._timenav._markers.length - 1;
+    } else {
+      index = this._getEventIndex(id);
+    }
+
+    this.remove(index, updateTimeLine);
   },
 
   /* Get slide data
