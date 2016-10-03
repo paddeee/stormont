@@ -311,7 +311,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (this.idOfLastEventToBeRemoved.length) {
 
           if (this.timeLine.config.events.length > 1) {
-            this.timeLine.removeId(this.idOfLastEventToBeRemoved, 'noUpdate');
+            this.timeLine.removeId(this.idOfLastEventToBeRemoved);
             this.idOfLastEventToBeRemoved = [];
           }
         }
@@ -322,7 +322,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           if (this.timeLine.config.events.length > 1) {
 
             if (_.includes(eventIdsToRemove, eventObject.unique_id)) {
-              this.timeLine.removeId(eventObject.unique_id);
+              this.timeLine.removeId(eventObject.unique_id, 'noUpdate');
             }
 
             // TimeLine throws a wobbler when removing the last event. So instead the event needs to be stored
