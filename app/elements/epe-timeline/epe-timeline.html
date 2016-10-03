@@ -353,7 +353,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Timeline seems a bit buggy. Having to do hacky things like zoom twice to make sure the time axis appear
       initialiseTimelineUI: function() {
 
-        if (this.timeLine) {
+        if (this.timeLine && this.timeLine.config.events.length) {
           this.timeLine.setZoom(1);
           this.timeLine.setZoom(this.zoom);
           this.timeLine.updateDisplay();
