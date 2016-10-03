@@ -349,14 +349,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       syncTimeLineEvents: function() {
 
         // Order timeLineData.events to keep in sync with order of TimeLine's internal events array
-        var resultsArray = [];
         var sortingArray = _.map(this.timeLine.config.events, 'unique_id');
 
-        this.timeLineData.events.map(function(item) {
-          resultsArray.splice(sortingArray.indexOf(item.unique_id), 0, item);
+        this.timeLineData.events.sort(function(a, b){
+          return sortingArray.indexOf(a.unique_id) - sortingArray.indexOf(b.unique_id);
         });
-
-        this.timeLineData.events = resultsArray;
 
         // Set first and Last nav events
         if (this.timeLineData.events.length) {
