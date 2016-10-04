@@ -34,7 +34,7 @@ var packager = require('electron-packager');
 var electronInstaller = require('electron-winstaller');
 var exec = require('child_process').exec;
 
-const buildVersion = '0.9.5';
+const buildVersion = '0.9.7';
 const electronVersion = '1.3.5';
 
 var AUTOPREFIXER_BROWSERS = [
@@ -174,7 +174,7 @@ gulp.task('html', function () {
     .pipe($.if('*.html', $.replace('elements/elements.html', 'elements/elements.vulcanized.html')))
     .pipe(assets)
     // Concatenate And Minify JavaScript
-    //.pipe($.if('*.js', $.uglify({preserveComments: 'some'}).on('error', gutil.log)))
+    .pipe($.if('*.js', $.uglify({preserveComments: 'some'}).on('error', gutil.log)))
     // Concatenate And Minify Styles
     // In case you are still using useref build blocks
     .pipe($.if('*.css', $.cssmin()))
