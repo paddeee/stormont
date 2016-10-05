@@ -824,6 +824,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         var filterObject = event.model.item;
 
+        // Hacky workaround for fact an iron-select-cjhange event gets fired when adding a text filter
+        // Don't want this to fire queryFilterChanged as it changes sort order when adding filters
+        if (!event.target.clientHeight) {
+          return;
+        }
+
         // Set the model value to what is in the element
         filterObject.value = event.target.selected;
 
