@@ -201,7 +201,7 @@ module.exports = Reflux.createStore({
     if (action === 'add') {
       this.queryObject.filters.push(arg);
       this.message = {
-        type: 'queryUpdated' + broadcastMessage
+        type: 'queryAdded' + broadcastMessage
       };
     } else if (action === 'remove') {
 
