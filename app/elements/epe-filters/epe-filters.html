@@ -783,7 +783,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Get date for date picker
       getFilterDate: function(value) {
         if (value) {
-          return this.toArray(value)[0].value.split(' ')[0];
+          return value.split(' ')[0];
         } else {
           return '1900-01-01';
         }
@@ -792,7 +792,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Get time for date picker
       getFilterTime: function(value) {
         if (value) {
-          return this.toArray(value)[0].value.split(' ')[1];
+          return value.split(' ')[1];
         } else {
           return '00:00:00';
         }
