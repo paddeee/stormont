@@ -195,14 +195,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div class="pdf__footer relative horizontal layout center">
 
           <!-- General -->
-          <div class="pdf_button-holder border-right horizontal layout center">
+          <div class="pdf_button-holder border-right horizontal layout center" hidden$="[[hideAnnotations]]">
             <paper-icon-button id="ShowInfo" icon="info" on-tap="showInfo"></paper-icon-button>
           </div>
 
           <paper-tooltip for="ShowInfo" position="top" offset="0">Show PDF Info</paper-tooltip>
 
           <!-- Annotations -->
-          <div class="pdf_button-holder border-right horizontal layout center">
+          <div class="pdf_button-holder border-right horizontal layout center" hidden$="[[hideAnnotations]]">
             <paper-icon-button id="FreeDraw" icon="gesture" on-tap="freeDraw"></paper-icon-button>
             <paper-icon-button id="AddCircle" icon="image:panorama-fish-eye" on-tap="addCircle"></paper-icon-button>
             <paper-icon-button id="AddRect" icon="image:crop-landscape" on-tap="addRect"></paper-icon-button>
@@ -408,6 +408,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       relatedItems: {
         type: Array,
         value: []
+      },
+
+      hideAnnotations: {
+        type: Boolean,
+        value: false
       }
     },
 
@@ -454,6 +459,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     pdfObjectChanged: function() {
 
       if (this.pdfObject && this.selectedSourceFileType === 'pdf') {
+
+        // Add class to manage footer if viewing User Manual
+        if (this.pdfObject.manual) {
+          this.resetPDFAnnotations();
+          this.hideAnnotations = true;
+        } else {
+          this.hideAnnotations = false;
+        }
 
         this.pdfName = this.pdfObject['Full Name'];
         this.pdfDescription = this.pdfObject.Description;

@@ -7280,20 +7280,25 @@ function webViewerInitialized($pdfViewerElement) {
   var sourcePath = '/sourcefiles/';
   var file;
 
-  // Set the src of the image if inside Electron
-  if (appMode === 'app') {
-
-    // Use roles to determine if on network on offline
-    if (presentationMode === 'online') {
-      sourcePath = config.paths.sourcePath;
-      file = sourcePath + $pdfViewerElement.pdfObject['Linked File'];
-    } else if (presentationMode === 'offline') {
-      sourcePath = global.config.packagePath;
-      file = $pdfViewerElement.pdfObject.blob;
-    }
+  if ($pdfViewerElement.pdfObject.manual) {
+    file = $pdfViewerElement.pdfObject['Linked File'];
   } else {
-    file = sourcePath + $pdfViewerElement.pdfObject['Linked File'];
-    //file =  'file' in params ? params.file : DEFAULT_URL;
+
+    // Set the src of the image if inside Electron
+    if (appMode === 'app') {
+
+      // Use roles to determine if on network on offline
+      if (presentationMode === 'online') {
+        sourcePath = config.paths.sourcePath;
+        file = sourcePath + $pdfViewerElement.pdfObject['Linked File'];
+      } else if (presentationMode === 'offline') {
+        sourcePath = global.config.packagePath;
+        file = $pdfViewerElement.pdfObject.blob;
+      }
+    } else {
+      file = sourcePath + $pdfViewerElement.pdfObject['Linked File'];
+      //file =  'file' in params ? params.file : DEFAULT_URL;
+    }
   }
 
   var fileInput = document.createElement('input');

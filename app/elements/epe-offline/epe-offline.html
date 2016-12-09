@@ -17,6 +17,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       display: block;
     }
 
+    .manual-button {
+      margin: 0 24px 0 16px;
+    }
+
     iron-pages,
     section {
       height: 100%;
@@ -188,6 +192,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             class="back-button nav-icon"
             icon="arrow-back"
             on-tap="navigateBack"></paper-icon-button>
+          <paper-icon-button
+              id="ManualButton"
+              class="manual-button nav-icon"
+              icon="image:picture-as-pdf"
+              on-tap="viewManual"></paper-icon-button>
 
           <!-- Menu button not currently needed offline
           <paper-icon-button
@@ -1090,6 +1099,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Send message to electron to open Open Dialog
       publishLocationTapped: function() {
         ipcRenderer.send('show-open-dialog', 'directory');
+      },
+
+      // View Manual
+      viewManual: function() {
+        this.sourceActions.viewManual();
       }
     });
   })();

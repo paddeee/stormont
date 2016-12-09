@@ -153,7 +153,10 @@ gulp.task('copy', function () {
   var fonts = gulp.src(['app/fonts/**/*'])
     .pipe(gulp.dest('dist/fonts'));
 
-  return merge(app, bower, elements, vulcanized, swBootstrap, swToolbox, profiles, vendorScripts, vendorStyles, fonts)
+  var manuals = gulp.src(['app/userManuals/**/*'])
+    .pipe(gulp.dest('dist/userManuals'));
+
+  return merge(app, bower, elements, vulcanized, swBootstrap, swToolbox, profiles, vendorScripts, vendorStyles, fonts, manuals)
     .pipe($.size({title: 'copy'}));
 });
 

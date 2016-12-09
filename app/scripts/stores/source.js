@@ -359,6 +359,8 @@ module.exports = Reflux.createStore({
     }
 
     this.message = '';
+    this.viewViewerManual = false;
+    this.viewCreatorManual = false;
 
     // Set selectedSourceObject property
     this.setSelectedSourceObject(sourceObject);
@@ -621,5 +623,35 @@ module.exports = Reflux.createStore({
       this.selectedSourceObject = null;
       this.trigger(this);
     }
+  },
+
+  // View Manual
+  viewManual: function() {
+
+    this.selectedSourceObject = {};
+    this.selectedSourceObject.manual = true;
+
+    if (presentationMode === 'online') {
+      this.viewViewerManual = false;
+      this.viewCreatorManual = true;
+      this.selectedSourceObject['Full Name'] = 'EPE Viewer Manual';
+      this.selectedSourceObject['Linked File'] = 'userManuals/EPE_manual_creator.pdf';
+    } else if (presentationMode === 'offline') {
+      this.viewCreatorManual = false;
+      this.viewViewerManual = true;
+      this.selectedSourceObject['Full Name'] = 'EPE Viewer Manual';
+      this.selectedSourceObject['Linked File'] = 'userManuals/EPE_manual_viewer.pdf';
+    }
+
+    this.selectedSourceRoute = 'pdf';
+    this.selectedSourceFileType = 'pdf';
+
+    // Set viewingSource property to true
+    this.viewingSource = true;
+
+    this.trigger(this);
+
+    // Reset viewingSource property to false
+    this.viewingSource = false;
   }
 });

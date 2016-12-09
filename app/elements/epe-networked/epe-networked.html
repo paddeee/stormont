@@ -17,6 +17,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       display: block;
     }
 
+    .cursor {
+      cursor: pointer;
+    }
+
     iron-pages,
     section {
       height: 100%;
@@ -154,6 +158,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
              on-tap="toggleMenu">
             <iron-icon icon="view-list"></iron-icon>
             <span>View/Edit Packages</span>
+          </a>
+          <a class="cursor"
+             on-tap="viewManual">
+            <iron-icon icon="image:picture-as-pdf"></iron-icon>
+            <span>View Manual</span>
           </a>
           <a data-route="/login"
              href="/login"
@@ -986,6 +995,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Show spinner when selecting a lot of events as UI freezes due to Timeline
       hideSelectAllDialog: function() {
         this.$.SelectAllEventsDialog.close();
+      },
+
+      // View Manual
+      viewManual: function(event) {
+        this.sourceActions.viewManual();
+        this.$.paperDrawerPanel.togglePanel(event);
       }
     });
   })();
