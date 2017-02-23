@@ -1158,8 +1158,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Set the src of the mapTiles if inside Electron or not
         // Online tiles for now if in a browser
-        //if (appMode === 'app') {
-        if (!true) { // temp line of code to always use online maps. Remove for previous line when offline maps are working
+        if (appMode === 'app') {
+        // if (!true) { // temp line of code to always use online maps. Remove for previous line when offline maps are working
           this.mapTilesSrc = 'file:///' + mapTilesPath + mapTilesDirectories;
         } else {
           this.mapTilesSrc = 'https://{s}.tile.openstreetmap.org' + mapTilesDirectories;
@@ -1170,8 +1170,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Set the src of the mapTiles if inside Electron or not
         // Online tiles for now if in a browser
-        //if (appMode === 'app') {
-        if (!true) { // temp line of code to always use online maps. Remove for previous line when offline maps are working
+        if (appMode === 'app') {
+        // if (!true) { // temp line of code to always use online maps. Remove for previous line when offline maps are working
           this.mapTilesSrc = 'file:///' + satelliteMapTilesPath + mapTilesDirectories;
         } else {
           this.mapTilesSrc = 'http://otile1.mqcdn.com/tiles/1.0.0/sat' + satelliteMapTilesDirectories;
