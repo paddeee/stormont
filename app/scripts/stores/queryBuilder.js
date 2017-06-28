@@ -4,7 +4,6 @@ var Reflux = require('reflux');
 var QueryBuilderActions = require('../actions/queryBuilder.js');
 var dataSourceStore = require('../stores/dataSource.js');
 var presentationsStore = require('../stores/presentations.js');
-var importPackageStore = require('../stores/importPackage.js');
 var config = appMode === 'app' ? global.config : require('../config/config.js');
 var queriesCollection = 'Queries';
 
@@ -17,9 +16,6 @@ module.exports = Reflux.createStore({
 
   // Called on Store initialisation
   init: function() {
-
-    // Register importPackageStore's changes
-    this.listenTo(importPackageStore, this.importPackageChanged);
 
     // Register dataSourceStores's changes
     this.listenTo(dataSourceStore, this.dataSourceChanged);
@@ -52,18 +48,6 @@ module.exports = Reflux.createStore({
       }
 
       this.createDefaultQuery('defaultQueryAdded');
-    }
-  },
-
-  // Add the images as blobs on the person's profile Object
-  importPackageChanged: function (importPackageStore) {
-
-    if (importPackageStore.message === 'importSuccess') {
-
-      // Can set config object now
-      config = global.config;
-
-      this.createDefaultQuery('importSuccess');
     }
   },
 

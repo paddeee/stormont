@@ -135,7 +135,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
         <div class="card-contents layout vertical center">
           <h1>Electronic Presentation of Evidence</h1>
-          <h3>Choose Package To Import</h3>
+          <h3>Choose Directory To Import</h3>
           <div class="toggle-mode">
             <paper-toggle-button
               id="CourtModeToggle"
@@ -151,15 +151,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </div>
 
           <div class="display-import-path">[[importLocation]]</div>
-
-          <paper-input
-            id="ImportPassword"
-            class="import-package"
-            label="Enter Package Password, Then Hold Down YubiKey Button"
-            type="password"
-            autofocus
-            on-keypress="yubiKeyPressed"></paper-input>
         </div>
+
       </paper-material>
       <div class="evidential-logo">
         <img id="EvidentialLink"
@@ -203,6 +196,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           if (arg) {
             this.importLocation = arg[0];
+
+              // Call importPackage packageSelected action
+              this.importPackageActions.packageSelected({
+                  packageLocation: this.importLocation
+              });
+
           } else {
             this.importLocation = 'Not selected..';
           }

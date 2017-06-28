@@ -69,10 +69,14 @@ module.exports = Reflux.createStore({
 
       this.collectionName = config.SourcesCollection.name;
 
+      this.dataSource = dataSourceStore.dataSource;
+
       this.setDefaultTransform();
 
       // Call when the source data is updated
       this.createFilterTransform(this.filterTransform, dataSourceStore.message);
+
+      this.trigger(this);
     }
   },
 

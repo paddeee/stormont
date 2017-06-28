@@ -187,23 +187,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <!-- Main Toolbar -->
         <paper-toolbar id="MainToolBar">
-          <paper-icon-button
-            id="BackArrow"
-            class="back-button nav-icon"
-            icon="arrow-back"
-            on-tap="navigateBack"></paper-icon-button>
-          <paper-icon-button
-              id="ManualButton"
-              class="manual-button nav-icon"
-              icon="image:picture-as-pdf"
-              on-tap="viewManual"></paper-icon-button>
-
-          <!-- Menu button not currently needed offline
-          <paper-icon-button
-            id="MenuButton"
-            class="menu-button"
-            icon="menu"
-            on-tap="toggleMenu"></paper-icon-button>-->
 
           <div id="SectionName" class="section-name flex center horizontal layout">[[sectionTitle]]</div>
 
@@ -224,22 +207,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                  id="DataGridButton"
                                  class="nav-icon"
                                  on-tap="navigateToDataGrid"></paper-icon-button>
-              <paper-icon-button id="MapButton"
-                                 icon="maps:map"
-                                 class="nav-icon nav-icon--selected"
-                                 on-tap="navigateToMap"></paper-icon-button>
-              <paper-icon-button icon="social:person"
-                                 id="ProfileButton"
-                                 class="nav-icon"
-                                 on-tap="navigateToProfile"></paper-icon-button>
               <paper-icon-button icon="description"
                                  id="SourceButton"
                                  class="nav-icon"
                                  on-tap="navigateToSource"></paper-icon-button>
-              <paper-icon-button id="FilterButton"
-                                 on-tap="toggleFilterDisplay"
-                                 icon="filter-list"
-                                 class="nav-icon"></paper-icon-button>
               <paper-icon-button icon="image:photo-camera"
                                  id="PublishButton"
                                  on-tap="openPublishDialog"
@@ -248,14 +219,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
           </div>
 
-          <!-- paper-icon-buttons have an inherent padding that will push the tooltip down. offset undoes it -->
-          <paper-tooltip for="BackArrow" offset="0">Back</paper-tooltip>
           <!--<paper-tooltip for="MenuButton" offset="0">Show Menu</paper-tooltip>-->
           <paper-tooltip for="DataGridButton" offset="0">Data Grid</paper-tooltip>
-          <paper-tooltip for="MapButton" offset="0">Map</paper-tooltip>
-          <paper-tooltip for="ProfileButton" offset="0">Profile</paper-tooltip>
           <paper-tooltip for="SourceButton" offset="0">Supporting Evidence</paper-tooltip>
-          <paper-tooltip for="FilterButton" offset="0">Search/Filter</paper-tooltip>
           <paper-tooltip for="PublishButton" offset="0">Publish as Evidence</paper-tooltip>
         </paper-toolbar>
 
@@ -679,7 +645,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (window.EpeCreatePackage.createPackageRoute === 'data-grid') {
 
           if (window.EpeCreatePackage.params) {
-            this.sectionTitle = 'EPE - ' + window.EpeCreatePackage.params.name;
+            this.sectionTitle = 'EPE - Supporting Evidence';
           }
 
           // Manage classes on nav icons
@@ -1092,18 +1058,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Navigate to the Map
       importSuccessConfirmed: function() {
-        page('/create-package/map');
+        page('/create-package/data-grid/Document');
         this.packageSelected();
       },
 
       // Send message to electron to open Open Dialog
       publishLocationTapped: function() {
         ipcRenderer.send('show-open-dialog', 'directory');
-      },
-
-      // View Manual
-      viewManual: function() {
-        this.sourceActions.viewManual();
       }
     });
   })();

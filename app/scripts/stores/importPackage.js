@@ -5,167 +5,52 @@ var loki = require('lokijs');
 var importFileAdapter = require('../adapters/loki-import-file-adapter.js');
 var ImportPackageActions = require('../actions/importPackage.js');
 var dataSourceStore = require('../stores/dataSource.js');
-var fsExtra = appMode === 'app' ? window.electronRequire('fs-extra') : null;
-var crypto = appMode === 'app' ? window.electronRequire('crypto') : null;
-var getRawBody = appMode === 'app' ? window.electronRequire('raw-body') : null;
+var config = require('../config/config.js');
+//var fsExtra = appMode === 'app' ? window.electronRequire('fs-extra') : null;
 
 module.exports = Reflux.createStore({
 
   // this will set up listeners to all publishers in ExportActions, using onKeyname (or keyname) as callbacks
   listenables: [ImportPackageActions],
 
-  packagePassword: '',
-
-  // Check if YubiKey is inserted
-  // ToDO: For now always saying true. Need to add npm yub to check for real
+  // When a directory of files is selected
   onPackageSelected: function(packageObject) {
+
+    global.config = config;
 
     importFileAdapter.tempPackageDirectory = packageObject.packageLocation;
 
-    this.commenceImportProcess(packageObject);
+    this.createFileDatabase();
   },
 
-  // Start the chain of Promises that will handle the Import Process
-  commenceImportProcess: function(packageObject) {
+  // Create empty loki db
+  createFileDatabase: function() {
 
-    // Decrypt the DB File
-    this.decryptConfigFile(packageObject)
-      .then(function(configJSON) {
-        console.log('Config File Decrypted');
+    dataSourceStore.dataSource = new loki('EPE.json');
+    var sourceCollection = dataSourceStore.dataSource.addCollection(config.SourcesCollection.name);
+    var sourceCollectionData = this.getSourceCollectionData();
 
-        // Set the Global Config property here
-        global.config = configJSON;
+    sourceCollection.insert(sourceCollectionData);
 
-      // Decrypt the DB File
-      this.decryptDatabaseFile(packageObject)
-        .then(function(dbJSON) {
-          console.log('DB File Decrypted');
-
-          // Load Loki DB into memory
-          this.loadDatabase(dbJSON)
-            .then(function() {
-              console.log('Database Loaded');
-
-              // Send object out to all listeners when database loaded
-              dataSourceStore.dataSource.message = {
-                type: 'dataBaseLoaded'
-              };
-
-              // Add the package filesystem location so we can use it later for Publishing functionality
-              global.config.packagePath = importFileAdapter.tempPackageDirectory;
-
-              // Set packagePassword so we can access it if application locks
-              this.packagePassword = packageObject.packagePassword;
-
-              dataSourceStore.dataSource.message = {
-                type: 'packageImported'
-              };
-
-              dataSourceStore.trigger(dataSourceStore);
-
-              this.message = 'importSuccess';
-              this.trigger(this);
-              dataSourceStore.dataSource.message = {
-                type: ''
-              };
-              this.message = '';
-            }.bind(this));
-          }.bind(this))
-        .catch(function(error) {
-
-          console.warn('DATABASE DECRYPTION FAILURE', error);
-
-          this.message = 'dbDecryptionFailure';
-          this.trigger(this);
-          this.message = '';
-        }.bind(this));
-      }.bind(this))
-      .catch(function(error) {
-
-        console.warn('CONFIG FILE DECRYPTION FAILURE', error);
-
-        this.message = 'configDecryptionFailure';
-        this.trigger(this);
-        this.message = '';
-      }.bind(this));
+    this.message = 'importSuccess';
+    this.trigger(this);
   },
 
-  // Decrypt the config file
-  decryptConfigFile: function(packageObject) {
+  // Return array of Source File info
+  getSourceCollectionData: function() {
 
-    return new Promise(function (resolve, reject) {
+    // REPLACE THIS WITH DATA RETRIEVED FROM FILES
+    var obj1 = {};
+    var obj2 = {};
 
-      // Input file
-      var configStream = fsExtra.createReadStream(importFileAdapter.tempPackageDirectory + '/appConfig.json');
+    obj1['Full Name'] = 'KIN-10350 to KIN-10850.pdf';
+    obj1['Short Name'] = 'KIN-10350 to KIN-10850.pdf';
+    obj1['Linked File'] = 'KIN-10350 to KIN-10850.pdf';
 
-      // Decrypt content
-      var decrypt = crypto.createDecipher('aes-256-ctr', packageObject.packagePassword);
+    obj2['Full Name'] = 'KIN-8350 to KIN-10350.pdf';
+    obj2['Short Name'] = 'KIN-8350 to KIN-10350.pdf';
+    obj2['Linked File'] = 'KIN-8350 to KIN-10350.pdf';
 
-      configStream.on('error', function(error) {
-        reject(error);
-      });
-
-      // Start pipe
-      getRawBody(configStream.pipe(decrypt))
-        .then(function (buffer) {
-          try {
-            JSON.parse(buffer.toString());
-            resolve(JSON.parse(buffer.toString()));
-          } catch (error) {
-            console.log('Error decrypting DataBase file: ' + error);
-            reject(error);
-          }
-        })
-        .catch(function (error) {
-          console.log('Error decrypting DataBase file: ' + error);
-          reject(error);
-        });
-    });
-  },
-
-  // Decrypt the database file
-  decryptDatabaseFile: function(packageObject) {
-
-    return new Promise(function (resolve, reject) {
-
-      // Input file
-      var dbStream = fsExtra.createReadStream(importFileAdapter.tempPackageDirectory + '/EPE.dat');
-
-      // Decrypt content
-      var decrypt = crypto.createDecipher('aes-256-ctr', packageObject.packagePassword);
-
-      dbStream.on('error', function(error) {
-        reject(error);
-      });
-
-      // Start pipe
-      getRawBody(dbStream.pipe(decrypt))
-        .then(function (buffer) {
-          try {
-            JSON.parse(buffer.toString());
-            resolve(buffer.toString());
-          } catch (error) {
-            console.log('Error decrypting DataBase file: ' + error);
-            reject(error);
-          }
-        })
-        .catch(function (error) {
-          console.log('Error decrypting DataBase file: ' + error);
-          reject(error);
-        });
-    });
-  },
-
-  // Load Database JSON File in to memory
-  loadDatabase: function(dbJSON) {
-
-    return new Promise(function (resolve) {
-
-      dataSourceStore.dataSource = new loki('EPE.json');
-
-      dataSourceStore.dataSource.loadJSON(dbJSON, {});
-
-      resolve();
-    });
+    return [obj1, obj2];
   }
 });

@@ -290,8 +290,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <colgroup>
                 <col class="checkbox-col"
                      hidden$="[[hideCheckboxColumn]]">
-                <col class="related-col"
-                     hidden$="[[hideRelatedToEventColumn]]">
                 <col class="button-col"
                      hidden$="[[hideViewProfileButton]]">
                 <col class="button-col"
@@ -315,13 +313,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     checked$="[[showAllSelected]]"
                     on-change="selectAllRecords"
                     on-iron-change="selectAllRecords"></paper-checkbox>
-                </th>
-                <th scope="col"
-                    id="SelectedByEventHeading"
-                    class="selected-by-event-heading"
-                    on-mousemove="showResizeHandle"
-                    hidden$="[[hideRelatedToEventColumn]]">
-                  <iron-icon icon="event" class="selected-by-event__heading-icon"></iron-icon>
                 </th>
                 <th scope="col"
                     class="blank"
@@ -375,8 +366,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <colgroup>
               <col class="checkbox-col"
                    hidden$="[[hideCheckboxColumn]]">
-              <col class="related-col"
-                   hidden$="[[hideRelatedToEventColumn]]">
               <col class="button-col"
                    hidden$="[[hideViewProfileButton]]">
               <col class="button-col"
@@ -404,11 +393,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   </paper-checkbox>
                 </td>
 
-                <td class="selected-by-event" hidden$="[[hideRelatedToEventColumn]]">
-                  <iron-icon icon="check"
-                             class="selected-by-event__icon"
-                             hidden$="[[!item.highlightAsRelatedToEvent]]"></iron-icon>
-                </td>
                 <td class="view-button"
                     hidden$="[[hideViewProfileButton]]">
                   <paper-button
@@ -527,11 +511,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         hideViewProfileButton: {
           type: Boolean,
           computed: 'isProfile(collectionName)'
-        },
-
-        hideRelatedToEventColumn: {
-          type: Boolean,
-          computed: 'isEvent(collectionName)'
         },
 
         hideCheckboxColumn: {

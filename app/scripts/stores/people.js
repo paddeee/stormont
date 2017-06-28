@@ -5,10 +5,6 @@ var dataSourceStore = require('../stores/dataSource.js');
 var config = appMode === 'app' ? global.config : require('../config/config.js');
 var presentationsStore = require('../stores/presentations.js');
 var PeopleActions = require('../actions/people.js');
-var importPackageStore = require('../stores/importPackage.js');
-var fsExtra = appMode === 'app' ? window.electronRequire('fs-extra') : null;
-var crypto = appMode === 'app' ? window.electronRequire('crypto') : null;
-var getRawBody = appMode === 'app' ? window.electronRequire('raw-body') : null;
 
 module.exports = Reflux.createStore({
 
@@ -30,9 +26,6 @@ module.exports = Reflux.createStore({
       this.setDefaultTransform();
     }
 
-    // Register importPackageStore's changes
-    this.listenTo(importPackageStore, this.importPackageChanged);
-
     // Register dataSourceStores's changes
     this.listenTo(dataSourceStore, this.dataSourceChanged);
 
@@ -52,32 +45,6 @@ module.exports = Reflux.createStore({
 
     // Call when the source data is updated
     this.filterStateChanged(this.filterTransform);
-  },
-
-  // Add the images as blobs on the person's profile Object
-  importPackageChanged: function (importPackageStore) {
-
-    if (importPackageStore.message === 'importSuccess') {
-
-      // Can set config object now
-      config = global.config;
-
-      this.collectionName = config.PeopleCollection.name;
-
-      this.setDefaultTransform();
-
-      // Call when the source data is updated
-      this.createFilterTransform(this.filterTransform, dataSourceStore.message);
-
-      // Iterate through each profile
-      this.dataSource.getCollection(this.collectionName).data.forEach(function(profileObject) {
-
-        // Decrypt the file if in Offline Application
-        if (global.config && profileObject.Photo) {
-          this.decryptProfileFile(profileObject);
-        }
-      }.bind(this));
-    }
   },
 
   // Set search filter on our collectionTransform
@@ -568,27 +535,6 @@ module.exports = Reflux.createStore({
       this.relatedEvents = [];
       this.trigger(this);
     }
-  },
-
-  // Decrypt the selected profile file
-  decryptProfileFile: function(profileObject) {
-
-    // Input file
-    var readStream = fsExtra.createReadStream(global.config.packagePath + '/profiles' + profileObject.Photo);
-
-    // Decrypt content
-    var decrypt = crypto.createDecipher('aes-256-ctr', importPackageStore.packagePassword);
-
-    // Start pipe
-    getRawBody(readStream.pipe(decrypt))
-      .then(function (buffer) {
-
-        this.setBlob(buffer, profileObject);
-
-      }.bind(this))
-      .catch(function (err) {
-        console.log('Error decrypting ' + profileObject.Photo + ' ' + err);
-      });
   },
 
   // Set the blob property depending on the media type
