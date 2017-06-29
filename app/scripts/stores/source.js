@@ -357,7 +357,7 @@ module.exports = Reflux.createStore({
     var sourcePath = '';
 
     if (global.config && presentationMode === 'offline') {
-      sourcePath = global.config.packagePath + '/sourcefiles/';
+      sourcePath = global.config.sourceFilesDirectory;
     } else if (global.config && presentationMode === 'online') {
       sourcePath = global.config.paths.sourcePath;
     }
@@ -393,19 +393,19 @@ module.exports = Reflux.createStore({
         } else {
 
           // Decrypt the file if in Offline Application
-          if (global.config && presentationMode === 'offline') {
-            this.decryptSourceFile(sourceObject);
-          } else {
+          /*if (global.config && presentationMode === 'offline') {
+           this.decryptSourceFile(sourceObject);
+           } else {*/
 
-            // Set viewingSource property to true
-            this.viewingSource = true;
+          // Set viewingSource property to true
+          this.viewingSource = true;
 
-            // Send object out to all listeners
-            this.trigger(this);
+          // Send object out to all listeners
+          this.trigger(this);
 
-            // Reset viewingSource property to false
-            this.viewingSource = false;
-          }
+          // Reset viewingSource property to false
+          this.viewingSource = false;
+          // }
         }
       }.bind(this));
     } else {

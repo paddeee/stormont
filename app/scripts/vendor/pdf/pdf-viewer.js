@@ -7286,15 +7286,7 @@ function webViewerInitialized($pdfViewerElement) {
 
     // Set the src of the image if inside Electron
     if (appMode === 'app') {
-
-      // Use roles to determine if on network on offline
-      if (presentationMode === 'online') {
-        sourcePath = config.paths.sourcePath;
-        file = sourcePath + $pdfViewerElement.pdfObject['Linked File'];
-      } else if (presentationMode === 'offline') {
-        sourcePath = global.config.packagePath;
-        file = $pdfViewerElement.pdfObject.blob;
-      }
+      file = global.config.sourceFilesDirectory + $pdfViewerElement.pdfObject['Linked File'];
     } else {
       file = sourcePath + $pdfViewerElement.pdfObject['Linked File'];
       //file =  'file' in params ? params.file : DEFAULT_URL;
