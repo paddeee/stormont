@@ -2,11 +2,12 @@
 
 var Reflux = require('reflux');
 var loki = require('lokijs');
-var importFileAdapter = require('../adapters/loki-import-file-adapter.js');
 var ImportPackageActions = require('../actions/importPackage.js');
 var dataSourceStore = require('../stores/dataSource.js');
 var config = require('../config/config.js');
-//var fsExtra = appMode === 'app' ? window.electronRequire('fs-extra') : null;
+var sourceFilesDirectory = '';
+var klaw = appMode === 'app' ? window.electronRequire('klaw') : null;
+var through2 = appMode === 'app' ? window.electronRequire('through2') : null;
 
 module.exports = Reflux.createStore({
 
@@ -18,7 +19,7 @@ module.exports = Reflux.createStore({
 
     global.config = config;
 
-    importFileAdapter.tempPackageDirectory = packageObject.packageLocation;
+    sourceFilesDirectory = packageObject.packageLocation;
 
     this.createFileDatabase();
   },
@@ -27,6 +28,7 @@ module.exports = Reflux.createStore({
   createFileDatabase: function() {
 
     dataSourceStore.dataSource = new loki('EPE.json');
+
     var sourceCollection = dataSourceStore.dataSource.addCollection(config.SourcesCollection.name);
     var sourceCollectionData = this.getSourceCollectionData();
 
@@ -38,6 +40,24 @@ module.exports = Reflux.createStore({
 
   // Return array of Source File info
   getSourceCollectionData: function() {
+
+    var excludeDirFilter = through2.obj(function (item, enc, next) {
+      if (!item.stats.isDirectory()) {
+        this.push(item);
+      }
+      next();
+    });
+
+    var items = [];
+
+    klaw(sourceFilesDirectory)
+      .pipe(excludeDirFilter)
+      .on('data', function (item) {
+        items.push(item.path);
+      })
+      .on('end', function () {
+        console.dir(items); // => [ ... array of files without directories]
+      });
 
     // REPLACE THIS WITH DATA RETRIEVED FROM FILES
     var obj1 = {};
