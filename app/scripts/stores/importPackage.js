@@ -24,17 +24,31 @@ module.exports = Reflux.createStore({
     this.createFileDatabase();
   },
 
+  hasExtension: function(typeToTest, validTypes) {
+    return (new RegExp('(' + validTypes.join('|').replace(/\./g, '\\.') + ')$')).test(typeToTest);
+  },
+
   // Create empty loki db
   createFileDatabase: function() {
 
     dataSourceStore.dataSource = new loki('EPE.json');
 
+    var validFileTypes = ['.pdf', '.jpg', '.jpeg', '.gif', '.png', 'm4a', 'mp3', 'wav', 'avi', 'mp4', 'mov', 'webm'];
     var sourceCollection = dataSourceStore.dataSource.addCollection(config.SourcesCollection.name);
 
     this.getSourceCollectionData()
       .then(function(filePaths) {
 
-        var fileObjects = filePaths.map(function(filePath) {
+        var validFiles = filePaths.filter(function(filePath) {
+
+          var fileExtension = path.extname(filePath);
+
+          // Check file is valid
+          return this.hasExtension(fileExtension, validFileTypes);
+
+        }.bind(this));
+
+        var fileObjects = validFiles.map(function(filePath) {
 
           var file = {};
           var fileName = path.basename(filePath);
@@ -45,7 +59,8 @@ module.exports = Reflux.createStore({
           file.Extension = fileExtension;
 
           return file;
-        });
+
+        }.bind(this));
 
         sourceCollection.insert(fileObjects);
 
