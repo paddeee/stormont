@@ -421,11 +421,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Get element this way as parent element isn't yet available through document.querySelector
       var $epeElement;
 
-      if (presentationMode === 'online') {
-        $epeElement = app.$.epeNetworked;
-      } else if (presentationMode === 'offline') {
-        $epeElement = app.$.epeOffline;
-      }
+      $epeElement = app.$.epeOffline;
 
       // Add listener to make sure page is updated when a new one is rendered
       window.addEventListener('pagechange', function () {
@@ -764,53 +760,50 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var pageNumber = $pageElement.dataset.pageNumber;
       var $epeAnnotations;
 
-      // Prevent two annotation elements being inserted into each page
-      if (this.editState === this.presentationState) {
+      // Save all annotation objects as PDF.js scrolling, rotating or zooming can/will
+      // destroy the current canvas elements
+      this.saveCanvasAnnotationObjects();
 
-        // Save all annotation objects as PDF.js scrolling, rotating or zooming can/will
-        // destroy the current canvas elements
-        this.saveCanvasAnnotationObjects();
+      // Create new epe-annotations element
+      $epeAnnotations = document.createElement('epe-annotations');
 
-        // Create new epe-annotations element
-        $epeAnnotations = document.createElement('epe-annotations');
+      // Set id to match page number that has just rendered
+      $epeAnnotations.id = 'PDFAnnotations' + pageNumber;
 
-        // Set id to match page number that has just rendered
-        $epeAnnotations.id = 'PDFAnnotations' + pageNumber;
+      // Don't change class name to pdf-annotations instead of pdfannotations. No idea why but anything with annotations in class
+      // name doesn't pick up the styles. Maybe a Polymer thing?
+      $epeAnnotations.classList.add('pdfannotations');
 
-        // Don't change class name to pdf-annotations instead of pdfannotations. No idea why but anything with annotations in class
-        // name doesn't pick up the styles. Maybe a Polymer thing?
-        $epeAnnotations.classList.add('pdfannotations');
+      // Pass in annotation type as PDF
+      $epeAnnotations.annotationType = 'pdf';
 
-        // Pass in annotation type as PDF
-        $epeAnnotations.annotationType = 'pdf';
+      // Set page number as a data attribute so it's easy to retrieve
+      $epeAnnotations.dataset.pageNumber = pageNumber;
 
-        // Set page number as a data attribute so it's easy to retrieve
-        $epeAnnotations.dataset.pageNumber = pageNumber;
+      // Set size of canvas based off size of PDF page
+      $epeAnnotations.annotationHeight = $pageElement.clientHeight;
+      $epeAnnotations.annotationWidth = $pageElement.clientWidth;
 
-        // Set size of canvas based off size of PDF page
-        $epeAnnotations.annotationHeight = $pageElement.clientHeight;
-        $epeAnnotations.annotationWidth = $pageElement.clientWidth;
+      // Append epe-annotation element to the PDF page in the DOM
+      $pageElement.appendChild($epeAnnotations);
 
-        // Append epe-annotation element to the PDF page in the DOM
-        $pageElement.appendChild($epeAnnotations);
+      // Set state of pointer events on annotation layer
+      this.setAnnotationsPointerEvents();
 
-        // Set state of pointer events on annotation layer
-        this.setAnnotationsPointerEvents();
+      // Re-attach the canvas properties of the element
+      $epeAnnotations.canvas.loadFromJSON(this.temporaryCanvasObjects[pageNumber - 1]);
 
-        // Re-attach the canvas properties of the element
-        $epeAnnotations.canvas.loadFromJSON(this.temporaryCanvasObjects[pageNumber - 1]);
+      // Need to manually call setCanvasDimensions method of epe-annotations element as not sure
+      // observers work with dynamically created elements.
+      // Call after element has been added to the DOM so the 'attached' method will have been called.
+      $epeAnnotations.setCanvasDimensions();
 
-        // Need to manually call setCanvasDimensions method of epe-annotations element as not sure
-        // observers work with dynamically created elements.
-        // Call after element has been added to the DOM so the 'attached' method will have been called.
-        $epeAnnotations.setCanvasDimensions();
+      // Set canvas zoom to same as current scale
+      $epeAnnotations.zoom(window.PDFViewerApplication.pdfViewer.currentScale);
 
-        // Set canvas zoom to same as current scale
-        $epeAnnotations.zoom(window.PDFViewerApplication.pdfViewer.currentScale);
+      // Set canvas rotation to same as current rotation
+      $epeAnnotations.rotate(window.PDFViewerApplication.pdfViewer.pagesRotation);
 
-        // Set canvas rotation to same as current rotation
-        $epeAnnotations.rotate(window.PDFViewerApplication.pdfViewer.pagesRotation);
-      }
     },
 
     // Save canvas annotation objects in temporary array so they can be re-added when PDF.js kills

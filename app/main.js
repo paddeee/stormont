@@ -238,7 +238,7 @@ app.on('ready', function() {
     });
 
     // Open the DevTools.
-    controllerWindow.webContents.openDevTools();
+    // controllerWindow.webContents.openDevTools();
   };
 
   // Create Hidden Publish Screen Window
@@ -544,5 +544,6 @@ ipcMain.on('open-link-in-browser', function(event, url) {
 ipcMain.on('app-loaded', function() {
   splashWindow.destroy();
   splashWindow = null;
+  controllerWindow.webContents.openDevTools();
   controllerWindow.show();
 });
