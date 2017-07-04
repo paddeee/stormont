@@ -689,11 +689,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           // Decide whether to hide the checkboxes
           this.hideCheckboxes();
+        }
+      },
 
-          this.manageSelectAllCheckbox();
+      // If one result jump directly to the document
+      handleSearch: function() {
 
-          // Force template-repeat to show checkboxes in correct state
-          this.updateCheckboxes();
+        if (this.gridData.length === 1) {
+
+          console.log('Handle search');
+
+          // Hack based around need to trigger pdf creation in pdf element so we broadcast a change to null
+          // before sending out the object again.
+          this.sourceActions.viewSourceFile(null);
+          this.sourceActions.viewSourceFile(this.gridData[0]);
         }
       },
 

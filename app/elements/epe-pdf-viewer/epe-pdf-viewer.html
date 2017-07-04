@@ -423,6 +423,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       $epeElement = app.$.epeOffline;
 
+      if (presentationMode === 'online') {
+        $epeElement = app.$.epeNetworked;
+      }
+
       // Add listener to make sure page is updated when a new one is rendered
       window.addEventListener('pagechange', function () {
 

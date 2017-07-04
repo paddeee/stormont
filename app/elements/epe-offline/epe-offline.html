@@ -129,6 +129,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       text-align: center;
       text-overflow: ellipsis;
     }
+
+    .search-input-holder {
+      padding: 0 5px 0 20px;
+      width: 200px;
+      border-radius: 0;
+    }
+
+    .search-input {
+      height: 24px;
+      border: none;outline: none;
+      padding: 5px;
+      -webkit-appearance: none;
+      width: 90%;
+    }
+
+    .search-icon-holder {
+      position: absolute;
+      right: 6px;
+      top: 20px;
+    }
   </style>
   <template>
 
@@ -188,6 +208,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <!-- Main Toolbar -->
         <paper-toolbar id="MainToolBar">
 
+          <paper-icon-button
+                  id="Home"
+                  class="back-button nav-icon"
+                  icon="home"
+                  on-tap="navigateHome"></paper-icon-button>
+
           <div id="SectionName" class="section-name flex center horizontal layout">[[sectionTitle]]</div>
 
           <div class="court-holder flex layout horizontal end-justified">
@@ -223,6 +249,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-tooltip for="DataGridButton" offset="0">Data Grid</paper-tooltip>
           <paper-tooltip for="SourceButton" offset="0">Supporting Evidence</paper-tooltip>
           <paper-tooltip for="PublishButton" offset="0">Publish as Evidence</paper-tooltip>
+
+          <!-- Search -->
+          <div class="filter-type  filter-type--input layout horizontal">
+            <div class="search-input-holder">
+              <input class="search-input"
+                     type="search"
+                     label="Search"
+                     value=""
+                     on-search="userInputChanged">
+              </input>
+            </div>
+            <div class="search-icon-holder">
+              <iron-icon class="search-icon" icon="search" on-tap="userInputChanged"></iron-icon>
+            </div>
+          </div>
         </paper-toolbar>
 
         <iron-pages attr-for-selected="data-route"
@@ -274,19 +315,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       </paper-scroll-header-panel>
     </paper-drawer-panel>
-
-    <!-- Filter Drawer -->
-    <epe-filters
-      id="Filters"
-      class="filters"
-      show-filters="{{showFilters}}"
-      query-builder-actions="[[queryBuilderActions]]"
-      query-builder-store="[[queryBuilderStore]]"
-      presentations-store="[[presentationsStore]]"
-      import-package-store="[[importPackageStore]]"
-      data-source-actions="[[dataSourceActions]]"
-      user-store="[[userStore]]"
-      on-show-dialog="showDialog"></epe-filters>
 
     <paper-dialog id="PublishDialog"
                   class="publish-dialog"
@@ -612,6 +640,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         });
       },
 
+      // FIRED FROM SEARCH INPUT ELEMENT
+      userInputChanged: function(event) {
+
+        var filterObject = {
+          collectionDisplayName: 'Source Material',
+          collectionName: 'Document',
+          fieldName: 'Full Name',
+          filter: 'regex',
+          includeExclude: 'include'
+        };
+        var inputValue;
+
+        // If triggered bu user clearing a search
+        if (event.type === 'search') {
+          inputValue = event.target.value;
+        } else {
+          inputValue = event.target.parentElement.parentElement.querySelector('.search-input').value;
+        }
+
+        this.queryBuilderActions.queryFiltersChanged(filterObject, 'remove');
+        this.queryBuilderActions.queryFiltersChanged(filterObject, 'add');
+
+        // Set the model value to what is in the element
+        filterObject.value = inputValue;
+
+        this.queryBuilderActions.queryFiltersChanged(filterObject, 'update');
+      },
+
       // Fire setSectionTitle method on selected child of iron-pages
       // ToDO: This is a bit held together by string. May need rethinking if it gets too bad.
       setSectionTitle: function () {
@@ -676,9 +732,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.packageRoute = event.detail.packageRoute;
       },
 
-      // Navigate back
-      navigateBack: function () {
-        history.back();
+      // Navigate home
+      navigateHome: function () {
+        page('/choose-package');
       },
 
       // Hide the package view navigation in the header if we are importing
@@ -737,21 +793,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         // Navigate to Data Grid Event tab
         page('/edit-package/data-grid/Event');
-      },
-
-      // Close the save presentation overlay on the epe-filters element
-      closeCard: function () {
-
-        this.$.Filters.hideFilters();
-        this.$.Filters.closeCard();
-
-        // Call presentationStateChanged presentations action
-        if (this.presentationsStore.presentationState === 'creating') {
-          this.presentationsActions.presentationStateChanged({
-            presentationName: this.savedPresentation.presentationName,
-            presentationState: 'editing'
-          });
-        }
       },
 
       // Show/Hide Filter Display
@@ -1056,10 +1097,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.ImportingPackage.open();
       },
 
-      // Navigate to the Map
+      // Navigate to the Document Data Grid
       importSuccessConfirmed: function() {
         page('/create-package/data-grid/Document');
-        this.packageSelected();
       },
 
       // Send message to electron to open Open Dialog

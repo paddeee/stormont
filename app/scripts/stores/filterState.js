@@ -85,7 +85,7 @@ module.exports = Reflux.createStore({
 
       // When the userFilteredCollection has been created on each data store, we can call the autoFilterCollections
       // method
-      this.autoFilterCollections(false, false);
+      this.autoFilterCollections();
     }
   },
 
@@ -105,20 +105,9 @@ module.exports = Reflux.createStore({
     // Create Group object of filters and group by field names
     var filterGroup = _.groupBy(filters, 'collectionName');
 
-    // Set blank transform objects for each data type
-    var eventsTransform = eventsStore.filterTransform[eventsName];
-    var placesTransform = placesStore.filterTransform[placesName];
-    var peopleTransform = peopleStore.filterTransform[peopleName];
     var sourcesTransform = sourcesStore.filterTransform[sourcesName];
-
-    var eventsFields = _.groupBy(filterGroup[eventsName], 'fieldName');
-    var placesFields = _.groupBy(filterGroup[placesName], 'fieldName');
-    var peopleFields = _.groupBy(filterGroup[peopleName], 'fieldName');
     var sourcesFields = _.groupBy(filterGroup[sourcesName], 'fieldName');
 
-    this.createFieldQueryFromRules(eventsTransform, eventsFields);
-    this.createFieldQueryFromRules(placesTransform, placesFields);
-    this.createFieldQueryFromRules(peopleTransform, peopleFields);
     this.createFieldQueryFromRules(sourcesTransform, sourcesFields);
   },
 
@@ -351,59 +340,17 @@ module.exports = Reflux.createStore({
   // Filter on datastore userFilteredCollections based on linkage rules between tables
   // Event Place field links to Places Shortname field
   // Event Suspects, Victims and Witnesses fields link to People's Shortname field
-  autoFilterCollections: function (selectAllCheckBoxes, sortCheckBoxes, sortEvents, sortingObject) {
-
-    var eventsCollection = dataSourceStore.dataSource.getCollection(eventsName);
-
-    if (!eventsCollection || !eventsStore.userFilteredCollection) {
-      return;
-    }
+  autoFilterCollections: function () {
 
     // Manage the filter transform name in this store and listening collection
     // stores can use it when broadcasted
     this.filterTransforms.transformName = this.transformName;
 
     // Call filterStateChanged on each data store to ensure each store's userFilteredCollection is up to date
-    if (!sortingObject) {
-      eventsStore.filterStateChanged(this.filterTransforms);
-      placesStore.filterStateChanged(this.filterTransforms);
-      peopleStore.filterStateChanged(this.filterTransforms);
-      sourcesStore.filterStateChanged(this.filterTransforms);
-
-      // Set all event record's 'showRecord' properties that have been filtered out, to false
-      eventsStore.setFilteredOutItemsToNotSelected(eventsCollection.data, eventsStore.userFilteredCollection.data());
-
-      // Update all Checkboxes if query contains events filter/filters with a value selected by the user
-      if (selectAllCheckBoxes && queryBuilderStore.containsEvents) {
-        this.selectAllCheckboxes(eventsStore, true);
-      } else if (selectAllCheckBoxes && !queryBuilderStore.containsEvents) {
-        this.selectAllCheckboxes(eventsStore, false);
-      }
-
-      // Update all data types checkboxes to only show records from filtered records
-      // Don't do this if called by column sorting
-      this.eventsCheckBoxUpdated(eventsCollection.data);
-
-    } else {
-
-      switch(sortingObject.collectionName) {
-        case eventsName:
-          eventsStore.filterStateChanged(this.filterTransforms);
-          break;
-        case placesName:
-          placesStore.filterStateChanged(this.filterTransforms);
-          break;
-        case peopleName:
-          peopleStore.filterStateChanged(this.filterTransforms);
-          break;
-        case sourcesName:
-          sourcesStore.filterStateChanged(this.filterTransforms);
-          break;
-      }
-    }
+    sourcesStore.filterStateChanged(this.filterTransforms);
 
     // Let listeners know data has been updated
-    this.selectedDataChanged(sortCheckBoxes, sortEvents);
+    this.selectedDataChanged();
   },
 
   // Select all checkboxes in a store
@@ -830,17 +777,14 @@ module.exports = Reflux.createStore({
   },
 
   // Let listeners know the userFilteredCollections have been updated
-  selectedDataChanged: function(sortCheckBoxes, sortEvents) {
+  selectedDataChanged: function() {
 
-    // Only sort when checkboxes have been ticked, not when a sort has been done
-    if (sortCheckBoxes) {
-      this.sortBySelectedRecords(sortEvents);
+    if (sourcesStore.userFilteredCollection.data().length === 1) {
+      sourcesStore.message = 'showFile';
+    } else {
+      sourcesStore.message = '';
     }
 
-    // Pass data onto views
-    eventsStore.trigger(eventsStore.userFilteredCollection.data());
-    placesStore.trigger(placesStore.userFilteredCollection.data());
-    peopleStore.trigger(peopleStore.userFilteredCollection.data());
     sourcesStore.trigger(sourcesStore);
 
     this.message = {

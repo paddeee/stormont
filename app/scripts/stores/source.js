@@ -35,34 +35,16 @@ module.exports = Reflux.createStore({
     // Register importPackageStore's changes
     this.listenTo(importPackageStore, this.importPackageChanged);
 
-    // Register dataSourceStores's changes
-    this.listenTo(dataSourceStore, this.dataSourceChanged);
-
     this.listenTo(presentationsStore, this.presentationsStoreChanged);
 
     // Register usersStores's changes
     this.listenTo(usersStore, this.userStoreChanged);
   },
 
-  // Set the filteredData Object
-  dataSourceChanged: function (dataSourceStore) {
-
-    this.dataSource = dataSourceStore.dataSource;
-
-    if (presentationMode && presentationMode === 'offline') {
-      return;
-    }
-
-    this.setDefaultTransform();
-
-    // Call when the source data is updated
-    this.filterStateChanged(this.filterTransform);
-  },
-
   // Add the images as blobs on the person's profile Object
   importPackageChanged: function (importPackageStore) {
 
-    if (importPackageStore.message === 'importSuccess') {
+    if (importPackageStore.message === 'createFilterTransforms') {
 
       // Can set config object now
       config = global.config;
@@ -72,6 +54,9 @@ module.exports = Reflux.createStore({
       this.dataSource = dataSourceStore.dataSource;
 
       this.setDefaultTransform();
+
+      // Call when the source data is updated
+      this.filterStateChanged(this.filterTransform);
 
       // Call when the source data is updated
       this.createFilterTransform(this.filterTransform, dataSourceStore.message);

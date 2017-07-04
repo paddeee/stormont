@@ -3,8 +3,8 @@
 var Reflux = require('reflux');
 var QueryBuilderActions = require('../actions/queryBuilder.js');
 var dataSourceStore = require('../stores/dataSource.js');
+var importPackageStore = require('../stores/importPackage.js');
 var presentationsStore = require('../stores/presentations.js');
-var config = appMode === 'app' ? global.config : require('../config/config.js');
 var queriesCollection = 'Queries';
 
 module.exports = Reflux.createStore({
@@ -17,6 +17,9 @@ module.exports = Reflux.createStore({
   // Called on Store initialisation
   init: function() {
 
+    // Register importPackageStore's changes
+    this.listenTo(importPackageStore, this.importPackageChanged);
+
     // Register dataSourceStores's changes
     this.listenTo(dataSourceStore, this.dataSourceChanged);
 
@@ -28,6 +31,23 @@ module.exports = Reflux.createStore({
 
     // Does the Query contain any events filters with values set by the user
     this.containsEvents = false;
+  },
+
+  // Add the images as blobs on the person's profile Object
+  importPackageChanged: function (importPackageStore) {
+
+    if (importPackageStore.message === 'importSuccess') {
+
+      var queryCollection;
+
+      queryCollection = dataSourceStore.dataSource.getCollection(queriesCollection);
+
+      if (!queryCollection) {
+        dataSourceStore.dataSource.addCollection(queriesCollection, { disableChangesApi: false });
+      }
+
+      this.createDefaultQuery('defaultQueryAdded');
+    }
   },
 
   // Set the filteredData Object
@@ -177,11 +197,6 @@ module.exports = Reflux.createStore({
 
     var broadcastMessage = '';
 
-    // If the filters have changed as a result of a package being selected send a different message to hook on to
-    if (this.message.type === 'packageSelected') {
-      broadcastMessage = 'PackageSelected';
-    }
-
     if (action === 'add') {
       this.queryObject.filters.push(arg);
       this.message = {
@@ -218,8 +233,6 @@ module.exports = Reflux.createStore({
     } else if (action === 'remove') {
       this.removeFilterWithValues(filter);
     }
-
-    this.manageContainsEventFilters();
   },
 
   // See whether to add an object to filtersWithValues
@@ -273,24 +286,5 @@ module.exports = Reflux.createStore({
   resetFiltersWithValues: function() {
 
     this.filtersWithValues = [];
-
-    this.manageContainsEventFilters();
-  },
-
-  // Manage property to indicate if there are any event filters. Because if not, the application shouldn't select all
-  // event checkboxes if a filter is added to a different data type. Otherwise a filter on people will select all
-  // events which will select more people which would be confusing to user.
-  manageContainsEventFilters: function() {
-
-    var containsEvents = false;
-
-    this.filtersWithValues.forEach(function(filter) {
-
-      if (filter.collectionName === config.EventsCollection.name) {
-        containsEvents = true;
-      }
-    });
-
-    this.containsEvents = containsEvents;
   }
 });

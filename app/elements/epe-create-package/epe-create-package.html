@@ -252,64 +252,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.config = app.config;
         }
 
-        if (this.eventsStore) {
-
-          // When the events data is updated, update our grid data
-          this.eventsStore.listen(function(eventsData) {
-
-            this.eventsData = eventsData;
-
-            if (this.params) {
-
-              this.collectionName = this.params.name;
-
-              this.setUpGrid(this.collectionName);
-            }
-          }.bind(this));
-        }
-
-        if (this.placesStore) {
-
-          // When the places data is updated, update our grid data
-          this.placesStore.listen(function (placesData) {
-
-            this.placesData = placesData;
-
-            if (this.params) {
-
-              this.collectionName = this.params.name;
-
-              this.setUpGrid(this.collectionName);
-            }
-          }.bind(this));
-        }
-
-        if (this.peopleStore) {
-
-          // When the people data is updated, update our grid data
-          this.peopleStore.listen(function (peopleData) {
-
-            if (peopleData.message === 'viewProfile') {
-              return;
-            }
-
-            this.peopleData = peopleData;
-
-            if (this.params) {
-
-              this.collectionName = this.params.name;
-
-              this.setUpGrid(this.collectionName);
-            }
-          }.bind(this));
-        }
-
         if (this.sourceStore) {
 
           // When the source data is updated, update our grid data
           this.sourceStore.listen(function (sourceData) {
 
             this.sourceData = sourceData.userFilteredCollection.data();
+
+            if (this.sourceStore.message === 'showFile') {
+              this.handleSearch();
+            }
 
             if (this.params) {
 
@@ -328,6 +280,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.presentationState = presentationsStore.presentationState;
           }.bind(this));
         }
+      },
+
+      // If one result jump directly to the document
+      handleSearch: function() {
+
+        console.log('Handle search');
+
+        // Hack based around need to trigger pdf creation in pdf element so we broadcast a change to null
+        // before sending out the object again.
+        this.sourceActions.viewSourceFile(null);
+        this.sourceActions.viewSourceFile(this.sourceData[0]);
       },
 
       // When a tab is selected set the collectionData if available

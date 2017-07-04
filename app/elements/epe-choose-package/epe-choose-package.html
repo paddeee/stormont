@@ -150,7 +150,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               on-tap="choosePackageTapped"><iron-icon icon="file-upload"></iron-icon>Choose Package</paper-button>
           </div>
 
-          <div class="display-import-path">[[importLocation]]</div>
+          <div hidden class="display-import-path">[[importLocation]]</div>
         </div>
 
       </paper-material>
@@ -225,6 +225,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Import Successful
       if (messageType === 'importSuccess') {
+        this.importLocation = 'Not selected..';
         this.fire('import-success');
 
         // Decrypt temporary package error

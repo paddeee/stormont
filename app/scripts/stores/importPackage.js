@@ -64,6 +64,8 @@ module.exports = Reflux.createStore({
 
         sourceCollection.insert(fileObjects);
 
+        this.message = 'createFilterTransforms';
+        this.trigger(this);
         this.message = 'importSuccess';
         this.trigger(this);
       }.bind(this));

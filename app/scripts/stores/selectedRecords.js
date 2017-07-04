@@ -3,7 +3,6 @@
 var Reflux = require('reflux');
 var config = appMode === 'app' ? global.config : require('../config/config.js');
 var SelectedRecordsActions = require('../actions/selectedRecords.js');
-var filterStateStore = require('../stores/filterState.js');
 var eventsStore = require('../stores/events.js');
 var placesStore = require('../stores/places.js');
 var peopleStore = require('../stores/people.js');
@@ -24,9 +23,6 @@ module.exports = Reflux.createStore({
     // Register importPackageStore's changes
     this.listenTo(importPackageStore, this.importPackageChanged);
 
-    // Register dataSourceStores's changes
-    this.listenTo(filterStateStore, this.filterStateChanged);
-
     // Create a debounced function so as this function will be called whenever any checkbox updates so need to limit it
     // for performance reasons
     this.debouncedCreateSelectedCollections = _.debounce(this.createSelectedCollections, 150);
@@ -39,17 +35,6 @@ module.exports = Reflux.createStore({
 
       // Can set config object now
       config = global.config;
-    }
-  },
-
-  // When filter state is changed we need to update the GeoJSON object
-  filterStateChanged: function(filterStateStore) {
-
-    if (filterStateStore.message.type !== 'queryBuilderChanged') {
-
-      if (this.debouncedCreateSelectedCollections) {
-        this.debouncedCreateSelectedCollections();
-      }
     }
   },
 

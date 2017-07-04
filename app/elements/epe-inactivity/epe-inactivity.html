@@ -93,7 +93,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       ready: function() {
 
         // If in PackageViewer App, set config property after package import
-        if (presentationMode && presentationMode === 'offline') {
+        if (presentationMode && presentationMode === 'offline' && appMode === 'app') {
 
           // When the presentations data is updated
           this.importPackageStore.listen(function (importPackageStore) {

@@ -122,6 +122,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       text-align: center;
       text-overflow: ellipsis;
     }
+
+    .search-icon {
+      height: 26px;
+      width: 26px;
+      cursor: pointer;
+    }
+
+    .search-input-holder {
+      padding: 0 5px 0 20px;
+      width: 200px;
+      border-radius: 0;
+    }
+
+    .search-input {
+      height: 24px;
+      border: none;
+      outline: none;
+      padding: 5px;
+      -webkit-appearance: none;
+      width: 90%;
+    }
+
+    .search-icon-holder {
+      position: absolute;
+      right: 6px;
+      top: 20px;
+    }
   </style>
   <template>
 
@@ -238,6 +265,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-tooltip for="ProfileButton" offset="0">Profile</paper-tooltip>
           <paper-tooltip for="SourceButton" offset="0">Supporting Evidence</paper-tooltip>
           <paper-tooltip for="FilterButton" offset="0">Search/Filter</paper-tooltip>
+
+          <!-- Search -->
+          <div class="filter-type  filter-type--input layout horizontal">
+            <div class="search-input-holder">
+              <input class="search-input"
+                     type="search"
+                     label="Search"
+                     value=""
+                     on-search="userInputChanged">
+              </input>
+            </div>
+            <div class="search-icon-holder">
+              <iron-icon class="search-icon" icon="search" on-tap="userInputChanged"></iron-icon>
+            </div>
+          </div>
         </paper-toolbar>
 
         <iron-pages attr-for-selected="data-route"
@@ -727,6 +769,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // FIRED BY ON-PACKAGE-VIEW_CHANGED EVENT ON EPE-CREATE-PACKAGE ELEMENT
       packageViewChanged: function (event) {
         this.packageRoute = event.detail.packageRoute;
+      },
+
+      // FIRED FROM SEARCH INPUT ELEMENT
+      userInputChanged: function(event) {
+
+        var filterObject = {
+          collectionDisplayName: 'Source Material',
+          collectionName: 'Document',
+          fieldName: 'Full Name',
+          filter: 'regex',
+          includeExclude: 'include'
+        };
+        var inputValue;
+
+        // If triggered bu user clearing a search
+        if (event.type === 'search') {
+          inputValue = event.target.value;
+        } else {
+          inputValue = event.target.parentElement.parentElement.querySelector('.search-input').value;
+        }
+
+        this.queryBuilderActions.queryFiltersChanged(filterObject, 'remove');
+        this.queryBuilderActions.queryFiltersChanged(filterObject, 'add');
+
+        // Set the model value to what is in the element
+        filterObject.value = inputValue;
+
+        this.queryBuilderActions.queryFiltersChanged(filterObject, 'update');
       },
 
       // Navigate back
