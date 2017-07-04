@@ -1,5 +1,6 @@
 {
   "private": true,
+  "main": "",
   "devDependencies": {
     "bcrypt": "^0.8.5",
     "browser-sync": "^2.10.1",
@@ -7,6 +8,7 @@
     "connect-history-api-fallback": "^1.1.0",
     "del": "^1.1.1",
     "electron-packager": "^7.3.0",
+    "electron-rebuild": "^1.2.1",
     "electron-usb": "0.0.11",
     "electron-winstaller": "^2.3.1",
     "glob": "^5.0.6",
@@ -42,6 +44,7 @@
     "require-dir": "^0.3.0",
     "run-sequence": "^1.0.2",
     "should": "^7.0.4",
+    "through2": "^2.0.0",
     "verbal-expressions": "^0.2.0",
     "video.js": "^5.0.2",
     "videojs-wavesurfer": "^1.0.3",
@@ -76,7 +79,7 @@
     "raw-body": "^2.1.7",
     "reflux": "^0.2.10",
     "ssf": "^0.8.2",
-    "through2": "^2.0.0",
+    "wcjs-player": "^6.0.1",
     "winston": "^2.2.0"
   }
 }

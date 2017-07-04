@@ -22,6 +22,11 @@ var controllerWindow = null;
 var courtWindow = null;
 var publishWindow = null;
 
+// Fix for Windows version of WebChimera
+if (process.platform == 'win32') {
+  process.env['VLC_PLUGIN_PATH'] = path.join(process.resourcesPath, 'wcjs-prebuilt/bin/plugins');
+}
+
 // Handle Squirrel Events
 /*if (require('electron-squirrel-startup')) {
  return;

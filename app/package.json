@@ -23,7 +23,15 @@
     "reflux": "^0.2.10",
     "ssf": "^0.8.2",
     "through2": "^2.0.0",
+    "wcjs-player": "^6.0.1",
     "winston": "^2.2.0",
     "zip-folder": "^1.0.0"
+  },
+  "wcjs-prebuilt": {
+    "arch": "x64",
+    "platform": "osx",
+    "runtime": "electron",
+    "runtimeVersion": "v1.4.0",
+    "version": "v0.2.6"
   }
 }

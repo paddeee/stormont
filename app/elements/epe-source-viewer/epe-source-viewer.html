@@ -54,7 +54,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           presentation-state="[[presentationState]]"
           media-type="[[selectedSourceFileType]]"
           media-object="[[selectedSourceObject]]"
-          source-actions="[[sourceActions]]">
+          source-actions="[[sourceActions]]"
+          on-media-source-error="sourceFileError">
         </epe-media-viewer>
       </section>
 
@@ -143,6 +144,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }
         }.bind(this));
       }
+    },
+
+    sourceFileError: function(error, detail) {
+
+      var errorObject = detail ? error.detail : error;
+      this.fire('source-error', errorObject);
     }
   });
 })();

@@ -21,7 +21,7 @@ var buffer = require('vinyl-buffer');
 var reload = browserSync.reload;
 var merge = require('merge-stream');
 var path = require('path');
-var fs = require('fs');
+var fsExtra = require('fs-extra');
 var glob = require('glob');
 var globby = require('globby');
 var mocha = require('gulp-mocha');
@@ -34,8 +34,11 @@ var packager = require('electron-packager');
 var electronInstaller = require('electron-winstaller');
 var exec = require('child_process').exec;
 
-const buildVersion = '1.0.1';
-const electronVersion = '1.4.0';
+const buildVersion = '1.0.0';
+const electronOSXVersion = '1.4.3';
+const electronWindowsVersion = '1.4.3';
+const webChimeraOSXVersion = 'v0.2.7';
+const webChimeraWindowsVersion = 'v0.2.7';
 
 var AUTOPREFIXER_BROWSERS = [
   'ie >= 10',
@@ -228,6 +231,46 @@ gulp.task('npm-install', function () {
   return npmInstallPromise;
 });
 
+gulp.task('npm-install-webchimera-osx', function () {
+
+  var npmInstallPromise = new Promise(function (resolve, reject) {
+
+    exec('cd dist && WCJS_RUNTIME=electron WCJS_ARCH=x64 WCJS_PLATFORM=osx WCJS_RUNTIME_VERSION=v' + electronOSXVersion + ' WCJS_VERSION=' + webChimeraOSXVersion + ' npm install wcjs-prebuilt', function (error, stdout, stderr) {
+      console.log(stdout);
+      console.log(stderr);
+
+      if (error) {
+        console.log(error);
+        reject(error);
+      } else {
+        resolve();
+      }
+    });
+  });
+
+  return npmInstallPromise;
+});
+
+gulp.task('npm-install-webchimera-win', function () {
+
+  var npmInstallPromise = new Promise(function (resolve, reject) {
+
+    exec('cd dist && WCJS_RUNTIME=electron WCJS_ARCH=x64 WCJS_PLATFORM=win WCJS_RUNTIME_VERSION=v' + electronWindowsVersion + ' WCJS_VERSION=' + webChimeraWindowsVersion + ' npm install wcjs-prebuilt', function (error, stdout, stderr) {
+      console.log(stdout);
+      console.log(stderr);
+
+      if (error) {
+        console.log(error);
+        reject(error);
+      } else {
+        resolve();
+      }
+    });
+  });
+
+  return npmInstallPromise;
+});
+
 // Generate a list of files that should be precached when serving from 'dist'.
 // The list will be consumed by the <platinum-sw-cache> element.
 gulp.task('precache', function (callback) {
@@ -239,7 +282,7 @@ gulp.task('precache', function (callback) {
     } else {
       files.push('online.html', 'offline.html', './', 'bower_components/webcomponentsjs/webcomponents-lite.min.js');
       var filePath = path.join(dir, 'precache.json');
-      fs.writeFile(filePath, JSON.stringify(files), callback);
+      fsExtra.writeFile(filePath, JSON.stringify(files), callback);
     }
   });
 });
@@ -357,7 +400,7 @@ gulp.task('unit-tests', function () {
 });
 
 // Build Production Files, the Default Task
-gulp.task('default', ['clean'], function (cb) {
+gulp.task('default:osx', ['clean'], function (cb) {
   runSequence(
     'browserify',
     ['copy', 'styles'],
@@ -369,6 +412,19 @@ gulp.task('default', ['clean'], function (cb) {
     // Note: add , 'precache' , after 'vulcanize', if your are going to use Service Worker
 });
 
+// Build Production Files, the Default Task
+gulp.task('default:windows', ['clean'], function (cb) {
+  runSequence(
+    'browserify',
+    ['copy', 'styles'],
+    'elements',
+    ['jshint', 'images', 'fonts', 'html', /*'unit-tests'*/],
+    'npm-install',
+    //'vulcanize',
+    cb);
+  // Note: add , 'precache' , after 'vulcanize', if your are going to use Service Worker
+});
+
 gulp.task('packager:osxpackagecreator', function () {
 
   var options = {
@@ -377,13 +433,14 @@ gulp.task('packager:osxpackagecreator', function () {
     'asar': true,
     'arch': 'all',
     'dir': './dist',
+    'extra-resource': ['./dist/node_modules/wcjs-prebuilt','./appResources/networkConfig.json'],
     'icon': './icons/SITFonline.ico.icns',
     'name': 'EPEPackageCreator',
     'productName': 'EPE Package Creator',
     'out': '/Users/ODonnell/SITF/Builds',
     'overwrite': true,
     'platform': 'darwin',
-    'version': electronVersion
+    'version': electronOSXVersion
   };
 
   var taskPromise = new Promise(function (resolve, reject) {
@@ -394,7 +451,6 @@ gulp.task('packager:osxpackagecreator', function () {
         console.log(error);
         reject(error);
       } else {
-        console.log(appPaths);
         resolve(appPaths);
       }
     }.bind(this));
@@ -411,13 +467,14 @@ gulp.task('packager:osxpackageviewer', function () {
     'asar': true,
     'arch': 'all',
     'dir': './dist',
+    'extra-resource': ['./dist/node_modules/wcjs-prebuilt'],
     'icon': './icons/SITFoffline.ico.icns',
     'name': 'EPEPackageViewer',
     'productName': 'EPE Package Viewer',
     'out': '/Users/ODonnell/SITF/Builds',
     'overwrite': true,
     'platform': 'darwin',
-    'version': electronVersion
+    'version': electronOSXVersion
   };
 
   var taskPromise = new Promise(function (resolve, reject) {
@@ -428,7 +485,6 @@ gulp.task('packager:osxpackageviewer', function () {
         console.log(error);
         reject(error);
       } else {
-        console.log(appPaths);
         resolve(appPaths);
       }
     }.bind(this));
@@ -442,7 +498,7 @@ gulp.task('packager:windowspackagecreator', function () {
   var options = {
     'app-version': buildVersion,
     'asar': true,
-    'arch': 'all',
+    'arch': 'x64',
     'dir': './dist',
     'icon': './icons/SITFonline.ico',
     'name': 'EPEPackageCreator',
@@ -450,7 +506,7 @@ gulp.task('packager:windowspackagecreator', function () {
     'out': '/Users/ODonnell/SITF/Builds',
     'overwrite': true,
     'platform': 'win32',
-    'version': electronVersion,
+    'version': electronWindowsVersion,
     'version-string': {
       'CompanyName': 'Evidential Ltd',
       'FileDescription': 'EPE Package Creator',
@@ -468,7 +524,19 @@ gulp.task('packager:windowspackagecreator', function () {
         console.log(error);
         reject(error);
       } else {
-        console.log(appPaths);
+
+        // Copy networkConfig.json to save doing this manually
+        gulp.src(['./appResources/networkConfig.json'])
+          .pipe(gulp.dest(appPaths + '/resources'))
+          .pipe($.size({title: 'webChimera'}));
+
+        // Copy WebChimera as it needs to live outside of asar file
+        fsExtra.copy('./dist/node_modules/wcjs-prebuilt', appPaths + '/resources/wcjs-prebuilt', function (err) {
+          if (err) {
+            reject(err);
+          }
+        });
+
         resolve(appPaths);
       }
     }.bind(this));
@@ -482,7 +550,7 @@ gulp.task('packager:windowspackageviewer', function () {
   var options = {
     'app-version': buildVersion,
     'asar': true,
-    'arch': 'all',
+    'arch': 'x64',
     'dir': './dist',
     'icon': './icons/SITFoffline.ico',
     'name': 'EPEPackageViewer',
@@ -490,7 +558,7 @@ gulp.task('packager:windowspackageviewer', function () {
     'out': '/Users/ODonnell/SITF/Builds',
     'overwrite': true,
     'platform': 'win32',
-    'version': electronVersion,
+    'version': electronWindowsVersion,
     'version-string': {
       'CompanyName': 'Evidential Ltd',
       'FileDescription': 'EPE Package Viewer',
@@ -508,7 +576,19 @@ gulp.task('packager:windowspackageviewer', function () {
         console.log(error);
         reject(error);
       } else {
-        console.log(appPaths);
+
+        // Copy networkConfig.json to save doing this manually
+        gulp.src(['./appResources/networkConfig.json'])
+          .pipe(gulp.dest(appPaths + '/resources'))
+          .pipe($.size({title: 'webChimera'}));
+
+        // Copy WebChimera as it needs to live outside of asar file
+        fsExtra.copy('./dist/node_modules/wcjs-prebuilt', appPaths + '/resources/wcjs-prebuilt', function (err) {
+          if (err) {
+            reject(err);
+          }
+        });
+
         resolve(appPaths);
       }
     }.bind(this));
@@ -563,9 +643,46 @@ gulp.task('installer:windowspackageviewer', function () {
   });
 });
 
+gulp.task('build:osx-creator', function (cb) {
+  runSequence(
+    'default:osx',
+    'npm-install-webchimera-osx',
+    'packager:osxpackagecreator',
+    cb);
+});
+
+gulp.task('build:windows-creator', function (cb) {
+  runSequence(
+    'default:windows',
+    'npm-install-webchimera-win',
+    'packager:windowspackagecreator',
+    /*'installer:windowspackagecreator',
+    'installer:windowspackageviewer',*/
+    cb);
+});
+
+gulp.task('build:osx-viewer', function (cb) {
+  runSequence(
+    'default:osx',
+    'npm-install-webchimera-osx',
+    'packager:osxpackageviewer',
+    cb);
+});
+
+gulp.task('build:windows-viewer', function (cb) {
+  runSequence(
+    'default:windows',
+    'npm-install-webchimera-win',
+    'packager:windowspackageviewer',
+    /*'installer:windowspackagecreator',
+     'installer:windowspackageviewer',*/
+    cb);
+});
+
 gulp.task('build:osx', function (cb) {
   runSequence(
-    'default',
+    'default:osx',
+    'npm-install-webchimera-osx',
     'packager:osxpackagecreator',
     'packager:osxpackageviewer',
     cb);
@@ -573,11 +690,12 @@ gulp.task('build:osx', function (cb) {
 
 gulp.task('build:windows', function (cb) {
   runSequence(
-    'default',
+    'default:windows',
+    'npm-install-webchimera-win',
     'packager:windowspackagecreator',
     'packager:windowspackageviewer',
-    'installer:windowspackagecreator',
-    'installer:windowspackageviewer',
+    /*'installer:windowspackagecreator',
+     'installer:windowspackageviewer',*/
     cb);
 });
 
