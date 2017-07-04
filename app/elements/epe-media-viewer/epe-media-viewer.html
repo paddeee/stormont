@@ -293,14 +293,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.presentationState = 'editing';
           }
 
-          if (this.editState === this.presentationState) {
-            if (this.mediaType === 'video') {
-              this.hideAnnotations = false;
-              this.createVideoJS();
-            } else if (this.mediaType === 'audio') {
-              this.hideAnnotations = true;
-              this.createAudioJS();
-            }
+          if (this.mediaType === 'video') {
+            this.hideAnnotations = false;
+            this.createVideoJS();
+          } else if (this.mediaType === 'audio') {
+            this.hideAnnotations = true;
+            this.createAudioJS();
           }
         }
       },
@@ -323,7 +321,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           if (presentationMode === 'online') {
             this.videoSource = app.config.paths.sourcePath + this.mediaObject['Linked File'];
           } else if (presentationMode === 'offline') {
-            this.videoSource = URL.createObjectURL(new Blob([this.mediaObject.blob]));
+            this.videoSource = this.mediaObject.Path;
           }
         } else {
           this.videoSource = '/sourcefiles/' + this.mediaObject['Linked File'];
@@ -531,10 +529,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           } else if (presentationMode === 'offline') {
 
             if (this.useWaveSurfer) {
-              src = new Blob([this.mediaObject.blob], {type: 'audio/mp3'});
+              src = this.mediaObject.Path;
               this.initialiseWaveSurfer($audioElement, src);
             } else {
-              src = URL.createObjectURL(new Blob([this.mediaObject.blob]));
+              src = this.mediaObject.Path;
               this.initialiseAudioPlayer($audioElement, src);
             }
           }
@@ -884,11 +882,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         if (this.$ && this.querySelector('#Video') && this.querySelector('#Video').clientHeight) {
 
-          if (this.editState === this.presentationState) {
-            this.setVideoPlayerDimensions();
-            this.resizeVideo();
-            this.resizeAnnotations();
-          }
+          this.setVideoPlayerDimensions();
+          this.resizeVideo();
+          this.resizeAnnotations();
+
         } else if (this.$ && this.querySelector('#Audio') && this.querySelector('#Audio').clientHeight) {
           this.setAudioPlayerDimensions();
           this.resizeAudio();

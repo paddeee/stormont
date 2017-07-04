@@ -75,28 +75,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           [[description]]
         </div>
       </div>
-
-      <div class="info__related">
-        <h3 hidden="[[!relatedItems.length]]">Related Material</h3>
-        <template is="dom-repeat"
-                  items="[[relatedItems]]"
-                  as="source"
-                  hidden="[[!relatedItems.length]]">
-
-          <div class="related-source layout horizontal"
-               source="[[source]]"
-               on-tap="navigateToSource">
-            <div class="source-icon-container">
-              <iron-icon icon="[[getSourceIcon(source)]]" class="source-icon"/>
-            </div>
-            <div class="source-info layout vertical">
-              <div class="source-full-name">[[getFullName(source)]]</div>
-              <div class="source-description">[[source.Description]]</div>
-            </div>
-          </div>
-
-        </template>
-      </div>
       <div class="buttons">
         <paper-button dialog-dismiss autofocus>OK</paper-button>
       </div>

@@ -19,7 +19,7 @@ module.exports = Reflux.createStore({
 
     global.config = config;
 
-    global.config.sourceFilesDirectory = packageObject.packageLocation + '/';
+    this.sourceFilesDirectory = packageObject.packageLocation + '/';
 
     this.createFileDatabase();
   },
@@ -36,7 +36,7 @@ module.exports = Reflux.createStore({
     var validFileTypes = ['.pdf', '.jpg', '.jpeg', '.gif', '.png', 'm4a', 'mp3', 'wav', 'avi', 'mp4', 'mov', 'webm'];
     var sourceCollection = dataSourceStore.dataSource.addCollection(config.SourcesCollection.name);
 
-    this.getSourceCollectionData()
+    this.getSourceCollectionData(this.sourceFilesDirectory)
       .then(function(filePaths) {
 
         var validFiles = filePaths.filter(function(filePath) {
@@ -57,6 +57,7 @@ module.exports = Reflux.createStore({
           file['Short Name'] = fileName;
           file['Linked File'] = fileName;
           file.Extension = fileExtension;
+          file.Path = filePath;
 
           return file;
 
@@ -72,7 +73,7 @@ module.exports = Reflux.createStore({
   },
 
   // Return array of Source File info
-  getSourceCollectionData: function() {
+  getSourceCollectionData: function(sourceFilesDirectory) {
 
     return new Promise(function(resolve) {
 
@@ -85,7 +86,7 @@ module.exports = Reflux.createStore({
 
       var items = [];
 
-      klaw(global.config.sourceFilesDirectory)
+      klaw(sourceFilesDirectory)
         .pipe(excludeDirFilter)
         .on('data', function (item) {
           items.push(item.path);

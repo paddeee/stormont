@@ -329,7 +329,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.imageSource = sourcePath + this.imageObject['Linked File'];
         } else if (presentationMode === 'offline') {
           sourcePath = global.config.packagePath;
-          this.imageSource = this.imageObject.blob;
+          this.imageSource = this.imageObject.Path;
         }
       } else {
         this.imageSource = sourcePath + this.imageObject['Linked File'];
@@ -365,59 +365,56 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.presentationState = 'editing';
         }
 
-        if (this.editState === this.presentationState) {
+        $image = this.$.Image;
+        $containerWidth = $image.naturalWidth;
+        $containerHeight = $image.naturalHeight;
+        imageRatio = $containerWidth / $containerHeight;
 
-          $image = this.$.Image;
-          $containerWidth = $image.naturalWidth;
-          $containerHeight = $image.naturalHeight;
-          imageRatio = $containerWidth / $containerHeight;
+        // Take footer into account
+        bottom = parseInt(getComputedStyle(this.$.ImageContainer).getPropertyValue('bottom'), 10);
 
-          // Take footer into account
-          bottom = parseInt(getComputedStyle(this.$.ImageContainer).getPropertyValue('bottom'), 10);
+        // Container values
+        containerPaddingTop = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue('padding-top'), 10);
+        containerPaddingRight = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue('padding-right'), 10);
+        containerPaddingBottom = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue('padding-bottom'), 10);
+        containerPaddingLeft = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue('padding-left'), 10);
+        actualContainerWidth = this.$.ImageContent.clientWidth - containerPaddingLeft - containerPaddingRight;
+        actualContainerHeight = this.$.ImageContent.clientHeight - containerPaddingTop - containerPaddingBottom - header - bottom;
 
-          // Container values
-          containerPaddingTop = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue('padding-top'), 10);
-          containerPaddingRight = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue('padding-right'), 10);
-          containerPaddingBottom = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue('padding-bottom'), 10);
-          containerPaddingLeft = parseInt(getComputedStyle(this.$.ImageContent).getPropertyValue('padding-left'), 10);
-          actualContainerWidth = this.$.ImageContent.clientWidth - containerPaddingLeft - containerPaddingRight;
-          actualContainerHeight = this.$.ImageContent.clientHeight - containerPaddingTop - containerPaddingBottom - header - bottom;
+        // Landscape Image
+        if (imageRatio >= 1) {
 
-          // Landscape Image
-          if (imageRatio >= 1) {
-
-            // If the image width is wider than the container, set it to the size of the container
-            // and the height to the container width * imageRatio
-            if ($containerWidth > actualContainerWidth) {
-              $containerWidth = actualContainerWidth;
-              $containerHeight = $containerWidth / imageRatio;
-            }
-
-            // If the image height is taller than the container, set it to the size of the container
-            // and the width to the container height * imageRatio
-            if ($containerHeight > actualContainerHeight) {
-              $containerHeight = actualContainerHeight;
-              $containerWidth = $containerHeight * imageRatio;
-            }
-
-          // Portrait Image
-          } else {
-
-            // If the image height is taller than the container, set it to the size of the container
-            // and the width to the container height * imageRatio
-            if ($containerHeight > actualContainerHeight) {
-              $containerHeight = actualContainerHeight;
-              $containerWidth = $containerHeight * imageRatio;
-            }
+          // If the image width is wider than the container, set it to the size of the container
+          // and the height to the container width * imageRatio
+          if ($containerWidth > actualContainerWidth) {
+            $containerWidth = actualContainerWidth;
+            $containerHeight = $containerWidth / imageRatio;
           }
 
-          this.$.ImageCard.style.height = Math.round($containerHeight) + 'px';
-          this.$.ImageCard.style.width = Math.round($containerWidth) + 'px';
+          // If the image height is taller than the container, set it to the size of the container
+          // and the width to the container height * imageRatio
+          if ($containerHeight > actualContainerHeight) {
+            $containerHeight = actualContainerHeight;
+            $containerWidth = $containerHeight * imageRatio;
+          }
 
-          // Set height that can be passed up to annotation triggering a resize of the canvas
-          this.annotationHeight = $containerHeight;
-          this.annotationWidth = $containerWidth;
+        // Portrait Image
+        } else {
+
+          // If the image height is taller than the container, set it to the size of the container
+          // and the width to the container height * imageRatio
+          if ($containerHeight > actualContainerHeight) {
+            $containerHeight = actualContainerHeight;
+            $containerWidth = $containerHeight * imageRatio;
+          }
         }
+
+        this.$.ImageCard.style.height = Math.round($containerHeight) + 'px';
+        this.$.ImageCard.style.width = Math.round($containerWidth) + 'px';
+
+        // Set height that can be passed up to annotation triggering a resize of the canvas
+        this.annotationHeight = $containerHeight;
+        this.annotationWidth = $containerWidth;
       }
     },
 

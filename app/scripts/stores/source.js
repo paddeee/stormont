@@ -342,9 +342,9 @@ module.exports = Reflux.createStore({
     var sourcePath = '';
 
     if (global.config && presentationMode === 'offline') {
-      sourcePath = global.config.sourceFilesDirectory;
+      sourcePath = (sourceObject && sourceObject.Path) || '';
     } else if (global.config && presentationMode === 'online') {
-      sourcePath = global.config.paths.sourcePath;
+      sourcePath = global.config.paths.sourcePath + sourceObject['Linked File'];
     }
 
     this.message = '';
@@ -370,7 +370,7 @@ module.exports = Reflux.createStore({
     // Check file exists first
     if (global.config) {
 
-      fsExtra.stat(sourcePath + sourceObject['Linked File'], function(error) {
+      fsExtra.stat(sourcePath, function(error) {
 
         if (error) {
           this.message = 'fileDoesNotExist';

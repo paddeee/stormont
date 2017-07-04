@@ -7286,7 +7286,7 @@ function webViewerInitialized($pdfViewerElement) {
 
     // Set the src of the image if inside Electron
     if (appMode === 'app') {
-      file = global.config.sourceFilesDirectory + $pdfViewerElement.pdfObject['Linked File'];
+      file = ($pdfViewerElement.pdfObject && $pdfViewerElement.pdfObject.Path) || '';
     } else {
       file = sourcePath + $pdfViewerElement.pdfObject['Linked File'];
       //file =  'file' in params ? params.file : DEFAULT_URL;
