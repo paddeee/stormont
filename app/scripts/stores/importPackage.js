@@ -57,6 +57,7 @@ module.exports = Reflux.createStore({
           file['Short Name'] = fileName;
           file['Linked File'] = fileName;
           file.Extension = fileExtension;
+          file.FileType = this.getFileType(fileExtension);
           file.Path = filePath;
 
           return file;
@@ -70,6 +71,61 @@ module.exports = Reflux.createStore({
         this.message = 'importSuccess';
         this.trigger(this);
       }.bind(this));
+  },
+
+  // Return a file type based on a file extension
+  getFileType: function(fileExtension) {
+
+    var fileType;
+
+    switch (fileExtension) {
+      case 'pdf':
+        fileType = 'Document';
+        break;
+      case 'jpg':
+        fileType = 'Image';
+        break;
+      case 'jpeg':
+        fileType = 'Image';
+        break;
+      case 'gif':
+        fileType = 'Image';
+        break;
+      case 'png':
+        fileType = 'Image';
+        break;
+      case 'm4a':
+        fileType = 'Audio';
+        break;
+      case 'mp3':
+        fileType = 'Audio';
+        break;
+      case 'wav':
+        fileType = 'Audio';
+        break;
+      case 'avi':
+        fileType = 'Video';
+        break;
+      case 'mp4':
+        fileType = 'Video';
+        break;
+      case 'mov':
+        fileType = 'Video';
+        break;
+      case 'webm':
+        fileType = 'Video';
+        break;
+      case 'tif':
+        fileType = 'Document';
+        break;
+      case 'tiff':
+        fileType = 'Document';
+        break;
+      default:
+        fileType = 'Unknown';
+    }
+
+    return fileType;
   },
 
   // Return array of Source File info

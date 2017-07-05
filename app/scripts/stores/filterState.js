@@ -780,6 +780,12 @@ module.exports = Reflux.createStore({
   selectedDataChanged: function() {
 
     if (sourcesStore.userFilteredCollection.data().length === 1) {
+
+      if (sourcesStore.userFilteredCollection.data()[0].Extension === '.pdf') {
+        sourcesStore.setSelectedSourceObject(sourcesStore.userFilteredCollection.data()[0]);
+        sourcesStore.selectedSourceObject.defaultPDFPage = 2;
+      }
+
       sourcesStore.message = 'showFile';
     } else {
       sourcesStore.message = '';

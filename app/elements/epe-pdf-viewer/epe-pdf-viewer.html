@@ -482,22 +482,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.presentationState = 'editing';
         }
 
-        // Kickstart loading PDF using this window.created from pdf-viewer.js
-        // but only for one instance of this element
-        //if (this.editState === this.presentationState) {
+        // Close findBar if it was left open
+        if (window.PDFViewerApplication.findBar) {
+          window.PDFViewerApplication.findBar.updateResultsCount();
+          this.closeFindBar();
+          this.$.findResultsCount.classList.add('hidden');
+          this.$.findInput.value = '';
+          this.$.findMsg.textContent = 'Search document';
+        }
 
-          // Close findBar if it was left open
-          if (window.PDFViewerApplication.findBar) {
-            window.PDFViewerApplication.findBar.updateResultsCount();
-            this.closeFindBar();
-            this.$.findResultsCount.classList.add('hidden');
-            this.$.findInput.value = '';
-            this.$.findMsg.textContent = 'Search document';
-          }
+        // Instantiate PDF Viewer
+        window.webViewerLoad(this);
 
-          // Instantiate PDF Viewer
-          window.webViewerLoad(this);
-        //}
+        // Jump to page number if set
+        if (this.pdfObject.defaultPDFPage) {
+          this.page = window.PDFViewerApplication.page = this.pdfObject.defaultPDFPage;
+        }
+
       }
     },
 
