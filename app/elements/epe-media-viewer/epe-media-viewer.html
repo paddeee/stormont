@@ -378,7 +378,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           if (presentationMode === 'online') {
             this.videoSource = 'file:///' + app.config.paths.sourcePath + this.mediaObject['Linked File'];
           } else if (presentationMode === 'offline') {
-            this.videoSource = this.mediaObject.Path;
+            this.videoSource = 'file:///' + this.mediaObject.Path;
           }
         } else {
           this.videoSource = '/sourcefiles/' + this.mediaObject['Linked File'];
@@ -473,7 +473,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           if (presentationMode === 'online') {
             this.videoSource = app.config.paths.sourcePath + this.mediaObject['Linked File'];
           } else if (presentationMode === 'offline') {
-            this.videoSource = this.mediaObject.Path;
+            this.videoSource = 'file:///' + this.mediaObject.Path;
           }
         } else {
           this.videoSource = '/sourcefiles/' + this.mediaObject['Linked File'];
