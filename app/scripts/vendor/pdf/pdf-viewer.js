@@ -1701,7 +1701,7 @@ var PDFLinkService = (function () {
         }
         var pageNumber, dest;
         if ('page' in params) {
-          pageNumber = (params.page | 0) || 1;
+          //pageNumber = (params.page | 0) || 1;
         }
         if ('zoom' in params) {
           // Build the destination array.
@@ -7040,7 +7040,7 @@ var PDFViewerApplication = {
       this.pdfHistory.push({ hash: this.initialBookmark }, true);
       this.initialBookmark = null;
     } else if (storedHash) {
-      this.pdfLinkService.setHash(storedHash);
+      //this.pdfLinkService.setHash(storedHash);
     } else if (scale) {
       this.pdfViewer.currentScaleValue = scale;
       this.page = 1;
