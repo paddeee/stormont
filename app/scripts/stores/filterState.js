@@ -52,13 +52,13 @@ module.exports = Reflux.createStore({
     if (queryBuilderStore.message.type === 'packageSelected') {
       this.resetSelectedSources();
       this.selectSelectedRecords(queryBuilderStore.packageName);
-      this.autoFilterCollections(false, true, true);
+      this.autoFilterCollections(queryBuilderStore);
     } else if (queryBuilderStore.message.type === 'queryUpdatedPackageSelected') {
-      this.autoFilterCollections(true, true, true);
+      this.autoFilterCollections(queryBuilderStore);
     } else if (queryBuilderStore.message.type === 'queryAdded') {
-      this.autoFilterCollections(false, false, false);
+      this.autoFilterCollections(queryBuilderStore);
     } else if (queryBuilderStore.message.type === 'queryUpdated') {
-      this.autoFilterCollections(true, true, true);
+      this.autoFilterCollections(queryBuilderStore);
     } else if (queryBuilderStore.message.type === 'creatingSelected') {
       this.resetSelectedSources();
       this.resetShowFilterProperties();
@@ -340,7 +340,7 @@ module.exports = Reflux.createStore({
   // Filter on datastore userFilteredCollections based on linkage rules between tables
   // Event Place field links to Places Shortname field
   // Event Suspects, Victims and Witnesses fields link to People's Shortname field
-  autoFilterCollections: function () {
+  autoFilterCollections: function (queryBuilderStore) {
 
     // Manage the filter transform name in this store and listening collection
     // stores can use it when broadcasted
@@ -350,7 +350,7 @@ module.exports = Reflux.createStore({
     sourcesStore.filterStateChanged(this.filterTransforms);
 
     // Let listeners know data has been updated
-    this.selectedDataChanged();
+    this.selectedDataChanged(queryBuilderStore);
   },
 
   // Select all checkboxes in a store
@@ -776,19 +776,53 @@ module.exports = Reflux.createStore({
     });
   },
 
+  //
+  isPageInRange: function(sourceName, pageToSearch) {
+
+    var pageFrom = Number(sourceName.split(' to ')[0] && sourceName.split(' to ')[0].split('-')[1]);
+    var pageTo  = Number(sourceName.split(' to ')[1] && sourceName.split(' to ')[1].split('-')[1].split('.')[0]);
+    var PageToSearchNumber = Number(pageToSearch);
+
+    return PageToSearchNumber >= pageFrom && PageToSearchNumber <= pageTo;
+  },
+
   // Let listeners know the userFilteredCollections have been updated
-  selectedDataChanged: function() {
+  selectedDataChanged: function(queryBuilderStore) {
 
-    if (sourcesStore.userFilteredCollection.data().length === 1) {
+    var sourceMatchedOnPage;
 
-      if (sourcesStore.userFilteredCollection.data()[0].Extension === '.pdf') {
-        sourcesStore.setSelectedSourceObject(sourcesStore.userFilteredCollection.data()[0]);
-        sourcesStore.selectedSourceObject.defaultPDFPage = 2;
+    if (!queryBuilderStore) {
+      return;
+    }
+
+    if (queryBuilderStore.pageToSearch && sourcesStore.userFilteredCollection.data().length !== sourcesStore.userFilteredCollection.collection.data.length) {
+
+      sourceMatchedOnPage = sourcesStore.userFilteredCollection.data().filter(function(source) {
+
+        return this.isPageInRange(source['Full Name'], queryBuilderStore.pageToSearch);
+      }.bind(this));
+
+      if (sourceMatchedOnPage.length === 1) {
+        sourcesStore.setSelectedSourceObject(sourceMatchedOnPage[0]);
+        sourcesStore.selectedSourceObject.defaultPDFPage = queryBuilderStore.pageToSearch;
+        sourcesStore.message = 'showFile';
+      } else {
+        sourcesStore.message = '';
       }
 
-      sourcesStore.message = 'showFile';
     } else {
-      sourcesStore.message = '';
+
+      if (sourcesStore.userFilteredCollection.data().length === 1) {
+
+        if (sourcesStore.userFilteredCollection.data()[0].Extension === '.pdf') {
+          sourcesStore.setSelectedSourceObject(sourcesStore.userFilteredCollection.data()[0]);
+          sourcesStore.selectedSourceObject.defaultPDFPage = 2;
+        }
+
+        sourcesStore.message = 'showFile';
+      } else {
+        sourcesStore.message = '';
+      }
     }
 
     sourcesStore.trigger(sourcesStore);

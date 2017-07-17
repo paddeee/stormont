@@ -197,6 +197,10 @@ module.exports = Reflux.createStore({
 
     var broadcastMessage = '';
 
+    if (this.setPageToSearch(arg.value)) {
+      arg.value = arg.value.split('-')[0];
+    }
+
     if (action === 'add') {
       this.queryObject.filters.push(arg);
       this.message = {
@@ -221,6 +225,16 @@ module.exports = Reflux.createStore({
     }
 
     this.trigger(this);
+  },
+
+  // Set pageToSearch property if searchTerm matches Regex of pattern Kin-10496
+  setPageToSearch: function(searchTerm) {
+
+    if (new RegExp(/([a-z]+)-\w+/g).test(searchTerm)) {
+      this.pageToSearch = searchTerm.split('-')[1];
+      return true;
+    }
+    return false;
   },
 
   // Used to prevent Checkboxes being displayed when none of the filters have values
