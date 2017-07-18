@@ -324,11 +324,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <paper-button class="publish-location"
                       on-tap="publishLocationTapped"
-                      hidden="[[!courtMode]]"
                       raised>Choose Publish Directory..</paper-button>
 
-        <div class="display-publish-path"
-             hidden="[[!courtMode]]">[[publishLocation]]</div>
+        <div class="display-publish-path">[[publishLocation]]</div>
 
         <paper-radio-group id="OpenOnPublish" selected="open" class="layout vertical" hidden$="[[courtMode]]">
           <paper-radio-button name="open">Automatically open after saving</paper-radio-button>
@@ -543,7 +541,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }
 
           // Listen to Electron when directory is selected
-          ipcRenderer.on('directory-selected', function (event, arg) {
+          ipcRenderer.on('publish-directory-selected', function (event, arg) {
 
             if (arg) {
               this.publishLocation = arg[0] + pathDivider;
@@ -820,7 +818,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         var publishObject;
 
-        if (this.courtMode && this.publishLocation === 'Not selected..') {
+        if (this.publishLocation === 'Not selected..') {
           this.$.NoPublishLocationDialog.open();
           return;
         }
@@ -1104,7 +1102,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Send message to electron to open Open Dialog
       publishLocationTapped: function() {
-        ipcRenderer.send('show-open-dialog', 'directory');
+        ipcRenderer.send('show-publish-open-dialog', 'directory');
       }
     });
   })();

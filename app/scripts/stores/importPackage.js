@@ -79,46 +79,46 @@ module.exports = Reflux.createStore({
     var fileType;
 
     switch (fileExtension) {
-      case 'pdf':
+      case '.pdf':
         fileType = 'Document';
         break;
-      case 'jpg':
+      case '.jpg':
         fileType = 'Image';
         break;
-      case 'jpeg':
+      case '.jpeg':
         fileType = 'Image';
         break;
-      case 'gif':
+      case '.gif':
         fileType = 'Image';
         break;
-      case 'png':
+      case '.png':
         fileType = 'Image';
         break;
-      case 'm4a':
+      case '.m4a':
         fileType = 'Audio';
         break;
-      case 'mp3':
+      case '.mp3':
         fileType = 'Audio';
         break;
-      case 'wav':
+      case '.wav':
         fileType = 'Audio';
         break;
-      case 'avi':
+      case '.avi':
         fileType = 'Video';
         break;
-      case 'mp4':
+      case '.mp4':
         fileType = 'Video';
         break;
-      case 'mov':
+      case '.mov':
         fileType = 'Video';
         break;
-      case 'webm':
+      case '.webm':
         fileType = 'Video';
         break;
-      case 'tif':
+      case '.tif':
         fileType = 'Document';
         break;
-      case 'tiff':
+      case '.tiff':
         fileType = 'Document';
         break;
       default:

@@ -35,17 +35,8 @@ module.exports = Reflux.createStore({
 
     controllerWindow.capturePage(rect, function(image) {
 
-      var screenshotPath;
-      var pdfPath;
-
-      // Save log in different location depending on court mode state
-      if (publishObject.courtMode) {
-        screenshotPath = path.join(location, fileName);
-        pdfPath = path.join(location, pdfName);
-      } else {
-        screenshotPath = path.join(global.config.packagePath, fileName);
-        pdfPath = path.join(global.config.packagePath, pdfName);
-      }
+      var screenshotPath = path.join(location, fileName);
+      var pdfPath = path.join(location, pdfName);
 
       var pdfObject = {
         fileName: publishObject.fileName,

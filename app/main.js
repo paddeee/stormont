@@ -456,12 +456,16 @@ app.on('ready', function() {
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function() {
+  app.quit();
+});
 
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+ipcMain.on('show-publish-open-dialog', function(event) {
+
+  var selection = dialog.showOpenDialog({
+    properties: ['openDirectory']
+  });
+
+  event.sender.send('publish-directory-selected', selection);
 });
 
 ipcMain.on('show-open-dialog', function(event, property, type) {
@@ -549,6 +553,6 @@ ipcMain.on('open-link-in-browser', function(event, url) {
 ipcMain.on('app-loaded', function() {
   splashWindow.destroy();
   splashWindow = null;
-  controllerWindow.webContents.openDevTools();
+  // controllerWindow.webContents.openDevTools();
   controllerWindow.show();
 });

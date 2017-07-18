@@ -477,10 +477,11 @@ var config = {
       filter: 'none'
     },
     {
-      name: 'Description',
+      name: 'FileType',
+      displayName: 'File Type',
       display: 'true',
       filter: 'regex',
-      width: '400'
+      width: '200'
     },
     {
       name: 'Pre-exhibit No',

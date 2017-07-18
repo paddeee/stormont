@@ -196,19 +196,20 @@ module.exports = Reflux.createStore({
   queryFiltersChanged: function(arg, action) {
 
     var broadcastMessage = '';
+    var newQueryObject = _.cloneDeep(arg);
 
     if (this.setPageToSearch(arg.value)) {
-      arg.value = arg.value.split('-')[0];
+      newQueryObject.value = arg.value.split('-')[0];
     }
 
     if (action === 'add') {
-      this.queryObject.filters.push(arg);
+      this.queryObject.filters.push(newQueryObject);
       this.message = {
         type: 'queryAdded' + broadcastMessage
       };
     } else if (action === 'remove') {
 
-      var deletedFilter = this.queryObject.filters.splice(arg, 1)[0];
+      var deletedFilter = this.queryObject.filters.splice(newQueryObject, 1)[0];
 
       this.manageFiltersWithValues(deletedFilter, 'remove');
 
@@ -217,7 +218,7 @@ module.exports = Reflux.createStore({
       };
     } else if (action === 'update') {
 
-      this.manageFiltersWithValues(arg, 'update');
+      this.manageFiltersWithValues(newQueryObject, 'update');
 
       this.message = {
         type: 'queryUpdated' + broadcastMessage
@@ -233,8 +234,10 @@ module.exports = Reflux.createStore({
     if (new RegExp(/([a-z]+)-\w+/g).test(searchTerm)) {
       this.pageToSearch = searchTerm.split('-')[1];
       return true;
+    } else {
+      this.pageToSearch = '';
+      return false;
     }
-    return false;
   },
 
   // Used to prevent Checkboxes being displayed when none of the filters have values
