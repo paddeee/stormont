@@ -790,6 +790,8 @@ module.exports = Reflux.createStore({
   selectedDataChanged: function(queryBuilderStore) {
 
     var sourceMatchedOnPage;
+    var pageToOpen = 1;
+    var pageFrom;
 
     if (!queryBuilderStore) {
       return;
@@ -803,8 +805,10 @@ module.exports = Reflux.createStore({
       }.bind(this));
 
       if (sourceMatchedOnPage.length === 1) {
+        pageFrom = Number(sourceMatchedOnPage[0]['Full Name'].split(' to ')[0] && sourceMatchedOnPage[0]['Full Name'].split(' to ')[0].split('-')[1]);
+        pageToOpen = queryBuilderStore.pageToSearch - (pageFrom - 1);
         sourcesStore.setSelectedSourceObject(sourceMatchedOnPage[0]);
-        sourcesStore.selectedSourceObject.defaultPDFPage = queryBuilderStore.pageToSearch;
+        sourcesStore.selectedSourceObject.defaultPDFPage = pageToOpen;
         sourcesStore.message = 'showFile';
       } else {
         sourcesStore.message = '';

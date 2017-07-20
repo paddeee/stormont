@@ -260,7 +260,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.sourceData = sourceData.userFilteredCollection.data();
 
             if (this.sourceStore.message === 'showFile') {
-              this.handleSearch();
+              this.handleSearch(sourceData.selectedSourceObject);
             }
 
             if (this.params) {
@@ -283,12 +283,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       // If one result jump directly to the document
-      handleSearch: function() {
+      handleSearch: function(selectedSourceObject) {
 
         // Hack based around need to trigger pdf creation in pdf element so we broadcast a change to null
         // before sending out the object again.
         this.sourceActions.viewSourceFile(null);
-        this.sourceActions.viewSourceFile(this.sourceData[0]);
+        this.sourceActions.viewSourceFile(selectedSourceObject);
       },
 
       // When a tab is selected set the collectionData if available
