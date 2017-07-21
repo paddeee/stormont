@@ -254,13 +254,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         if (this.sourceStore) {
 
+          var selectedSourceObject;
+
           // When the source data is updated, update our grid data
           this.sourceStore.listen(function (sourceData) {
 
+            if (sourceData.userFilteredCollection.data().length === 1) {
+              selectedSourceObject = sourceData.userFilteredCollection.data()[0];
+            } else {
+              selectedSourceObject = sourceData.selectedSourceObject;
+            }
             this.sourceData = sourceData.userFilteredCollection.data();
 
             if (this.sourceStore.message === 'showFile') {
-              this.handleSearch(sourceData.selectedSourceObject);
+              this.handleSearch(selectedSourceObject);
             }
 
             if (this.params) {
