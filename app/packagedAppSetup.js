@@ -9,6 +9,7 @@ var appMode;
 var _;
 var webChimera;
 var path;
+var moment;
 
 if (typeof process === 'object') {
   appMode = 'app';
@@ -20,6 +21,7 @@ if (appMode === 'app') {
 
   remote = require('electron').remote;
   _ = require('lodash');
+  moment = require('moment');
   path = require('path');
 
   if (process.platform == 'win32') {

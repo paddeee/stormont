@@ -36,6 +36,7 @@
     "EpeEditPackage": true,
     "roles": true,
     "videojs": true,
-    "webChimera": true
+    "webChimera": true,
+    "moment": true
   }
 }

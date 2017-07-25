@@ -231,7 +231,7 @@ module.exports = Reflux.createStore({
   // Set pageToSearch property if searchTerm matches Regex of pattern Kin-10496
   setPageToSearch: function(searchTerm) {
 
-    if (new RegExp(/([a-z]+)-\w+/g).test(searchTerm)) {
+    if (new RegExp(/([a-z]+)-\w+/gi).test(searchTerm)) {
       this.pageToSearch = searchTerm.split('-')[1];
       return true;
     } else {
