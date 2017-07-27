@@ -811,6 +811,7 @@ module.exports = Reflux.createStore({
         sourcesStore.selectedSourceObject.defaultPDFPage = pageToOpen;
         sourcesStore.message = 'showFile';
       } else {
+        sourcesStore.selectedSourceObject.defaultPDFPage = '';
         sourcesStore.message = '';
       }
 

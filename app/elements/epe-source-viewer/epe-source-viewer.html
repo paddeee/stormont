@@ -142,6 +142,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               this.fire('navigate-to-source-viewer', sourceData);
             }
           }
+
+          if (sourceData.userFilteredCollection.data().length === 0) {
+            this.fire('no-records', sourceData);
+          }
         }.bind(this));
       }
     },

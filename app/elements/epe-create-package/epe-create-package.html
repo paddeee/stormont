@@ -70,10 +70,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <template>
 
     <iron-pages
-      class="main-content"
-      attr-for-selected="data-route"
-      selected="{{createPackageRoute}}"
-      on-iron-select="createPackageViewSelected">
+            id="MainRouteSelector"
+            class="main-content"
+            attr-for-selected="data-route"
+            selected="{{createPackageRoute}}"
+            on-iron-select="createPackageViewSelected">
 
       <!-- DataGrid View -->
       <section data-route="data-grid" class="data-grid">
@@ -172,7 +173,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           source-actions="[[sourceActions]]"
           source-store="[[sourceStore]]"
           on-source-error="sourceFileError"
-          on-navigate-to-source-viewer="navigateToSourceViewer"></epe-source-viewer>
+          on-no-records="noRecords"
+          on-navigate-to-source-viewer="navigateToSourceViewer"
+          on-navigate-to-data-grid="navigateToDataGrid"></epe-source-viewer>
       </section>
     </iron-pages>
 
@@ -180,6 +183,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <h2>Problem Viewing Source File</h2>
       <div>
         <span>[[sourceMessage]]</span>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="NoRecordsDialog" modal>
+      <h2>No Files match the search</h2>
+      <div>
+        <span>Please enter a different search and try again.</span>
       </div>
       <div class="buttons">
         <paper-button dialog-confirm autofocus>OK</paper-button>
@@ -413,6 +426,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       },
 
+      // FIRED BY EPE-SOURCE-VIEWER ELEMENT: Navigate to the data grid
+      navigateToDataGrid: function() {
+
+        if (!this.$.MainRouteSelector.selected || this.$.MainRouteSelector.selected === 'data-grid') {
+          return;
+        }
+
+        page('/create-package/data-grid/Document');
+      },
+
       // FIRED BY EPE-SOURCE-VIEWER ELEMENT: Navigate to the profile view
       navigateToProfile: function(event) {
 
@@ -463,6 +486,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         this.$.SourceErrorDialog.open();
+      },
+
+      // When No records are returned in search
+      noRecords: function() {
+
+        if (this.$.MainRouteSelector.selected === 'data-grid') {
+          return;
+        }
+
+        this.$.NoRecordsDialog.open();
       },
 
       // Show spinner when selecting a lot of events as UI freezes due to Timeline
