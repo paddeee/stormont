@@ -29,10 +29,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         border-radius: 2px;
       }
 
-      .unlock-input {
-        width: 420px;
-      }
-
       .lock {
         height: 100px;
         width: 100px;
@@ -46,29 +42,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <h1>Application Locked</h1>
 
           <iron-icon icon="lock-outline" class="lock"></iron-icon>
-
-          <p>The Application has been locked after a period of inactivity</p>
-          <div>Insert the Yubikey and enter the password to unlock.</div>
-          <paper-input
-            id="UnlockPassword"
-            class="unlock-input"
-            label="Enter Package Password, Then Hold Down YubiKey Button"
-            type="password"
-            autofocus
-            on-keypress="unlockApplication"></paper-input>
+          <div>Please contact Evidential Ltd. to obtain a license.</div>
 
         </paper-material>
       </div>
     </div>
 
-    <paper-dialog id="UnlockErrorDialog" modal>
-      <h2>Unlock Error</h2>
-      <p>The password does not match the package currently open in the presentation.</p>
-      <div>Please re-enter your password and press the Yubikey to try again.</div>
-      <div class="buttons">
-        <paper-button dialog-confirm autofocus>OK</paper-button>
-      </div>
-    </paper-dialog>
   </template>
   <script>
   (function() {
@@ -77,98 +56,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     Polymer({
       is: 'epe-inactivity',
 
-      properties: {
-
-        inactivityTimeOut: {
-          type: Number,
-          value: 60
-        },
-
-        inactivitySessionExpireTimeOut: {
-          type: String,
-          value: ''
-        }
-      },
-
       ready: function() {
-
-        // If in PackageViewer App, set config property after package import
-        if (presentationMode && presentationMode === 'offline' && appMode === 'app') {
-
-          // When the presentations data is updated
-          this.importPackageStore.listen(function (importPackageStore) {
-
-            if (importPackageStore.message === 'importSuccess') {
-              this.inactivityTimeOut = global.config.activityTimeout;
-            }
-          });
-
-        } else {
-          this.inactivityTimeOut = app.config.activityTimeout;
-        }
-
-        this.setSessionExpireTimeOut();
-
-        document.onclick = function() {
-          this.setSessionExpireTimeOut();
-        }.bind(this);
-
-        document.onmousemove = function() {
-          this.setSessionExpireTimeOut();
-        }.bind(this);
-
-        document.onkeypress = function() {
-          this.setSessionExpireTimeOut();
-        }.bind(this);
+        this.setInactive();
       },
 
-      // Reset countdown to application lock
-      setSessionExpireTimeOut: function() {
+      // Application Lock
+      setInactive: function() {
 
-        clearTimeout(this.inactivitySessionExpireTimeOut);
+        var feb282018 = 1519815600;
 
-        this.inactivitySessionExpireTimeOut = setTimeout(function() {
-
-          //this.fire('lock-application');
-
-          clearTimeout(this.inactivitySessionExpireTimeOut);
-
-        }.bind(this), this.inactivityTimeOut * 1000);
-      },
-
-      // When the Yubikey Password has been entered
-      unlockApplication: function(event) {
-
-        var packagePassword;
-
-        // YubiKey will press enter after entering its password
-        if (event.keyCode === 13) {
-
-          // Perform export if in packaged app. Otherwise log to alert that it won't work in browser
-          if (appMode === 'app') {
-
-            // Let User select a location from file explorer
-            packagePassword = event.target.value;
-
-            if (packagePassword === this.importPackageStore.packagePassword) {
-
-              this.fire('unlock-application');
-
-              // Reset the password field
-              this.$.UnlockPassword.value = null;
-
-              // Reset session timeout
-              this.setSessionExpireTimeOut();
-
-            } else {
-
-              // Show error dialog
-              this.$.UnlockErrorDialog.open();
-            }
-
-          } else {
-            console.warn('Import not available in browser mode');
-          }
+        if (Date.now() / 1000 > feb282018) {
+          this.fire('lock-application');
         }
       }
     });
