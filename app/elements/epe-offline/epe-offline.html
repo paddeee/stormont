@@ -822,19 +822,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var pdfViewer = this.querySelector('epe-pdf-viewer');
         var canvas = document.querySelector('#page' + pdfViewer.page);
 
-        var fullPagePDFImage = this.copyCanvasRegionToBuffer(canvas, 0, 0, canvas.width, canvas.height);
+        //var fullPagePDFImage = this.copyCanvasRegionToBuffer(canvas, 0, 0, canvas.width, canvas.height);
+        var fullPagePDFImage = canvas.toDataURL();
         console.log(fullPagePDFImage);
-      },
-
-      // Copy selected rectangle of canvas and convert to bitmap image
-      copyCanvasRegionToBuffer: function(canvas, x, y, w, h) {
-
-        var bufferCanvas = document.createElement('canvas');
-
-        bufferCanvas.width  = w;
-        bufferCanvas.height = h;
-        bufferCanvas.getContext('2d').drawImage(canvas, x, y, w, h, 0, 0, w, h);
-        return bufferCanvas;
       },
 
       // Start publish screen process
