@@ -110,7 +110,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     .card-contents h3 {
-      margin: 2vh 0;
+      margin: 2vh 0 0;
       font-size: 2.5vh;
     }
 
@@ -125,6 +125,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       cursor: pointer;
       height: 6vh;
     }
+
+    .publish-location {
+      background-color: #fff;
+      color: #000;
+      margin: 0 0 8px;
+    }
+
+    .display-publish-path {
+      font-size: 12px;
+      font-weight: bold;
+    }
   </style>
   <template>
 
@@ -135,13 +146,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
         <div class="card-contents layout vertical center">
           <h1>Electronic Presentation of Evidence</h1>
+
+          <paper-button class="publish-location"
+                        on-tap="publishLocationTapped"
+                        raised>Choose Audit Directory..</paper-button>
+
+          <div class="display-publish-path">[[publishLocation]]</div>
+
           <h3>Choose Directory To Import</h3>
-          <div class="toggle-mode">
-            <paper-toggle-button
-              id="CourtModeToggle"
-              on-change="courtModeChanged">
-              External Display Mode</paper-toggle-button>
-          </div>
           <div class="choose-button-holder layout horizontal center-justified">
             <paper-button
               raised
@@ -172,6 +184,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     properties: {
 
       importLocation: {
+        type: String,
+        value: 'Not selected..'
+      },
+
+      publishLocation: {
         type: String,
         value: 'Not selected..'
       },
@@ -245,6 +262,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // WHEN CHOOSE PACKAGE BUTTON IS TAPPED
     choosePackageTapped: function() {
 
+      if (this.publishLocation === 'Not selected..') {
+        this.fire('show-publish-location-error');
+        return;
+      }
+
       // Perform export if in packaged app. Otherwise log so we know it won't work in browser
       if (appMode === 'app') {
         ipcRenderer.send('show-open-dialog', 'directory');
@@ -291,8 +313,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Court Mode toggle changed
-    courtModeChanged: function() {
-      this.fire('court-mode-changed', this.$.CourtModeToggle.active);
+    publishLocationTapped: function() {
+      this.fire('publish-location-changed');
     },
 
     // Open the Evidential website

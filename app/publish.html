@@ -115,7 +115,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <table id="ErnTable" hidden>
       <tr id="ErnHeading">
         <td id="ErnRef" class="bold">ERN Reference</td>
-        <td id="ErnDescription" class="bold">Description</td>
+        <td id="ErnDescription" class="bold"></td>
         <td></td>
         <td></td>
       </tr>
@@ -195,7 +195,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (pdfObject.ernRefs.length) {
 
         $ernTable.innerHTML = '<tr id="ErnHeading"><td id="ErnRef" class="bold">ERN Reference</td>' +
-          '<td id="ErnDescription" class="bold">Description</td><td></td><td></td></tr>';
+          '<td id="ErnDescription" class="bold"></td><td></td><td></td></tr>';
 
         pdfObject.ernRefs.forEach(function(ernRef) {
 
@@ -203,7 +203,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             return;
           }
 
-          var tableRow = '<tr><td>' + ernRef['Full Name'] + '</td><td>' + ernRef.Description + '</td><td></td><td></td></tr>';
+          var tableRow = '<tr><td>' + ernRef['Full Name'] + '</td><td></td><td></td><td></td></tr>';
           var $ernHeading = document.querySelector('#ErnHeading');
 
           $ernHeading.insertAdjacentHTML('afterend', tableRow);

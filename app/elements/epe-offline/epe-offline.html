@@ -109,10 +109,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       height: 100%;
     }
 
-    .court-holder {
-      margin-right: 20px;
-    }
-
     .nav-icon:hover {
       color: #E6E6E6;
     }
@@ -215,14 +211,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           <div id="SectionName" class="section-name flex center horizontal layout">[[sectionTitle]]</div>
 
-          <div class="court-holder flex layout horizontal end-justified">
-            <div class="toggle-mode">
-              <paper-toggle-button
-                id="CourtModeToggle"
-                on-change="toggleCourtModeChanged">Court</paper-toggle-button>
-            </div>
-          </div>
-
           <!-- Toolbar icons -->
           <div hidden$="[[hideHeaderPackageNavigation]]" class="package-navigation">
 
@@ -274,10 +262,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <epe-choose-package id="ChoosePackage"
                                 import-package-actions="[[importPackageActions]]"
                                 import-package-store="[[importPackageStore]]"
-                                on-court-mode-changed="courtModeChanged"
+                                publish-location="[[publishLocation]]"
+                                on-publish-location-changed="publishLocationTapped"
                                 on-import-success="importSuccess"
                                 on-import-failure="importFailure"
                                 on-no-location-selected="noLocationSelected"
+                                on-show-publish-location-error="noAuditLocationSelected"
                                 on-importing-package="importingPackage">
             </epe-choose-package>
           </section>
@@ -320,12 +310,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   modal>
       <h2>Publish as Evidence</h2>
       <div>
-
-        <paper-button class="publish-location"
-                      on-tap="publishLocationTapped"
-                      raised>Choose Publish Directory..</paper-button>
-
-        <div class="display-publish-path">[[publishLocation]]</div>
 
         <paper-radio-group id="OpenOnPublish" selected="open" class="layout vertical" hidden$="[[courtMode]]">
           <paper-radio-button name="open">Automatically open after saving</paper-radio-button>
@@ -445,7 +429,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </paper-dialog>
 
     <paper-dialog id="NoPublishLocationDialog" modal>
-      <h2>Please choose a directory to publish the screen to.</h2>
+      <h2>Please choose an Audit directory.</h2>
       <div class="buttons layout horizontal">
         <paper-button dialog-confirm autofocus>OK</paper-button>
       </div>
@@ -551,7 +535,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           // Listen to Electron when directory is selected
           ipcRenderer.on('no-external-display', function () {
-            this.$.NoExternalDisplayDialog.open();
+            //this.$.NoExternalDisplayDialog.open();
           }.bind(this));
 
           // Listen to Electron pdf created errors
@@ -564,7 +548,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // Listen to Electron when a pdf is created successfully
           ipcRenderer.on('pdf-created', function (event, arg) {
             this.publishMessage = 'PDF created at ' + arg.pdfPath;
-            this.$.PublishSuccessDialog.open();
+            //this.$.PublishSuccessDialog.open();
           }.bind(this));
         }
       },
@@ -808,8 +792,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Open Publish Dialog
       openPublishDialog: function() {
-        this.timeStamp = moment().format('HHmmss_DDMMYY-');
-        this.$.PublishDialog.open();
+        this.timeStamp = moment().format('HHmmss_DDMMYY');
+        this.publishScreen();
       },
 
       // Start publish screen process
@@ -824,21 +808,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         publishObject = {
           location: this.publishLocation,
-          openOnSave: this.courtMode ? false : this.$.OpenOnPublish.selected,
-          fileName: this.timeStamp + this.$.EvidenceName.value,
+          openOnSave: false,
+          fileName: this.timeStamp,
           ernRefs: this.getErnRefs(),
-          courtMode: this.courtMode,
+          courtMode: false,
           screenView: this.$.EpeCreatePackage.createPackageRoute
         };
 
-        if (this.publishValidate()) {
-          this.$.PublishDialog.close();
+        this.$.PublishDialog.close();
 
-          // Make sure the dialog is closed so it won't be captured on screengrab
-          this.async(function() {
-            this.screenActions.publishScreen(publishObject);
-          }, 400);
-        }
+        // Make sure the dialog is closed so it won't be captured on screengrab
+        this.async(function() {
+          this.screenActions.publishScreen(publishObject);
+        }, 400);
       },
 
       // Handle the broadcast from the screen Store
@@ -857,9 +839,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           // If publish successful
         } else if (message.type === 'publishSuccess') {
-
-          // Reset location
-          this.publishLocation = 'Not selected..';
 
           this.$.EvidenceName.value = '';
           this.publishMessage = message.text;
@@ -1070,9 +1049,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Called from event on choose-package element
       importSuccess: function() {
 
-        // Reset Publish location
-        this.publishLocation = 'Not selected..';
-
         this.$.ImportSuccessDialog.open();
         this.$.ImportingPackage.close();
       },
@@ -1087,6 +1063,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Called from event on choose-package element
       noLocationSelected: function() {
         this.$.NoLocationDialog.open();
+      },
+
+      // Called from event on choose-package element
+      noAuditLocationSelected: function() {
+        this.$.NoPublishLocationDialog.open();
       },
 
       // Called from event on choose-package element
