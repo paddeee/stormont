@@ -140,6 +140,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       color: var(--default-primary-color);
     }
 
+    .zoom-dialog {
+      position:fixed;
+      left: 24px;
+      top: 106px;
+    }
+
+    .zoom-dialog > * {
+      margin: 0px;
+      padding: 0;
+    }
+
+    .zoom-close {
+      background-color: var(--accent-color);
+      color: black;
+      position:absolute;
+      top: -66px;
+      right: calc(50% - 24px);
+    }
+
   </style>
   <link rel="stylesheet" href="../../styles/vendor/pdf/pdf.css">
   <script src="../../scripts/vendor/pdf/l10n.js"></script>
@@ -191,6 +210,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <div id="viewer" class="pdfViewer"></div>
         </div>
 
+        <!-- Zoom Section -->
+        <paper-dialog id="ZoomSectionDialog"
+                      entry-animation="scale-up-animation"
+                      exit-animation="fade-out-animation"
+                      class="zoom-dialog"
+                      modal>
+          <paper-fab class="zoom-close"
+                     icon="close"
+                     dialog-confirm
+                     on-tap="removeZoomSection"></paper-fab>
+          <canvas class="zoom-section"></canvas>
+        </paper-dialog>
+
         <!-- Footer -->
         <div class="pdf__footer relative horizontal layout center">
 
@@ -239,6 +271,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <div class="pdf_button-holder border-left border-right horizontal layout center">
             <paper-icon-button id="sidebarToggle" tabindex="11" icon="toggle" hidden></paper-icon-button>
             <div id="SelectText" class="select-text" on-tap="selectText">I</div>
+            <paper-icon-button id="ZoomSection" icon="flip-to-front" on-tap="selectSection"></paper-icon-button>
             <paper-icon-button id="Previous" icon="arrow-back" on-tap="showPreviousPage"></paper-icon-button>
             <paper-icon-button id="Next" icon="arrow-forward" on-tap="showNextPage"></paper-icon-button>
             <paper-icon-button id="ZoomOut" icon="zoom-out" on-tap="zoomOut"></paper-icon-button>
@@ -270,6 +303,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           <paper-tooltip for="sidebarToggle" position="top" offset="0">SideBar Toggle</paper-tooltip>
           <paper-tooltip for="SelectText" position="top" offset="0">Select Text</paper-tooltip>
+          <paper-tooltip for="ZoomSection" position="top" offset="0">Zoom Section</paper-tooltip>
           <paper-tooltip for="Previous" position="top" offset="0">Previous Page</paper-tooltip>
           <paper-tooltip for="Next" position="top" offset="0">Next Page</paper-tooltip>
           <paper-tooltip for="ZoomOut" position="top" offset="0">Zoom Out</paper-tooltip>
@@ -399,6 +433,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         value: []
       },
 
+      selectSectionSelected: {
+        type: Boolean,
+        value: false
+      },
+
       pointerEvents: {
         type: Boolean,
         value: true,
@@ -448,6 +487,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         this.addAnnnotationsLayerToPage(event.target);
 
+        this.addSelectionZoomCanvasToPage(event.target);
+
       }.bind(this), true);
 
       $epeElement.addEventListener('not-pdf-route', function() {
@@ -475,6 +516,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (window.PDFViewerApplication.page) {
           this.page = window.PDFViewerApplication.page;
           this.scaleToAuto();
+        } else {
+          document.querySelector('#mainContainer').scrollTop = 0;
         }
 
         // If presentation is waiting for authorisation, for these purposes it is in the 'editing' state
@@ -494,9 +537,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Instantiate PDF Viewer
         window.webViewerLoad(this);
 
+        // Set scroll listener on view container
+        this.viewerContainer = this.querySelector('#viewerContainer');
+        this.viewerContainer.addEventListener('scroll', function() {
+          this.debounce('selectSection', function() {
+            this.selectSection();
+          }, 100);
+        }.bind(this));
+
         // Jump to page number if set
         if (this.pdfObject.defaultPDFPage) {
           this.page = window.PDFViewerApplication.page = this.pdfObject.defaultPDFPage;
+          this.scaleToAuto();
         }
 
       }
@@ -509,6 +561,137 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
+
+      this.deselectSection();
+    },
+
+    // Select a section of PDF
+    selectSection: function(event) {
+
+      var pageContainer;
+      var pdfViewer = this;
+      var viewerContainer = this.querySelector('#viewerContainer');
+
+      if (!event && this.selectSectionSelected === false) {
+        return;
+      }
+
+      // Set property
+      this.selectSectionSelected = true;
+
+      pageContainer = this.querySelector('#pageContainer' + this.page);
+
+      /*this.async(function() {
+
+       // Disable text layer events
+       pageContainer.querySelector('.textLayer').style.pointerEvents = 'none';
+
+       // Disable annotations
+       this.$$('#PDFAnnotations' + this.page).style.pointerEvents = 'none';
+       }, 500);*/
+
+      // Add selected class to button
+      if (event) {
+        this.manageSelectedButtonClass(event.currentTarget);
+      }
+
+      var canvas = document.querySelector('#SelectionCanvas' + this.page);
+      var ctx = canvas.getContext('2d');
+      var rect = {};
+      var drag = false;
+      var createRect = true;
+      var headerHeight = 64;
+      var offsetLeft = pageContainer.offsetLeft + pageContainer.clientLeft;
+      var offsetTop = (pageContainer.offsetTop - viewerContainer.scrollTop) + pageContainer.clientTop + headerHeight;
+
+      function mouseDown(e) {
+        rect.startX = e.pageX - offsetLeft;
+        rect.startY = e.pageY - offsetTop;
+        drag = true;
+      }
+
+      function mouseUp() {
+        drag = false;
+
+        if (createRect === true) {
+          pdfViewer.zoomSection(rect);
+        }
+      }
+
+      function draw() {
+        ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+        ctx.fillRect(rect.startX, rect.startY, rect.w, rect.h);
+      }
+
+      function mouseMove(e) {
+        if (drag) {
+          rect.w = (e.pageX - offsetLeft) - rect.startX;
+          rect.h = (e.pageY - offsetTop) - rect.startY ;
+
+          if (e.pageY - offsetTop <= rect.startY || e.pageX - offsetLeft <= rect.startX) {
+            createRect = false;
+            return;
+          } else {
+            createRect = true;
+          }
+
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          draw();
+        }
+      }
+
+      function init() {
+        canvas.removeEventListener('mousedown', mouseDown, false);
+        canvas.removeEventListener('mouseup', mouseUp, false);
+        canvas.removeEventListener('mousemove', mouseMove, false);
+
+        canvas.addEventListener('mousedown', mouseDown, false);
+        canvas.addEventListener('mouseup', mouseUp, false);
+        canvas.addEventListener('mousemove', mouseMove, false);
+
+        canvas.style.display = 'block';
+      }
+
+      init();
+    },
+
+    // Zoom section of PDF
+    zoomSection: function(rectangle) {
+
+      var canvasPage = this.querySelector('#page' + this.page);
+      var viewerContainer = this.querySelector('#viewerContainer');
+      var zoomSection;
+      var x = rectangle.startX * 2;
+      var y = rectangle.startY * 2;
+      var h = Math.abs(rectangle.h * 2);
+      var w = Math.abs(rectangle.w * 2);
+
+      zoomSection = this.copyCanvasRegionToBuffer(canvasPage, x, y, w, h);
+
+      // Set zoom section width to nearly fill window
+      zoomSection.style.width = viewerContainer.clientWidth - 140 + 'px';
+      this.$.ZoomSectionDialog.open();
+    },
+
+    // Delete canvas annotation after closing Zoom
+    removeZoomSection: function() {
+
+      var canvas = document.querySelector('#SelectionCanvas' + this.page);
+      var ctx = canvas.getContext('2d');
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    },
+
+    // Reset zoom canvas state
+    deselectSection: function() {
+      var canvas = document.querySelector('#SelectionCanvas' + this.page);
+
+      if (canvas) {
+        canvas.style.display = 'none';
+      }
+
+      // Set property
+      this.selectSectionSelected = false;
     },
 
     // Show previous page of PDF
@@ -516,6 +699,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
+
+      this.deselectSection();
 
       window.PDFViewerApplication.page--;
     },
@@ -526,6 +711,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
 
+      this.deselectSection();
+
       window.PDFViewerApplication.page++;
     },
 
@@ -533,7 +720,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     zoomIn: function(event) {
 
       // Add selected class to button
-      this.manageSelectedButtonClass(event.currentTarget);
+      if (event) {
+        this.manageSelectedButtonClass(event.currentTarget);
+      }
+
+      this.deselectSection();
 
       // Save all annotation objects as PDF.js zoom will destroy the current canvas element
       this.saveCanvasAnnotationObjects();
@@ -546,7 +737,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     zoomOut: function(event) {
 
       // Add selected class to button
-      this.manageSelectedButtonClass(event.currentTarget);
+      if (event) {
+        this.manageSelectedButtonClass(event.currentTarget);
+      }
+
+      this.deselectSection();
 
       // Save all annotation objects as PDF.js zoom will destroy the current canvas element
       this.saveCanvasAnnotationObjects();
@@ -561,6 +756,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Save all annotation objects as PDF.js zoom will destroy the current canvas element
       this.saveCanvasAnnotationObjects();
 
+      this.deselectSection();
+
+      if (this.page === 1) {
+        document.querySelector('#mainContainer').scrollTop = 0;
+      }
+
       // Set PDF Scale to actual size
       window.PDFViewerApplication.pdfViewer.currentScaleValue = 'auto';
     },
@@ -570,6 +771,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
+
+      this.deselectSection();
 
       // Save all annotation objects as PDF.js zoom will destroy the current canvas element
       this.saveCanvasAnnotationObjects();
@@ -582,7 +785,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     fitToPage: function(event) {
 
       // Add selected class to button
-      this.manageSelectedButtonClass(event.currentTarget);
+      if (event) {
+        this.manageSelectedButtonClass(event.currentTarget);
+      }
+
+      this.deselectSection();
 
       // Save all annotation objects as PDF.js zoom will destroy the current canvas element
       this.saveCanvasAnnotationObjects();
@@ -597,6 +804,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
 
+      this.deselectSection();
+
       // Save all annotation objects as PDF.js zoom will destroy the current canvas element
       this.saveCanvasAnnotationObjects();
 
@@ -609,6 +818,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
+
+      this.deselectSection();
 
       // Save all annotation objects as PDF.js zoom will destroy the current canvas element
       this.saveCanvasAnnotationObjects();
@@ -660,6 +871,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
 
+      this.deselectSection();
+
       this.$$('#PDFAnnotations' + this.page).freeDraw();
     },
 
@@ -671,6 +884,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
+
+      this.deselectSection();
 
       this.$$('#PDFAnnotations' + this.page).selectAnnotations();
     },
@@ -684,6 +899,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
 
+      this.deselectSection();
+
       this.$$('#PDFAnnotations' + this.page).addCircle();
     },
 
@@ -695,6 +912,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
+
+      this.deselectSection();
 
       this.$$('#PDFAnnotations' + this.page).addRect();
     },
@@ -708,6 +927,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
 
+      this.deselectSection();
+
       this.$$('#PDFAnnotations' + this.page).addText();
     },
 
@@ -719,6 +940,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
+
+      this.deselectSection();
 
       this.$$('#PDFAnnotations' + this.page).highlightText();
     },
@@ -732,6 +955,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
 
+      this.deselectSection();
+
       this.$$('#PDFAnnotations' + this.page).redaction();
     },
 
@@ -744,6 +969,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
 
+      this.deselectSection();
+
       this.$$('#PDFAnnotations' + this.page).addLine();
     },
 
@@ -755,6 +982,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
+
+      this.deselectSection();
 
       this.$$('#PDFAnnotations' + this.page).deleteAnnotation();
     },
@@ -860,6 +1089,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.temporaryCanvasObjects = [];
     },
 
+    // Add an epe-annnotations element to each page of the PDF
+    addSelectionZoomCanvasToPage: function($pageElement) {
+
+      var pageNumber = $pageElement.dataset.pageNumber;
+      var canvas = document.createElement('canvas');
+
+      canvas.id = 'SelectionCanvas' + pageNumber;
+      canvas.style.position = 'absolute';
+      canvas.style.top = '0';
+      canvas.style.cursor = 'crosshair';
+      canvas.height = parseInt($pageElement.style.height);
+      canvas.width = parseInt($pageElement.style.width);
+      canvas.style.height = '100%';
+      canvas.style.width = '100%';
+      canvas.style.display = 'none';
+      $pageElement.appendChild(canvas);
+    },
+
     // Manage the 'selected' class on buttons
     manageSelectedButtonClass: function($button) {
 
@@ -870,6 +1117,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Add it to this button
       $button.classList.add('selected-icon');
+    },
+
+    // Copy selected rectangle of canvas and convert to bitmap image
+    copyCanvasRegionToBuffer: function(canvas, x, y, w, h, bufferCanvas) {
+
+      if (!bufferCanvas) {
+        bufferCanvas = document.querySelector('.zoom-section');
+      }
+
+      bufferCanvas.width  = w;
+      bufferCanvas.height = h;
+      bufferCanvas.getContext('2d').drawImage(canvas, x, y, w, h, 0, 0, w, h);
+      return bufferCanvas;
     }
   });
 })();
