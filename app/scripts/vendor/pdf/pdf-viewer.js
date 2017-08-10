@@ -50,7 +50,7 @@ var DEFAULT_SCALE = 1.0;
 var UNKNOWN_SCALE = 0;
 var MAX_AUTO_SCALE = 1.25;
 var SCROLLBAR_PADDING = 40;
-var VERTICAL_PADDING = 5;
+var VERTICAL_PADDING = 144;
 
 // optimised CSS custom property getter/setter
 var CustomStyle = (function CustomStyleClosure() {
@@ -5081,12 +5081,7 @@ var PDFViewer = (function pdfViewer() {
             scale = Math.min(pageWidthScale, pageHeightScale);
             break;
           case 'auto':
-            var isLandscape = (currentPage.width > currentPage.height);
-            // For pages in landscape mode, fit the page height to the viewer
-            // *unless* the page would thus become too wide to fit horizontally.
-            var horizontalScale = isLandscape ?
-              Math.min(pageHeightScale, pageWidthScale) : pageWidthScale;
-            scale = Math.min(MAX_AUTO_SCALE, horizontalScale);
+            scale = Math.min(pageWidthScale, pageHeightScale);
             break;
           default:
             console.error('pdfViewSetScale: \'' + value +
