@@ -811,7 +811,12 @@ module.exports = Reflux.createStore({
         sourcesStore.selectedSourceObject.defaultPDFPage = pageToOpen;
         sourcesStore.message = 'showFile';
       } else {
-        sourcesStore.selectedSourceObject.defaultPDFPage = '';
+        sourcesStore.userFilteredCollection.filteredrows = [];
+
+        if (sourcesStore.selectedSourceObject) {
+          sourcesStore.selectedSourceObject.defaultPDFPage = '';
+        }
+
         sourcesStore.message = '';
       }
 
@@ -821,12 +826,18 @@ module.exports = Reflux.createStore({
 
         if (sourcesStore.userFilteredCollection.data()[0].Extension === '.pdf') {
           sourcesStore.setSelectedSourceObject(sourcesStore.userFilteredCollection.data()[0]);
-          sourcesStore.selectedSourceObject.defaultPDFPage = 2;
+          sourcesStore.selectedSourceObject.defaultPDFPage = 1;
         }
 
         sourcesStore.message = 'showFile';
       } else {
-        sourcesStore.message = '';
+
+        if (sourcesStore.userFilteredCollection.data()[0].Extension === '.pdf') {
+          sourcesStore.selectedSourceObject.defaultPDFPage = '';
+          sourcesStore.message = 'showDataGrid';
+        } else {
+          sourcesStore.message = '';
+        }
       }
     }
 

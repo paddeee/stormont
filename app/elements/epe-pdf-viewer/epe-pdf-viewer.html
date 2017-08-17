@@ -758,9 +758,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       this.deselectSection();
 
-      if (this.page === 1) {
-        document.querySelector('#mainContainer').scrollTop = 0;
-      }
+      document.querySelector('#mainContainer').scrollTop = 0;
 
       // Set PDF Scale to actual size
       window.PDFViewerApplication.pdfViewer.currentScaleValue = 'auto';
