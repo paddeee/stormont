@@ -545,6 +545,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }, 100);
         }.bind(this));
 
+        // Remove 'selected-icon' class from everywhere
+        this.querySelectorAll('.selected-icon').forEach(function($selectedButton) {
+          $selectedButton.classList.remove('selected-icon');
+        });
+
         // Jump to page number if set
         if (this.pdfObject.defaultPDFPage) {
           this.page = window.PDFViewerApplication.page = this.pdfObject.defaultPDFPage;

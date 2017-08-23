@@ -832,7 +832,7 @@ module.exports = Reflux.createStore({
         sourcesStore.message = 'showFile';
       } else {
 
-        if (sourcesStore.userFilteredCollection.data()[0].Extension === '.pdf') {
+        if (sourcesStore.userFilteredCollection.data().length > 1 && sourcesStore.userFilteredCollection.data()[0].Extension === '.pdf') {
           sourcesStore.selectedSourceObject.defaultPDFPage = '';
           sourcesStore.message = 'showDataGrid';
         } else {

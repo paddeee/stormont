@@ -216,6 +216,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             <!-- Creating Navigation Toolbar -->
             <div id="CreatingPackageViewNav" class="package-navigation">
+              <paper-icon-button icon="clear"
+                                 id="ClearButton"
+                                 class="nav-icon"
+                                 on-tap="clearSourceView"></paper-icon-button>
               <paper-icon-button icon="view-list"
                                  id="DataGridButton"
                                  class="nav-icon"
@@ -232,7 +236,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
           </div>
 
-          <!--<paper-tooltip for="MenuButton" offset="0">Show Menu</paper-tooltip>-->
+          <paper-tooltip for="ClearButton" offset="0">Clear Screen</paper-tooltip>
           <paper-tooltip for="DataGridButton" offset="0">Data Grid</paper-tooltip>
           <paper-tooltip for="SourceButton" offset="0">Supporting Evidence</paper-tooltip>
           <paper-tooltip for="PublishButton" offset="0">Publish as Evidence</paper-tooltip>
@@ -1083,7 +1087,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Send message to electron to open Open Dialog
       publishLocationTapped: function() {
         ipcRenderer.send('show-publish-open-dialog', 'directory');
+      },
+
+      // Clear Current Source View
+      clearSourceView: function() {
+
       }
+
     });
   })();
 </script>
