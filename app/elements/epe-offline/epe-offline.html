@@ -984,6 +984,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var navIcons = this.querySelectorAll('.nav-icon');
 
         navIcons.forEach(function(navIcon) {
+
+          if (navIcon.id === 'ClearButton') {
+            return;
+          }
+
           navIcon.classList.remove('nav-icon--selected');
         });
 
