@@ -553,6 +553,6 @@ ipcMain.on('open-link-in-browser', function(event, url) {
 ipcMain.on('app-loaded', function() {
   splashWindow.destroy();
   splashWindow = null;
-  controllerWindow.webContents.openDevTools();
+  // controllerWindow.webContents.openDevTools();
   controllerWindow.show();
 });

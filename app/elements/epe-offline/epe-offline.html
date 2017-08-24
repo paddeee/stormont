@@ -109,6 +109,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       height: 100%;
     }
 
+    epe-clear-screen {
+      height: 100%;
+      position: fixed;
+      left: 0;
+      top: 64px;
+      right: 0;
+      bottom: 0;
+      z-index: 100;
+      background-color: white;
+    }
+
     .nav-icon:hover {
       color: #E6E6E6;
     }
@@ -154,6 +165,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       import-package-store="[[importPackageStore]]"
       hidden>
     </epe-inactivity>
+
+    <epe-clear-screen
+            id="ClearScreenMask"
+            hidden>
+    </epe-clear-screen>
 
     <paper-drawer-panel id="paperDrawerPanel"
                         force-narrow
@@ -459,6 +475,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         presentationState: {
           type: String
+        },
+
+        clearScreenOn: {
+          type: Boolean,
+          value: false
         },
 
         hideHeaderPackageNavigation: {
@@ -1092,6 +1113,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Clear Current Source View
       clearSourceView: function() {
 
+        if (this.clearScreenOn) {
+          this.$.ClearButton.classList.remove('nav-icon--selected');
+          this.$.ClearScreenMask.setAttribute('hidden', false);
+        } else {
+          this.$.ClearButton.classList.add('nav-icon--selected');
+          this.$.ClearScreenMask.removeAttribute('hidden');
+        }
+
+        this.clearScreenOn = !this.clearScreenOn;
       }
 
     });

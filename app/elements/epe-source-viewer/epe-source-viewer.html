@@ -138,8 +138,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 messageName: 'file-does-not-exist',
                 sourceObject: sourceData
               });
-            } else if (sourceData.message === 'showDataGrid') {
-              this.fire('navigate-to-data-grid');
             } else {
               this.fire('navigate-to-source-viewer', sourceData);
             }
