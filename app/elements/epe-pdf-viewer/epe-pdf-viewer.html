@@ -712,10 +712,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Set zoom section width to nearly fill window
       if (aspectRatio <= 1) {
         zoomSection.style.height = '';
-        zoomSection.style.width = containerWidth - 240 + 'px';
+        zoomSection.style.width = containerWidth / 2 + 'px';
 
         this.async(function() {
-          this.$.ZoomSectionDialog.style.left = '5vw';
+          this.$.ZoomSectionDialog.style.left = '22%';
         }, 100);
 
       } else {
