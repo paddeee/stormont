@@ -142,8 +142,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     .zoom-dialog {
       position:fixed;
-      left: 24px;
-      top: 106px;
+      left: 10vw;
+      top: 10vh;
     }
 
     .zoom-dialog > * {
@@ -665,16 +665,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var canvasPage = this.querySelector('#page' + this.page);
       var viewerContainer = this.querySelector('#viewerContainer');
+      var containerWidth = viewerContainer.clientWidth;
+      var containerHeight = viewerContainer.clientHeight;
       var zoomSection;
       var x = rectangle.startX * 2;
       var y = rectangle.startY * 2;
       var h = Math.abs(rectangle.h * 2);
       var w = Math.abs(rectangle.w * 2);
+      var aspectRatio = h / w;
 
       zoomSection = this.copyCanvasRegionToBuffer(canvasPage, x, y, w, h);
 
       // Set zoom section width to nearly fill window
-      zoomSection.style.width = viewerContainer.clientWidth - 140 + 'px';
+      if (aspectRatio <= 1) {
+        zoomSection.style.height = '';
+        zoomSection.style.width = containerWidth - 240 + 'px';
+
+        this.async(function() {
+          this.$.ZoomSectionDialog.style.left = '5vw';
+        }, 100);
+
+      } else {
+        zoomSection.style.height = containerHeight - 250 + 'px';
+        zoomSection.style.width = '';
+
+        this.async(function() {
+          this.$.ZoomSectionDialog.style.left = (containerWidth - this.$.ZoomSectionDialog.clientWidth - 60) / 2 + 'px';
+        }, 100);
+      }
+
       this.$.ZoomSectionDialog.open();
     },
 
