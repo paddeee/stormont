@@ -271,6 +271,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <div class="pdf_button-holder border-left border-right horizontal layout center">
             <paper-icon-button id="sidebarToggle" tabindex="11" icon="toggle" hidden></paper-icon-button>
             <div id="SelectText" class="select-text" on-tap="selectText">I</div>
+            <paper-icon-button id="RedactText" icon="indeterminate-check-box" on-tap="redactText"></paper-icon-button>
             <paper-icon-button id="ZoomSection" icon="flip-to-front" on-tap="selectSection"></paper-icon-button>
             <paper-icon-button id="Previous" icon="arrow-back" on-tap="showPreviousPage"></paper-icon-button>
             <paper-icon-button id="Next" icon="arrow-forward" on-tap="showNextPage"></paper-icon-button>
@@ -303,6 +304,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           <paper-tooltip for="sidebarToggle" position="top" offset="0">SideBar Toggle</paper-tooltip>
           <paper-tooltip for="SelectText" position="top" offset="0">Select Text</paper-tooltip>
+          <paper-tooltip for="RedactText" position="top" offset="0">Redact Text</paper-tooltip>
           <paper-tooltip for="ZoomSection" position="top" offset="0">Zoom Section</paper-tooltip>
           <paper-tooltip for="Previous" position="top" offset="0">Previous Page</paper-tooltip>
           <paper-tooltip for="Next" position="top" offset="0">Next Page</paper-tooltip>
@@ -559,6 +561,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
+    // Remove redaction class
+    removeRedactionClass: function() {
+
+      var pdfElement = this.querySelector('.pdf');
+
+      pdfElement.classList.remove('redact-text');
+    },
+
     // Let user select text on PDF
     selectText: function(event) {
 
@@ -566,6 +576,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
+
+      this.removeRedactionClass();
+
+      this.deselectSection();
+    },
+
+    // Let user redact text on PDF
+    redactText: function(event) {
+
+      var pdfElement = this.querySelector('.pdf');
+
+      this.pointerEvents = false;
+
+      // Add selected class to button
+      this.manageSelectedButtonClass(event.currentTarget);
+
+      this.removeRedactionClass();
+
+      pdfElement.classList.add('redact-text');
 
       this.deselectSection();
     },
@@ -599,6 +628,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (event) {
         this.manageSelectedButtonClass(event.currentTarget);
       }
+
+      this.removeRedactionClass();
 
       var canvas = document.querySelector('#SelectionCanvas' + this.page);
       var ctx = canvas.getContext('2d');
@@ -724,6 +755,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
 
+      this.removeRedactionClass();
+
       this.deselectSection();
 
       window.PDFViewerApplication.page--;
@@ -734,6 +767,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
+
+      this.removeRedactionClass();
 
       this.deselectSection();
 
@@ -750,6 +785,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       this.deselectSection();
 
+      this.removeRedactionClass();
+
       // Save all annotation objects as PDF.js zoom will destroy the current canvas element
       this.saveCanvasAnnotationObjects();
 
@@ -764,6 +801,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if (event) {
         this.manageSelectedButtonClass(event.currentTarget);
       }
+
+      this.removeRedactionClass();
 
       this.deselectSection();
 
@@ -780,6 +819,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Save all annotation objects as PDF.js zoom will destroy the current canvas element
       this.saveCanvasAnnotationObjects();
 
+      this.removeRedactionClass();
+
       this.deselectSection();
 
       document.querySelector('#mainContainer').scrollTop = 0;
@@ -793,6 +834,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
+
+      this.removeRedactionClass();
 
       this.deselectSection();
 
@@ -811,6 +854,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.manageSelectedButtonClass(event.currentTarget);
       }
 
+      this.removeRedactionClass();
+
       this.deselectSection();
 
       // Save all annotation objects as PDF.js zoom will destroy the current canvas element
@@ -826,6 +871,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
 
+      this.removeRedactionClass();
+
       this.deselectSection();
 
       // Save all annotation objects as PDF.js zoom will destroy the current canvas element
@@ -840,6 +887,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
+
+      this.removeRedactionClass();
 
       this.deselectSection();
 
@@ -893,6 +942,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
 
+      this.removeRedactionClass();
+
       this.deselectSection();
 
       this.$$('#PDFAnnotations' + this.page).freeDraw();
@@ -906,6 +957,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
+
+      this.removeRedactionClass();
 
       this.deselectSection();
 
@@ -921,6 +974,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
 
+      this.removeRedactionClass();
+
       this.deselectSection();
 
       this.$$('#PDFAnnotations' + this.page).addCircle();
@@ -934,6 +989,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
+
+      this.removeRedactionClass();
 
       this.deselectSection();
 
@@ -949,6 +1006,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
 
+      this.removeRedactionClass();
+
       this.deselectSection();
 
       this.$$('#PDFAnnotations' + this.page).addText();
@@ -962,6 +1021,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
+
+      this.removeRedactionClass();
 
       this.deselectSection();
 
@@ -977,6 +1038,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
 
+      this.removeRedactionClass();
+
       this.deselectSection();
 
       this.$$('#PDFAnnotations' + this.page).redaction();
@@ -991,6 +1054,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
 
+      this.removeRedactionClass();
+
       this.deselectSection();
 
       this.$$('#PDFAnnotations' + this.page).addLine();
@@ -1004,6 +1069,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Add selected class to button
       this.manageSelectedButtonClass(event.currentTarget);
+
+      this.removeRedactionClass();
 
       this.deselectSection();
 

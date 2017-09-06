@@ -31,6 +31,10 @@
   opacity: 0.2;
 }
 
+.pdf.redact-text .textLayer {
+  opacity: 1;
+}
+
 .pdf .textLayer > div {
   color: transparent;
   position: absolute;
@@ -41,6 +45,10 @@
   -o-transform-origin: 0% 0%;
   -ms-transform-origin: 0% 0%;
   transform-origin: 0% 0%;
+}
+
+.pdf.redact-text .textLayer > div {
+  color: #333;
 }
 
 .pdf .textLayer .highlight {
@@ -70,6 +78,8 @@
 .pdf .textLayer ::selection { background: rgb(255, 147, 0); }
 .pdf .textLayer ::-moz-selection { background: rgb(255, 147, 0); }
 
+.pdf.redact-text .textLayer ::selection { background: rgba(0,0,0,0.99); }
+.pdf.redact-text .textLayer ::-moz-selection { background: rgba(0,0,0,0.99); }
 
 .pdf .annotationLayer .annotLink > a:hover {
   opacity: 0.2;
@@ -150,6 +160,10 @@
 .pdf .pdfViewer .page canvas {
   margin: 0;
   display: block;
+}
+
+.pdf.redact-text .pdfViewer .page canvas {
+  display: none;
 }
 
 .pdf .pdfViewer .page .loadingIcon {
