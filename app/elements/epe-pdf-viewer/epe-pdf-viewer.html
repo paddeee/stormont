@@ -567,6 +567,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var pdfElement = this.querySelector('.pdf');
 
       pdfElement.classList.remove('redact-text');
+
+      window.getSelection().removeAllRanges();
     },
 
     // Let user select text on PDF

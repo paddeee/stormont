@@ -47,10 +47,6 @@
   transform-origin: 0% 0%;
 }
 
-.pdf.redact-text .textLayer > div {
-  color: #333;
-}
-
 .pdf .textLayer .highlight {
   margin: -1px;
   padding: 1px;
@@ -160,10 +156,6 @@
 .pdf .pdfViewer .page canvas {
   margin: 0;
   display: block;
-}
-
-.pdf.redact-text .pdfViewer .page canvas {
-  display: none;
 }
 
 .pdf .pdfViewer .page .loadingIcon {
