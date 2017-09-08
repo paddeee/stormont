@@ -175,7 +175,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
     </div>
 
-    <div class="pdf layout horizontal">
+    <div class="pdf layout horizontal" tabindex="1">
 
       <!-- ToDo: Sidebar - Can turn on at later date by removing hidden and sorting toggle functionality for it -->
       <div id="sidebarContainer" hidden>
@@ -236,10 +236,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <!-- Annotations -->
           <div class="pdf_button-holder border-right horizontal layout center" hidden$="[[hideAnnotations]]">
             <paper-icon-button id="FreeDraw" icon="gesture" on-tap="freeDraw"></paper-icon-button>
+            <iron-a11y-keys id="a11yAddCircle" target="[[target]]" keys="6" on-keys-pressed="addCircle"></iron-a11y-keys>
             <paper-icon-button id="AddCircle" icon="image:panorama-fish-eye" on-tap="addCircle"></paper-icon-button>
+            <iron-a11y-keys id="a11yAddRect" target="[[target]]" keys="7" on-keys-pressed="addRect"></iron-a11y-keys>
             <paper-icon-button id="AddRect" icon="image:crop-landscape" on-tap="addRect"></paper-icon-button>
             <div id="AddText" class="add-text" on-tap="addText">T</div>
+            <iron-a11y-keys id="a11yHighlightText" target="[[target]]" keys="3" on-keys-pressed="highlightText"></iron-a11y-keys>
             <div id="HighlightText" class="highlight-text" on-tap="highlightText">T</div>
+            <iron-a11y-keys id="a11yRedaction" target="[[target]]" keys="4" on-keys-pressed="addRedaction"></iron-a11y-keys>
             <paper-icon-button id="Redaction" icon="view-stream" on-tap="addRedaction"></paper-icon-button>
             <paper-icon-button id="AddLine" icon="icons:remove" on-tap="addLine"></paper-icon-button>
             <paper-icon-button id="AddPolygon" icon="image:panorama-horizontal" on-tap="addPolygon" hidden></paper-icon-button>
@@ -248,6 +252,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           <div class="pdf_button-holder horizontal border-right layout center end-justified" hidden$="[[hideAnnotations]]">
             <paper-icon-button id="SelectAnnotations" icon="open-with" on-tap="selectAnnotations"></paper-icon-button>
+            <iron-a11y-keys id="a11yDeleteAnnotation" target="[[target]]" keys="backspace" on-keys-pressed="deleteAnnotation"></iron-a11y-keys>
             <paper-icon-button id="DeleteAnnotation" icon="delete" on-tap="deleteAnnotation"></paper-icon-button>
           </div>
 
@@ -271,13 +276,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <div class="pdf_button-holder border-left border-right horizontal layout center">
             <paper-icon-button id="sidebarToggle" tabindex="11" icon="toggle" hidden></paper-icon-button>
             <div id="SelectText" class="select-text" on-tap="selectText">I</div>
-            <paper-icon-button id="RedactText" icon="indeterminate-check-box" on-tap="redactText"></paper-icon-button>
+            <iron-a11y-keys id="a11yZoomSection" target="[[target]]" keys="5" on-keys-pressed="selectSection"></iron-a11y-keys>
             <paper-icon-button id="ZoomSection" icon="flip-to-front" on-tap="selectSection"></paper-icon-button>
             <paper-icon-button id="Previous" icon="arrow-back" on-tap="showPreviousPage"></paper-icon-button>
             <paper-icon-button id="Next" icon="arrow-forward" on-tap="showNextPage"></paper-icon-button>
+            <iron-a11y-keys id="a11yZoomOut" target="[[target]]" keys="-" on-keys-pressed="zoomOut"></iron-a11y-keys>
             <paper-icon-button id="ZoomOut" icon="zoom-out" on-tap="zoomOut"></paper-icon-button>
+            <iron-a11y-keys id="a11yZoomIn" target="[[target]]" keys="+ =" on-keys-pressed="zoomIn"></iron-a11y-keys>
             <paper-icon-button id="ZoomIn" icon="zoom-in" on-tap="zoomIn"></paper-icon-button>
+            <iron-a11y-keys id="a11yFitToPage" target="[[target]]" keys="1" on-keys-pressed="fitToPage"></iron-a11y-keys>
             <paper-icon-button id="FitToPage" icon="device:developer-mode" on-tap="fitToPage"></paper-icon-button>
+            <iron-a11y-keys id="a11yFitToWidth" target="[[target]]" keys="2" on-keys-pressed="fitToWidth"></iron-a11y-keys>
             <paper-icon-button id ="FitToWidth" icon="device:developer-mode" on-tap="fitToWidth" class="rotate"></paper-icon-button>
             <paper-icon-button id="RotateAntiClockwise" icon="image:rotate-left" on-tap="rotateAntiClockWise"></paper-icon-button>
             <paper-icon-button id="RotateClockwise" icon="image:rotate-right" on-tap="rotateClockWise"></paper-icon-button>
@@ -285,26 +294,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <!-- ToDo: Can remove hide when ready to work on this -->
             <span id="scaleSelectContainer" class="dropdownToolbarButton" hidden>
               <select id="scaleSelect" title="Zoom" tabindex="23" data-l10n-id="zoom">
-               <option id="pageAutoOption" title="" value="auto" selected="selected" data-l10n-id="page_scale_auto">Automatic Zoom</option>
-               <option id="pageActualOption" title="" value="page-actual" data-l10n-id="page_scale_actual">Actual Size</option>
-               <option id="pageFitOption" title="" value="page-fit" data-l10n-id="page_scale_fit">Fit Page</option>
-               <option id="pageWidthOption" title="" value="page-width" data-l10n-id="page_scale_width">Full Width</option>
-               <option id="customScaleOption" title="" value="custom"></option>
-               <option title="" value="0.5" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 50 }'>50%</option>
-               <option title="" value="0.75" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 75 }'>75%</option>
-               <option title="" value="1" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 100 }'>100%</option>
-               <option title="" value="1.25" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 125 }'>125%</option>
-               <option title="" value="1.5" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 150 }'>150%</option>
-               <option title="" value="2" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 200 }'>200%</option>
-               <option title="" value="3" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 300 }'>300%</option>
-               <option title="" value="4" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 400 }'>400%</option>
+                <option id="pageAutoOption" title="" value="auto" selected="selected" data-l10n-id="page_scale_auto">Automatic Zoom</option>
+                <option id="pageActualOption" title="" value="page-actual" data-l10n-id="page_scale_actual">Actual Size</option>
+                <option id="pageFitOption" title="" value="page-fit" data-l10n-id="page_scale_fit">Fit Page</option>
+                <option id="pageWidthOption" title="" value="page-width" data-l10n-id="page_scale_width">Full Width</option>
+                <option id="customScaleOption" title="" value="custom"></option>
+                <option title="" value="0.5" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 50 }'>50%</option>
+                <option title="" value="0.75" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 75 }'>75%</option>
+                <option title="" value="1" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 100 }'>100%</option>
+                <option title="" value="1.25" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 125 }'>125%</option>
+                <option title="" value="1.5" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 150 }'>150%</option>
+                <option title="" value="2" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 200 }'>200%</option>
+                <option title="" value="3" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 300 }'>300%</option>
+                <option title="" value="4" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 400 }'>400%</option>
               </select>
             </span>
           </div>
 
           <paper-tooltip for="sidebarToggle" position="top" offset="0">SideBar Toggle</paper-tooltip>
           <paper-tooltip for="SelectText" position="top" offset="0">Select Text</paper-tooltip>
-          <paper-tooltip for="RedactText" position="top" offset="0">Redact Text</paper-tooltip>
           <paper-tooltip for="ZoomSection" position="top" offset="0">Zoom Section</paper-tooltip>
           <paper-tooltip for="Previous" position="top" offset="0">Previous Page</paper-tooltip>
           <paper-tooltip for="Next" position="top" offset="0">Next Page</paper-tooltip>
@@ -323,38 +331,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-tooltip for="viewFind" position="top" offset="0">Find in PDF</paper-tooltip>
 
           <!-- Findbar -->
-            <div id="findbar" class="findbar hidden layout vertical">
-              <div class="find-top-container layout horizontal center">
-                <div id="findResultsCount" class="find-results-count hidden"></div>
-                <div id="findMsg" class="find-message">Search document</div>
-                <div class="layout horizontal end-justified flex">
-                  <paper-icon-button icon="close" on-tap="closeFindBar"></paper-icon-button>
-                </div>
+          <div id="findbar" class="findbar hidden layout vertical">
+            <div class="find-top-container layout horizontal center">
+              <div id="findResultsCount" class="find-results-count hidden"></div>
+              <div id="findMsg" class="find-message">Search document</div>
+              <div class="layout horizontal end-justified flex">
+                <paper-icon-button icon="close" on-tap="closeFindBar"></paper-icon-button>
               </div>
-              <div class="find-bottom-container layout horizontal center">
-                <label for="findInput">Find:</label>
-                <input id="findInput" class="find-input" tabindex="91">
-                <div>
-                  <paper-icon-button id="findPrevious"
-                                     icon="arrow-back"
-                                     tabindex="92"
-                                     on-tap="findPrevious"></paper-icon-button>
-                  <paper-icon-button id="findNext"
-                                     icon="arrow-forward"
-                                     tabindex="93"
-                                     on-tap="findNext"></paper-icon-button>
-                </div>
-                <paper-checkbox
-                        id="findHighlightAll"
-                        tabindex="94">Highlight all</paper-checkbox>
-                <paper-checkbox
-                        id="findMatchCase"
-                        tabindex="95">Match case</paper-checkbox>
+            </div>
+            <div class="find-bottom-container layout horizontal center">
+              <label for="findInput">Find:</label>
+              <input id="findInput" class="find-input" tabindex="91">
+              <div>
+                <paper-icon-button id="findPrevious"
+                                   icon="arrow-back"
+                                   tabindex="92"
+                                   on-tap="findPrevious"></paper-icon-button>
+                <paper-icon-button id="findNext"
+                                   icon="arrow-forward"
+                                   tabindex="93"
+                                   on-tap="findNext"></paper-icon-button>
               </div>
+              <paper-checkbox
+                      id="findHighlightAll"
+                      tabindex="94">Highlight all</paper-checkbox>
+              <paper-checkbox
+                      id="findMatchCase"
+                      tabindex="95">Match case</paper-checkbox>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
       <!-- ToDo: Just putting this in as not sure if needed later -->
       <div id="errorWrapper" class="error-wrapper" hidden>
@@ -393,6 +401,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     is: 'epe-pdf-viewer',
 
     properties: {
+
+      target: {
+        type: Object,
+        value: function() {
+          return this;
+        }
+      },
 
       minScale: {
         type: Number,
@@ -628,7 +643,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Add selected class to button
       if (event) {
-        this.manageSelectedButtonClass(event.currentTarget);
+        this.manageSelectedButtonClass(this.querySelector('#ZoomSection'));
       }
 
       this.removeRedactionClass();
@@ -737,6 +752,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var ctx = canvas.getContext('2d');
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Need to return focus as closing dialog puts focus on body which then won't catch future iron-a11y key events
+      this.async(function() {
+        this.querySelector('.pdf').focus();
+        console.log(document.activeElement);
+      });
     },
 
     // Reset zoom canvas state
@@ -782,7 +803,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Add selected class to button
       if (event) {
-        this.manageSelectedButtonClass(event.currentTarget);
+        this.manageSelectedButtonClass(this.querySelector('#ZoomIn'));
       }
 
       this.deselectSection();
@@ -801,7 +822,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Add selected class to button
       if (event) {
-        this.manageSelectedButtonClass(event.currentTarget);
+        this.manageSelectedButtonClass(this.querySelector('#ZoomOut'));
       }
 
       this.removeRedactionClass();
@@ -832,10 +853,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Fit PDF Scale to width
-    fitToWidth: function(event) {
+    fitToWidth: function() {
 
       // Add selected class to button
-      this.manageSelectedButtonClass(event.currentTarget);
+      this.manageSelectedButtonClass(this.querySelector('#FitToWidth'));
 
       this.removeRedactionClass();
 
@@ -853,7 +874,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       // Add selected class to button
       if (event) {
-        this.manageSelectedButtonClass(event.currentTarget);
+        this.manageSelectedButtonClass(this.querySelector('#FitToPage'));
       }
 
       this.removeRedactionClass();
@@ -968,13 +989,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Add circle annotation
-    addCircle: function(event) {
+    addCircle: function() {
 
       // Make annotation layer pick up pointer events
       this.pointerEvents = true;
 
       // Add selected class to button
-      this.manageSelectedButtonClass(event.currentTarget);
+      this.manageSelectedButtonClass(this.querySelector('#AddCircle'));
 
       this.removeRedactionClass();
 
@@ -984,13 +1005,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Add rectangle annotation
-    addRect: function(event) {
+    addRect: function() {
 
       // Make annotation layer pick up pointer events
       this.pointerEvents = true;
 
       // Add selected class to button
-      this.manageSelectedButtonClass(event.currentTarget);
+      this.manageSelectedButtonClass(this.querySelector('#AddRect'));
 
       this.removeRedactionClass();
 
@@ -1016,13 +1037,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Highlight text
-    highlightText: function(event) {
+    highlightText: function() {
 
       // Make annotation layer pick up pointer events
       this.pointerEvents = true;
 
       // Add selected class to button
-      this.manageSelectedButtonClass(event.currentTarget);
+      this.manageSelectedButtonClass(this.querySelector('#HighlightText'));
 
       this.removeRedactionClass();
 
@@ -1032,13 +1053,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Add Redaction
-    addRedaction: function(event) {
+    addRedaction: function() {
 
       // Make annotation layer pick up pointer events
       this.pointerEvents = true;
 
       // Add selected class to button
-      this.manageSelectedButtonClass(event.currentTarget);
+      this.manageSelectedButtonClass(this.querySelector('#Redaction'));
 
       this.removeRedactionClass();
 
@@ -1064,13 +1085,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Delete selected annotation
-    deleteAnnotation: function(event) {
+    deleteAnnotation: function() {
 
       // Make annotation layer pick up pointer events
       this.pointerEvents = true;
 
       // Add selected class to button
-      this.manageSelectedButtonClass(event.currentTarget);
+      this.manageSelectedButtonClass(this.querySelector('#DeleteAnnotation'));
 
       this.removeRedactionClass();
 

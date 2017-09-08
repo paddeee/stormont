@@ -12,663 +12,733 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <dom-module id="epe-annotations">
 
-  <script src="../../scripts/vendor/annotations/fabric.js"></script>
+    <script src="../../scripts/vendor/annotations/fabric.js"></script>
 
-  <style>
+    <style>
 
-    :host {
-      position: relative;
-      display: block;
-      box-sizing: border-box;
-    }
+        :host {
+            position: relative;
+            display: block;
+            box-sizing: border-box;
+        }
 
-    :host.pdfannotations {
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-    }
+        :host.pdfannotations {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
 
-    .editor {
-      position: fixed;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      z-index: 1;
-    }
+        .editor {
+            position: fixed;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 1;
+        }
 
-    .content-wrapper > ::content {
-      position: absolute;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      right: 0;
-    }
+        .content-wrapper > ::content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
 
-    .pointer-events {
-      pointer-events: none;
-    }
+        .pointer-events {
+            pointer-events: none;
+        }
 
-  </style>
+    </style>
 
-  <template>
-    <epe-annotations-editor
-      id="AnnotationsEditor"
-      class="editor"
-      show-editor="{{showEditor}}"
-      hide-editor-stroke-width="[[hideEditorStrokeWidth]]"
-      hide-editor-stroke-tools="[[hideEditorStrokeTools]]"
-      hide-editor-fill-tools="[[hideEditorFillTools]]"
-      selected-annotation="{{selectedAnnotation}}"></epe-annotations-editor>
-    <div id="ContentWrapper" class="content-wrapper">
-      <content id="AnnotationContent"></content>
-    </div>
-    <canvas id="Canvas"></canvas>
-  </template>
+    <template>
+        <epe-annotations-editor
+                id="AnnotationsEditor"
+                class="editor"
+                show-editor="{{showEditor}}"
+                hide-editor-stroke-width="[[hideEditorStrokeWidth]]"
+                hide-editor-stroke-tools="[[hideEditorStrokeTools]]"
+                hide-editor-fill-tools="[[hideEditorFillTools]]"
+                selected-annotation="{{selectedAnnotation}}"></epe-annotations-editor>
+        <div id="ContentWrapper" class="content-wrapper">
+            <content id="AnnotationContent"></content>
+        </div>
+        <canvas id="Canvas"></canvas>
+    </template>
 
 </dom-module>
 <script>
-  (function() {
-    Polymer({
-      is: 'epe-annotations',
+    (function () {
+        Polymer({
+            is: 'epe-annotations',
 
-      properties: {
+            properties: {
 
-        annotationType: {
-          type: String,
-          value: 'image'
-        },
+                annotationType: {
+                    type: String,
+                    value: 'image'
+                },
 
-        annotationHeight: {
-          type: Number,
-          observer: 'setCanvasDimensions'
-        },
+                annotationHeight: {
+                    type: Number,
+                    observer: 'setCanvasDimensions'
+                },
 
-        annotationWidth: {
-          type: Number,
-          observer: 'setCanvasDimensions'
-        },
+                annotationWidth: {
+                    type: Number,
+                    observer: 'setCanvasDimensions'
+                },
 
-        // Keep record of current width to use for scaling canvas
-        currentAnnotationWidth: {
-          type: Number,
-          value: 0
-        },
+                // Keep record of current width to use for scaling canvas
+                currentAnnotationWidth: {
+                    type: Number,
+                    value: 0
+                },
 
-        defaultBrushColour: {
-          type: String,
-          value: 'rgb(231, 76, 60)'
-        },
+                defaultBrushColour: {
+                    type: String,
+                    value: 'rgb(231, 76, 60)'
+                },
 
-        defaultStrokeColour: {
-          type: String,
-          value: '#000'
-        },
+                defaultStrokeColour: {
+                    type: String,
+                    value: '#000'
+                },
 
-        defaultStrokeWidth: {
-          type: Number,
-          value: 4
-        },
+                defaultStrokeWidth: {
+                    type: Number,
+                    value: 4
+                },
 
-        defaultTextColour: {
-          type: String,
-          value: '#000'
-        },
+                defaultTextColour: {
+                    type: String,
+                    value: '#000'
+                },
 
-        defaultFillColour: {
-          type: String,
-          value: 'rgba(0,0,0,0)'
-        },
+                defaultFillColour: {
+                    type: String,
+                    value: 'rgba(0,0,0,0)'
+                },
 
-        defaultHighlightStrokeColour: {
-          type: String,
-          value: '#EEFF41'
-        },
+                defaultHighlightStrokeColour: {
+                    type: String,
+                    value: '#EEFF41'
+                },
 
-        defaultHighlightFillColour: {
-          type: String,
-          value: '#FFFF00'
-        },
+                defaultHighlightFillColour: {
+                    type: String,
+                    value: '#FFFF00'
+                },
 
-        defaultRedactionColour: {
-          type: String,
-          value: '#000'
-        },
+                defaultRedactionColour: {
+                    type: String,
+                    value: '#000'
+                },
 
-        defaultLineColour: {
-          type: String,
-          value: 'rgb(231, 76, 60)'
-        },
+                defaultLineColour: {
+                    type: String,
+                    value: 'rgb(231, 76, 60)'
+                },
 
-        // Whether annotations editor is shown
-        showEditor: {
-          type: Boolean
-        },
+                // Whether annotations editor is shown
+                showEditor: {
+                    type: Boolean
+                },
 
-        // Whether annotations editor stroke tools should be displayed
-        hideEditorStrokeTools: {
-          type: Boolean
-        },
+                // Whether annotations editor stroke tools should be displayed
+                hideEditorStrokeTools: {
+                    type: Boolean
+                },
 
-        // Whether annotations editor fill tools should be displayed
-        hideEditorFillTools: {
-          type: Boolean
-        },
+                // Whether annotations editor fill tools should be displayed
+                hideEditorFillTools: {
+                    type: Boolean
+                },
 
-        // Current user selected annotation object
-        selectedAnnotation: {
-          type: Object,
-          value: null
-        },
+                // Current user selected annotation object
+                selectedAnnotation: {
+                    type: Object,
+                    value: null
+                },
 
-        // Delete mode
-        deleteMode: {
-          type: Boolean,
-          value: false
-        },
+                // Delete mode
+                deleteMode: {
+                    type: Boolean,
+                    value: false
+                },
 
-        // Delete mode
-        pointerEvents: {
-          type: Boolean,
-          value: true,
-          observer: 'setPointerClass'
-        },
+                // Delete mode
+                pointerEvents: {
+                    type: Boolean,
+                    value: true,
+                    observer: 'setPointerClass'
+                },
 
-        pointerClass: {
-          type: String,
-          value: ''
-        }
-      },
+                pointerClass: {
+                    type: String,
+                    value: ''
+                }
+            },
 
-      // Element Lifecycle
-      attached: function() {
+            // Element Lifecycle
+            attached: function () {
 
-        // because of shady DOM we have to assign the canvas a random ID otherwise fabric.js
-        // finds only the first occurrence
-        var elem = this.querySelector('#Canvas');
-        elem.id = Math.random();
+                // because of shady DOM we have to assign the canvas a random ID otherwise fabric.js
+                // finds only the first occurrence
+                var elem = this.querySelector('#Canvas');
+                elem.id = Math.random();
 
-        this.canvas = new window.fabric.Canvas(elem.id);
+                this.canvas = new window.fabric.Canvas(elem.id);
 
-        this.canvas.on('object:added', this.canvasObjectAdded.bind(this));
-        this.canvas.on('object:selected', this.canvasObjectSelected.bind(this));
-        this.canvas.on('path:created', this.canvasPathCreated.bind(this));
-        this.canvas.on('mouse:down', this.canvasMouseDown.bind(this));
-      },
+                this.canvas.on('object:added', this.canvasObjectAdded.bind(this));
+                this.canvas.on('object:selected', this.canvasObjectSelected.bind(this));
+                this.canvas.on('path:created', this.canvasPathCreated.bind(this));
+                this.canvas.on('mouse:down', this.canvasMouseDown.bind(this));
+            },
 
-      // Is called internally when a new path has been created on the canvas.
-      canvasObjectAdded: function(event) {
+            // Is called internally when a new path has been created on the canvas.
+            canvasObjectAdded: function (event) {
 
-        // Lock rotation for PDF
-        // ToDo: Use another property than angle of object when rotating PDF to calculate position. Until then, lock down
-        if (this.annotationType === 'pdf') {
-          event.target.lockRotation = true;
-        }
-        this.fire('annotation-object-added');
-      },
+                // Lock rotation for PDF
+                // ToDo: Use another property than angle of object when rotating PDF to calculate position. Until then, lock down
+                if (this.annotationType === 'pdf') {
+                    event.target.lockRotation = true;
+                }
+                this.fire('annotation-object-added');
+            },
 
-      // Called when a new drawing object has been added to the canvas.
-      canvasObjectSelected: function(event) {
+            // Called when a new drawing object has been added to the canvas.
+            canvasObjectSelected: function (event) {
 
-        var showEditorStrokeWidth = event.target.hasOwnProperty('stroke') || event.target.hasOwnProperty('text');
-        var showEditorStrokeTools = event.target.hasOwnProperty('stroke') && !event.target.hasOwnProperty('text');
+                var showEditorStrokeWidth = event.target.hasOwnProperty('stroke') || event.target.hasOwnProperty('text');
+                var showEditorStrokeTools = event.target.hasOwnProperty('stroke') && !event.target.hasOwnProperty('text');
 
-        if (this.deleteMode) {
-          this.deleteObject();
-          return;
-        }
+                if (this.deleteMode) {
+                    this.deleteObject();
+                    return;
+                }
 
-        this.showEditor = !event.target.hideEditor;
+                this.showEditor = !event.target.hideEditor;
 
-        // If this has a path it is an object created by Free Draw
-        if (event.target.path) {
-          this.hideEditorStrokeWidth = false;
-          this.hideEditorStrokeTools = true;
-          this.hideEditorFillTools = false;
-          this.selectedAnnotation = event.target;
-          this.selectedAnnotation.opacity = 1;
+                // If this has a path it is an object created by Free Draw
+                if (event.target.path) {
+                    this.hideEditorStrokeWidth = false;
+                    this.hideEditorStrokeTools = true;
+                    this.hideEditorFillTools = false;
+                    this.selectedAnnotation = event.target;
+                    this.selectedAnnotation.opacity = 1;
 
-        } else {
-          this.hideEditorStrokeWidth = !showEditorStrokeWidth;
-          this.hideEditorStrokeTools = !showEditorStrokeTools;
-          this.hideEditorFillTools = !!!event.target.hasOwnProperty('fill');
-          this.selectedAnnotation = event.target;
-        }
+                } else {
+                    this.hideEditorStrokeWidth = !showEditorStrokeWidth;
+                    this.hideEditorStrokeTools = !showEditorStrokeTools;
+                    this.hideEditorFillTools = !!!event.target.hasOwnProperty('fill');
+                    this.selectedAnnotation = event.target;
+                }
 
-        this.fire('annotation-object-selected', {
-          //object: event.target
-        });
-      },
+                this.fire('annotation-object-selected', {
+                    //object: event.target
+                });
+            },
 
-      // Is called internally when a new path has been created on the canvas.
-      canvasPathCreated: function() {
-        this.fire('annotation-path-created');
-      },
+            // Is called internally when a new path has been created on the canvas.
+            canvasPathCreated: function () {
+                this.fire('annotation-path-created');
+            },
 
-      canvasMouseDown: function() {
-        this.fire('annotation-mouse-down');
-      },
+            canvasMouseDown: function () {
+                this.fire('annotation-mouse-down');
+            },
 
-      // Gets the JSON representation of the drawing.
-      toJSON: function() {
-        return this.canvas.toJSON();
-      },
+            // Gets the JSON representation of the drawing.
+            toJSON: function () {
+                return this.canvas.toJSON();
+            },
 
-      // Loads the JSON of a complete drawing and puts it on the canvas.
-      loadJSON: function(drawing) {
-        return this.canvas.loadFromJSON(drawing, this.canvas.renderAll.bind(this.canvas));
-      },
+            // Loads the JSON of a complete drawing and puts it on the canvas.
+            loadJSON: function (drawing) {
+                return this.canvas.loadFromJSON(drawing, this.canvas.renderAll.bind(this.canvas));
+            },
 
-      // Removes the drawing from the canvas.
-      clear: function() {
-        this.canvas.clear();
-      },
+            // Removes the drawing from the canvas.
+            clear: function () {
+                this.canvas.clear();
+            },
 
-      // Adds a drawing object to the current drawing on the canvas.
-      /*addObject: function(object) {
+            // Adds a drawing object to the current drawing on the canvas.
+            /*addObject: function(object) {
 
-       var canvas = this.canvas;
+             var canvas = this.canvas;
 
-       fabric.util.enlivenObjects([object], function(objects) {
+             fabric.util.enlivenObjects([object], function(objects) {
 
-       var origRenderOnAddRemove = canvas.renderOnAddRemove;
+             var origRenderOnAddRemove = canvas.renderOnAddRemove;
 
-       canvas.renderOnAddRemove = false;
+             canvas.renderOnAddRemove = false;
 
-       objects.forEach(function(object) {
-       canvas.add(object);
-       });
+             objects.forEach(function(object) {
+             canvas.add(object);
+             });
 
-       canvas.renderOnAddRemove = origRenderOnAddRemove;
+             canvas.renderOnAddRemove = origRenderOnAddRemove;
 
-       canvas.renderAll();
-       });
-       },*/
+             canvas.renderAll();
+             });
+             },*/
 
-      // Set the dimensions of the canvas
-      setCanvasDimensions: function() {
+            // Set the dimensions of the canvas
+            setCanvasDimensions: function () {
 
-        var scaleFactor;
-        var currentZoom;
+                var scaleFactor;
+                var currentZoom;
 
-        if (this.canvas && this.annotationWidth) {
+                if (this.canvas && this.annotationWidth) {
 
-          // Get current zoom scale for the canvas
-          currentZoom = this.canvas.getZoom();
+                    // Get current zoom scale for the canvas
+                    currentZoom = this.canvas.getZoom();
 
-          // Get the current scale factor
-          scaleFactor = (this.annotationWidth / this.currentAnnotationWidth) * currentZoom;
+                    // Get the current scale factor
+                    scaleFactor = (this.annotationWidth / this.currentAnnotationWidth) * currentZoom;
 
-          if(scaleFactor !== 1) {
+                    if (scaleFactor !== 1) {
 
-            this.canvas.setDimensions({
-              width: this.annotationWidth,
-              height: this.annotationHeight
-            });
+                        this.canvas.setDimensions({
+                            width: this.annotationWidth,
+                            height: this.annotationHeight
+                        });
 
-            // currentAnnotationWidth is set this is a resize so handle the zoom
-            if (this.currentAnnotationWidth) {
-              this.canvas.setZoom(scaleFactor);
-              this.canvas.calcOffset();
-              this.canvas.renderAll();
+                        // currentAnnotationWidth is set this is a resize so handle the zoom
+                        if (this.currentAnnotationWidth) {
+                            this.canvas.setZoom(scaleFactor);
+                            this.canvas.calcOffset();
+                            this.canvas.renderAll();
+                        }
+                    }
+
+                    // Keep record of current width for next time
+                    this.currentAnnotationWidth = this.annotationWidth;
+                }
+            },
+
+            // Set canvas zoom level
+            zoom: function (scaleFactor) {
+
+                // Set all objects unselectable
+                this.setAllObjectsSelectable(false);
+
+                this.canvas.isDrawingMode = false;
+                this.canvas.selection = false;
+
+                this.canvas.setZoom(scaleFactor);
+            },
+
+            // Set canvas zoom level
+            rotate: function (degrees) {
+
+                var angle = degrees;
+
+                this.canvas.getObjects().forEach(function (object) {
+
+                    var coords;
+
+                    // Rotate could be called just by a page scroll or as the result of a Zoom, in which case, do nothing
+                    if (degrees === object.angle) {
+                        return;
+                    }
+
+                    coords = this.getRotationCoords(object, degrees);
+
+                    object.set({
+                        angle: angle,
+                        left: coords.left,
+                        top: coords.top
+                    });
+
+                    object.setCoords();
+
+                    this.canvas.renderAll();
+
+                }.bind(this));
+            },
+
+            // Set x and y coordinates of an object rotated clockwise
+            getRotationCoords: function (object, degrees) {
+
+                // Pages could be rotated 180 or 270 degrees while canvas is off screen.
+                // Need to calculate how many times to rotate based off difference
+                var rotationAmount = (degrees - object.angle) / 90;
+
+                var left;
+                var top;
+                var zoomLevel = this.canvas.getZoom();
+                var canvasActualWidth = this.canvas.width / zoomLevel; // Need to take zoom level into account to get actual width
+                var canvasActualHeight = this.canvas.height / zoomLevel; // Need to take zoom level into account to get actual width
+
+                // PDF can be rotated several times with annotations out of view
+                if (rotationAmount === 1 || rotationAmount === -3) {
+                    top = object.left;
+                    left = canvasActualWidth - object.top;
+                } else if (rotationAmount === 2) {
+                    left = canvasActualWidth - object.left;
+                    top = canvasActualHeight - object.top;
+                } else if (rotationAmount === -1 || rotationAmount === 3) {
+                    left = object.top;
+                    top = canvasActualHeight - object.left;
+                }
+
+                return {
+                    left: left,
+                    top: top
+                };
+            },
+
+            // Set x and y coordinates of an object rotated anti-clockwise
+            rotateObjectAntiClockwise: function (object, rotationAmount) {
+
+                var left;
+                var top;
+                var zoomLevel = this.canvas.getZoom();
+                var canvasActualHeight = this.canvas.height / zoomLevel; // Need to take zoom level into account to get actual width
+
+                if (rotationAmount === 3) {
+                    left = object.top;
+                    top = canvasActualHeight - object.left;
+                }
+
+                return {
+                    left: left,
+                    top: top
+                };
+            },
+
+            // Pan the canvas to specified x and y coordinates
+            move: function (coords) {
+                this.canvas.absolutePan(coords);
+            },
+
+            // Reset the canvas to original state
+            reset: function () {
+
+                // Clear the objects
+                this.clear();
+
+                // Pan to top left
+                this.move({
+                    x: 0,
+                    y: 0
+                });
+
+                // Reset current annotation width
+                this.currentAnnotationWidth = 0;
+
+                // Set the zoom back to 1
+                this.canvas.setZoom(1);
+            },
+
+            // Free draw annotation
+            freeDraw: function () {
+
+                this.canvas.isDrawingMode = true;
+                this.canvas.selection = true;
+                this.canvas.freeDrawingBrush.color = this.defaultBrushColour;
+                this.canvas.freeDrawingBrush.width = 5;
+                this.deleteMode = false;
+
+                // Set all objects selectable
+                this.setAllObjectsSelectable(true);
+            },
+
+            // Go into canvas selection mode
+            selectAnnotations: function () {
+                this.canvas.isDrawingMode = false;
+                this.canvas.selection = true;
+                this.deleteMode = false;
+
+                // Set all objects selectable
+                this.setAllObjectsSelectable(true);
+            },
+
+            // Add a circle
+            addCircle: function () {
+
+                var ratio = this.canvas.getZoom() > 0.75 ? 200 : 700;
+                var zoom = this.canvas.getZoom() > 1 ? 1 : this.canvas.getZoom();
+                var topPosition = (zoom * ratio) + -this.canvas._offset.top;
+
+                if (topPosition < 100) {
+                    topPosition = 100;
+                }
+
+                if (topPosition > this.canvas.height) {
+                    topPosition = this.canvas.height - 100;
+                }
+
+                var circle = new window.fabric.Circle({
+                    radius: 50,
+                    stroke: this.defaultStrokeColour,
+                    fill: this.defaultFillColour,
+                    top: topPosition,
+                    left: this.canvas.getCenter().left / 2,
+                    opacity: 0.8
+                });
+
+                this.canvas.isDrawingMode = false;
+                this.canvas.selection = true;
+                this.deleteMode = false;
+
+                // Set all objects selectable
+                this.setAllObjectsSelectable(true);
+
+                this.canvas.add(circle);
+
+            },
+
+            // Add a rectangle
+            addRect: function () {
+
+                var ratio = this.canvas.getZoom() > 0.75 ? 200 : 700;
+                var zoom = this.canvas.getZoom() > 1 ? 1 : this.canvas.getZoom();
+                var topPosition = (zoom * ratio) + -this.canvas._offset.top;
+
+                if (topPosition < 150) {
+                    topPosition = 150;
+                }
+
+                if (topPosition > this.canvas.height) {
+                    topPosition = this.canvas.height - 150;
+                }
+
+                var rect = new window.fabric.Rect({
+                    width: 100,
+                    height: 100,
+                    stroke: this.defaultStrokeColour,
+                    fill: this.defaultFillColour,
+                    top: topPosition,
+                    left: this.canvas.getCenter().left / 2,
+                    opacity: 0.8
+                });
+
+                this.canvas.isDrawingMode = false;
+                this.canvas.selection = true;
+                this.deleteMode = false;
+
+                // Set all objects selectable
+                this.setAllObjectsSelectable(true);
+
+                this.canvas.add(rect);
+            },
+
+            // Add text
+            addText: function () {
+
+                var ratio = this.canvas.getZoom() > 0.75 ? 200 : 700;
+                var zoom = this.canvas.getZoom() > 1 ? 1 : this.canvas.getZoom();
+                var topPosition = (zoom * ratio) + -this.canvas._offset.top;
+
+                if (topPosition < 100) {
+                    topPosition = 100;
+                }
+
+                if (topPosition > this.canvas.height) {
+                    topPosition = this.canvas.height - 100;
+                }
+
+                var textObjext = new window.fabric.IText('Start typing..', {
+                    top: topPosition,
+                    left: this.canvas.getCenter().left / 2,
+                    fill: this.defaultTextColour,
+                    fontFamily: 'Roboto, Noto'
+                });
+
+                this.canvas.isDrawingMode = false;
+                this.canvas.selection = true;
+                this.deleteMode = false;
+
+                // Set all objects selectable
+                this.setAllObjectsSelectable(true);
+
+                this.canvas.add(textObjext);
+
+                // Automatically enter editing mode and select all text so user can just start typing
+                this.canvas.setActiveObject(textObjext);
+                textObjext.enterEditing();
+                textObjext.selectAll();
+            },
+
+            // Add a rectangle with highlight colour
+            highlightText: function () {
+
+                var ratio = this.canvas.getZoom() > 0.75 ? 200 : 700;
+                var zoom = this.canvas.getZoom() > 1 ? 1 : this.canvas.getZoom();
+                var topPosition = (zoom * ratio) + -this.canvas._offset.top;
+
+                if (topPosition < 40) {
+                    topPosition = 40;
+                }
+
+                if (topPosition > this.canvas.height) {
+                    topPosition = this.canvas.height - 40;
+                }
+
+                var highlight = new window.fabric.Rect({
+                    width: 100,
+                    height: 20,
+                    fill: this.defaultHighlightFillColour,
+                    stroke: this.defaultHighlightFillColour,
+                    top: topPosition,
+                    left: this.canvas.getCenter().left / 2,
+                    opacity: 0.4,
+                    hideEditor: true
+                });
+
+                this.canvas.isDrawingMode = false;
+                this.canvas.selection = true;
+                this.deleteMode = false;
+
+                // Set all objects selectable
+                this.setAllObjectsSelectable(true);
+
+                this.canvas.add(highlight);
+            },
+
+            // Add a rectangle with redaction colour
+            redaction: function () {
+
+                var ratio = this.canvas.getZoom() > 0.75 ? 200 : 700;
+                var zoom = this.canvas.getZoom() > 1 ? 1 : this.canvas.getZoom();
+                var topPosition = (zoom * ratio) + -this.canvas._offset.top;
+
+                if (topPosition < 40) {
+                    topPosition = 40;
+                }
+
+                if (topPosition > this.canvas.height) {
+                    topPosition = this.canvas.height - 40;
+                }
+
+                var redaction = new window.fabric.Rect({
+                    width: 100,
+                    height: 20,
+                    fill: this.defaultRedactionColour,
+                    stroke: this.defaultRedactionColour,
+                    top: topPosition,
+                    left: this.canvas.getCenter().left / 2,
+                    opacity: 1,
+                    hideEditor: true
+                });
+
+                this.canvas.isDrawingMode = false;
+                this.canvas.selection = true;
+                this.deleteMode = false;
+
+                // Set all objects selectable
+                this.setAllObjectsSelectable(true);
+
+                this.canvas.add(redaction);
+            },
+
+            // Add a line
+            addLine: function () {
+
+                var ratio = this.canvas.getZoom() > 0.75 ? 200 : 700;
+                var zoom = this.canvas.getZoom() > 1 ? 1 : this.canvas.getZoom();
+                var topPosition = (zoom * ratio) + -this.canvas._offset.top;
+
+                if (topPosition < 40) {
+                    topPosition = 40;
+                }
+
+                if (topPosition > this.canvas.height) {
+                    topPosition = this.canvas.height - 40;
+                }
+
+                var line = new window.fabric.Line([50, 150, 200, 150], {
+                    stroke: this.defaultLineColour,
+                    strokeWidth: 2,
+                    top: topPosition,
+                    left: this.canvas.getCenter().left / 2
+                });
+
+                this.canvas.isDrawingMode = false;
+                this.canvas.selection = true;
+                this.deleteMode = false;
+
+                // Set all objects selectable
+                this.setAllObjectsSelectable(true);
+
+                this.canvas.add(line);
+            },
+
+            // Set delete mode
+            deleteAnnotation: function () {
+
+                this.canvas.isDrawingMode = false;
+                this.canvas.selection = true;
+                this.deleteMode = true;
+                this.showEditor = false;
+
+                // Set all objects selectable
+                this.setAllObjectsSelectable(true);
+
+                // Call deleteObject directly which will delete any currently selected objects
+                this.deleteObject();
+            },
+
+            // Delete Active Objects
+            // ToDo: Add confirmation dialog
+            deleteObject: function () {
+
+                var selectedObject = this.canvas.getActiveObject();
+                var selectedGroup = this.canvas.getActiveGroup();
+
+                // If one object is selected
+                if (selectedObject) {
+                    this.canvas.remove(selectedObject);
+                } else if (selectedGroup) {
+
+                    selectedGroup.forEachObject(function (selectedObject) {
+                        this.canvas.remove(selectedObject);
+                    }.bind(this));
+
+                    this.canvas.discardActiveGroup().renderAll();
+                }
+            },
+
+            // Make all objects selectable/unselectable, e.g for zoom
+            setAllObjectsSelectable: function (selectable) {
+
+                var canvasObjects = this.canvas.getObjects();
+
+                if (canvasObjects.length > 0) {
+
+                    canvasObjects.forEach(function (canvasObject) {
+                        canvasObject.selectable = selectable;
+                    }.bind(this));
+                }
+            },
+
+            // pointerClass is used to let the user click through the annotation canvas layer when necessary
+            setPointerClass: function () {
+
+                var $canvasContainer = this.querySelector('.canvas-container');
+
+                if ($canvasContainer) {
+
+                    if (this.pointerEvents) {
+                        $canvasContainer.style.pointerEvents = 'auto';
+
+                        if (this.annotationType === 'pdf') {
+                            this.style.pointerEvents = 'auto';
+                        }
+                    } else {
+                        $canvasContainer.style.pointerEvents = 'none';
+
+                        if (this.annotationType === 'pdf') {
+                            this.style.pointerEvents = 'none';
+                        }
+                    }
+                }
             }
-          }
-
-          // Keep record of current width for next time
-          this.currentAnnotationWidth = this.annotationWidth;
-        }
-      },
-
-      // Set canvas zoom level
-      zoom: function(scaleFactor) {
-
-        // Set all objects unselectable
-        this.setAllObjectsSelectable(false);
-
-        this.canvas.isDrawingMode = false;
-        this.canvas.selection = false;
-
-        this.canvas.setZoom(scaleFactor);
-      },
-
-      // Set canvas zoom level
-      rotate: function(degrees) {
-
-        var angle = degrees;
-
-        this.canvas.getObjects().forEach(function (object) {
-
-          var coords;
-
-          // Rotate could be called just by a page scroll or as the result of a Zoom, in which case, do nothing
-          if (degrees === object.angle) {
-            return;
-          }
-
-          coords = this.getRotationCoords(object, degrees);
-
-          object.set({
-            angle: angle,
-            left: coords.left,
-            top: coords.top
-          });
-
-          object.setCoords();
-
-          this.canvas.renderAll();
-
-        }.bind(this));
-      },
-
-      // Set x and y coordinates of an object rotated clockwise
-      getRotationCoords: function(object, degrees) {
-
-        // Pages could be rotated 180 or 270 degrees while canvas is off screen.
-        // Need to calculate how many times to rotate based off difference
-        var rotationAmount = (degrees - object.angle) / 90;
-
-        var left;
-        var top;
-        var zoomLevel = this.canvas.getZoom();
-        var canvasActualWidth = this.canvas.width / zoomLevel; // Need to take zoom level into account to get actual width
-        var canvasActualHeight = this.canvas.height / zoomLevel; // Need to take zoom level into account to get actual width
-
-        // PDF can be rotated several times with annotations out of view
-        if (rotationAmount === 1 || rotationAmount === -3) {
-          top = object.left;
-          left = canvasActualWidth - object.top;
-        } else if (rotationAmount === 2) {
-          left = canvasActualWidth - object.left;
-          top = canvasActualHeight - object.top;
-        } else if (rotationAmount === -1 || rotationAmount === 3) {
-          left = object.top;
-          top = canvasActualHeight - object.left;
-        }
-
-        return {
-          left: left,
-          top: top
-        };
-      },
-
-      // Set x and y coordinates of an object rotated anti-clockwise
-      rotateObjectAntiClockwise: function(object, rotationAmount) {
-
-        var left;
-        var top;
-        var zoomLevel = this.canvas.getZoom();
-        var canvasActualHeight = this.canvas.height / zoomLevel; // Need to take zoom level into account to get actual width
-
-        if (rotationAmount === 3) {
-          left = object.top;
-          top = canvasActualHeight - object.left;
-        }
-
-        return {
-          left: left,
-          top: top
-        };
-      },
-
-      // Pan the canvas to specified x and y coordinates
-      move: function(coords) {
-        this.canvas.absolutePan(coords);
-      },
-
-      // Reset the canvas to original state
-      reset: function() {
-
-        // Clear the objects
-        this.clear();
-
-        // Pan to top left
-        this.move({
-          x: 0,
-          y: 0
         });
-
-        // Reset current annotation width
-        this.currentAnnotationWidth = 0;
-
-        // Set the zoom back to 1
-        this.canvas.setZoom(1);
-      },
-
-      // Free draw annotation
-      freeDraw: function() {
-
-        this.canvas.isDrawingMode = true;
-        this.canvas.selection = true;
-        this.canvas.freeDrawingBrush.color = this.defaultBrushColour;
-        this.canvas.freeDrawingBrush.width = 5;
-        this.deleteMode = false;
-
-        // Set all objects selectable
-        this.setAllObjectsSelectable(true);
-      },
-
-      // Go into canvas selection mode
-      selectAnnotations: function() {
-        this.canvas.isDrawingMode = false;
-        this.canvas.selection = true;
-        this.deleteMode = false;
-
-        // Set all objects selectable
-        this.setAllObjectsSelectable(true);
-      },
-
-      // Add a circle
-      addCircle: function() {
-
-        var circle = new window.fabric.Circle({
-          radius: 80,
-          stroke: this.defaultStrokeColour,
-          strokeWidth: this.defaultStrokeWidth,
-          fill: this.defaultFillColour,
-          top: this.canvas.getCenter().top / 2,
-          left: this.canvas.getCenter().left / 2,
-          opacity: 1
-        });
-
-        this.canvas.isDrawingMode = false;
-        this.canvas.selection = true;
-        this.deleteMode = false;
-
-        // Set all objects selectable
-        this.setAllObjectsSelectable(true);
-
-        this.canvas.add(circle);
-
-      },
-
-      // Add a rectangle
-      addRect: function() {
-
-        var rect = new window.fabric.Rect({
-          width: 100,
-          height: 100,
-          stroke: this.defaultStrokeColour,
-          strokeWidth: this.defaultStrokeWidth,
-          fill: this.defaultFillColour,
-          top: this.canvas.getCenter().top / 2,
-          left: this.canvas.getCenter().left / 2,
-          opacity: 1
-        });
-
-        this.canvas.isDrawingMode = false;
-        this.canvas.selection = true;
-        this.deleteMode = false;
-
-        // Set all objects selectable
-        this.setAllObjectsSelectable(true);
-
-        this.canvas.add(rect);
-      },
-
-      // Add text
-      addText: function() {
-
-        var textObjext = new window.fabric.IText('Start typing..', {
-          top: this.canvas.getCenter().top / 2,
-          left: this.canvas.getCenter().left / 2,
-          fill: this.defaultTextColour,
-          fontFamily: 'Roboto, Noto'
-        });
-
-        this.canvas.isDrawingMode = false;
-        this.canvas.selection = true;
-        this.deleteMode = false;
-
-        // Set all objects selectable
-        this.setAllObjectsSelectable(true);
-
-        this.canvas.add(textObjext);
-
-        // Automatically enter editing mode and select all text so user can just start typing
-        this.canvas.setActiveObject(textObjext);
-        textObjext.enterEditing();
-        textObjext.selectAll();
-      },
-
-      // Add a rectangle with highlight colour
-      highlightText: function() {
-
-        var highlight = new window.fabric.Rect({
-          width: 100,
-          height: 20,
-          fill: this.defaultHighlightFillColour,
-          stroke: this.defaultHighlightFillColour,
-          top: this.canvas.getCenter().top / 2,
-          left: this.canvas.getCenter().left / 2,
-          opacity: 0.4,
-          hideEditor: true
-        });
-
-        this.canvas.isDrawingMode = false;
-        this.canvas.selection = true;
-        this.deleteMode = false;
-
-        // Set all objects selectable
-        this.setAllObjectsSelectable(true);
-
-        this.canvas.add(highlight);
-      },
-
-      // Add a rectangle with redaction colour
-      redaction: function() {
-
-        var redaction = new window.fabric.Rect({
-          width: 100,
-          height: 20,
-          fill: this.defaultRedactionColour,
-          stroke: this.defaultRedactionColour,
-          top: this.canvas.getCenter().top / 2,
-          left: this.canvas.getCenter().left / 2,
-          opacity: 1,
-          hideEditor: true
-        });
-
-        this.canvas.isDrawingMode = false;
-        this.canvas.selection = true;
-        this.deleteMode = false;
-
-        // Set all objects selectable
-        this.setAllObjectsSelectable(true);
-
-        this.canvas.add(redaction);
-      },
-
-      // Add a line
-      addLine: function() {
-
-        var line = new window.fabric.Line([50, 150, 200, 150], {
-          stroke: this.defaultLineColour,
-          strokeWidth: 2,
-          top: this.canvas.getCenter().top / 2,
-          left: this.canvas.getCenter().left / 2
-        });
-
-        this.canvas.isDrawingMode = false;
-        this.canvas.selection = true;
-        this.deleteMode = false;
-
-        // Set all objects selectable
-        this.setAllObjectsSelectable(true);
-
-        this.canvas.add(line);
-      },
-
-      // Set delete mode
-      deleteAnnotation: function() {
-
-        this.canvas.isDrawingMode = false;
-        this.canvas.selection = true;
-        this.deleteMode = true;
-        this.showEditor = false;
-
-        // Set all objects selectable
-        this.setAllObjectsSelectable(true);
-
-        // Call deleteObject directly which will delete any currently selected objects
-        this.deleteObject();
-      },
-
-      // Delete Active Objects
-      // ToDo: Add confirmation dialog
-      deleteObject: function() {
-
-        var selectedObject = this.canvas.getActiveObject();
-        var selectedGroup = this.canvas.getActiveGroup();
-
-        // If one object is selected
-        if (selectedObject) {
-          this.canvas.remove(selectedObject);
-        } else if (selectedGroup) {
-
-          selectedGroup.forEachObject(function(selectedObject) {
-            this.canvas.remove(selectedObject);
-          }.bind(this));
-
-          this.canvas.discardActiveGroup().renderAll();
-        }
-      },
-
-      // Make all objects selectable/unselectable, e.g for zoom
-      setAllObjectsSelectable: function(selectable) {
-
-        var canvasObjects = this.canvas.getObjects();
-
-        if (canvasObjects.length > 0) {
-
-          canvasObjects.forEach(function(canvasObject) {
-            canvasObject.selectable = selectable;
-          }.bind(this));
-        }
-      },
-
-      // pointerClass is used to let the user click through the annotation canvas layer when necessary
-      setPointerClass: function() {
-
-        var $canvasContainer = this.querySelector('.canvas-container');
-
-        if ($canvasContainer) {
-
-          if (this.pointerEvents) {
-            $canvasContainer.style.pointerEvents = 'auto';
-
-            if (this.annotationType === 'pdf') {
-              this.style.pointerEvents = 'auto';
-            }
-          } else {
-            $canvasContainer.style.pointerEvents = 'none';
-
-            if (this.annotationType === 'pdf') {
-              this.style.pointerEvents = 'none';
-            }
-          }
-        }
-      }
-    });
-  })();
+    })();
 </script>
