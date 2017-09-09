@@ -38,7 +38,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           selected-source-file-type="[[selectedSourceFileType]]"
           edit-state="[[editState]]"
           source-actions="[[sourceActions]]"
-          presentation-state="[[presentationState]]"></epe-pdf-viewer>
+          presentation-state="[[presentationState]]"
+          on-focus-search="focusSearch"></epe-pdf-viewer>
       </section>
 
       <!-- Media Section -->
@@ -155,6 +156,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var errorObject = detail ? error.detail : error;
       this.fire('source-error', errorObject);
+    },
+
+    // Fire event up to focus search
+    focusSearch: function() {
+      this.fire('focus-search');
     }
   });
 })();

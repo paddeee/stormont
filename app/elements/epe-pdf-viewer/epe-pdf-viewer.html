@@ -175,6 +175,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
     </div>
 
+    <iron-a11y-keys id="a11ySearch" target="[[target]]" keys="s" on-keys-pressed="focusSearch"></iron-a11y-keys>
+
     <div class="pdf layout horizontal" tabindex="1">
 
       <!-- ToDo: Sidebar - Can turn on at later date by removing hidden and sorting toggle functionality for it -->
@@ -276,6 +278,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <div class="pdf_button-holder border-left border-right horizontal layout center">
             <paper-icon-button id="sidebarToggle" tabindex="11" icon="toggle" hidden></paper-icon-button>
             <div id="SelectText" class="select-text" on-tap="selectText">I</div>
+            <paper-icon-button id="RedactText" icon="indeterminate-check-box" on-tap="redactText"></paper-icon-button>
             <iron-a11y-keys id="a11yZoomSection" target="[[target]]" keys="5" on-keys-pressed="selectSection"></iron-a11y-keys>
             <paper-icon-button id="ZoomSection" icon="flip-to-front" on-tap="selectSection"></paper-icon-button>
             <paper-icon-button id="Previous" icon="arrow-back" on-tap="showPreviousPage"></paper-icon-button>
@@ -313,6 +316,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           <paper-tooltip for="sidebarToggle" position="top" offset="0">SideBar Toggle</paper-tooltip>
           <paper-tooltip for="SelectText" position="top" offset="0">Select Text</paper-tooltip>
+          <paper-tooltip for="RedactText" position="top" offset="0">Redact Text</paper-tooltip>
           <paper-tooltip for="ZoomSection" position="top" offset="0">Zoom Section</paper-tooltip>
           <paper-tooltip for="Previous" position="top" offset="0">Previous Page</paper-tooltip>
           <paper-tooltip for="Next" position="top" offset="0">Next Page</paper-tooltip>
@@ -574,6 +578,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
       }
+    },
+
+    // Fire event up to focus search
+    focusSearch: function(e) {
+      e.preventDefault();
+      this.fire('focus-search');
     },
 
     // Remove redaction class

@@ -159,6 +159,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
 
+    <iron-a11y-keys id="a11ySearch" target="[[target]]" keys="s" on-keys-pressed="focusSearch"></iron-a11y-keys>
+
     <epe-inactivity
       id="InActivityMask"
       on-lock-application="lockApplication"
@@ -249,6 +251,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                  on-tap="openPublishDialog"
                                  hidden="[[hidePublishButton()]]"
                                  class="nav-icon"></paper-icon-button>
+              <iron-a11y-keys id="a11yPublishButton" target="[[target]]" keys="8" on-keys-pressed="openPublishDialog"></iron-a11y-keys>
             </div>
           </div>
 
@@ -264,7 +267,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                      type="search"
                      label="Search"
                      value=""
-                     on-search="userInputChanged">
+                     on-search="userInputChanged"
+                     tabIndex="1">
               </input>
             </div>
             <div class="search-icon-holder">
@@ -318,7 +322,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               on-package-view-changed="packageViewChanged"
               on-data-grid-changed="dataGridChanged"
               on-profile-changed="profileChanged"
-              on-source-changed="sourceChanged"></epe-create-package>
+              on-source-changed="sourceChanged"
+              on-focus-search="focusSearch"></epe-create-package>
           </section>
         </iron-pages>
 
@@ -528,6 +533,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         var pathDivider;
 
+        this.$.a11yPublishButton.target = document.querySelector('body');
+        this.$.a11ySearch.target = document.querySelector('body');
+
         if (this.screenStore) {
 
           // When the presentations data is updated, set this view's presentationsData
@@ -603,6 +611,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         } else {
           this.$.MainToolBar.removeAttribute('hidden');
         }
+      },
+
+      // Focus Search Bar
+      focusSearch: function() {
+
+        var input = this.querySelector('.search-input');
+
+        this.async(function() {
+          input.focus();
+        });
       },
 
       // Display relevant message to user

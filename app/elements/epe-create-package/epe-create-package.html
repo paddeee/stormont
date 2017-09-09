@@ -175,7 +175,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           on-source-error="sourceFileError"
           on-no-records="noRecords"
           on-navigate-to-source-viewer="navigateToSourceViewer"
-          on-navigate-to-data-grid="navigateToDataGrid"></epe-source-viewer>
+          on-navigate-to-data-grid="navigateToDataGrid"
+          on-focus-search="focusSearch"></epe-source-viewer>
       </section>
     </iron-pages>
 
@@ -300,6 +301,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.presentationState = presentationsStore.presentationState;
           }.bind(this));
         }
+      },
+
+      // Fire event up to focus search
+      focusSearch: function() {
+        this.fire('focus-search');
       },
 
       // If one result jump directly to the document
