@@ -586,7 +586,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       e.preventDefault();
 
       // If user is typing in pdf search field don't focus search
-      if (e.detail.keyboardEvent.target.id === 'findInput') {
+      if (e.detail.keyboardEvent && e.detail.keyboardEvent.target.id === 'findInput') {
         return;
       }
 
@@ -901,11 +901,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     fitToWidth: function(e) {
 
       // If user is typing in pdf search field don't focus search
-      if (e.detail.keyboardEvent.target.id === 'findInput') {
+      if (e.detail.keyboardEvent && e.detail.keyboardEvent.target.id === 'findInput') {
         return;
       }
-
-
 
       // Add selected class to button
       this.manageSelectedButtonClass(this.querySelector('#FitToWidth'));
@@ -1049,7 +1047,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     addCircle: function(e) {
 
       // If user is typing in pdf search field don't focus search
-      if (e.detail.keyboardEvent.target.id === 'findInput') {
+      if (e.detail.keyboardEvent && e.detail.keyboardEvent.target.id === 'findInput') {
         return;
       }
 
@@ -1070,7 +1068,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     addRect: function(e) {
 
       // If user is typing in pdf search field don't focus search
-      if (e.detail.keyboardEvent.target.id === 'findInput') {
+      if (e.detail.keyboardEvent && e.detail.keyboardEvent.target.id === 'findInput') {
         return;
       }
 
@@ -1107,7 +1105,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     highlightText: function(e) {
 
       // If user is typing in pdf search field don't focus search
-      if (e.detail.keyboardEvent.target.id === 'findInput') {
+      if (e.detail.keyboardEvent && e.detail.keyboardEvent.target.id === 'findInput') {
         return;
       }
 
@@ -1128,7 +1126,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     addRedaction: function(e) {
 
       // If user is typing in pdf search field don't focus search
-      if (e.detail.keyboardEvent.target.id === 'findInput') {
+      if (e.detail.keyboardEvent && e.detail.keyboardEvent.target.id === 'findInput') {
         return;
       }
 
@@ -1165,7 +1163,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     deleteAnnotation: function(e) {
 
       // If user is typing in pdf search field don't focus search
-      if (e.detail.keyboardEvent.target.id === 'findInput') {
+      if (e.detail.keyboardEvent && e.detail.keyboardEvent.target.id === 'findInput') {
         return;
       }
 
