@@ -584,6 +584,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Fire event up to focus search
     focusSearch: function(e) {
       e.preventDefault();
+
+      // If user is typing in pdf search field don't focus search
+      if (e.detail.keyboardEvent.target.id === 'findInput') {
+        return;
+      }
+
       this.fire('focus-search');
     },
 
@@ -633,6 +639,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var pageContainer;
       var pdfViewer = this;
       var viewerContainer = this.querySelector('#viewerContainer');
+
+      // If user is typing in pdf search field don't focus search
+      if (event && event.detail.keyboardEvent.target.id === 'findInput') {
+        return;
+      }
 
       if (!event && this.selectSectionSelected === false) {
         return;
@@ -825,6 +836,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Zoom in to PDF
     zoomIn: function(event) {
 
+      // If user is typing in pdf search field don't focus search
+      if (event.detail.keyboardEvent.target.id === 'findInput') {
+        return;
+      }
+
       // Add selected class to button
       if (event) {
         this.manageSelectedButtonClass(this.querySelector('#ZoomIn'));
@@ -843,6 +859,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Zoom out of PDF
     zoomOut: function(event) {
+
+      // If user is typing in pdf search field don't focus search
+      if (event.detail.keyboardEvent.target.id === 'findInput') {
+        return;
+      }
 
       // Add selected class to button
       if (event) {
@@ -877,7 +898,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Fit PDF Scale to width
-    fitToWidth: function() {
+    fitToWidth: function(e) {
+
+      // If user is typing in pdf search field don't focus search
+      if (e.detail.keyboardEvent.target.id === 'findInput') {
+        return;
+      }
+
+
 
       // Add selected class to button
       this.manageSelectedButtonClass(this.querySelector('#FitToWidth'));
@@ -895,6 +923,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Fit PDF Scale to page
     fitToPage: function(event) {
+
+      // If user is typing in pdf search field don't focus search
+      if (event.detail.keyboardEvent.target.id === 'findInput') {
+        return;
+      }
 
       // Add selected class to button
       if (event) {
@@ -1013,7 +1046,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Add circle annotation
-    addCircle: function() {
+    addCircle: function(e) {
+
+      // If user is typing in pdf search field don't focus search
+      if (e.detail.keyboardEvent.target.id === 'findInput') {
+        return;
+      }
 
       // Make annotation layer pick up pointer events
       this.pointerEvents = true;
@@ -1029,7 +1067,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Add rectangle annotation
-    addRect: function() {
+    addRect: function(e) {
+
+      // If user is typing in pdf search field don't focus search
+      if (e.detail.keyboardEvent.target.id === 'findInput') {
+        return;
+      }
 
       // Make annotation layer pick up pointer events
       this.pointerEvents = true;
@@ -1061,7 +1104,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Highlight text
-    highlightText: function() {
+    highlightText: function(e) {
+
+      // If user is typing in pdf search field don't focus search
+      if (e.detail.keyboardEvent.target.id === 'findInput') {
+        return;
+      }
 
       // Make annotation layer pick up pointer events
       this.pointerEvents = true;
@@ -1077,7 +1125,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Add Redaction
-    addRedaction: function() {
+    addRedaction: function(e) {
+
+      // If user is typing in pdf search field don't focus search
+      if (e.detail.keyboardEvent.target.id === 'findInput') {
+        return;
+      }
 
       // Make annotation layer pick up pointer events
       this.pointerEvents = true;
@@ -1109,7 +1162,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     // Delete selected annotation
-    deleteAnnotation: function() {
+    deleteAnnotation: function(e) {
+
+      // If user is typing in pdf search field don't focus search
+      if (e.detail.keyboardEvent.target.id === 'findInput') {
+        return;
+      }
 
       // Make annotation layer pick up pointer events
       this.pointerEvents = true;

@@ -618,6 +618,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         var input = this.querySelector('.search-input');
 
+        // If user is typing in pdf search field don't focus search
+        if (event.detail.keyboardEvent.target.id === 'findInput') {
+          return;
+        }
+
         this.async(function() {
           input.focus();
         });
