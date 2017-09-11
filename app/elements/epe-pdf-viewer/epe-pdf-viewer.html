@@ -641,7 +641,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var viewerContainer = this.querySelector('#viewerContainer');
 
       // If user is typing in pdf search field don't focus search
-      if (event && event.detail.keyboardEvent.target.id === 'findInput') {
+      if (event && event.detail.keyboardEvent && event.detail.keyboardEvent.target.id === 'findInput') {
         return;
       }
 
@@ -837,7 +837,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     zoomIn: function(event) {
 
       // If user is typing in pdf search field don't focus search
-      if (event.detail.keyboardEvent.target.id === 'findInput') {
+      if (event.detail.keyboardEvent && event.detail.keyboardEvent.target.id === 'findInput') {
         return;
       }
 
@@ -861,7 +861,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     zoomOut: function(event) {
 
       // If user is typing in pdf search field don't focus search
-      if (event.detail.keyboardEvent.target.id === 'findInput') {
+      if (event.detail.keyboardEvent && event.detail.keyboardEvent.target.id === 'findInput') {
         return;
       }
 
@@ -923,7 +923,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     fitToPage: function(event) {
 
       // If user is typing in pdf search field don't focus search
-      if (event.detail.keyboardEvent.target.id === 'findInput') {
+      if (event.detail.keyboardEvent && event.detail.keyboardEvent.target.id === 'findInput') {
         return;
       }
 

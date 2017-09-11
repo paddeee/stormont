@@ -327,7 +327,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }
 
           if (this.mediaType === 'video') {
-            this.hideAnnotations = false;
 
             if (this.videoType === 'webChimera') {
               this.createVideo();
@@ -335,9 +334,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               this.createVideoJS();
             }
           } else if (this.mediaType === 'audio') {
-            this.hideAnnotations = true;
             this.createAudioJS();
           }
+
+          this.hideAnnotations = true;
         }
       },
 
