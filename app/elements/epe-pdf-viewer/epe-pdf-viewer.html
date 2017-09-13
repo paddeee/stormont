@@ -734,14 +734,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     zoomSection: function(rectangle) {
 
       var canvasPage = this.querySelector('#page' + this.page);
+      var retinaSize = Math.round(canvasPage.width / canvasPage.clientWidth);
       var viewerContainer = this.querySelector('#viewerContainer');
       var containerWidth = viewerContainer.clientWidth;
       var containerHeight = viewerContainer.clientHeight;
       var zoomSection;
-      var x = rectangle.startX * 2;
-      var y = rectangle.startY * 2;
-      var h = Math.abs(rectangle.h * 2);
-      var w = Math.abs(rectangle.w * 2);
+      var x = rectangle.startX * retinaSize;
+      var y = rectangle.startY * retinaSize;
+      var h = Math.abs(rectangle.h * retinaSize);
+      var w = Math.abs(rectangle.w * retinaSize);
       var aspectRatio = h / w;
 
       zoomSection = this.copyCanvasRegionToBuffer(canvasPage, x, y, w, h);
