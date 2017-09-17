@@ -474,6 +474,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       hideAnnotations: {
         type: Boolean,
         value: false
+      },
+
+      reRenderedPage: {
+        type: Number,
+        value: 0
       }
     },
 
@@ -510,6 +515,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.addAnnnotationsLayerToPage(event.target);
 
         this.addSelectionZoomCanvasToPage(event.target);
+
+        if (this.page === this.reRenderedPage) {
+          return;
+        } else {
+          window.PDFViewerApplication.pdfViewer.currentScaleValue = 'page-fit';
+          this.reRenderedPage = this.page;
+        }
 
       }.bind(this), true);
 
@@ -895,7 +907,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       document.querySelector('#mainContainer').scrollTop = 0;
 
       // Set PDF Scale to actual size
-      window.PDFViewerApplication.pdfViewer.currentScaleValue = 'auto';
+      window.PDFViewerApplication.pdfViewer.currentScaleValue = 'page-fit';
     },
 
     // Fit PDF Scale to width
